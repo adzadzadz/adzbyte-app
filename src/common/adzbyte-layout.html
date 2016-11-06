@@ -1,0 +1,114 @@
+<dom-module id="adzbyte-layout">
+	<template>
+		<style>
+			:host {
+        --iron-container-max-width: 1920px;
+        --iron-container-width: 100%;
+      }
+      iron-grid-container {
+        @apply(--iron-container-width);
+      }
+      .stick {
+      	padding: 0 !important;
+      	margin: 0 !important;
+      }
+			app-header {
+				height: 64px;
+				color: #FFFFFF;
+				background: var(--dark-primary-color);
+			}
+			.content-height {
+				height: 486px;
+			}
+			#hero-main {
+				background: var(--default-primary-color);
+			}
+			.divider {
+				background: var(--divider-color);
+			}
+			#main-menu a {
+				font-size: .9em;
+				color: #fff;
+				text-decoration: none;
+				padding: 10px 5px;
+			}
+			#top-logo {
+				height: 20px;
+				width: 20px;
+				display: inline;
+			}
+			#main-toolbar {
+				height: 148px;
+			}
+			#main-title {
+				margin-left: 150px;
+			}
+			#search-icon {
+				margin-left: 10px;
+			}
+			#upper-footer {
+				height: 70px;
+				background: #424242;
+			}
+			#center-footer {
+				height: 250px;
+				background: #212121;
+			}
+		</style>
+
+		<app-header-layout>
+		  <app-header fixed effects="waterfall" shadow>
+			  <app-toolbar>
+			  		<div main-title>
+				      <h3>
+				      	<img src="../../../imgs/logo-001.png" alt="Adzbyte" id="top-logo">
+				      	<span id="condensed-title">Adzbyte</span>
+				      </h3>
+				    </div>
+
+			      <iron-selector id="main-menu">
+					    <a href="#">Portfolio</a>
+					    <a href="#">Team</a>
+					    <a href="#">Contact</a>
+					    <a href="#">Blog</a>
+					  </iron-selector>
+					  <paper-icon-button icon="search" id="search-icon"></paper-icon-button>
+			  </app-toolbar>
+			</app-header>
+			
+			<iron-grid-container>
+        <section id="hero-main" class="content-height">
+        	
+        </section>
+
+        <section class="divider content-height">
+	        <iron-grid>
+	        	<div class="l4 stick">
+	        		<iron-image src="../../imgs/portfolio/choice1.png" sizing="contain" style="height: 400px; width: 100%;"></iron-image>
+	        	</div>
+	        	<div class="l4 stick">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere labore incidunt, vero quia accusantium. Consequuntur voluptas, officia inventore cupiditate! Aliquid fuga aut nam ullam quasi quas cumque ratione! Error, quam.</div>
+	        	<div class="l4 stick">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rerum, aut nihil alias est vel rem excepturi vero quo delectus facere magnam optio perferendis nulla consequatur, ipsam eveniet, molestias cupiditate harum!</div>
+	        </section>
+        </iron-grid>
+      </iron-grid-container>
+
+		  <content></content>
+
+		  <!-- <paper-icon-button icon="menu" on-tap="_toggleDrawer"></paper-icon-button> -->
+		  <div id="footer">
+		  	<div id="upper-footer"></div>
+		  	<div id="center-footer"></div>
+		  </div>
+		</app-header-layout>
+
+	</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is : 'adzbyte-layout',
+		_toggleDrawer: function() {
+			this.$.menuDrawer.toggle();
+		}
+	});
+</script>

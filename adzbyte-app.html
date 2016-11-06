@@ -1,0 +1,84 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<!-- ESENTIALS -->
+<link rel="import" href="bower_components/app-layout/app-layout.html">
+<link rel="import" href="bower_components/app-layout/app-scroll-effects/effects/material.html">
+<link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="bower_components/app-route/app-route.html">
+<link rel="import" href="bower_components/app-route/app-location.html">
+
+<!-- IRON COMPONENTS -->
+<link rel="import" href="bower_components/iron-grid/iron-grid.html">
+<link rel="import" href="bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="bower_components/iron-image/iron-image.html">
+<link rel="import" href="bower_components/iron-icon/iron-icon.html">
+
+<!-- PAPER COMPONENTS -->
+<link rel="import" href="bower_components/paper-card/paper-card.html">
+
+<link rel="import" href="src/common/adzbyte-layout.html">
+<link rel="import" href="src/pages/adzbyte-home.html">
+
+
+<dom-module id="adzbyte-app">
+  <template>
+    <style>
+      :host {
+        --dark-primary-color:       #00796B;
+        --default-primary-color:    #009688;
+        --light-primary-color:      #B2DFDB;
+        --text-primary-color:       #FFFFFF;
+        --accent-color:             #009688;
+        --primary-background-color: #B2DFDB;
+        --primary-text-color:       #212121;
+        --secondary-text-color:     #757575;
+        --disabled-text-color:      #BDBDBD;
+        --divider-color:            #BDBDBD;
+
+
+        /* Components */
+
+        /* paper-drawer-panel */
+        --drawer-menu-color:           #ffffff;
+        --drawer-border-color:         1px solid #ccc;
+        --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+
+        /* paper-menu */
+        --paper-menu-background-color: #fff;
+        --menu-link-color:             #111111;
+
+        /* paper-input */
+        --paper-input-container-color:       rgba(255, 255, 255, 0.64);
+        --paper-input-container-focus-color: rgba(255, 255, 255, 1);
+        --paper-input-container-input-color: #fff;
+      }
+    </style>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="/:page"
+        data="{{data}}"
+        tail="{{tail}}">
+    </app-route>
+
+    <adzbyte-layout>
+      <adzbyte-home></adzbyte-home>
+    </adzbyte-layout>
+    
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+
+    is: 'adzbyte-app',
+
+    properties: {
+
+    },
+
+
+
+  });
+</script>
