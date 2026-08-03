@@ -1,23 +1,23 @@
 # Project Status
 
-**Last updated:** 2026-08-04 (Hostinger release flow and management branding plan committed locally)
+**Last updated:** 2026-08-04 (PHP 8.3 dependency lock corrected and CI restored)
 
 ## Current Stage
 
-Foundation phase F is complete. In addition to the F1 framework and access foundation, both Filament panels now provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. Shared actions create provisional customers and send signed customer activation links for later verified-payment orchestration. The repository-side Hostinger release flow and the management UI branding direction are committed locally but have not been pushed or activated externally.
+Foundation phase F is complete. In addition to the F1 framework and access foundation, both Filament panels now provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. Shared actions create provisional customers and send signed customer activation links for later verified-payment orchestration. The Hostinger release flow, management UI branding direction, and PHP 8.3-compatible dependency lock are on remote `main`; production has not been deployed.
 
 ## In Progress
 
-Nothing. The session-owned repository changes are verified and committed locally.
+Nothing. The PHP 8.3 dependency fix is verified, committed, pushed, and green in GitHub Actions. Production remains unchanged.
 
 ## Up Next
 
 **CI/CD activation task — complete the first explicitly authorized Hostinger
-release.** Push the local `main` commits, allow GitHub Actions content writes,
-create the GitHub `production` environment, and connect Hostinger Git
-auto-deployment after the manual workflow creates `deploy`. Verify the Hostinger
-pull and execute the documented post-pull script over SSH or manually during the
-same release window.
+release.** On a fresh `release` or `deploy` instruction, finish the production
+database and `.env`, configure the scheduler and queue cron jobs, establish a
+usable post-pull SSH or manual execution path, dispatch the manual workflow, and
+connect Hostinger Git auto-deployment to the resulting `deploy` branch. Verify
+the Hostinger pull and post-pull procedure during the same release window.
 
 ## F2 Verification
 
@@ -32,6 +32,10 @@ same release window.
 
 ## CI/CD and Branding Plan Verification
 
+- Remote `main` contains the release flow and the PHP 8.3 dependency correction at commit `937fec5`.
+- GitHub Actions content writes are enabled and the `production` environment exists.
+- CI run 2 passed the full verification workflow after Composer was pinned to a PHP 8.3 resolution platform and Symfony packages were resolved to compatible 7.4 releases.
+- Hostinger preflight confirmed PHP 8.3, active SSH, and a current daily website backup. No application database was visibly assigned, no scheduler or queue cron jobs were configured, and the available local SSH key was not accepted.
 - Full PHP tests remained green at 25 tests and 91 assertions; Pint and the production frontend build passed during setup verification.
 - The CI, manual promotion, Hostinger post-pull, and explicit-command authorization paths were reviewed; workflow/interface YAML and shell syntax checks passed.
 - The release skill passed its validator during creation and has implicit invocation disabled.
@@ -83,13 +87,15 @@ product-and-entitlement slice:
 
 ## Known Issues
 
-- None recorded.
+- Production release prerequisites remain incomplete: the application database and `.env`, both cron jobs, and a usable post-pull authentication path must be established before promoting `main` to `deploy`.
 
 ## Working Tree Handoff
 
-- F1 and F2 remain preserved in prior local history.
+- F1 and F2 remain preserved in prior history.
 - Commit `2ecd1c2` adds the explicit-command Hostinger CI/CD and release flow.
 - Commit `8643a1a` adds the polished management UI branding plan and synchronized documentation.
+- Commit `937fec5` fixes the PHP 8.3 dependency resolution mismatch; GitHub CI run 2 passed.
 - The local super-administrator identity is verified; its password is not stored in the repository.
 - The session-owned development server was stopped.
-- Nothing has been pushed, deployed, or applied to production.
+- Remote `main`, Actions workflow permissions, the GitHub `production` environment, and Hostinger's GitHub repository authorization were updated during the first release attempt.
+- No `deploy` branch was created, Hostinger pulled no application code, and no application change was applied to production.
