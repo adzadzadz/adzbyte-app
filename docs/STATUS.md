@@ -1,28 +1,23 @@
 # Project Status
 
-**Last updated:** 2026-08-04 (F2 complete; D1 product decision prepared for the next session)
+**Last updated:** 2026-08-04 (Hostinger release flow and management branding plan committed locally)
 
 ## Current Stage
 
-Foundation phase F is complete. In addition to the F1 framework and access foundation, both Filament panels now provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. Shared actions create provisional customers and send signed customer activation links for later verified-payment orchestration.
+Foundation phase F is complete. In addition to the F1 framework and access foundation, both Filament panels now provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. Shared actions create provisional customers and send signed customer activation links for later verified-payment orchestration. The repository-side Hostinger release flow and the management UI branding direction are committed locally but have not been pushed or activated externally.
 
 ## In Progress
 
-Nothing. F2 is verified and D1 has not started.
+Nothing. The session-owned repository changes are verified and committed locally.
 
 ## Up Next
 
-**Decision task — Lock the initial product catalog and entitlement baseline before D1.** Confirm or revise the recommended launch configuration:
-
-- Idea Test Page: PHP 99
-- Blog Lite: PHP 199
-- Store Lite: PHP 299
-- Quick Consultation: PHP 99
-- First-Look Mockup and Quote: free, non-checkout lead flow
-- Included hosting: 90 days; reactivation: PHP 49
-- Seed current plan entitlements in D1, while deferring concrete template names until design assets exist
-
-After confirmation, implement the D1 product and versioned-entitlement records, factories, seed data, policies, and tests from the [implementation roadmap](plans/2026-08-04-implementation-roadmap.md).
+**CI/CD activation task — complete the first explicitly authorized Hostinger
+release.** Push the local `main` commits, allow GitHub Actions content writes,
+create the GitHub `production` environment, and connect Hostinger Git
+auto-deployment after the manual workflow creates `deploy`. Verify the Hostinger
+pull and execute the documented post-pull script over SSH or manually during the
+same release window.
 
 ## F2 Verification
 
@@ -34,6 +29,14 @@ After confirmation, implement the D1 product and versioned-entitlement records, 
 - Focused F2 tests: 14 passed, 68 assertions.
 - Full PHP suite: 25 passed, 91 assertions.
 - Configuration caching, Pint, Composer validation, route/middleware inspection, npm dependency audit, and the production asset build passed.
+
+## CI/CD and Branding Plan Verification
+
+- Full PHP tests remained green at 25 tests and 91 assertions; Pint and the production frontend build passed during setup verification.
+- The CI, manual promotion, Hostinger post-pull, and explicit-command authorization paths were reviewed; workflow/interface YAML and shell syntax checks passed.
+- The release skill passed its validator during creation and has implicit invocation disabled.
+- Branding source colors, font weights, logo files, image directories, documentation links, and ownership boundaries were checked against the local `adzbyte-next` source.
+- Repository diffs passed whitespace checks, and no supplied local password, production credential, or private key was found in the committed files.
 
 ## F1 Verification
 
@@ -51,6 +54,7 @@ After confirmation, implement the D1 product and versioned-entitlement records, 
 
 - `adzbyte-next` is the only public product UI.
 - `adzbyte-app` owns all customer and administrator management.
+- The [management branding plan](plans/2026-08-04-management-ui-branding.md) adapts the palette, Poppins typography, wordmark, square mark, and context-appropriate media from `adzbyte-next` into a dark-first Filament system; `adzbyte-app` must copy, optimize, and version what it uses without hotlinks or runtime repository coupling.
 - Both management panels are authenticated Filament panels in this repository.
 - The REST API is built in parallel for restricted integration and later selective Next.js use.
 - Roles begin with `customer`, `administrator`, and `super_admin`.
@@ -63,9 +67,15 @@ After confirmation, implement the D1 product and versioned-entitlement records, 
 
 ## Decisions Needed Later
 
-The first item blocks the opening D1 product-and-entitlement slice and is the exact next-session decision:
+After CI/CD activation, the first item blocks the opening D1
+product-and-entitlement slice:
 
-- Exact product prices, entitlements, templates, and hosting/reactivation terms
+- Exact product prices, entitlements, templates, and hosting/reactivation terms.
+  The current recommendation is Idea Test Page at PHP 99, Blog Lite at PHP 199,
+  Store Lite at PHP 299, Quick Consultation at PHP 99, First-Look Mockup and
+  Quote as a free non-checkout lead flow, 90 days of included hosting, and PHP 49
+  reactivation. Seed the confirmed entitlements in D1 while deferring concrete
+  template names until design assets exist.
 - Elapsed hours versus published business hours for the first-draft window
 - PayMongo methods and refund policy
 - Attachment limits, moderation rules, retention periods, and notification behavior
@@ -77,5 +87,9 @@ The first item blocks the opening D1 product-and-entitlement slice and is the ex
 
 ## Working Tree Handoff
 
-- F1 and F2 application changes, PHP and npm dependency lockfile updates, documentation changes, and project-local skills are preserved in local Git history through coherent session-end commits.
-- No session-owned changes remain uncommitted. Nothing has been pushed, deployed, or applied to production.
+- F1 and F2 remain preserved in prior local history.
+- Commit `2ecd1c2` adds the explicit-command Hostinger CI/CD and release flow.
+- Commit `8643a1a` adds the polished management UI branding plan and synchronized documentation.
+- The local super-administrator identity is verified; its password is not stored in the repository.
+- The session-owned development server was stopped.
+- Nothing has been pushed, deployed, or applied to production.
