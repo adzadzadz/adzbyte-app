@@ -1,24 +1,24 @@
 # Project Status
 
-**Last updated:** 2026-08-04 (management branding M0 and root customer routing completed locally)
+**Last updated:** 2026-08-04 (M1.1 customer Home and navigation foundation completed locally)
 
 ## Current Stage
 
-Foundation phase F and management branding phase M0 are complete. Both Filament panels provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. The customer panel now owns the authenticated root `/` dashboard and root-level auth routes; only administration uses `/admin`. Both panels share the locally bundled Adzbyte theme, Poppins typography, versioned logo assets, explicit panel identity, and accessible dark-first component treatment. Shared actions continue to create provisional customers and send signed customer activation links for later verified-payment orchestration.
+Foundation phase F, management branding phase M0, and the M1.1 customer Home foundation are complete. Both Filament panels provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. The customer panel owns the authenticated root `/` dashboard and root-level auth routes; only administration uses `/admin`. Its first-party Home now replaces the stock account widget with explicit Home navigation, a customer-specific welcome, verified account context, a profile action, and a truthful pre-domain workspace state. Both panels share the locally bundled Adzbyte theme, Poppins typography, versioned logo assets, explicit panel identity, and accessible dark-first component treatment. Shared actions continue to create provisional customers and send signed customer activation links for later verified-payment orchestration.
 
 The previously released PHP 8.3-compatible application remains deployed to Hostinger through the machine-managed `deploy` branch. M0 and the root-route change are verified on `main` but require a future explicitly authorized release before production changes from `/account` to `/`.
 
 ## In Progress
 
-Nothing. M0 implementation and local verification are complete.
+Nothing. M1.1 implementation and local verification are complete.
 
 ## Up Next
 
-**M1.1 first-party customer dashboard foundation — replace the remaining stock
-account-only dashboard content at `/` with a focused customer home and navigation
-foundation that does not introduce catalog records or product-specific business
-rules.** Product/catalog discussion and D1 remain deferred until the authenticated
-application core is functional.
+**M2.1 first-party administrator dashboard foundation — replace the remaining
+stock administrator account widget with a restrained operational shell and
+navigation foundation that introduces no order, payment, SLA, catalog, or
+product-specific rules.** Product/catalog discussion and D1 remain deferred until
+the authenticated application core is functional.
 
 ## F2 Verification
 
@@ -50,6 +50,7 @@ application core is functional.
 - M0 now uses one shared panel configurator and compiled theme, local Fontsource Poppins weights 300–700, three checksum-verified brand assets documented in `resources/brand/assets.json`, forced dark mode, explicit customer/admin identity, and panel-specific density.
 - Customer login, administrator login, activation, and both authenticated dashboards were reviewed at desktop and `320px`; no horizontal overflow or browser-console warning remained, and primary auth actions stayed inside the initial mobile viewport.
 - Focused branding, routing, authentication, and panel-boundary verification passed with 26 tests and 128 assertions; the full PHP suite passed with 28 tests and 131 assertions, and the production Vite build emitted only local Poppins font assets.
+- M1.1 replaces the customer panel's stock account widget with a first-party Home while retaining Filament's panel authorization on every request. Focused dashboard and panel-boundary verification passed with 15 tests and 72 assertions; the full PHP suite passed with 31 tests and 145 assertions, and the production asset build passed.
 - Repository diffs passed whitespace checks, and no supplied local password, production credential, or private key was found in the committed files.
 
 ## F1 Verification
@@ -113,3 +114,4 @@ These product decisions remain intentionally deferred with D1:
 - Hostinger SMTP is active for `notifications@adzbyte.com`; the protected production `.env` holds the mailbox credential and all temporary credential files were removed after verification.
 - No database seeders ran and no production super-administrator was created.
 - The local M0 slice moves the customer panel to `/`, removes the Laravel placeholder and Filament promotional widget, and keeps `/admin` unchanged; two disposable visual-QA customers were removed after verification.
+- The local M1.1 slice adds the first-party customer Home and removes the remaining stock customer account widget without claiming the still-planned purchase and order dashboard is complete. A requested verified local-only `customer` demo account exists at `demo@adzbyte.com`; its password is not stored in the repository.

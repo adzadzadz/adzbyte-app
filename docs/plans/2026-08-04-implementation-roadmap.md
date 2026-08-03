@@ -92,6 +92,7 @@
 
 ### M1. Customer root `/` panel
 
+- [x] First-party Home and navigation foundation with authenticated account context and an honest pre-domain empty state
 - [ ] Purchase and order dashboard
 - [ ] Structured brief with autosave and completion checklist
 - [ ] Attachment management
