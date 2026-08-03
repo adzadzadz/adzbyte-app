@@ -42,6 +42,11 @@ That document defines the product scope, system boundary, authentication and RBA
 
 Implementation sequencing is tracked in the [Implementation Roadmap](docs/plans/2026-08-04-implementation-roadmap.md), while [Project Status](docs/STATUS.md) records the current state and the single next task for a fresh work session.
 
+The [Management UI Branding Plan](docs/plans/2026-08-04-management-ui-branding.md)
+defines how the authenticated Filament panels adapt Adzbyte's shared palette,
+typography, logos, and contextual media without taking over public UI ownership
+or depending on the `adzbyte-next` repository at runtime.
+
 ## Local Development
 
 ```bash
@@ -66,3 +71,14 @@ Run the test suite with:
 ```bash
 composer test
 ```
+
+## CI and Deployment
+
+GitHub Actions verifies pull requests and `main`, but never promotes them
+automatically. An explicitly authorized manual release workflow promotes the
+verified `main` revision to a machine-managed `deploy` branch with compiled Vite
+assets. Hostinger Business pulls only that branch for `app.adzbyte.com`.
+
+See the [Hostinger Business deployment guide](docs/deployment/hostinger-business.md)
+for repository settings, hPanel setup, production environment configuration,
+post-pull commands, cron jobs, and release verification.

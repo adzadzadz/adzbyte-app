@@ -78,6 +78,17 @@
 
 ## Phase M — Management Panels
 
+### M0. Shared management visual foundation
+
+- [ ] Implement the dark-first token, typography, asset, and component foundation from the [Management UI Branding Plan](2026-08-04-management-ui-branding.md).
+- [ ] Self-host Poppins and translate the source palette into reusable Filament tokens, keeping brand accents separate from semantic statuses.
+- [ ] Copy and optimize the full wordmark and square mark, record them in an asset manifest, and configure panel identity without a runtime dependency on `adzbyte-next`.
+- [ ] Brand login, activation, password reset, email verification, profile entry points, and the shared `/account` and `/admin` shells.
+- [ ] Establish shared interactive, validation, loading, empty, and status states before screen-specific decoration.
+- [ ] Review representative desktop and `320px` mobile screenshots and verify contrast, keyboard focus, zoom, reduced motion, alternative text, production build, panel access, and authorization tests.
+
+**Gate:** the branding plan's acceptance criteria pass for both panels, selected media is locally owned by the build, and no anonymous UI or runtime repository coupling is introduced.
+
 ### M1. Customer `/account` panel
 
 - [ ] Purchase and order dashboard

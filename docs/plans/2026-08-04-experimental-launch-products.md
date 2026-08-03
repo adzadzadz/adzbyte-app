@@ -73,6 +73,14 @@ Use **Filament 5** for both authenticated management interfaces inside `adzbyte-
 
 Neither panel is public. Both require authentication and must keep their resources, pages, widgets, navigation, and authorization isolated. `adzbyte-app` must not render public product listings or campaign pages; those remain in `adzbyte-next`.
 
+### Shared Brand and Media Source
+
+The authenticated Filament panels should feel like the management side of the same Adzbyte product. Use `adzbyte-next/src/app/globals.css` as the current source of truth for Poppins typography and the shared dark, purple, cyan, teal, gold, and text colors. Adapt these source values into named management tokens so brand accents remain separate from operational success, warning, danger, information, and pending states.
+
+The initial management experience is dark-first. Use the full Adzbyte wordmark on authentication and expanded navigation surfaces, the square mark for compact application identity, and contextual service imagery only when it helps a customer understand a purchased product or next step. Keep the administrator interface operational and visually restrained. Personal photos, certificates, testimonials, campaign artwork, and review screenshots are excluded unless a specific screen passes relevance, privacy, permission, and accessibility review.
+
+Assets selected from `adzbyte-next/public/images` must be copied, optimized, versioned, and documented in `adzbyte-app`; do not hotlink them or create a runtime dependency on the Next.js repository. The complete [Management UI Branding Plan](2026-08-04-management-ui-branding.md) defines token usage, typography, asset governance, panel-specific direction, accessibility requirements, implementation order, and the Phase M0 acceptance gate.
+
 Use one `users` table, one `App\Models\User` model, and Laravel's normal `web` guard for both Filament panels and future API authentication. Do not create separate `Admin` and `Customer` models or duplicate authentication stores. This preserves one identity and order history if a staff member is also a customer and keeps account activation, password reset, and email verification centralized.
 
 The production origins are `https://adzbyte.com` for `adzbyte-next` and `https://app.adzbyte.com` for `adzbyte-app`. The initial super-administrator identity uses `adzbite@gmail.com`; its password or activation secret must be provisioned deliberately and must never be committed.
