@@ -1,23 +1,21 @@
 # Project Status
 
-**Last updated:** 2026-08-04 (PHP 8.3 dependency lock corrected and CI restored)
+**Last updated:** 2026-08-04 (first Hostinger production release completed)
 
 ## Current Stage
 
-Foundation phase F is complete. In addition to the F1 framework and access foundation, both Filament panels now provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. Shared actions create provisional customers and send signed customer activation links for later verified-payment orchestration. The Hostinger release flow, management UI branding direction, and PHP 8.3-compatible dependency lock are on remote `main`; production has not been deployed.
+Foundation phase F is complete. In addition to the F1 framework and access foundation, both Filament panels now provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. Shared actions create provisional customers and send signed customer activation links for later verified-payment orchestration. The PHP 8.3-compatible application is deployed to Hostinger at `https://app.adzbyte.com` through the machine-managed `deploy` branch.
 
 ## In Progress
 
-Nothing. The PHP 8.3 dependency fix is verified, committed, pushed, and green in GitHub Actions. Production remains unchanged.
+Nothing. The first production release, runtime configuration, database migrations, and recurring scheduler and queue execution are complete and verified.
 
 ## Up Next
 
-**CI/CD activation task — complete the first explicitly authorized Hostinger
-release.** On a fresh `release` or `deploy` instruction, finish the production
-database and `.env`, configure the scheduler and queue cron jobs, establish a
-usable post-pull SSH or manual execution path, dispatch the manual workflow, and
-connect Hostinger Git auto-deployment to the resulting `deploy` branch. Verify
-the Hostinger pull and post-pull procedure during the same release window.
+**D1.1 core catalog records — implement products and versioned product
+entitlements.** Before writing the records and migrations, confirm the exact
+product prices, entitlement contents, template policy, included-hosting period,
+and reactivation terms listed under Decisions Needed Later.
 
 ## F2 Verification
 
@@ -32,10 +30,15 @@ the Hostinger pull and post-pull procedure during the same release window.
 
 ## CI/CD and Branding Plan Verification
 
-- Remote `main` contains the release flow and the PHP 8.3 dependency correction at commit `937fec5`.
+- Remote `main` contains the release flow and the PHP 8.3 dependency correction at source commit `12ed0c81d235`.
 - GitHub Actions content writes are enabled and the `production` environment exists.
 - CI run 2 passed the full verification workflow after Composer was pinned to a PHP 8.3 resolution platform and Symfony packages were resolved to compatible 7.4 releases.
-- Hostinger preflight confirmed PHP 8.3, active SSH, and a current daily website backup. No application database was visibly assigned, no scheduler or queue cron jobs were configured, and the available local SSH key was not accepted.
+- The authorized release workflow run `30860097717` passed and promoted source commit `12ed0c81d235` to deploy commit `eda1d21cc641`.
+- Hostinger pulled the `deploy` branch into `public_html`, installed production dependencies, and reports the deployment completed on PHP 8.3.
+- A dedicated production database and mode-`600` `.env` were created without storing credentials in Git. A pre-migration dump is retained outside the web root.
+- A dedicated SSH key is authorized with mode-`600` key-file permissions. Both the Laravel scheduler and stop-when-empty database queue worker are configured in hPanel at `* * * * *` and have produced cron output records.
+- All five production migrations ran, Laravel production caches were built, the manual scheduler and queue checks passed, and both `jobs` and `failed_jobs` were empty after verification.
+- `/up`, `/account/login`, and `/admin/login` each returned HTTP 200 over HTTPS. The only Laravel errors were expected first-boot entries created before the application key and database tables existed; later verification created no new errors.
 - Full PHP tests remained green at 25 tests and 91 assertions; Pint and the production frontend build passed during setup verification.
 - The CI, manual promotion, Hostinger post-pull, and explicit-command authorization paths were reviewed; workflow/interface YAML and shell syntax checks passed.
 - The release skill passed its validator during creation and has implicit invocation disabled.
@@ -71,8 +74,7 @@ the Hostinger pull and post-pull procedure during the same release window.
 
 ## Decisions Needed Later
 
-After CI/CD activation, the first item blocks the opening D1
-product-and-entitlement slice:
+The first item blocks the opening D1 product-and-entitlement slice:
 
 - Exact product prices, entitlements, templates, and hosting/reactivation terms.
   The current recommendation is Idea Test Page at PHP 99, Blog Lite at PHP 199,
@@ -87,7 +89,8 @@ product-and-entitlement slice:
 
 ## Known Issues
 
-- Production release prerequisites remain incomplete: the application database and `.env`, both cron jobs, and a usable post-pull authentication path must be established before promoting `main` to `deploy`.
+- Production mail is intentionally configured with Laravel's `log` mailer until a real transport and sender identity are chosen; activation and password-reset email delivery is not yet live.
+- The production super-administrator has not been bootstrapped. Its identity remains recorded, but password provisioning is a separate deliberate operation.
 
 ## Working Tree Handoff
 
@@ -97,5 +100,6 @@ product-and-entitlement slice:
 - Commit `937fec5` fixes the PHP 8.3 dependency resolution mismatch; GitHub CI run 2 passed.
 - The local super-administrator identity is verified; its password is not stored in the repository.
 - The session-owned development server was stopped.
-- Remote `main`, Actions workflow permissions, the GitHub `production` environment, and Hostinger's GitHub repository authorization were updated during the first release attempt.
-- No `deploy` branch was created, Hostinger pulled no application code, and no application change was applied to production.
+- Remote `main` is released from source commit `12ed0c81d235`; the generated `deploy` branch and Hostinger deployment are at `eda1d21cc641`.
+- The first production database, `.env`, SSH path, pre-migration backup, migrations, scheduler cron, and queue cron were created and verified during the authorized release window.
+- No database seeders ran and no production super-administrator was created.
