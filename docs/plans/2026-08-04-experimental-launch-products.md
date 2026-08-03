@@ -8,7 +8,7 @@
 | Acquisition | Organic posts in social-media groups and pages |
 | Visibility | Off-menu promotional campaign |
 | Public product UI | `adzbyte-next` only at `https://adzbyte.com` |
-| Management UI | Filament 5 `/admin` and `/account` panels in `adzbyte-app` at `https://app.adzbyte.com` |
+| Management UI | Filament 5 authenticated root `/` customer panel and `/admin` in `adzbyte-app` at `https://app.adzbyte.com` |
 | REST API | Versioned Laravel API built alongside management features for later `adzbyte-next` use |
 | Authorization | Spatie Laravel Permission with Filament Shield and Laravel policies |
 | Payment provider | PayMongo Hosted Checkout |
@@ -28,7 +28,7 @@ Use these terms consistently in interfaces, code, and documentation:
 |---|---|
 | Public product UI | Anonymous campaign and product pages rendered only by `adzbyte-next` |
 | Management UI | Authenticated Filament pages rendered only by `adzbyte-app` |
-| Customer panel | Filament `/account` in `adzbyte-app` |
+| Customer panel | Filament root `/` in `adzbyte-app` |
 | Admin panel | Filament `/admin` in `adzbyte-app` |
 | Checkout initiated | An internal order and PayMongo Checkout Session exist; payment is not yet confirmed |
 | Payment confirmed | A valid PayMongo webhook has marked the payment `paid` |
@@ -69,7 +69,7 @@ Public browser
 Use **Filament 5** for both authenticated management interfaces inside `adzbyte-app`:
 
 - `/admin` — internal operations for orders, payments, reviews, fulfillment, sites, customers, roles, and audit history.
-- `/account` — customer management for purchases, briefs, messages, attachments, draft review, corrections, product controls, and sites.
+- `/` — authenticated customer management for purchases, briefs, messages, attachments, draft review, corrections, product controls, and sites.
 
 Neither panel is public. Both require authentication and must keep their resources, pages, widgets, navigation, and authorization isolated. `adzbyte-app` must not render public product listings or campaign pages; those remain in `adzbyte-next`.
 
@@ -87,7 +87,7 @@ The production origins are `https://adzbyte.com` for `adzbyte-next` and `https:/
 
 Use Filament's built-in panel authentication for phase 1 login, password reset, email verification, profile management, and optional multi-factor authentication. Do not expose open self-registration in `adzbyte-app`: checkout creates or identifies the customer account, and the app sends a signed activation or set-password path. Use **Laravel Sanctum** to protect the versioned REST API and trusted machine integrations. Do not add a second headless authentication stack until a future Next.js management client actually requires it.
 
-For a new buyer email, trusted checkout application logic creates an unverified `customer` account with an unusable generated password before checkout. A verified paid webhook will later invoke the shared activation action, which sends a single-use signed link valid for 24 hours. The customer sets a password through that link; successful activation verifies the email, emits authentication events, signs the customer in, and opens `/account`.
+For a new buyer email, trusted checkout application logic creates an unverified `customer` account with an unusable generated password before checkout. A verified paid webhook will later invoke the shared activation action, which sends a single-use signed link valid for 24 hours. The customer sets a password through that link; successful activation verifies the email, emits authentication events, signs the customer in, and opens the root dashboard at `/`.
 
 If an anonymous checkout supplies an email that already belongs to any user, the app must not attach a new order or disclose publicly that the account exists. Checkout pauses with generic instructions to sign in or reset the password, and the authenticated customer then retries checkout. Open registration remains disabled, expired or altered activation links fail, and an activated link cannot be reused.
 
@@ -104,7 +104,7 @@ Start with three application roles:
 
 | Role | Panel access | Initial purpose |
 |---|---|---|
-| `customer` | `/account` only | Manage only the signed-in customer's orders, briefs, messages, drafts, product controls, and sites |
+| `customer` | Root `/` customer panel only | Manage only the signed-in customer's orders, briefs, messages, drafts, product controls, and sites |
 | `administrator` | `/admin` only | Operate orders, content review, fulfillment, customers, payments, and sites according to assigned permissions |
 | `super_admin` | `/admin` only | Full system access, including role and permission administration |
 
@@ -114,7 +114,7 @@ Roles should group permissions; application code should normally authorize capab
 
 Interface entry and record access are separate security checks:
 
-1. `User::canAccessPanel()` checks the panel ID: customers enter only `/account`; administrators and super administrators enter only `/admin` unless they also hold the customer role.
+1. `User::canAccessPanel()` checks the panel ID: customers enter only the root `/` customer panel; administrators and super administrators enter only `/admin` unless they also hold the customer role.
 2. Every current management route requires Filament authentication. Every future customer API route uses `auth:sanctum`, email-verification middleware where appropriate, request validation, rate limiting, and a Laravel policy.
 3. Customer policy queries always scope records by ownership, such as `orders.user_id = authenticated_user_id`. The `customer` role alone must never grant access to every customer's orders, briefs, messages, drafts, payments, or sites.
 4. Filament uses the same policies for its resources and actions, with additional administrator permissions where required.
@@ -135,13 +135,13 @@ Both Filament panels and the REST API must call the same Laravel application ser
 
 ## Future-Ready REST API Foundation
 
-Build the Laravel REST API alongside the Filament management features so `adzbyte-next` can consume selected capabilities later without a backend redesign. The API is not the phase 1 customer-management UI; `/account` in `adzbyte-app` remains authoritative for customer interaction and controls.
+Build the Laravel REST API alongside the Filament management features so `adzbyte-next` can consume selected capabilities later without a backend redesign. The API is not the phase 1 customer-management UI; the authenticated root `/` panel in `adzbyte-app` remains authoritative for customer interaction and controls.
 
 ### Access Modes
 
 | Caller | Surface | Authentication |
 |---|---|---|
-| Customer or administrator | Filament `/account` or `/admin` | Laravel `web` session plus panel access and model policies |
+| Customer or administrator | Filament root `/` customer panel or `/admin` | Laravel `web` session plus panel access and model policies |
 | `adzbyte-next` server | Narrow `/api/v1/integration/*` routes | Dedicated, revocable Sanctum service token with explicit abilities |
 | Future first-party Next.js management client | Protected `/api/v1/*` customer routes | Sanctum stateful session cookies when deployed under the same top-level domain |
 | PayMongo | Dedicated webhook route | Verified `Paymongo-Signature` against the raw body; no user session |
@@ -228,7 +228,7 @@ Each paid order has one customer-visible conversation shared by the customer and
 - Administrator reply
 - Automated system update, such as payment confirmed, brief received, more information requested, draft ready, or site published
 
-Messages may include authorized attachments and read timestamps. Email notifications should link back to the relevant authenticated `/account` order screen in `adzbyte-app`. Internal staff notes must be stored separately and must never appear in the customer panel or conversation API.
+Messages may include authorized attachments and read timestamps. Email notifications should link back to the relevant authenticated order screen under the root customer panel in `adzbyte-app`. Internal staff notes must be stored separately and must never appear in the customer panel or conversation API.
 
 This is asynchronous messaging, not a live-chat promise. When no administrator is available, the system immediately acknowledges the message, preserves it on the order timeline, shows the current order state, and tells the customer whether any required information is still missing.
 
@@ -412,10 +412,10 @@ Recommended workflow:
 3. `adzbyte-app` creates the buyer, order, and PayMongo Checkout Session.
 4. Next.js redirects the customer's browser to PayMongo for the one-time launch fee.
 5. `adzbyte-app` confirms payment from PayMongo's signed webhook, sets payment to `paid`, requirements to `in_progress`, and fulfillment to `waiting_for_details`.
-6. The customer enters the authenticated Filament `/account` panel in `adzbyte-app`, completes the product-specific brief, chooses a template, uploads assets, and can send order messages asynchronously.
+6. The customer enters the authenticated Filament root `/` panel in `adzbyte-app`, completes the product-specific brief, chooses a template, uploads assets, and can send order messages asynchronously.
 7. Formal brief submission starts the 6–12-hour first-draft window and places the order in `ready_for_review`.
 8. Adzbyte reviews the content, requests missing information if necessary, and prepares a draft.
-9. The customer reviews the draft, provides the permitted feedback or approval, and follows progress through the `/account` order screen.
+9. The customer reviews the draft, provides the permitted feedback or approval, and follows progress through the authenticated customer order screen.
 10. The site is published and its URL and access instructions are recorded and displayed in `adzbyte-app`.
 
 Phase 1 fulfillment will be manual. Automation remains a later optimization after real demand, abuse patterns, and support requirements are understood.
@@ -426,7 +426,7 @@ Phase 1 fulfillment will be manual. Automation remains a later optimization afte
 - Start the first-draft clock only when payment is confirmed and the customer formally submits all required text, images, contact details, and product information through the guided brief.
 - If information is incomplete or fails content review, pause the clock and notify the customer.
 - Show the 6–12-hour window beside every purchase CTA, in checkout-supporting copy, and in the payment confirmation email.
-- Show whether the clock is waiting, active, or paused on the authenticated `/account` order screen, including the reason when more information is required.
+- Show whether the clock is waiting, active, or paused on the authenticated customer order screen, including the reason when more information is required.
 - Explain that final publication happens after customer approval and is separate from the first-draft deadline.
 - Do not promise instant drafting or publication after payment.
 
@@ -438,7 +438,7 @@ Suggested wording:
 
 The campaign will use `adzbyte-app` as the central system of record for buyers, users, products, orders, payments, briefs, messages, drafts, sites, and fulfillment activity. WordPress and Hostinger may still run customer sites, but neither should be the authoritative buyer/order database. `adzbyte-next` presents public product information but does not become a second buyer, order, or payment ledger.
 
-The customer management UI lives in the authenticated Filament `/account` panel in `adzbyte-app`. Its initial scope should remain focused:
+The customer management UI lives in the authenticated Filament root `/` panel in `adzbyte-app`. Its initial scope should remain focused:
 
 - Activate the checkout-created account, set or reset a password, log in, and verify an email address through Filament's panel authentication.
 - View every order and its current payment and fulfillment status.
@@ -453,7 +453,7 @@ The customer management UI lives in the authenticated Filament `/account` panel 
 
 The customer panel is an order communication, draft-review, and site-control portal, not a general-purpose website builder. Do not expose Hostinger hPanel, SFTP, database, or unrestricted administrator access as part of the base promotional products.
 
-Email remains the notification channel, but emails should link customers back to the authenticated Filament `/account` order screen.
+Email remains the notification channel, but emails should link customers back to the authenticated Filament customer order screen.
 
 ### Internal Buyer and Order Tracking
 
@@ -631,7 +631,7 @@ The page should feel like a small menu of experiments rather than an agency serv
    - I want to try blogging — ₱199
    - I want to try selling online — ₱299
    - I want to ask a developer — ₱99
-4. **How it works:** choose a product, pay once, complete the brief in `/account`, and receive the draft or outcome within the stated window
+4. **How it works:** choose a product, pay once, complete the brief in the authenticated customer dashboard, and receive the draft or outcome within the stated window
 5. **What is included for free:** subdomain, experimental hosting, quote, and qualified mockup
 6. **Examples:** selected experimental sites or representative demos
 7. **Custom work banner:** clear path to a conventional quote
@@ -691,7 +691,7 @@ Hosted Checkout gives the customer a PayMongo-managed payment screen while still
 6. PayMongo sends `checkout_session.payment.paid` directly to the dedicated `adzbyte-app` webhook endpoint.
 7. The app verifies the `Paymongo-Signature` HMAC against the raw request body.
 8. The app confirms that the amount, currency, live/test mode, order reference, and Checkout Session match and that the event has not already been processed.
-9. Payment changes to `paid`, requirements change to `in_progress`, fulfillment changes to `waiting_for_details`, and the order's structured brief and conversation become available in the authenticated Filament `/account` panel.
+9. Payment changes to `paid`, requirements change to `in_progress`, fulfillment changes to `waiting_for_details`, and the order's structured brief and conversation become available in the authenticated Filament root `/` customer panel.
 10. The app sends an account activation or order-ready notification. Next.js may display the payment return page, but only `adzbyte-app` records authoritative payment state.
 11. The customer completes and formally submits the guided brief. Once required content is complete, fulfillment changes to `ready_for_review` and the 6–12-hour first-draft clock starts.
 12. After content and abuse review in the Filament admin panel, Adzbyte prepares and delivers a draft through the customer panel before the approved result proceeds to provisioning and publication. The REST API exposes the same action for later clients.

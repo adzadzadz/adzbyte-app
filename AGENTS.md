@@ -16,7 +16,7 @@ Do not silently invent business rules when these sources are undecided or confli
 
 - `adzbyte-next` owns the anonymous campaign, product, purchase-call-to-action, and payment-return UI.
 - `adzbyte-app` owns all authenticated customer and administrator management, REST APIs, payments, processing, fulfillment, and the system of record.
-- Phase 1 management lives only in Filament at `/account` and `/admin`.
+- Phase 1 management lives only in Filament at the authenticated root `/` customer panel and `/admin`.
 - Do not add an anonymous storefront or customer-management UI to this repository.
 
 ## Local Skills

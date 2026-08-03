@@ -119,12 +119,14 @@ class AuthenticationLifecycleTest extends TestCase
         $this->get($activationUrl)
             ->assertOk()
             ->assertSee('Activate your account')
+            ->assertSee('Customer account')
+            ->assertSee('images/brand/adzbyte-logo-transparent.png', false)
             ->assertSee($customer->email);
 
         $this->post($activationUrl, [
             'password' => 'StrongPassword123!',
             'password_confirmation' => 'StrongPassword123!',
-        ])->assertRedirect('/account');
+        ])->assertRedirect('/');
 
         $customer->refresh();
 
@@ -196,20 +198,20 @@ class AuthenticationLifecycleTest extends TestCase
 
     public function test_filament_authentication_features_are_enabled_without_registration(): void
     {
-        $this->get('/account/password-reset/request')->assertOk();
+        $this->get('/password-reset/request')->assertOk();
         $this->get('/admin/password-reset/request')->assertOk();
-        $this->get('/account/register')->assertNotFound();
+        $this->get('/register')->assertNotFound();
         $this->get('/admin/register')->assertNotFound();
 
         $customer = User::factory()->create();
         $customer->assignRole(UserRole::Customer->value);
 
         $this->actingAs($customer)
-            ->get('/account/profile')
+            ->get('/profile')
             ->assertOk();
 
-        $this->post('/account/logout')
-            ->assertRedirect('/account/login');
+        $this->post('/logout')
+            ->assertRedirect('/login');
 
         $this->assertGuest();
     }
@@ -220,10 +222,10 @@ class AuthenticationLifecycleTest extends TestCase
         $customer->assignRole(UserRole::Customer->value);
 
         $this->actingAs($customer)
-            ->get('/account')
-            ->assertRedirect('/account/email-verification/prompt');
+            ->get('/')
+            ->assertRedirect('/email-verification/prompt');
 
-        $this->get('/account/email-verification/prompt')->assertOk();
+        $this->get('/email-verification/prompt')->assertOk();
     }
 
     public function test_filament_email_verification_marks_the_shared_user_verified(): void
@@ -236,7 +238,7 @@ class AuthenticationLifecycleTest extends TestCase
 
         $this->actingAs($customer)
             ->get($verificationUrl)
-            ->assertRedirect('/account');
+            ->assertRedirect('/');
 
         $this->assertTrue($customer->refresh()->hasVerifiedEmail());
         Event::assertDispatched(Verified::class);

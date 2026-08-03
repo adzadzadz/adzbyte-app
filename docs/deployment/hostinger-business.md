@@ -116,7 +116,7 @@ customer activation notification is actually processed.
 For every first or changed deployment:
 
 1. Confirm `https://app.adzbyte.com/up` returns HTTP 200.
-2. Confirm `/account/login` and `/admin/login` load over HTTPS.
+2. Confirm `/login` and `/admin/login` load over HTTPS, and that `/` redirects unauthenticated visitors to `/login`.
 3. Check `storage/logs/laravel.log` without exposing it publicly.
 4. Confirm `php artisan migrate:status` has no pending migrations.
 5. Confirm the queue cron drains the `jobs` table and failures appear in

@@ -10,7 +10,3 @@ Route::middleware('signed')->group(function (): void {
         ->middleware('throttle:account-activation')
         ->name('account-activation.update');
 });
-
-Route::get('/', function () {
-    return view('welcome');
-});

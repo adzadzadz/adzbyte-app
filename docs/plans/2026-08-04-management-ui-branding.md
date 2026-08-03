@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved direction; implementation has not started |
-| Applies to | Authenticated Filament `/account` and `/admin` panels |
+| Status | Implemented and verified on 2026-08-04 |
+| Applies to | Authenticated Filament root `/` customer panel and `/admin` |
 | Brand source | `adzbyte-next/src/app/globals.css` and approved files in `adzbyte-next/public/images` |
 | Public UI owner | `adzbyte-next` |
 | Management UI owner | `adzbyte-app` |
@@ -14,7 +14,7 @@ The customer and administrator panels should be unmistakably Adzbyte while remai
 
 The implementation should feel like one product family with two operating contexts:
 
-- `/account` is reassuring and guided, with clear next steps, progress, support, and contextual product imagery.
+- The root `/` customer panel is reassuring and guided, with clear next steps, progress, support, and contextual product imagery.
 - `/admin` is compact and operational, prioritizing queues, status, risk, and scan speed over decorative presentation.
 
 Both panels use the same token system, typography, logo assets, form language, focus treatment, and component conventions. Panel identity must remain explicit so a dual-role user cannot mistake customer actions for administrative actions.
@@ -129,7 +129,7 @@ Buttons, links, inputs, badges, alerts, empty states, file previews, timelines, 
 2. Self-host Poppins and establish the typography, spacing, radius, border, shadow, focus, and semantic-status foundations.
 3. Copy the required wordmark and square mark, create the asset manifest, and configure consistent panel identity and browser metadata.
 4. Brand the shared authentication lifecycle: login, activation, password reset, email verification, and profile entry points.
-5. Apply the shared shell to `/account` and `/admin`, with explicit panel names and deliberately different information density.
+5. Apply the shared shell to `/` and `/admin`, with explicit panel names and deliberately different information density.
 6. Implement shared component states before adding screen-specific decoration or contextual customer imagery.
 7. Capture desktop and mobile reference screenshots and run accessibility, responsive, production-build, and panel-boundary verification.
 

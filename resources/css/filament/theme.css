@@ -1,0 +1,381 @@
+@import '@fontsource/poppins/latin-300.css';
+@import '@fontsource/poppins/latin-400.css';
+@import '@fontsource/poppins/latin-500.css';
+@import '@fontsource/poppins/latin-600.css';
+@import '@fontsource/poppins/latin-700.css';
+@import '../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../app/Filament/**/*';
+@source '../../../app/Providers/Filament/**/*';
+@source '../../../app/Support/Filament/**/*';
+@source '../../../resources/views/auth/**/*';
+@source '../../../resources/views/filament/**/*';
+
+:root {
+    --adz-canvas: #0a0f17;
+    --adz-surface: #111827;
+    --adz-primary: #8139ff;
+    --adz-cyan: #00c6d8;
+    --adz-teal: #2dd4a8;
+    --adz-gold: #d4a843;
+    --adz-text: #ffffff;
+    --adz-text-muted: rgba(255, 255, 255, 0.7);
+    --adz-border: rgba(255, 255, 255, 0.1);
+    --adz-border-strong: rgba(255, 255, 255, 0.2);
+    --adz-focus: rgba(129, 57, 255, 0.5);
+    --adz-radius: 0.875rem;
+    --adz-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
+}
+
+html.fi,
+body.fi-body {
+    background: var(--adz-canvas);
+    color: var(--adz-text);
+}
+
+body.fi-body {
+    min-width: 20rem;
+}
+
+.fi-simple-layout {
+    isolation: isolate;
+    overflow: hidden;
+    position: relative;
+}
+
+.fi-simple-layout::before,
+.fi-simple-layout::after {
+    border-radius: 9999px;
+    content: '';
+    filter: blur(5rem);
+    opacity: 0.16;
+    pointer-events: none;
+    position: fixed;
+    z-index: -1;
+}
+
+.fi-simple-layout::before {
+    background: var(--adz-primary);
+    height: 22rem;
+    inset: -10rem auto auto -8rem;
+    width: 22rem;
+}
+
+.fi-simple-layout::after {
+    background: var(--adz-teal);
+    bottom: -12rem;
+    height: 24rem;
+    right: -10rem;
+    width: 24rem;
+}
+
+.fi-simple-main {
+    background: color-mix(in srgb, var(--adz-surface) 94%, transparent);
+    border: 1px solid var(--adz-border);
+    box-shadow: var(--adz-shadow);
+}
+
+.fi-simple-header .fi-logo {
+    height: 3rem !important;
+    margin-bottom: 1.25rem;
+    max-width: min(12rem, 70vw);
+    object-fit: contain;
+    width: auto;
+}
+
+.fi-simple-header-heading,
+.fi-header-heading {
+    font-weight: 700;
+}
+
+.fi-simple-header-subheading,
+.fi-header-subheading {
+    color: var(--adz-text-muted);
+}
+
+.adz-panel-context {
+    align-items: center;
+    color: var(--adz-text-muted);
+    display: flex;
+    font-size: 0.75rem;
+    font-weight: 600;
+    gap: 0.5rem;
+    letter-spacing: 0.09em;
+    line-height: 1.25rem;
+    text-transform: uppercase;
+}
+
+.adz-panel-context--simple {
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.adz-panel-context--page {
+    margin-bottom: 0.5rem;
+}
+
+.adz-panel-context__marker {
+    background: var(--adz-cyan);
+    border-radius: 9999px;
+    box-shadow: 0 0 0.75rem rgba(0, 198, 216, 0.38);
+    display: inline-block;
+    height: 0.375rem;
+    width: 0.375rem;
+}
+
+.fi-sidebar,
+.fi-topbar {
+    background: color-mix(in srgb, var(--adz-surface) 96%, transparent);
+}
+
+.fi-sidebar-header,
+.fi-topbar {
+    border-color: var(--adz-border);
+}
+
+.fi-sidebar .fi-logo,
+.fi-topbar .fi-logo {
+    max-width: 7.5rem;
+    object-fit: contain;
+    width: auto;
+}
+
+.fi-section:not(.fi-section-not-contained),
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat {
+    border-color: var(--adz-border);
+}
+
+.fi-input-wrp {
+    background: rgba(255, 255, 255, 0.045);
+    box-shadow: 0 0 0 1px var(--adz-border-strong);
+}
+
+.fi-input-wrp:focus-within {
+    box-shadow: 0 0 0 2px var(--adz-primary), 0 0 0 5px var(--adz-focus);
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined) {
+    background: var(--adz-primary);
+    color: var(--adz-text);
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined):hover {
+    background: color-mix(in srgb, var(--adz-primary) 88%, white);
+}
+
+.fi-link.fi-color-primary {
+    color: var(--adz-cyan);
+}
+
+.fi-panel-account .fi-page-header-main-ctn,
+.fi-panel-account .fi-page-content {
+    gap: 2rem;
+}
+
+.fi-panel-account .fi-section:not(.fi-section-not-contained),
+.fi-panel-account .fi-ta-ctn {
+    border-radius: 1rem;
+}
+
+.fi-panel-admin .fi-page-header-main-ctn,
+.fi-panel-admin .fi-page-content {
+    gap: 1.25rem;
+}
+
+.fi-panel-admin .fi-section:not(.fi-section-not-contained),
+.fi-panel-admin .fi-ta-ctn {
+    border-radius: 0.625rem;
+}
+
+.fi-panel-admin .fi-section:not(.fi-section-not-contained) > .fi-section-header,
+.fi-panel-admin .fi-section:not(.fi-section-not-contained) > .fi-section-content-ctn > .fi-section-content {
+    padding: 1rem;
+}
+
+.adz-activation-body {
+    isolation: isolate;
+    overflow-x: hidden;
+}
+
+.adz-activation-body::before,
+.adz-activation-body::after {
+    border-radius: 9999px;
+    content: '';
+    filter: blur(5rem);
+    opacity: 0.16;
+    pointer-events: none;
+    position: fixed;
+    z-index: -1;
+}
+
+.adz-activation-body::before {
+    background: var(--adz-primary);
+    height: 22rem;
+    left: -8rem;
+    top: -10rem;
+    width: 22rem;
+}
+
+.adz-activation-body::after {
+    background: var(--adz-teal);
+    bottom: -12rem;
+    height: 24rem;
+    right: -10rem;
+    width: 24rem;
+}
+
+.adz-activation-shell {
+    align-items: center;
+    display: flex;
+    min-height: 100dvh;
+    padding: 3rem 1.25rem;
+}
+
+.adz-activation-card {
+    background: color-mix(in srgb, var(--adz-surface) 94%, transparent);
+    border: 1px solid var(--adz-border);
+    border-radius: var(--adz-radius);
+    box-shadow: var(--adz-shadow);
+    margin: 0 auto;
+    max-width: 28rem;
+    padding: 2rem;
+    width: 100%;
+}
+
+.adz-activation-logo {
+    height: 3rem;
+    margin: 0 auto 1.25rem;
+    object-fit: contain;
+    width: auto;
+}
+
+.adz-activation-heading {
+    color: var(--adz-text);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 2rem;
+    text-align: center;
+}
+
+.adz-activation-copy {
+    color: var(--adz-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.adz-activation-copy strong {
+    color: var(--adz-text);
+    font-weight: 600;
+}
+
+.adz-activation-form {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.adz-activation-field {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.adz-activation-label {
+    color: var(--adz-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+}
+
+.adz-activation-input {
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid var(--adz-border-strong);
+    border-radius: 0.5rem;
+    color: var(--adz-text);
+    min-height: 2.75rem;
+    padding: 0.625rem 0.75rem;
+    transition: border-color 75ms ease, box-shadow 75ms ease;
+    width: 100%;
+}
+
+.adz-activation-input:focus-visible {
+    border-color: var(--adz-primary);
+    box-shadow: 0 0 0 3px var(--adz-focus);
+    outline: 0;
+}
+
+.adz-activation-error {
+    color: #fda4af;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.adz-activation-submit {
+    background: var(--adz-primary);
+    border: 0;
+    border-radius: 0.5rem;
+    color: var(--adz-text);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    min-height: 2.75rem;
+    padding: 0.625rem 1rem;
+    transition: background-color 75ms ease, box-shadow 75ms ease;
+    width: 100%;
+}
+
+.adz-activation-submit:hover {
+    background: color-mix(in srgb, var(--adz-primary) 88%, white);
+}
+
+.adz-activation-submit:focus-visible {
+    box-shadow: 0 0 0 3px var(--adz-focus);
+    outline: 2px solid var(--adz-text);
+    outline-offset: 2px;
+}
+
+@media (max-width: 39.999rem) {
+    .fi-simple-main {
+        border-left: 0;
+        border-radius: 0;
+        border-right: 0;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+
+    .fi-simple-header .fi-logo {
+        height: 2.5rem !important;
+    }
+}
+
+@media (max-width: 24rem) {
+    .adz-activation-shell {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .adz-activation-card {
+        border-left: 0;
+        border-radius: 0;
+        border-right: 0;
+        padding: 1.5rem 1.25rem;
+    }
+
+    .adz-activation-logo {
+        height: 2.5rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}

@@ -51,6 +51,6 @@ class ActivateCustomerAccountController extends Controller
         Auth::guard('web')->login($user);
         $request->session()->regenerate();
 
-        return redirect('/account')->with('status', 'Your account is active.');
+        return redirect('/')->with('status', 'Your account is active.');
     }
 }

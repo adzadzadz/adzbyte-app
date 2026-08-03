@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="fi dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,20 +8,34 @@
         <title>Activate account — {{ config('app.name') }}</title>
 
         @filamentStyles
+        @vite('resources/css/filament/theme.css')
     </head>
-    <body class="fi-body min-h-screen bg-gray-50 text-gray-950 antialiased dark:bg-gray-950 dark:text-white">
-        <main class="mx-auto flex min-h-screen w-full max-w-md items-center px-6 py-12">
-            <section class="w-full rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-                <h1 class="text-2xl font-semibold">Activate your account</h1>
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+    <body class="fi-body adz-activation-body">
+        <main class="adz-activation-shell">
+            <section class="adz-activation-card">
+                <img
+                    src="{{ asset('images/brand/adzbyte-logo-transparent.png') }}"
+                    alt="Adzbyte"
+                    width="700"
+                    height="300"
+                    class="adz-activation-logo"
+                >
+
+                @include('filament.branding.panel-context', [
+                    'context' => \App\Support\Filament\AdzbytePanel::CUSTOMER_ACCOUNT,
+                    'placement' => 'simple',
+                ])
+
+                <h1 class="adz-activation-heading">Activate your account</h1>
+                <p class="adz-activation-copy">
                     Set a password for <strong>{{ $user->email }}</strong> to continue to your customer account.
                 </p>
 
-                <form method="POST" action="{{ request()->fullUrl() }}" class="mt-8 space-y-6">
+                <form method="POST" action="{{ request()->fullUrl() }}" class="adz-activation-form">
                     @csrf
 
-                    <div>
-                        <label for="password" class="block text-sm font-medium">Password</label>
+                    <div class="adz-activation-field">
+                        <label for="password" class="adz-activation-label">Password</label>
                         <input
                             id="password"
                             name="password"
@@ -29,26 +43,26 @@
                             autocomplete="new-password"
                             required
                             autofocus
-                            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-950 shadow-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            class="adz-activation-input"
                         >
                         @error('password')
-                            <p class="mt-2 text-sm text-danger-600">{{ $message }}</p>
+                            <p class="adz-activation-error" role="alert">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div>
-                        <label for="password_confirmation" class="block text-sm font-medium">Confirm password</label>
+                    <div class="adz-activation-field">
+                        <label for="password_confirmation" class="adz-activation-label">Confirm password</label>
                         <input
                             id="password_confirmation"
                             name="password_confirmation"
                             type="password"
                             autocomplete="new-password"
                             required
-                            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-950 shadow-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            class="adz-activation-input"
                         >
                     </div>
 
-                    <button type="submit" class="w-full rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                    <button type="submit" class="adz-activation-submit">
                         Activate account
                     </button>
                 </form>

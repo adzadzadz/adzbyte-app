@@ -2,11 +2,11 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress — foundation phase F complete |
+| Status | In progress — foundation phase F and management branding M0 complete |
 | Product source of truth | `docs/plans/2026-08-04-experimental-launch-products.md` |
 | Progress tracker | `docs/STATUS.md` |
 | Application | Laravel 13 / PHP 8.3 |
-| Management UI | Filament 5 `/admin` and `/account` |
+| Management UI | Filament 5 authenticated root `/` customer panel and `/admin` |
 | API prefix | `/api/v1` |
 
 ## Delivery Rules
@@ -17,6 +17,7 @@
 - Use explicit enums or equivalent typed state objects for payment, requirements, and fulfillment statuses.
 - Make retry-prone mutations idempotent and record important transitions in `order_events`.
 - Update the product plan for durable decisions and `docs/STATUS.md` after every completed task.
+- Defer the product/catalog discussion and D1 product-specific implementation until the authenticated application core is functional, per the 2026-08-04 sequencing decision.
 
 ## Phase F — Foundation
 
@@ -80,16 +81,16 @@
 
 ### M0. Shared management visual foundation
 
-- [ ] Implement the dark-first token, typography, asset, and component foundation from the [Management UI Branding Plan](2026-08-04-management-ui-branding.md).
-- [ ] Self-host Poppins and translate the source palette into reusable Filament tokens, keeping brand accents separate from semantic statuses.
-- [ ] Copy and optimize the full wordmark and square mark, record them in an asset manifest, and configure panel identity without a runtime dependency on `adzbyte-next`.
-- [ ] Brand login, activation, password reset, email verification, profile entry points, and the shared `/account` and `/admin` shells.
-- [ ] Establish shared interactive, validation, loading, empty, and status states before screen-specific decoration.
-- [ ] Review representative desktop and `320px` mobile screenshots and verify contrast, keyboard focus, zoom, reduced motion, alternative text, production build, panel access, and authorization tests.
+- [x] Implement the dark-first token, typography, asset, and component foundation from the [Management UI Branding Plan](2026-08-04-management-ui-branding.md).
+- [x] Self-host Poppins and translate the source palette into reusable Filament tokens, keeping brand accents separate from semantic statuses.
+- [x] Copy and optimize the full wordmark and square mark, record them in an asset manifest, and configure panel identity without a runtime dependency on `adzbyte-next`.
+- [x] Brand login, activation, password reset, email verification, profile entry points, and the shared `/` and `/admin` shells.
+- [x] Establish shared interactive, validation, loading, empty, and status states before screen-specific decoration.
+- [x] Review representative desktop and `320px` mobile renders and verify contrast, keyboard focus, zoom-safe responsive layout, reduced motion, alternative text, production build, panel access, and authorization tests.
 
 **Gate:** the branding plan's acceptance criteria pass for both panels, selected media is locally owned by the build, and no anonymous UI or runtime repository coupling is introduced.
 
-### M1. Customer `/account` panel
+### M1. Customer root `/` panel
 
 - [ ] Purchase and order dashboard
 - [ ] Structured brief with autosave and completion checklist

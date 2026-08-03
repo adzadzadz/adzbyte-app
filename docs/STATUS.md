@@ -1,25 +1,28 @@
 # Project Status
 
-**Last updated:** 2026-08-04 (first Hostinger production release completed)
+**Last updated:** 2026-08-04 (management branding M0 and root customer routing completed locally)
 
 ## Current Stage
 
-Foundation phase F is complete. In addition to the F1 framework and access foundation, both Filament panels now provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. Shared actions create provisional customers and send signed customer activation links for later verified-payment orchestration. The PHP 8.3-compatible application is deployed to Hostinger at `https://app.adzbyte.com` through the machine-managed `deploy` branch.
+Foundation phase F and management branding phase M0 are complete. Both Filament panels provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. The customer panel now owns the authenticated root `/` dashboard and root-level auth routes; only administration uses `/admin`. Both panels share the locally bundled Adzbyte theme, Poppins typography, versioned logo assets, explicit panel identity, and accessible dark-first component treatment. Shared actions continue to create provisional customers and send signed customer activation links for later verified-payment orchestration.
+
+The previously released PHP 8.3-compatible application remains deployed to Hostinger through the machine-managed `deploy` branch. M0 and the root-route change are verified on `main` but require a future explicitly authorized release before production changes from `/account` to `/`.
 
 ## In Progress
 
-Nothing. The first production release, runtime configuration, database migrations, and recurring scheduler and queue execution are complete and verified.
+Nothing. M0 implementation and local verification are complete.
 
 ## Up Next
 
-**D1.1 core catalog records — implement products and versioned product
-entitlements.** Before writing the records and migrations, confirm the exact
-product prices, entitlement contents, template policy, included-hosting period,
-and reactivation terms listed under Decisions Needed Later.
+**M1.1 first-party customer dashboard foundation — replace the remaining stock
+account-only dashboard content at `/` with a focused customer home and navigation
+foundation that does not introduce catalog records or product-specific business
+rules.** Product/catalog discussion and D1 remain deferred until the authenticated
+application core is functional.
 
 ## F2 Verification
 
-- Both panels expose Filament login, logout, password reset, email verification, verified email-change, and profile routes; neither exposes registration.
+- Both panels expose Filament login, logout, password reset, email verification, verified email-change, and profile routes; the customer routes are rooted at `/`, and neither panel exposes registration.
 - Trusted provisional-customer creation normalizes identity data, assigns only `customer`, creates no usable public password, and rejects existing emails with a generic authentication-required outcome.
 - Customer activation is queued by a shared action and uses a signed 24-hour URL, strong password validation, email verification, login/session rotation, role checks, replay protection, and five-attempt-per-minute throttling.
 - Framework `Login` and `Verified` events and application customer-provisioned/customer-activated events are covered.
@@ -44,6 +47,9 @@ and reactivation terms listed under Decisions Needed Later.
 - The CI, manual promotion, Hostinger post-pull, and explicit-command authorization paths were reviewed; workflow/interface YAML and shell syntax checks passed.
 - The release skill passed its validator during creation and has implicit invocation disabled.
 - Branding source colors, font weights, logo files, image directories, documentation links, and ownership boundaries were checked against the local `adzbyte-next` source.
+- M0 now uses one shared panel configurator and compiled theme, local Fontsource Poppins weights 300–700, three checksum-verified brand assets documented in `resources/brand/assets.json`, forced dark mode, explicit customer/admin identity, and panel-specific density.
+- Customer login, administrator login, activation, and both authenticated dashboards were reviewed at desktop and `320px`; no horizontal overflow or browser-console warning remained, and primary auth actions stayed inside the initial mobile viewport.
+- Focused branding, routing, authentication, and panel-boundary verification passed with 26 tests and 128 assertions; the full PHP suite passed with 28 tests and 131 assertions, and the production Vite build emitted only local Poppins font assets.
 - Repository diffs passed whitespace checks, and no supplied local password, production credential, or private key was found in the committed files.
 
 ## F1 Verification
@@ -63,19 +69,20 @@ and reactivation terms listed under Decisions Needed Later.
 - `adzbyte-next` is the only public product UI.
 - `adzbyte-app` owns all customer and administrator management.
 - The [management branding plan](plans/2026-08-04-management-ui-branding.md) adapts the palette, Poppins typography, wordmark, square mark, and context-appropriate media from `adzbyte-next` into a dark-first Filament system; `adzbyte-app` must copy, optimize, and version what it uses without hotlinks or runtime repository coupling.
-- Both management panels are authenticated Filament panels in this repository.
+- Both management panels are authenticated Filament panels in this repository: customers use the root `/` panel and administrators use `/admin`.
 - The REST API is built in parallel for restricted integration and later selective Next.js use.
 - Roles begin with `customer`, `administrator`, and `super_admin`.
 - `adzbyte-next` is live at `https://adzbyte.com` and `adzbyte-app` will be hosted at `https://app.adzbyte.com`.
 - The initial super-administrator identity email is `adzbite@gmail.com`; no password or activation secret is stored in the repository.
-- New buyers receive a single-use 24-hour signed activation link after verified payment; setting the password verifies the email and signs the customer into `/account`.
+- New buyers receive a single-use 24-hour signed activation link after verified payment; setting the password verifies the email and signs the customer into `/`.
+- Product/catalog discussion and D1 implementation are deferred until the authenticated `adzbyte-app` core is functional.
 - Existing account emails must sign in or reset their password before checkout can attach another order, without public account-existence disclosure.
 - Laravel policies and record ownership remain authoritative across every interface.
 - The 6–12-hour commitment covers the first reviewable draft or consultation outcome after payment confirmation and a complete submitted brief.
 
 ## Decisions Needed Later
 
-The first item blocks the opening D1 product-and-entitlement slice:
+These product decisions remain intentionally deferred with D1:
 
 - Exact product prices, entitlements, templates, and hosting/reactivation terms.
   The current recommendation is Idea Test Page at PHP 99, Blog Lite at PHP 199,
@@ -91,6 +98,7 @@ The first item blocks the opening D1 product-and-entitlement slice:
 ## Known Issues
 
 - The production super-administrator has not been bootstrapped. Its identity remains recorded, but password provisioning is a separate deliberate operation.
+- Production still runs the previous release with `/account`; the new root customer route and M0 branding require an explicitly authorized release before production smoke checks change to `/login` and `/`.
 
 ## Working Tree Handoff
 
@@ -104,3 +112,4 @@ The first item blocks the opening D1 product-and-entitlement slice:
 - The first production database, `.env`, SSH path, pre-migration backup, migrations, scheduler cron, and queue cron were created and verified during the authorized release window.
 - Hostinger SMTP is active for `notifications@adzbyte.com`; the protected production `.env` holds the mailbox credential and all temporary credential files were removed after verification.
 - No database seeders ran and no production super-administrator was created.
+- The local M0 slice moves the customer panel to `/`, removes the Laravel placeholder and Filament promotional widget, and keeps `/admin` unchanged; two disposable visual-QA customers were removed after verification.

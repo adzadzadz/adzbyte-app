@@ -17,7 +17,7 @@ The repository is in active implementation. The framework, access, and authentic
 
 Both management experiences use Filament 5 and require authentication:
 
-- `/account` — customers manage purchases, submit detailed briefs and files, exchange order messages, review drafts, approve outcomes, and use purchased product controls.
+- `/` — customers enter the authenticated dashboard and manage purchases, briefs, files, messages, drafts, approvals, and purchased product controls.
 - `/admin` — administrators manage customers, payments, reviews, conversations, drafts, fulfillment, sites, roles, and audit events.
 
 Filament is a PHP/Livewire server-driven UI framework. It is not React. The separate `adzbyte-next` application remains the React/Next.js public frontend.

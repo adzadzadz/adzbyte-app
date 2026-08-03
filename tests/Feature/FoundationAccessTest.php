@@ -18,14 +18,17 @@ class FoundationAccessTest extends TestCase
         $this->get('/admin')
             ->assertRedirect('/admin/login');
 
-        $this->get('/account')
-            ->assertRedirect('/account/login');
+        $this->get('/')
+            ->assertRedirect('/login');
 
         $this->get('/admin/login')
             ->assertOk();
 
-        $this->get('/account/login')
+        $this->get('/login')
             ->assertOk();
+
+        $this->get('/account')->assertNotFound();
+        $this->get('/account/login')->assertNotFound();
     }
 
     public function test_customers_can_only_enter_the_account_panel(): void
@@ -33,7 +36,7 @@ class FoundationAccessTest extends TestCase
         $customer = $this->userWithRoles(UserRole::Customer);
 
         $this->actingAs($customer)
-            ->get('/account')
+            ->get('/')
             ->assertOk();
 
         $this->actingAs($customer)
@@ -50,7 +53,7 @@ class FoundationAccessTest extends TestCase
             ->assertOk();
 
         $this->actingAs($administrator)
-            ->get('/account')
+            ->get('/')
             ->assertForbidden();
     }
 
@@ -67,7 +70,7 @@ class FoundationAccessTest extends TestCase
             ->assertOk();
 
         $this->actingAs($superAdministrator)
-            ->get('/account')
+            ->get('/')
             ->assertForbidden();
     }
 
@@ -88,7 +91,7 @@ class FoundationAccessTest extends TestCase
         );
 
         $this->actingAs($user)
-            ->get('/account')
+            ->get('/')
             ->assertOk();
 
         $this->actingAs($user)
@@ -101,7 +104,7 @@ class FoundationAccessTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->get('/account')
+            ->get('/')
             ->assertForbidden();
 
         $this->actingAs($user)
