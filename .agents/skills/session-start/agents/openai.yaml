@@ -1,0 +1,4 @@
+interface:
+  display_name: "Session Start"
+  short_description: "Resume Adzbyte from documented project state"
+  default_prompt: "Use $session-start to orient this Adzbyte work session."

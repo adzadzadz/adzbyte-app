@@ -1,0 +1,4 @@
+interface:
+  display_name: "Session End"
+  short_description: "Verify and hand off an Adzbyte work session"
+  default_prompt: "Use $session-end to close this session with a clean handoff."

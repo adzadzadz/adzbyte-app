@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Docs"
+  short_description: "Audit and align Adzbyte project documentation"
+  default_prompt: "Use $review-docs to audit and align the Adzbyte documentation."

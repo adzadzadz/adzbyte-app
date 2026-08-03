@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Feature"
+  short_description: "Build verified Adzbyte application features"
+  default_prompt: "Use $implement-feature before changing Adzbyte application code."

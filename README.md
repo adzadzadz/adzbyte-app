@@ -1,58 +1,68 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Adzbyte App
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+`adzbyte-app` is the authenticated management and backend application for Adzbyte's experimental launch products.
 
-## About Laravel
+The repository is in active implementation. The framework, access, and authentication lifecycle foundation is complete; domain, payment, management-resource, and fulfillment features remain on the implementation roadmap.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Responsibility Boundary
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Application | Responsibility |
+|---|---|
+| `adzbyte-next` | Public campaign pages, product presentation, purchase calls to action, and payment return pages |
+| `adzbyte-app` | Customer and administrator management, REST API, accounts, orders, briefs, messaging, drafts, payments, fulfillment, sites, notifications, and audit history |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+`adzbyte-app` does not render an anonymous product catalog or campaign landing page.
 
-## Learning Laravel
+## Management Interfaces
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Both management experiences use Filament 5 and require authentication:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- `/account` — customers manage purchases, submit detailed briefs and files, exchange order messages, review drafts, approve outcomes, and use purchased product controls.
+- `/admin` — administrators manage customers, payments, reviews, conversations, drafts, fulfillment, sites, roles, and audit events.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+Filament is a PHP/Livewire server-driven UI framework. It is not React. The separate `adzbyte-next` application remains the React/Next.js public frontend.
 
-## Agentic Development
+## Backend Stack and Direction
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- Laravel 13 and PHP 8.3
+- Filament 5
+- Spatie Laravel Permission and Filament Shield
+- Laravel policies for record ownership and action authorization
+- Laravel Sanctum for the versioned REST API and restricted integrations
+- PayMongo Hosted Checkout and signed webhooks
+- Manual phase 1 fulfillment with later Hostinger automation
+
+The REST API will be built under `/api/v1` alongside the Filament features. Filament remains the phase 1 management UI; the API is prepared for later selective use by `adzbyte-next`.
+
+## Documentation
+
+The current source of truth is [Experimental Launch Products — Product and System Plan](docs/plans/2026-08-04-experimental-launch-products.md).
+
+That document defines the product scope, system boundary, authentication and RBAC model, REST API contract, post-payment brief, asynchronous messaging, first-draft SLA, payment flow, and hosting plan.
+
+Implementation sequencing is tracked in the [Implementation Roadmap](docs/plans/2026-08-04-implementation-roadmap.md), while [Project Status](docs/STATUS.md) records the current state and the single next task for a fresh work session.
+
+## Local Development
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer setup
+composer run dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Seed the repeatable application roles, then deliberately create or select the
+local super administrator through Filament Shield's interactive command:
 
-## Contributing
+```bash
+php artisan db:seed
+php artisan shield:super-admin --panel=admin
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Shield's role- and permission-mutating commands are disabled when the
+application is running in the `production` environment. Customer accounts and
+role assignments are never accepted from public application input.
 
-## Code of Conduct
+Run the test suite with:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+composer test
+```

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task Issue"
+  short_description: "Diagnose and verify Adzbyte bug fixes"
+  default_prompt: "Use $task-issue to investigate this Adzbyte problem."

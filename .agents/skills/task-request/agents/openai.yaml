@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task Request"
+  short_description: "Deliver new Adzbyte functionality safely"
+  default_prompt: "Use $task-request to assess and implement this new Adzbyte feature."

@@ -1,11 +1,18 @@
-# Experimental Launch Products — Product Strategy
+# Experimental Launch Products — Product and System Plan
 
-**Date:** 2026-08-04  
-**Status:** Draft — approved as a direction, implementation not started  
-**Market:** Philippines  
-**Acquisition:** Organic posts in social media groups and pages  
-**Visibility:** Off-menu promotional campaign  
-**Payment provider:** PayMongo
+| Planning field | Decision |
+|---|---|
+| Date | 2026-08-04 |
+| Status | Implementation in progress — foundation phase F complete |
+| Market | Philippines |
+| Acquisition | Organic posts in social-media groups and pages |
+| Visibility | Off-menu promotional campaign |
+| Public product UI | `adzbyte-next` only at `https://adzbyte.com` |
+| Management UI | Filament 5 `/admin` and `/account` panels in `adzbyte-app` at `https://app.adzbyte.com` |
+| REST API | Versioned Laravel API built alongside management features for later `adzbyte-next` use |
+| Authorization | Spatie Laravel Permission with Filament Shield and Laravel policies |
+| Payment provider | PayMongo Hosted Checkout |
+| Initial fulfillment | Manual, with later Hostinger automation |
 
 ## Overview
 
@@ -13,14 +20,239 @@ Adzbyte will offer extremely low-cost, one-time web experiments for Filipino fou
 
 This is not intended to be a low-priced custom-development service. It is a template-driven publishing service that makes use of existing hosting capacity, creates a source of referral traffic for Adzbyte, and gives a small number of experimental founders a path into future custom work.
 
+## Canonical Terminology
+
+Use these terms consistently in interfaces, code, and documentation:
+
+| Term | Meaning |
+|---|---|
+| Public product UI | Anonymous campaign and product pages rendered only by `adzbyte-next` |
+| Management UI | Authenticated Filament pages rendered only by `adzbyte-app` |
+| Customer panel | Filament `/account` in `adzbyte-app` |
+| Admin panel | Filament `/admin` in `adzbyte-app` |
+| Checkout initiated | An internal order and PayMongo Checkout Session exist; payment is not yet confirmed |
+| Payment confirmed | A valid PayMongo webhook has marked the payment `paid` |
+| Brief complete | Required answers and assets pass completeness validation and the customer has formally submitted them |
+| Ready for review | Payment is confirmed and the brief is complete; the 6–12-hour first-draft clock starts |
+| Draft ready | A preview version is available for the customer to inspect; the order is not yet delivered |
+| Live / delivered | The promised outcome has passed quality check and its final URL or response is available |
+| REST API | A versioned backend contract in `adzbyte-app`; it does not imply that Next.js owns phase 1 management |
+
+Avoid the unqualified word “completed.” Use **payment confirmed**, **brief complete**, **draft ready**, or **live / delivered** so the current stage is explicit.
+
 ## System Boundary
 
-- `adzbyte-next` remains the public Adzbyte marketing website and hosts the off-menu `/go-live` promotional pages.
-- `adzbyte-laravel` owns authentication, buyers, products, orders, content submissions, PayMongo checkout and webhooks, fulfillment workflows, sites, notifications, and customer/admin dashboards.
+- `adzbyte-next` owns only the public campaign and product experience. It hosts `/go-live`, product listing and detail pages, initial purchase calls to action, and customer-facing payment return pages.
+- `adzbyte-app` owns all management for both customers and administrators, the versioned REST API, and trusted backend processing. It is the system of record for users, buyers, products, orders, briefs, messages, attachments, drafts, PayMongo checkout sessions and webhooks, fulfillment workflows, sites, notifications, and audit events.
 - PayMongo remains the payment system of record for transaction processing; Laravel stores the references and reconciled payment state needed to operate each order.
 - Hostinger, WordPress, and static hosting are fulfillment targets. Their identifiers and lifecycle state are linked back to the Laravel order and site records.
 
-This separation protects the public website from application complexity while giving Adzbyte one operational source of truth across every promotional product.
+`adzbyte-app` must not serve an anonymous storefront, product catalog, campaign landing page, or other public application UI. Every human-facing management page requires authentication. The only routes reachable without an existing user session should be the minimum authentication-bootstrap routes needed to sign in, activate or recover an account, and explicitly configured machine endpoints such as the PayMongo webhook. Machine endpoints must authenticate independently through a signed webhook, a server-to-server credential, or an equivalent narrow mechanism.
+
+The browser must never receive `adzbyte-app` service credentials, PayMongo secret keys, or webhook secrets. Anonymous product and checkout-initiation requests pass through the `adzbyte-next` server to a narrowly authenticated server-to-server interface. The browser may be redirected to a PayMongo-hosted checkout URL created by the app. After payment, customer management continues in the authenticated `adzbyte-app` customer panel. The REST API is maintained in parallel for later Next.js use, but Next.js does not own the management experience in phase 1.
+
+This separation protects the public website from application complexity while giving Adzbyte one operational source of truth across every promotional product:
+
+```text
+Public browser
+  → adzbyte-next UI
+  → authenticated Next.js server-to-server request
+  → adzbyte-app creates or updates the user, order, and checkout session
+  → browser redirects to PayMongo Hosted Checkout
+  → signed PayMongo webhook reaches adzbyte-app
+  → customer manages the paid order in the authenticated adzbyte-app customer panel
+  → administrator manages operations in the authenticated adzbyte-app admin panel
+```
+
+## Application UI, Authentication, and Authorization
+
+Use **Filament 5** for both authenticated management interfaces inside `adzbyte-app`:
+
+- `/admin` — internal operations for orders, payments, reviews, fulfillment, sites, customers, roles, and audit history.
+- `/account` — customer management for purchases, briefs, messages, attachments, draft review, corrections, product controls, and sites.
+
+Neither panel is public. Both require authentication and must keep their resources, pages, widgets, navigation, and authorization isolated. `adzbyte-app` must not render public product listings or campaign pages; those remain in `adzbyte-next`.
+
+Use one `users` table, one `App\Models\User` model, and Laravel's normal `web` guard for both Filament panels and future API authentication. Do not create separate `Admin` and `Customer` models or duplicate authentication stores. This preserves one identity and order history if a staff member is also a customer and keeps account activation, password reset, and email verification centralized.
+
+The production origins are `https://adzbyte.com` for `adzbyte-next` and `https://app.adzbyte.com` for `adzbyte-app`. The initial super-administrator identity uses `adzbite@gmail.com`; its password or activation secret must be provisioned deliberately and must never be committed.
+
+Use Filament's built-in panel authentication for phase 1 login, password reset, email verification, profile management, and optional multi-factor authentication. Do not expose open self-registration in `adzbyte-app`: checkout creates or identifies the customer account, and the app sends a signed activation or set-password path. Use **Laravel Sanctum** to protect the versioned REST API and trusted machine integrations. Do not add a second headless authentication stack until a future Next.js management client actually requires it.
+
+For a new buyer email, trusted checkout application logic creates an unverified `customer` account with an unusable generated password before checkout. A verified paid webhook will later invoke the shared activation action, which sends a single-use signed link valid for 24 hours. The customer sets a password through that link; successful activation verifies the email, emits authentication events, signs the customer in, and opens `/account`.
+
+If an anonymous checkout supplies an email that already belongs to any user, the app must not attach a new order or disclose publicly that the account exists. Checkout pauses with generic instructions to sign in or reset the password, and the authenticated customer then retries checkout. Open registration remains disabled, expired or altered activation links fail, and an activated link cannot be reused.
+
+### RBAC Foundation
+
+Use the following established packages instead of building role and permission storage from scratch:
+
+- **Spatie Laravel Permission** is the authorization source of truth. It stores roles and permissions, integrates them with Laravel's Gate, and is usable from Filament, controllers, jobs, policies, and Blade/Livewire code.
+- **Filament Shield** integrates Spatie permissions with Filament 5. Use it to generate resource policies and permissions and to provide role-management screens in the admin panel.
+
+Shield is an adapter and management layer, not the authorization boundary by itself. Laravel policies and permission checks remain authoritative outside Filament and for custom actions.
+
+Start with three application roles:
+
+| Role | Panel access | Initial purpose |
+|---|---|---|
+| `customer` | `/account` only | Manage only the signed-in customer's orders, briefs, messages, drafts, product controls, and sites |
+| `administrator` | `/admin` only | Operate orders, content review, fulfillment, customers, payments, and sites according to assigned permissions |
+| `super_admin` | `/admin` only | Full system access, including role and permission administration |
+
+Roles should group permissions; application code should normally authorize capabilities through Laravel policies or `$user->can(...)`, not through scattered role-name checks. Reserve role checks for coarse panel entry and the super-admin override.
+
+### Interface and Record Isolation
+
+Interface entry and record access are separate security checks:
+
+1. `User::canAccessPanel()` checks the panel ID: customers enter only `/account`; administrators and super administrators enter only `/admin` unless they also hold the customer role.
+2. Every current management route requires Filament authentication. Every future customer API route uses `auth:sanctum`, email-verification middleware where appropriate, request validation, rate limiting, and a Laravel policy.
+3. Customer policy queries always scope records by ownership, such as `orders.user_id = authenticated_user_id`. The `customer` role alone must never grant access to every customer's orders, briefs, messages, drafts, payments, or sites.
+4. Filament uses the same policies for its resources and actions, with additional administrator permissions where required.
+5. Custom actions such as submitting a brief, approving a draft, requesting a correction, changing fulfillment state, reconciling payment, refunding, publishing, or archiving require explicit authorization in addition to resource visibility.
+
+Create permissions around business capabilities rather than screens. The initial groups should cover:
+
+- Orders: view, assign, request information, approve or reject content, and perform allowed status transitions.
+- Payments: view, reconcile, and initiate an approved refund workflow.
+- Sites: view, provision, publish, archive, and reactivate.
+- Customers and briefs: view and update within operational scope.
+- Administration: manage users, roles, permissions, and system settings.
+- Customer self-service: view owned orders/sites, update an eligible owned brief, and request an included correction.
+
+New customer registrations receive only the `customer` role through trusted server-side application logic. Never accept a role or permission value from a registration or checkout request. Seed the first `super_admin` deliberately, and allow only a super administrator to promote staff or change role assignments.
+
+Both Filament panels and the REST API must call the same Laravel application services and policies so behavior cannot diverge. Filament is the phase 1 management UI; the API remains a stable parallel contract that can support selected Next.js features later without moving current management out of `adzbyte-app`.
+
+## Future-Ready REST API Foundation
+
+Build the Laravel REST API alongside the Filament management features so `adzbyte-next` can consume selected capabilities later without a backend redesign. The API is not the phase 1 customer-management UI; `/account` in `adzbyte-app` remains authoritative for customer interaction and controls.
+
+### Access Modes
+
+| Caller | Surface | Authentication |
+|---|---|---|
+| Customer or administrator | Filament `/account` or `/admin` | Laravel `web` session plus panel access and model policies |
+| `adzbyte-next` server | Narrow `/api/v1/integration/*` routes | Dedicated, revocable Sanctum service token with explicit abilities |
+| Future first-party Next.js management client | Protected `/api/v1/*` customer routes | Sanctum stateful session cookies when deployed under the same top-level domain |
+| PayMongo | Dedicated webhook route | Verified `Paymongo-Signature` against the raw body; no user session |
+
+Never accept a customer ID from the Next.js server as proof of customer identity. Current anonymous checkout integration runs as a restricted service principal; future customer-management requests must authenticate the actual customer.
+
+### API Conventions
+
+- Place application endpoints under `/api/v1`; breaking response changes require a new version.
+- Return data through Laravel API Resources so database models and hidden fields are never serialized directly.
+- Use Form Request classes for validation and Laravel policies for every model lookup and mutation.
+- Return consistent validation, authorization, conflict, and rate-limit errors that Next.js can render predictably.
+- Use cursor or page-based pagination for lists, ISO 8601 UTC timestamps, opaque public identifiers, and explicit status enums.
+- Accept an idempotency key for checkout creation, brief submission, message creation, draft approval, correction requests, and other retry-prone mutations.
+- Rate-limit authentication, messaging, uploads, checkout creation, and state-changing actions separately.
+- Generate and maintain an OpenAPI contract so a later `adzbyte-next` integration can use generated types or a typed API client.
+- Keep customer endpoints, trusted Next.js integration endpoints, Filament/web routes, and third-party webhooks in separate route groups with separate middleware.
+
+Do not expose generic unrestricted CRUD for payments, order status, fulfillment, or site lifecycle. These are workflows, so the API should expose named business actions that validate the current state and record an audit event.
+
+### Initial Endpoint Groups
+
+The exact payloads will be defined during implementation, but the API contract should be prepared to cover:
+
+| Area | Representative endpoints | Purpose |
+|---|---|---|
+| Identity | `/api/v1/me`, `/api/v1/me/profile`, `/api/v1/me/notifications` | Current customer, profile, unread counts, and notification preferences |
+| Orders | `/api/v1/orders`, `/api/v1/orders/{order}`, `/api/v1/orders/{order}/timeline` | List owned purchases and show payment, requirements, fulfillment, and delivery state |
+| Requirements | `/api/v1/orders/{order}/brief`, `/api/v1/orders/{order}/brief/submit` | Autosave and formally submit the structured project brief |
+| Conversation | `/api/v1/orders/{order}/messages`, `/api/v1/orders/{order}/messages/{message}` | Asynchronous customer–Adzbyte communication tied to an order |
+| Attachments | `/api/v1/orders/{order}/attachments`, `/api/v1/attachments/{attachment}` | Upload, inspect, download, and remove authorized files |
+| Drafts | `/api/v1/orders/{order}/drafts`, `/api/v1/drafts/{draft}`, `/api/v1/drafts/{draft}/feedback`, `/api/v1/drafts/{draft}/approve` | Deliver preview versions and capture approval or actionable feedback |
+| Corrections | `/api/v1/orders/{order}/correction-requests` | Use the included correction without turning chat into an unlimited revision channel |
+| Purchased product controls | `/api/v1/orders/{order}/controls`, `/api/v1/orders/{order}/content-items` | Expose only the content and lifecycle controls granted by the purchased product |
+| Sites | `/api/v1/orders/{order}/site`, `/api/v1/sites/{site}/reactivation-requests` | Show the live URL, hosting dates, access instructions, and permitted lifecycle controls |
+| Integration | service-authenticated catalog and checkout-session endpoints | Let the Next.js server read product data and initiate checkout without exposing service credentials |
+| Webhooks | dedicated PayMongo webhook route | Receive signed provider events outside customer session authentication |
+
+All `{order}`, `{draft}`, `{attachment}`, and `{site}` bindings must be authorized against the authenticated customer. A valid identifier must never be sufficient by itself to retrieve another customer's record.
+
+Use dedicated records rather than placing the whole collaboration history in the order row:
+
+- `order_briefs` — questionnaire schema version, autosaved answers, completeness state, submission timestamps, and revision number.
+- `order_messages` — order, sender, customer-visible message type, body, and sent/read timestamps.
+- `attachments` — uploader, owning order, attached brief/message/feedback record, storage key, original name, media type, size, and security status.
+- `order_drafts` — immutable version number, preview URL, delivery timestamp, status, and creator.
+- `draft_feedback` — draft version, customer feedback, disposition, and resolution timestamps.
+- `order_entitlements` — purchased capabilities and limits, such as post count, product count, included corrections, editable fields, hosting term, and reactivation eligibility.
+- `content_items` — customer-managed blog posts, store items, or other product-specific content constrained by the order's entitlements.
+- `order_events` — append-only timeline of status, SLA, payment, communication, and fulfillment events.
+- `internal_notes` — staff-only operational notes stored separately from anything returned by the customer API.
+
+Uploads require an allowlist of file types, size and count limits, private storage, authorized temporary download URLs, and a quarantine/scanning step before administrators open them.
+
+## Customer Management and Fulfillment Workflow
+
+The following workflow is implemented first in the authenticated Filament panels. Its application services and policies also back the REST API so a later client can reproduce the same behavior without changing the business rules.
+
+### Structured Post-Payment Brief
+
+Checkout should collect only the minimum information required to identify the buyer, create the order, and take payment. After PayMongo confirms payment, the authenticated Filament customer panel in `adzbyte-app` unlocks a guided brief for that order. This is where the customer can explain the requested draft in detail while Adzbyte is unavailable.
+
+The brief should be schema-driven by product and autosave as a draft. Each order stores a snapshot of the questionnaire version so later product-form changes do not alter an existing customer's requirements. Depending on the product, collect:
+
+- Business, project, or idea summary
+- Goal of the page, blog, store, or consultation
+- Intended audience and the problem or need being addressed
+- Offer, products, services, pricing, and important differentiators
+- Required page sections and customer-supplied copy
+- Primary call to action and contact/order destination
+- Preferred template, colors, logo, images, and other brand assets
+- Reference sites or examples, including what the customer likes or dislikes
+- Product-specific details such as posts, catalog items, prices, ordering instructions, or the consultation question
+- Anything that must be included or avoided
+- Confirmation that the supplied content is accurate, permitted, and within the purchased scope
+
+Required fields and an on-screen completion checklist should help the customer reach a genuinely usable submission without waiting for a staff reply. A free-form message thread supplements the brief but does not replace required structured answers.
+
+### Asynchronous Order Conversation
+
+Each paid order has one customer-visible conversation shared by the customer and authorized administrators. Support these message types:
+
+- Customer message
+- Administrator reply
+- Automated system update, such as payment confirmed, brief received, more information requested, draft ready, or site published
+
+Messages may include authorized attachments and read timestamps. Email notifications should link back to the relevant authenticated `/account` order screen in `adzbyte-app`. Internal staff notes must be stored separately and must never appear in the customer panel or conversation API.
+
+This is asynchronous messaging, not a live-chat promise. When no administrator is available, the system immediately acknowledges the message, preserves it on the order timeline, shows the current order state, and tells the customer whether any required information is still missing.
+
+### Draft Review
+
+Store each delivered draft as an immutable version with its preview URL, delivery timestamp, and status. The customer can:
+
+- Open the latest preview from the Filament customer order screen.
+- Submit consolidated, specific feedback against that draft.
+- Approve the draft for publication.
+- Use the included correction when the product permits it.
+
+Draft feedback and correction requests must be distinct actions with clear scope. Ordinary conversation messages must not silently create unlimited revision obligations.
+
+The purchased product's entitlements determine what the customer may request. Draft review confirms that supplied content was understood and placed correctly; it does not create a general design-revision entitlement. Requests outside the purchased scope should become a separate quote instead of changing the existing order silently.
+
+### 6–12-Hour First-Draft Clock
+
+**Payment confirmed** and **live / delivered** are different events. Payment confirmation unlocks the requirements workflow; the order is not delivered until the promised outcome is available.
+
+The first-draft clock starts only when both conditions are true:
+
+1. PayMongo payment is confirmed by a valid webhook.
+2. The required brief fields and assets pass automated completeness validation and the customer formally submits the brief.
+
+At that moment, set `ready_for_review_at`, `draft_target_from_at` (`+6 hours`), and `draft_due_at` (`+12 hours`). Show these timestamps and a live status indicator in both the Filament customer and admin panels.
+
+If an administrator formally requests missing information, set `requirements_status=needs_information`, record the reason, and pause the clock without losing the current fulfillment history. Resume it only when the customer submits the requested information, extending the target by the recorded paused duration. Ordinary messages do not pause, restart, or extend the clock. Every start, pause, resume, and deadline change must be recorded in the order event log.
+
+The clock ends when the first reviewable draft or consultation outcome is delivered. Final publication follows customer approval and is not part of the 6–12-hour guarantee because the approval delay is controlled by the customer. After approval, publish as soon as operationally practical and show that stage separately.
+
+Before launch, explicitly decide whether the 6–12-hour window means elapsed clock hours or published business hours. Store timestamps in UTC and display them to the initial Philippine market in Asia/Manila time. Do not leave weekend, holiday, or after-hours behavior implicit.
 
 ## Core Positioning
 
@@ -50,7 +282,7 @@ These products are a promotional experiment and must not appear as part of Adzby
 - Exclude campaign routes from the public sitemap during the validation phase and mark them `noindex` initially. This can be reconsidered if the campaign becomes permanent.
 - Track campaign traffic separately through UTMs and dedicated analytics events.
 
-Recommended route structure:
+Recommended public route structure in `adzbyte-next`:
 
 - `/go-live` — main social campaign landing page
 - `/go-live/products` — off-menu experimental product listing
@@ -167,55 +399,63 @@ At the proposed prices, fulfillment must take approximately 5–15 minutes per o
 
 Recommended workflow:
 
-1. Customer selects a product.
-2. Customer completes a structured content form.
-3. Customer chooses from two or three templates.
-4. Customer pays the one-time launch fee.
-5. Submitted content is inserted into the selected template.
-6. Adzbyte performs a quick content and abuse review.
-7. The site is published and its URL is sent to the customer.
+1. Customer selects a product in the public `adzbyte-next` UI.
+2. Customer supplies the minimum identity and checkout information; the Next.js server sends it to `adzbyte-app` through the authenticated integration interface.
+3. `adzbyte-app` creates the buyer, order, and PayMongo Checkout Session.
+4. Next.js redirects the customer's browser to PayMongo for the one-time launch fee.
+5. `adzbyte-app` confirms payment from PayMongo's signed webhook, sets payment to `paid`, requirements to `in_progress`, and fulfillment to `waiting_for_details`.
+6. The customer enters the authenticated Filament `/account` panel in `adzbyte-app`, completes the product-specific brief, chooses a template, uploads assets, and can send order messages asynchronously.
+7. Formal brief submission starts the 6–12-hour first-draft window and places the order in `ready_for_review`.
+8. Adzbyte reviews the content, requests missing information if necessary, and prepares a draft.
+9. The customer reviews the draft, provides the permitted feedback or approval, and follows progress through the `/account` order screen.
+10. The site is published and its URL and access instructions are recorded and displayed in `adzbyte-app`.
 
 Phase 1 fulfillment will be manual. Automation remains a later optimization after real demand, abuse patterns, and support requirements are understood.
 
-### Customer-Facing Fulfillment Promise
+### Customer-Facing Draft and Delivery Promise
 
-- Publish within **6–12 hours** after both payment and complete content are received.
-- Start the fulfillment clock only when all required text, images, contact details, and product information have been submitted.
+- Deliver the first reviewable draft or consultation outcome within **6–12 hours** after payment is confirmed and the brief is complete.
+- Start the first-draft clock only when payment is confirmed and the customer formally submits all required text, images, contact details, and product information through the guided brief.
 - If information is incomplete or fails content review, pause the clock and notify the customer.
 - Show the 6–12-hour window beside every purchase CTA, in checkout-supporting copy, and in the payment confirmation email.
-- Do not promise instant publishing or imply that the site is generated immediately after payment.
+- Show whether the clock is waiting, active, or paused on the authenticated `/account` order screen, including the reason when more information is required.
+- Explain that final publication happens after customer approval and is separate from the first-draft deadline.
+- Do not promise instant drafting or publication after payment.
 
 Suggested wording:
 
-> Your site will be reviewed, prepared, and published within 6–12 hours after payment and complete content submission.
+> We’ll prepare your first reviewable draft within 6–12 hours after your payment is confirmed and you submit all required content and files. Final publication follows your approval.
 
-### Centralized Adzbyte Account and Dashboard
+### Customer Account Panel
 
-The campaign will use `adzbyte-laravel` as the central system of record for buyers, users, products, orders, payments, submissions, sites, and fulfillment activity. WordPress and Hostinger may still run customer sites, but neither should be the authoritative buyer/order database.
+The campaign will use `adzbyte-app` as the central system of record for buyers, users, products, orders, payments, briefs, messages, drafts, sites, and fulfillment activity. WordPress and Hostinger may still run customer sites, but neither should be the authoritative buyer/order database. `adzbyte-next` presents public product information but does not become a second buyer, order, or payment ledger.
 
-The first customer dashboard should remain intentionally small:
+The customer management UI lives in the authenticated Filament `/account` panel in `adzbyte-app`. Its initial scope should remain focused:
 
-- Register, log in, reset a password, and verify an email address.
+- Activate the checkout-created account, set or reset a password, log in, and verify an email address through Filament's panel authentication.
 - View every order and its current payment and fulfillment status.
-- Complete or update the structured content submission while an order is awaiting information.
-- See the 6–12-hour fulfillment target and any information requests from Adzbyte.
+- Complete, autosave, and formally submit the structured product brief and required assets.
+- Exchange asynchronous customer-visible messages with Adzbyte on each paid order.
+- See the 6–12-hour first-draft target and any information requests from Adzbyte.
+- Review each delivered draft, submit permitted feedback, and approve it for publication.
+- Use only the product controls and content limits granted by the purchase.
 - Receive the live URL, hosting activation date, guaranteed hosting end date, and support instructions.
 - Submit the correction included with an eligible product.
 - View site-level access instructions when a product includes customer editing.
 
-The dashboard is an order-and-site portal, not a general-purpose website builder. Do not expose Hostinger hPanel, SFTP, database, or unrestricted administrator access as part of the base promotional products.
+The customer panel is an order communication, draft-review, and site-control portal, not a general-purpose website builder. Do not expose Hostinger hPanel, SFTP, database, or unrestricted administrator access as part of the base promotional products.
 
-Email remains the notification channel, but emails should link customers back to the Laravel dashboard so order history and operational state remain centralized.
+Email remains the notification channel, but emails should link customers back to the authenticated Filament `/account` order screen.
 
 ### Internal Buyer and Order Tracking
 
-Laravel is the authoritative buyer and order ledger. Every checkout must be associated with a Laravel user and order record before the customer is sent to PayMongo. Forms, email notifications, PayMongo, WordPress, and Hostinger are integrations around that record rather than independent sources of truth.
+Laravel is the authoritative buyer and order ledger. Every checkout must be associated with a Laravel user and order record before the customer is sent to PayMongo. The public Next.js forms, email notifications, PayMongo, WordPress, and Hostinger are interfaces or integrations around that record rather than independent sources of truth.
 
 Use dedicated relational tables and an Adzbyte administrator interface because an order changes state throughout payment, review, provisioning, publication, and archival.
 
 #### Buyer Identity
 
-Use the buyer’s verified email address as the primary contact identifier and retain their mobile number as a secondary matching field. A repeat purchase can be associated with the same internal buyer record without requiring the customer to create or remember a password.
+Use the buyer’s verified email address as the primary contact identifier and retain their mobile number as a secondary matching field. Associate a repeat purchase with an existing buyer only after an authenticated session or email-verification step; never attach it solely from an email address supplied in a public form. Access to the Filament customer panel still requires authentication.
 
 Collect:
 
@@ -241,9 +481,10 @@ Create the internal order before sending the buyer to PayMongo. Each order shoul
 - PayMongo payment and event IDs
 - Payment status and paid timestamp
 - Fulfillment status
+- Brief status, questionnaire schema version, and requirements submission timestamp
+- SLA readiness, target-from, deadline, pause, resume, and accumulated paused-duration timestamps
 - Review notes and rejection reason, if applicable
 - Assigned administrator
-- 6–12-hour fulfillment deadline
 - Hostinger website UID, when available
 - Live URL
 - Customer credential-delivery status, without storing a plain-text password
@@ -252,21 +493,33 @@ Create the internal order before sending the buyer to PayMongo. Each order shoul
 
 #### Order Statuses
 
-Use an explicit status flow:
+Do not overload one order-status column with payment, requirements, and fulfillment state. Track them separately so the API and both management panels can explain exactly what is waiting:
 
 ```text
-draft
-  → awaiting_payment
-  → paid_pending_review
-  → needs_information | rejected | approved_for_provisioning
-  → provisioning
-  → quality_check
-  → live
-  → expiring
-  → archived | reactivated
+payment_status:
+  pending → paid → refunded
+          ↘ failed | cancelled
+
+requirements_status:
+  locked → in_progress → submitted → accepted
+                           ↘ needs_information → submitted
+
+fulfillment_status:
+  waiting_for_payment
+    → waiting_for_details
+    → ready_for_review
+    → draft_in_progress
+    → draft_ready
+    → changes_requested → draft_in_progress
+    → approved_for_provisioning
+    → provisioning
+    → quality_check
+    → live
+    → expiring
+    → archived | reactivated
 ```
 
-Refunded and cancelled should be terminal branches that can be reached from the relevant pre-publication states.
+Rejection and cancellation are explicit terminal order outcomes reachable from the relevant pre-publication states. Refunds change the payment track and must trigger the corresponding order outcome deliberately; they must not implicitly erase fulfillment or audit history.
 
 #### PayMongo Reconciliation
 
@@ -276,21 +529,23 @@ Refunded and cancelled should be terminal branches that can be reached from the 
 - Store each processed event ID so webhook retries cannot create duplicate fulfillment work.
 - Never store card numbers, e-wallet credentials, or other payment credentials; PayMongo remains the payment system of record.
 
-#### Internal Admin View
+#### Admin Panel
 
-The Laravel administrator dashboard should initially provide:
+The Filament `/admin` panel should initially provide:
 
 - Search by order reference, buyer name, email, mobile number, or live URL
 - Filters for product, payment state, fulfillment state, and overdue orders
-- A visible countdown to the 6–12-hour deadline
-- Submitted content and asset review
+- A visible waiting/active/paused countdown to the 6–12-hour first-draft deadline
+- Structured brief completeness, submitted answers, and asset review
+- The customer-visible order conversation with reply and request-information actions
+- Draft-version creation, preview delivery, feedback, and approval state
 - Internal notes and assignment
 - Controlled status-change actions
 - PayMongo and Hostinger identifiers
 - Buttons to resend confirmation, request missing information, mark live, or archive
 - A chronological order event log
 
-This internal admin screen is the team’s operational dashboard. It shares the same buyer, order, payment, and site records as the customer dashboard while exposing privileged fulfillment controls.
+The admin panel is the team’s operational workspace. It shares the same buyer, order, payment, and site records as the customer panel while exposing privileged fulfillment controls.
 
 #### Privacy and Security
 
@@ -355,6 +610,8 @@ Revenue from launch fees is secondary to traffic generation, offer validation, a
 
 **Proposed route:** `/go-live/products`
 
+This is a public `adzbyte-next` page. `adzbyte-app` may manage the underlying product records and supply data to the Next.js server, but it must not render a second product listing.
+
 The page should feel like a small menu of experiments rather than an agency services catalog.
 
 ### Page Structure
@@ -366,7 +623,7 @@ The page should feel like a small menu of experiments rather than an agency serv
    - I want to try blogging — ₱199
    - I want to try selling online — ₱299
    - I want to ask a developer — ₱99
-4. **How it works:** submit, pay, and receive the live URL within 6–12 hours
+4. **How it works:** choose a product, pay once, complete the brief in `/account`, and receive the draft or outcome within the stated window
 5. **What is included for free:** subdomain, experimental hosting, quote, and qualified mockup
 6. **Examples:** selected experimental sites or representative demos
 7. **Custom work banner:** clear path to a conventional quote
@@ -379,6 +636,8 @@ Each card should display the price, exact outcome, turnaround target, hosting gu
 
 **Proposed route:** `/go-live`
 
+This is a public `adzbyte-next` page. There is no corresponding anonymous campaign or landing page in `adzbyte-app`.
+
 This is the main destination for Facebook groups, pages, and other social posts.
 
 ### Page Structure
@@ -388,7 +647,7 @@ This is the main destination for Facebook groups, pages, and other social posts.
 3. **Primary CTA:** “Launch My Idea”
 4. **Example experiment:** show a realistic live result
 5. **Exact ₱99 inclusions and limitations**
-6. **Three-step flow:** submit details, pay once, receive the link
+6. **Four-step flow:** choose, pay once, complete the authenticated brief, and receive the draft or outcome
 7. **Template selection preview**
 8. **Other experimental products**
 9. **Hosting and archival explanation**
@@ -412,22 +671,24 @@ Supporting hooks:
 
 PayMongo is the selected payment provider. The recommended implementation is **PayMongo Hosted Checkout created through the API**, rather than manually checking payment screenshots.
 
-Hosted Checkout gives the customer a PayMongo-managed payment screen while still allowing Adzbyte to attach an internal order reference and automate fulfillment. PayMongo sends a `checkout_session.payment.paid` webhook when checkout succeeds; that webhook should move the matching internal order into the fulfillment queue.
+Hosted Checkout gives the customer a PayMongo-managed payment screen while still allowing Adzbyte to attach an internal order reference and automate processing. PayMongo sends a `checkout_session.payment.paid` webhook when checkout succeeds; that webhook should mark payment as confirmed and unlock the matching order's requirements workflow.
 
 ### Recommended Payment Flow
 
-1. Customer selects an experimental product and submits the structured content form.
-2. Adzbyte creates an internal order with a unique reference and `awaiting_payment` status.
-3. The server creates a PayMongo Checkout Session containing the order reference and product metadata.
-4. Customer completes payment on PayMongo’s hosted page.
-5. PayMongo sends `checkout_session.payment.paid` to an Adzbyte webhook endpoint.
-6. The webhook verifies the `Paymongo-Signature` HMAC against the raw request body.
-7. The webhook confirms the amount, currency, live/test mode, order reference, and that the event has not already been processed.
-8. The order changes to `paid_pending_review`; payment success alone must not publish customer content immediately.
-9. After content and abuse review, the order moves to `approved_for_provisioning` for manual phase 1 fulfillment.
-10. The customer receives a confirmation and later receives the live URL and any site-level credentials.
+1. Customer selects an experimental product and submits only the minimum buyer and checkout details in `adzbyte-next`.
+2. The Next.js server validates the public request and calls an authenticated `adzbyte-app` server endpoint; the browser must not call the trusted application interface with a service credential.
+3. `adzbyte-app` creates or identifies the Laravel user and creates an internal order with a unique reference, `payment_status=pending`, `requirements_status=locked`, and `fulfillment_status=waiting_for_payment`.
+4. `adzbyte-app` creates a PayMongo Checkout Session containing the order reference and product metadata and returns only the safe checkout URL to Next.js.
+5. Next.js redirects the customer to PayMongo's hosted payment page.
+6. PayMongo sends `checkout_session.payment.paid` directly to the dedicated `adzbyte-app` webhook endpoint.
+7. The app verifies the `Paymongo-Signature` HMAC against the raw request body.
+8. The app confirms that the amount, currency, live/test mode, order reference, and Checkout Session match and that the event has not already been processed.
+9. Payment changes to `paid`, requirements change to `in_progress`, fulfillment changes to `waiting_for_details`, and the order's structured brief and conversation become available in the authenticated Filament `/account` panel.
+10. The app sends an account activation or order-ready notification. Next.js may display the payment return page, but only `adzbyte-app` records authoritative payment state.
+11. The customer completes and formally submits the guided brief. Once required content is complete, fulfillment changes to `ready_for_review` and the 6–12-hour first-draft clock starts.
+12. After content and abuse review in the Filament admin panel, Adzbyte prepares and delivers a draft through the customer panel before the approved result proceeds to provisioning and publication. The REST API exposes the same action for later clients.
 
-Webhook processing must be idempotent because events can be retried. Store the PayMongo event ID, Checkout Session ID, payment ID, reference number, amount, and final order status. The success redirect page is only a customer-facing confirmation; it must not be treated as proof of payment.
+Webhook processing must be idempotent because events can be retried. Store the PayMongo event ID, Checkout Session ID, payment ID, reference number, amount, and final order status. The public success redirect page in `adzbyte-next` is only a customer-facing confirmation; it must not be treated as proof of payment.
 
 ### Payment Methods and Small-Order Economics
 
@@ -441,13 +702,13 @@ For ₱99–₱299 products:
 - Use test keys and test webhooks until the complete order-to-provisioning flow passes end to end.
 - Keep live secret keys and webhook secrets server-side only.
 
-### Requirements
+### Payment Provider Requirements
 
 - Appropriate for transactions as low as ₱99
 - Familiar and accessible to Filipino customers
 - Reasonable fixed and percentage fees
 - Easy to use from a mobile social-media browser
-- Provides an order reference that can be matched to a submission
+- Provides an order reference that can be matched to the internal order
 - Supports payment confirmation without excessive manual work
 - Does not force customers into a subscription
 - Has a clear refund and failed-payment process
@@ -456,9 +717,9 @@ For ₱99–₱299 products:
 ### Remaining Payment Decisions
 
 - Confirm which PayMongo methods are activated for the merchant account.
-- Decide whether content review happens before checkout or immediately after payment.
 - Define the refund outcome when paid content is rejected.
-- Decide whether customers need an account or can use email plus an order reference.
+- Define the exact account-enrollment and verified-email handoff from the public Next.js flow to the authenticated Filament customer panel.
+- Select and rotate the narrow server-to-server authentication mechanism used between `adzbyte-next` and `adzbyte-app`.
 - Reconfirm PayMongo’s fees, settlement schedule, merchant requirements, and refund behavior before launch.
 
 ## PayMongo-to-Hostinger Provisioning Research
@@ -493,12 +754,16 @@ The API token inherits the permissions of the Hostinger account owner and must r
 ### Future Automated Provisioning Workflow
 
 ```text
-Customer submits content
-  → internal order created
+Customer selects product in adzbyte-next
+  → internal user and order created
   → PayMongo Hosted Checkout
   → signed checkout_session.payment.paid webhook
-  → order marked paid_pending_review
+  → order marked paid / waiting_for_details
+  → customer completes brief and sends any supporting messages or files
+  → brief submitted and 6–12-hour first-draft clock started
   → manual content/abuse approval
+  → draft prepared and delivered through the Filament customer panel
+  → customer feedback or approval
   → provisioning job queued
   → Hostinger Agency API provisions or clones website
   → poll setup until completed
@@ -523,15 +788,23 @@ Use a **manual-provisioning phase 1**:
 
 1. Use PayMongo checkout and record confirmed payments against internal order references.
 2. Keep content approval manual to prevent automated spam, phishing, and prohibited-content publication.
-3. Provision, configure, review, and publish the Hostinger website manually within the 6–12-hour customer promise.
+3. Prepare and deliver the first reviewable draft within the 6–12-hour promise; after customer approval, provision, configure, review, and publish the Hostinger website manually.
 4. Send the live URL and any limited site-level credentials manually.
 5. Record the manual steps and time spent so the highest-value automation opportunities are based on evidence.
 6. Introduce Hostinger API provisioning later while retaining the content-approval checkpoint.
 
 Before implementation, confirm that the existing Hostinger order is an Agency Hosting plan and that its API token can access the Agency Hosting endpoints. If the current plan is not compatible, the fallback is to publish the Idea Test Page from a shared multi-tenant static application and provision WordPress products manually until the hosting setup is changed.
 
-### Official Research References
+## Official References
 
+- [Filament 5 installation](https://filamentphp.com/docs/5.x/introduction/installation)
+- [Filament 5 PHP and Livewire architecture](https://filamentphp.com/docs/5.x/introduction/overview)
+- [Filament panel users and authentication](https://filamentphp.com/docs/5.x/users/overview)
+- [Filament panel access and authorization](https://filamentphp.com/docs/5.x/advanced/security)
+- [Laravel Sanctum SPA and API authentication](https://laravel.com/docs/13.x/sanctum)
+- [Laravel API Resources](https://laravel.com/docs/13.x/eloquent-resources)
+- [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission/v8/introduction)
+- [Filament Shield](https://filamentphp.com/plugins/bezhansalleh-shield)
 - [PayMongo Hosted Checkout](https://docs.paymongo.com/docs/payment-channels-hosted-checkout)
 - [PayMongo webhook setup and signature verification](https://docs.paymongo.com/docs/developer-tools-webhook-setup-management)
 - [PayMongo webhook event reference](https://docs.paymongo.com/reference/webhook-resource)
@@ -541,19 +814,32 @@ Before implementation, confirm that the existing Hostinger order is an Agency Ho
 - [Hostinger Agency Hosting overview and client access](https://support.hostinger.com/en/articles/10656861-agency-hosting-plans-how-to-get-started)
 - [Hostinger account sharing behavior](https://support.hostinger.com/en/articles/1583777-how-to-share-access-to-your-account)
 
-## Decisions Required Before Implementation
+## Outstanding Decisions Before Relevant Implementation
 
-1. Confirm or revise the ₱99 / ₱199 / ₱299 launch prices.
-2. Confirm the 90-day hosting guarantee and ₱49 reactivation fee.
-3. Choose the experimental-site domain strategy.
-4. Define the first two templates for each product.
-5. Confirm whether the existing Hostinger subscription supports Agency Hosting API provisioning.
-6. Confirm PayMongo account activation and enabled payment methods.
-7. Define content rules, takedown terms, privacy language, and refund policy.
-8. Decide whether the free mockup is available publicly or only after qualification.
-9. Decide whether content review occurs before or immediately after payment.
-10. Define the limited customer roles and credential-delivery method for Blog Lite and Store Lite.
-11. Approve the Laravel account, administrator workflow, buyer-data retention period, and initial customer-dashboard scope.
+### Product and Commercial
+
+- [ ] Confirm or revise the ₱99 / ₱199 / ₱299 launch prices.
+- [ ] Confirm the 90-day hosting guarantee and ₱49 reactivation fee.
+- [ ] Choose the experimental-site domain strategy.
+- [ ] Define the first two templates for each product.
+- [ ] Decide whether the free mockup is public or available only after qualification.
+
+### Customer Policy and Operations
+
+- [ ] Define content rules, takedown terms, privacy language, and refund policy.
+- [ ] Approve each product's brief questions, required assets, and automated definition of a complete brief.
+- [ ] Define asynchronous messaging expectations, attachment limits, moderation rules, and notification behavior.
+- [ ] Decide whether the 6–12-hour first-draft window uses elapsed hours or published business hours, including weekend and holiday behavior.
+- [ ] Define the limited WordPress site roles and credential-delivery method for Blog Lite and Store Lite.
+- [ ] Approve the detailed administrator workflow and buyer-data retention period.
+
+### Technical and Integration
+
+- [ ] Confirm whether the existing Hostinger subscription supports Agency Hosting API provisioning.
+- [ ] Confirm PayMongo account activation and enabled payment methods.
+- [ ] Approve the initial REST API release scope and payload contract.
+- [ ] Choose and rotate the restricted service credential used by `adzbyte-next`.
+- [x] Use `https://adzbyte.com` for `adzbyte-next` and `https://app.adzbyte.com` for `adzbyte-app` when configuring future Sanctum session-cookie and CORS settings.
 
 ## Out of Scope Until Approved
 
@@ -564,3 +850,4 @@ Before implementation, confirm that the existing Hostinger order is an Agency Ho
 - Full ecommerce payment processing
 - Unlimited revisions or support
 - Custom development within the experimental launch fee
+- Customer management screens in `adzbyte-next` during phase 1
