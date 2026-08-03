@@ -39,6 +39,7 @@ and reactivation terms listed under Decisions Needed Later.
 - A dedicated SSH key is authorized with mode-`600` key-file permissions. Both the Laravel scheduler and stop-when-empty database queue worker are configured in hPanel at `* * * * *` and have produced cron output records.
 - All five production migrations ran, Laravel production caches were built, the manual scheduler and queue checks passed, and both `jobs` and `failed_jobs` were empty after verification.
 - `/up`, `/account/login`, and `/admin/login` each returned HTTP 200 over HTTPS. The only Laravel errors were expected first-boot entries created before the application key and database tables existed; later verification created no new errors.
+- Production mail authenticates through the primary Hostinger mailbox and sends application mail from the `notifications@adzbyte.com` alias. Hostinger accepted a Laravel SMTP test message to the primary mailbox without exposing the credential.
 - Full PHP tests remained green at 25 tests and 91 assertions; Pint and the production frontend build passed during setup verification.
 - The CI, manual promotion, Hostinger post-pull, and explicit-command authorization paths were reviewed; workflow/interface YAML and shell syntax checks passed.
 - The release skill passed its validator during creation and has implicit invocation disabled.
@@ -89,7 +90,6 @@ The first item blocks the opening D1 product-and-entitlement slice:
 
 ## Known Issues
 
-- Production mail is intentionally configured with Laravel's `log` mailer until a real transport and sender identity are chosen; activation and password-reset email delivery is not yet live.
 - The production super-administrator has not been bootstrapped. Its identity remains recorded, but password provisioning is a separate deliberate operation.
 
 ## Working Tree Handoff
@@ -102,4 +102,5 @@ The first item blocks the opening D1 product-and-entitlement slice:
 - The session-owned development server was stopped.
 - Remote `main` is released from source commit `12ed0c81d235`; the generated `deploy` branch and Hostinger deployment are at `eda1d21cc641`.
 - The first production database, `.env`, SSH path, pre-migration backup, migrations, scheduler cron, and queue cron were created and verified during the authorized release window.
+- Hostinger SMTP is active for `notifications@adzbyte.com`; the protected production `.env` holds the mailbox credential and all temporary credential files were removed after verification.
 - No database seeders ran and no production super-administrator was created.
