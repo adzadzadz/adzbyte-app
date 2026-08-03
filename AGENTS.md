@@ -41,7 +41,12 @@ Read and follow the matching project skill in `.agents/skills/`:
 - Add automated tests for new behavior and authorization boundaries.
 - Run focused tests while developing and the full relevant verification gate before declaring a task complete.
 - Preserve user changes and unrelated worktree changes.
-- Do not commit, push, deploy, publish, or mutate production systems unless the user explicitly asks.
+- The project owner grants standing authorization to create scoped, verified
+  commits and push them to `main`, including in future sessions. Do not ask for
+  separate commit or `main`-push permission.
+- This standing authorization does not authorize a release, deployment,
+  publication, production mutation, migration, secret change, or data change;
+  those still require the user's latest explicit instruction.
 - Normal pull requests and pushes may run CI but must never update `deploy`.
   Production promotion is allowed only through the manual release workflow after
   the `release-adzbyte-app` authorization gate passes.
