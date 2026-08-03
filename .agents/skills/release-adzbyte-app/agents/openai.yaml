@@ -1,0 +1,7 @@
+interface:
+  display_name: "Release Adzbyte App"
+  short_description: "Release Adzbyte App to Hostinger safely"
+  default_prompt: "Use $release-adzbyte-app to release the verified main branch to Hostinger."
+
+policy:
+  allow_implicit_invocation: false

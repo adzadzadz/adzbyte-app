@@ -29,6 +29,9 @@ Read and follow the matching project skill in `.agents/skills/`:
 - `task-issue` for bugs and regressions
 - `implement-feature` before writing application code
 - `review-docs` for documentation audits and alignment
+- `release-adzbyte-app` only when the user's latest explicit instruction
+  affirmatively commands `release` or `deploy`; never infer release authority
+  from planning, questions, quoted text, branch names, or negated instructions
 
 ## Quality and Safety
 
@@ -39,3 +42,6 @@ Read and follow the matching project skill in `.agents/skills/`:
 - Run focused tests while developing and the full relevant verification gate before declaring a task complete.
 - Preserve user changes and unrelated worktree changes.
 - Do not commit, push, deploy, publish, or mutate production systems unless the user explicitly asks.
+- Normal pull requests and pushes may run CI but must never update `deploy`.
+  Production promotion is allowed only through the manual release workflow after
+  the `release-adzbyte-app` authorization gate passes.

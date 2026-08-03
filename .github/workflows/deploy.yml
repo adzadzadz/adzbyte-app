@@ -1,0 +1,98 @@
+name: Release to Hostinger
+run-name: ${{ inputs.command }} main to Hostinger
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: Explicit production authorization
+        required: true
+        type: choice
+        options:
+          - release
+          - deploy
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+
+jobs:
+  authorize:
+    name: Confirm release directive
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+
+    steps:
+      - name: Accept only release or deploy
+        env:
+          RELEASE_COMMAND: ${{ inputs.command }}
+          RELEASE_REF: ${{ github.ref }}
+        run: |
+          case "$RELEASE_COMMAND" in
+            release|deploy) ;;
+            *) exit 1 ;;
+          esac
+
+          if [[ "$RELEASE_REF" != "refs/heads/main" ]]; then
+            echo "Production releases must run from main." >&2
+            exit 1
+          fi
+
+  verify:
+    name: Verify release
+    needs: authorize
+    uses: ./.github/workflows/ci.yml
+    with:
+      upload_assets: true
+
+  promote:
+    name: Promote to deploy branch
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://app.adzbyte.com
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out source history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Prepare deploy branch
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --heads origin deploy; then
+            git fetch origin deploy:refs/remotes/origin/deploy
+            git switch --create deploy --track origin/deploy
+            git merge --no-commit --no-ff "$SOURCE_SHA"
+          else
+            git switch --create deploy "$SOURCE_SHA"
+          fi
+
+          git rm -r --ignore-unmatch public/build
+
+      - name: Download verified production assets
+        uses: actions/download-artifact@v7
+        with:
+          name: production-assets-${{ github.sha }}
+          path: public/build
+
+      - name: Publish deploy branch
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          git add --force public/build
+          git commit --allow-empty --message "Deploy ${SOURCE_SHA::12}"
+          git push origin deploy
