@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress — foundation F, branding M0, customer Home M1.1, and administrator Home M2.1 complete |
+| Status | In progress — foundation F, branding M0, customer Home M1.1, administrator Home M2.1, and API foundation A1 complete |
 | Product source of truth | `docs/plans/2026-08-04-experimental-launch-products.md` |
 | Progress tracker | `docs/STATUS.md` |
 | Application | Laravel 13 / PHP 8.3 |
@@ -122,9 +122,9 @@
 
 - [x] Create `/api/v1` route groups for customer, integration, and webhook surfaces.
 - [x] Define a consistent resource envelope, UTC timestamps, and error format; pagination metadata is reserved for the first collection endpoint.
-- [ ] Use Form Requests, API Resources, policies, and route-model authorization for every input and record lookup; the identity-only slice establishes the API Resource boundary but has no request data or supplied record identifier.
+- [x] Establish Form Requests, API Resources, policies, and route-model authorization as the per-endpoint boundary; the current identity-only endpoint uses its API Resource and has no request data or supplied record identifier requiring the other layers.
 - [x] Add separate named rate-limit boundaries for customer, integration, and webhook surfaces.
-- [ ] Add reusable idempotency handling for future retry-prone mutations.
+- [x] Add reusable idempotency handling for future retry-prone mutations.
 - [x] Maintain an OpenAPI contract and contract tests for every implemented endpoint.
 
 ### A2. Customer API

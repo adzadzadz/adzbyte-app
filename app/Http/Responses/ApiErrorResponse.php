@@ -10,6 +10,26 @@ use Throwable;
 
 final class ApiErrorResponse
 {
+    /**
+     * @param  array<string, mixed>|stdClass  $details
+     * @param  array<string, string|string[]>  $headers
+     */
+    public static function make(
+        string $code,
+        string $message,
+        int $status,
+        array|stdClass $details = new stdClass,
+        array $headers = [],
+    ): JsonResponse {
+        return response()->json([
+            'error' => [
+                'code' => $code,
+                'message' => $message,
+                'details' => $details,
+            ],
+        ], $status, $headers);
+    }
+
     public static function fromException(Response $response, Throwable $exception): JsonResponse
     {
         $status = $response->getStatusCode();
@@ -47,12 +67,6 @@ final class ApiErrorResponse
         $headers = $response->headers->all();
         unset($headers['content-length'], $headers['content-type']);
 
-        return response()->json([
-            'error' => [
-                'code' => $code,
-                'message' => $message,
-                'details' => $details,
-            ],
-        ], $status, $headers);
+        return self::make($code, $message, $status, $details, $headers);
     }
 }
