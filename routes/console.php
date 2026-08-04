@@ -9,3 +9,12 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('api:idempotency:prune')->daily();
+
+Schedule::command('queue:monitor', [
+    config('queue.monitor.connection').':'.config('queue.monitor.queue'),
+    '--max='.config('queue.monitor.max_jobs'),
+])->everyMinute()->withoutOverlapping(5);
+
+Schedule::command('operations:queue-health')
+    ->everyFiveMinutes()
+    ->withoutOverlapping(5);

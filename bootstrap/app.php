@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AddSecurityHeaders;
 use App\Http\Middleware\EnsureCustomerApiAccess;
 use App\Http\Middleware\EnsureIdempotentApiRequest;
 use App\Http\Responses\ApiErrorResponse;
@@ -17,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustHosts();
+        $middleware->append(AddSecurityHeaders::class);
         $middleware->statefulApi();
 
         $middleware->alias([

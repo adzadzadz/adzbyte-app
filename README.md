@@ -84,3 +84,8 @@ assets. Hostinger Business pulls only that branch for `app.adzbyte.com`.
 See the [Hostinger Business deployment guide](docs/deployment/hostinger-business.md)
 for repository settings, hPanel setup, production environment configuration,
 post-pull commands, cron jobs, and release verification.
+
+The [core operations and readiness runbook](docs/operations/core-readiness.md)
+covers health signals, queue recovery, migration incidents, backup/restore
+verification, credential compromise, and the exact boundary of deferred product
+work.

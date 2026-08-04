@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress — foundation F, branding M0, customer Home M1.1, administrator Home M2.1, user administration M2.2, and API foundation A1 complete |
+| Status | Pre-product core complete — remaining implementation requires product, payment, collaboration, hosting, privacy, or alerting decisions |
 | Product source of truth | `docs/plans/2026-08-04-experimental-launch-products.md` |
 | Progress tracker | `docs/STATUS.md` |
 | Application | Laravel 13 / PHP 8.3 |
@@ -184,14 +184,14 @@
 
 ## Phase Q — Production Readiness
 
-- [ ] Full authorization and cross-account isolation audit.
+- [ ] Full authorization and cross-account isolation audit; the implemented pre-domain identity, panel, user/role, and API surfaces are audited, while record isolation waits for the domain records.
 - [ ] Webhook replay, duplicate, invalid-signature, and out-of-order tests.
 - [ ] Upload security and private-file access audit.
-- [ ] Queue retry, failed-job, notification, and monitoring setup.
+- [ ] Queue retry, failed-job, notification, and monitoring setup; generic after-commit dispatch, bounded activation retries, structured logs, queue-depth/staleness checks, and the recovery runbook are complete, while each future workflow still requires idempotency and alert behavior.
 - [ ] Database indexes and query review for operational queues and timelines.
-- [ ] Backup, retention, privacy, takedown, and incident procedures.
+- [ ] Backup, retention, privacy, takedown, and incident procedures; the pre-migration backup/restore and incident baseline is documented, while durable infrastructure retention and product-data privacy/takedown periods remain undecided.
 - [ ] End-to-end checkout-to-publication acceptance test.
-- [ ] Production configuration checklist with secrets kept outside the repository.
+- [x] Production configuration checklist with secrets kept outside the repository.
 
 ## Definition of Done for Every Task
 

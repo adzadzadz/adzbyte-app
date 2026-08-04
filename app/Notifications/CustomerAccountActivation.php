@@ -13,6 +13,18 @@ class CustomerAccountActivation extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    public int $tries = 3;
+
+    public int $timeout = 45;
+
+    /**
+     * @return list<int>
+     */
+    public function backoff(): array
+    {
+        return [10, 30];
+    }
+
     /**
      * @return array<int, string>
      */

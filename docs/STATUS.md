@@ -1,24 +1,25 @@
 # Project Status
 
-**Last updated:** 2026-08-04 (M2.2 user, role, and permission administration completed locally)
+**Last updated:** 2026-08-04 (pre-product core readiness audit and generic hardening completed locally)
 
 ## Current Stage
 
-Foundation phase F, management branding phase M0, the M1.1 customer Home, the M2.1 administrator Overview, M2.2 user/role administration, and API foundation A1 are complete. Both Filament panels provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. The customer panel owns the authenticated root `/` dashboard and root-level auth routes; only administration uses `/admin`. Both panels replace their stock account widgets with first-party navigation and authenticated identity context. The administrator panel now provides policy-backed user identity editing and Shield role/permission management without exposing password, user-creation, or deletion controls. The versioned API has separate customer, integration, and webhook route files, stateful Sanctum support, named throttles, stable error envelopes, and an OpenAPI-documented `GET /api/v1/me` identity resource that exposes no internal user ID, roles, password, or product data. A dormant, persistence-backed `idempotent` middleware boundary is ready for future authenticated mutations without adding a product route.
+The pre-product application core is complete: foundation phase F, management branding M0, the M1.1 customer Home, the M2.1 administrator Overview, M2.2 user/role administration, API foundation A1, and the generic production-readiness baseline. Both Filament panels provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. The customer panel owns the authenticated root `/` dashboard and root-level auth routes; only administration uses `/admin`. Both panels replace their stock account widgets with first-party navigation and authenticated identity context. The administrator panel provides policy-backed user identity editing and Shield role/permission management without exposing password, user-creation, or deletion controls. The versioned API has separate customer, integration, and webhook route files, stateful Sanctum support, named throttles, stable error envelopes, an OpenAPI-documented `GET /api/v1/me` identity resource, and a dormant persistence-backed idempotency boundary without any product route.
+
+Generic readiness now includes transactionally locked single-use activation, after-commit queue dispatch, bounded activation-notification retries, trusted-host and response-header hardening, a database-aware health endpoint, queue depth/staleness/failure signals, production configuration checks, and an operations/recovery runbook. Every remaining unchecked roadmap item was classified in that runbook and depends on a deferred product or external decision, or on a product vertical slice that does not yet exist.
 
 The previously released PHP 8.3-compatible application remains deployed to Hostinger through the machine-managed `deploy` branch. M0 and the root-route change are verified on `main` but require a future explicitly authorized release before production changes from `/account` to `/`.
 
 ## In Progress
 
-Nothing. M2.2 implementation and local verification are complete.
+Nothing. The authorized continuous non-product implementation list is complete.
 
 ## Up Next
 
-**Q0 pre-domain readiness audit — inspect the implemented authentication,
-authorization, API isolation, queue, scheduler, configuration, and operational
-documentation boundaries; close generic gaps that do not require product
-decisions, then classify every remaining roadmap task by its concrete product
-or external-decision dependency.**
+**Product-phase decision checkpoint — do not begin D1 or another product
+vertical slice until the user chooses to resume product discussion. The exact
+dependencies for every remaining roadmap area are recorded in the
+[core readiness runbook](operations/core-readiness.md).**
 
 ## F2 Verification
 
@@ -55,6 +56,8 @@ or external-decision dependency.**
 - A1.1 adds stateful Sanctum middleware, separate versioned route surfaces, named customer/integration/webhook throttles, stable JSON errors, an API Resource boundary, `GET /api/v1/me`, and a machine-readable OpenAPI 3.1 contract. Nine focused API tests passed with 30 assertions; the full PHP suite passed with 43 tests and 186 assertions, route inspection confirmed the expected middleware stack, and Composer validation passed.
 - A1.2 adds a reusable authenticated-mutation middleware with hashed principal/route keys, canonical request and upload fingerprints, atomic cache locks, a unique persistence boundary, completed-response replay, deterministic mismatch and in-progress conflicts, retry-safe server failures, expiry, stale-request recovery, and daily pruning. Ten focused tests passed with 58 assertions; the full PHP suite passed with 53 tests and 244 assertions, migration apply/rollback, schedule and command discovery, Pint, Composer validation, and the production asset build passed. No product mutation route was added.
 - M2.2 adds a first-party `/admin/users` list/edit resource and shared managed-user action with explicit policy checks, validation, email re-verification, transactional role assignment, self-demotion protection, and no password, create, or delete surface. Regular administrators can receive narrow identity capabilities but cannot promote staff, edit super administrators, or enter Shield role management; application access roles cannot be renamed or deleted. Eight focused tests passed with 58 assertions and the full PHP suite passed with 61 tests and 302 assertions. Desktop and `320px` browser review found no overflow or console warnings, Users and Roles share one Administration navigation group, and the disposable QA super administrator was removed.
+- The pre-domain readiness audit moved activation into a shared transactionally locked action, made queued work dispatch after commit, bounded activation-notification retries below the queue retry window, added queue depth/staleness/failure logging and health commands, made `/up` database-aware, enabled trusted hosts and baseline response security headers, and documented production configuration, queue recovery, migration incidents, backup verification, and credential compromise. The full suite passed with 71 tests and 345 assertions; production cache generation, schedule discovery, shell syntax, Pint, Composer validation, both dependency audits, and the Vite build passed. Current production still returned 403/404 for direct `.env`, Composer, and Laravel-log requests and 200 for `/up`; it was not modified.
+- GitHub CI passed for the pushed A1.1 (`7f12d7f`), A1.2 (`efd7756`), and M2.2 (`2e2cc02`) commits. No release workflow ran.
 - Repository diffs passed whitespace checks, and no supplied local password, production credential, or private key was found in the committed files.
 
 ## F1 Verification
@@ -123,3 +126,4 @@ These product decisions remain intentionally deferred with D1:
 - The local A1.1 slice exposes only current-customer identity. The integration and webhook files intentionally contain no routes until their authentication/signature and business behavior arrive together; no anonymous, product, order, checkout, or provider endpoint was added.
 - The local A1.2 slice registers but does not attach the `idempotent` middleware. Its storage migration and daily prune command take effect only after a future explicitly authorized release; no production migration or scheduler change was made.
 - The local M2.2 slice adds only authenticated administrator management. It does not create, change, or delete the local demo customer, and it does not modify production users, roles, or permissions.
+- The local readiness slice changes no product catalog, order, payment, collaboration, upload, hosting, or fulfillment behavior. Its remaining-task classification is documented in `docs/operations/core-readiness.md`; the empty leftover `.superdesign` directory was removed and no Superdesign artifact is used.

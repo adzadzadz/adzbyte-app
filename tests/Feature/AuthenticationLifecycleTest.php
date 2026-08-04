@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Customers\ActivateCustomerAccount;
 use App\Actions\Customers\CreateProvisionalCustomer;
 use App\Actions\Customers\SendCustomerAccountActivation;
 use App\Enums\UserRole;
@@ -157,6 +158,27 @@ class AuthenticationLifecycleTest extends TestCase
         $this->travel(1)->minute();
 
         $this->get($activationUrl)->assertForbidden();
+    }
+
+    public function test_activation_rechecks_locked_persisted_state_before_replacing_a_password(): void
+    {
+        Event::fake([CustomerAccountActivated::class, Verified::class]);
+
+        $staleCustomer = User::factory()->unverified()->create();
+        $staleCustomer->assignRole(UserRole::Customer->value);
+
+        User::query()
+            ->whereKey($staleCustomer->getKey())
+            ->update(['email_verified_at' => now()]);
+
+        $this->assertFalse(app(ActivateCustomerAccount::class)->handle(
+            $staleCustomer,
+            'ReplacementPassword123!',
+        ));
+
+        $this->assertTrue(Hash::check('password', $staleCustomer->refresh()->password));
+        Event::assertNotDispatched(Verified::class);
+        Event::assertNotDispatched(CustomerAccountActivated::class);
     }
 
     public function test_activation_links_cannot_authorize_another_email_or_role(): void

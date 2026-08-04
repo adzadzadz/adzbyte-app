@@ -55,6 +55,10 @@ APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://app.adzbyte.com
 
+LOG_CHANNEL=daily
+LOG_LEVEL=warning
+LOG_DAILY_DAYS=14
+
 DB_CONNECTION=mysql
 DB_HOST=localhost
 DB_PORT=3306
@@ -63,9 +67,25 @@ DB_USERNAME=
 DB_PASSWORD=
 
 SESSION_DRIVER=database
+SESSION_ENCRYPT=true
+SESSION_SECURE_COOKIE=true
+SESSION_SAME_SITE=lax
 CACHE_STORE=database
 QUEUE_CONNECTION=database
+QUEUE_AFTER_COMMIT=true
+DB_QUEUE_RETRY_AFTER=90
+QUEUE_MONITOR_MAX_JOBS=25
+QUEUE_MONITOR_STALE_AFTER_SECONDS=300
 SANCTUM_STATEFUL_DOMAINS=adzbyte.com,app.adzbyte.com
+
+MAIL_MAILER=smtp
+MAIL_SCHEME=smtps
+MAIL_HOST=
+MAIL_PORT=465
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM_ADDRESS=notifications@adzbyte.com
+MAIL_FROM_NAME="${APP_NAME}"
 ```
 
 Generate `APP_KEY` once on the server and preserve it across every deployment:
@@ -105,7 +125,7 @@ cd /home/USER/domains/app.adzbyte.com/public_html && /usr/bin/php artisan schedu
 ```
 
 ```bash
-cd /home/USER/domains/app.adzbyte.com/public_html && /usr/bin/php artisan queue:work database --stop-when-empty --tries=3 --timeout=90
+cd /home/USER/domains/app.adzbyte.com/public_html && /usr/bin/php artisan queue:work database --stop-when-empty --tries=3 --backoff=10 --timeout=60 --max-time=50
 ```
 
 Run both every minute. Verify their output in hPanel and confirm that a queued
@@ -123,3 +143,38 @@ For every first or changed deployment:
    `failed_jobs`.
 6. Keep a database backup before migrations. Rolling the branch back does not
    reverse a database migration.
+7. Run `php artisan operations:queue-health`; investigate rather than deleting
+   any failed job until its cause and safe retry behavior are understood.
+8. Run `php artisan schedule:list` and confirm the idempotency prune, queue
+   depth monitor, and queue health check are registered.
+
+## 7. Production configuration checklist
+
+Before every first deployment or infrastructure change, verify all of the
+following without copying secret values into tickets, chat, logs, or Git:
+
+- `APP_ENV=production`, `APP_DEBUG=false`, the preserved `APP_KEY`, and the
+  canonical HTTPS `APP_URL` are present.
+- The root rewrite forwards requests exclusively into Laravel's `public`
+  directory; direct requests for `.env`, storage, source, database dumps, SSH
+  keys, and Composer metadata are rejected and rechecked after hosting changes.
+- Database, SMTP, and any provider credentials exist only in the protected
+  server environment. The production `.env` remains mode `600`.
+- Session cookies are secure, HTTP-only, SameSite Lax, and encrypted; the
+  database session, cache, and queue tables are migrated.
+- `CACHE_STORE=database` remains enabled while API idempotency uses distributed
+  cache locks. Any future cache-store change must retain atomic-lock support.
+- Queue work dispatches after commit, worker timeout is lower than
+  `DB_QUEUE_RETRY_AFTER`, the worker has bounded attempts/backoff, and both cron
+  jobs still run every minute.
+- Daily warning-level application logs are writable and not publicly exposed;
+  hPanel cron output is checked for non-zero health-command exits.
+- `SANCTUM_STATEFUL_DOMAINS` contains only confirmed first-party origins. No
+  service token or provider secret is shared with browser code.
+- A fresh pre-migration database backup exists and its location is outside the
+  web root. A branch rollback is never treated as a database rollback.
+- `/up`, `/login`, `/admin/login`, migration status, queue health, and the
+  current release commit are verified after promotion.
+
+The incident, queue-recovery, backup, and credential-rotation sequence is in the
+[core operations runbook](../operations/core-readiness.md).
