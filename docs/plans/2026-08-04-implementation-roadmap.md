@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress — foundation phase F and management branding M0 complete |
+| Status | In progress — foundation F, branding M0, customer Home M1.1, and administrator Home M2.1 complete |
 | Product source of truth | `docs/plans/2026-08-04-experimental-launch-products.md` |
 | Progress tracker | `docs/STATUS.md` |
 | Application | Laravel 13 / PHP 8.3 |
@@ -104,6 +104,7 @@
 
 ### M2. Administrator `/admin` panel
 
+- [x] First-party Overview and navigation foundation with authenticated access context and no speculative operational data
 - [ ] Operational dashboard and SLA queue
 - [ ] Customer, order, and payment management
 - [ ] Brief review and missing-information requests
