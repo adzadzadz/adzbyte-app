@@ -120,15 +120,17 @@
 
 ### A1. Contract foundation
 
-- [ ] Create `/api/v1` route groups for customer, integration, and webhook surfaces.
-- [ ] Define a consistent resource envelope, pagination, UTC timestamps, and error format.
-- [ ] Use Form Requests, API Resources, policies, and route-model authorization.
-- [ ] Add separate rate limits and idempotency handling for retry-prone mutations.
-- [ ] Maintain an OpenAPI contract and contract tests.
+- [x] Create `/api/v1` route groups for customer, integration, and webhook surfaces.
+- [x] Define a consistent resource envelope, UTC timestamps, and error format; pagination metadata is reserved for the first collection endpoint.
+- [ ] Use Form Requests, API Resources, policies, and route-model authorization for every input and record lookup; the identity-only slice establishes the API Resource boundary but has no request data or supplied record identifier.
+- [x] Add separate named rate-limit boundaries for customer, integration, and webhook surfaces.
+- [ ] Add reusable idempotency handling for future retry-prone mutations.
+- [x] Maintain an OpenAPI contract and contract tests for every implemented endpoint.
 
 ### A2. Customer API
 
-- [ ] Identity and notification preferences
+- [x] Current customer identity
+- [ ] Notification preferences
 - [ ] Orders and timelines
 - [ ] Brief autosave and submission
 - [ ] Messages and attachments

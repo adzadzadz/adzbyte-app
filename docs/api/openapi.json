@@ -1,0 +1,137 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Adzbyte App API",
+        "version": "1.0.0",
+        "description": "Versioned authenticated management API. Public product UI remains outside adzbyte-app."
+    },
+    "servers": [
+        {
+            "url": "https://app.adzbyte.com",
+            "description": "Production"
+        },
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Local development"
+        }
+    ],
+    "paths": {
+        "/api/v1/me": {
+            "get": {
+                "operationId": "getCurrentUser",
+                "summary": "Return the authenticated customer identity",
+                "tags": ["Identity"],
+                "security": [
+                    {"sanctumBearer": []},
+                    {"sanctumSession": []}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Authenticated customer identity",
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/CurrentUserResponse"}
+                            }
+                        }
+                    },
+                    "401": {"$ref": "#/components/responses/Unauthenticated"},
+                    "403": {"$ref": "#/components/responses/Forbidden"},
+                    "429": {"$ref": "#/components/responses/RateLimited"}
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctumBearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "Revocable Laravel Sanctum personal access token."
+            },
+            "sanctumSession": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "laravel_session",
+                "description": "Stateful first-party Sanctum session cookie."
+            }
+        },
+        "schemas": {
+            "CurrentUser": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name", "email", "email_verified_at", "created_at", "updated_at"],
+                "properties": {
+                    "name": {"type": "string"},
+                    "email": {"type": "string", "format": "email"},
+                    "email_verified_at": {"type": ["string", "null"], "format": "date-time"},
+                    "created_at": {"type": ["string", "null"], "format": "date-time"},
+                    "updated_at": {"type": ["string", "null"], "format": "date-time"}
+                }
+            },
+            "CurrentUserResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["data", "meta"],
+                "properties": {
+                    "data": {"$ref": "#/components/schemas/CurrentUser"},
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["api_version"],
+                        "properties": {
+                            "api_version": {"type": "string", "const": "v1"}
+                        }
+                    }
+                }
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["error"],
+                "properties": {
+                    "error": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["code", "message", "details"],
+                        "properties": {
+                            "code": {"type": "string"},
+                            "message": {"type": "string"},
+                            "details": {"type": "object", "additionalProperties": true}
+                        }
+                    }
+                }
+            }
+        },
+        "responses": {
+            "Unauthenticated": {
+                "description": "Authentication is required",
+                "content": {
+                    "application/json": {
+                        "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+                    }
+                }
+            },
+            "Forbidden": {
+                "description": "The authenticated identity cannot access the customer API",
+                "content": {
+                    "application/json": {
+                        "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+                    }
+                }
+            },
+            "RateLimited": {
+                "description": "The customer API rate limit was exceeded",
+                "headers": {
+                    "Retry-After": {
+                        "schema": {"type": "integer"}
+                    }
+                },
+                "content": {
+                    "application/json": {
+                        "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+                    }
+                }
+            }
+        }
+    }
+}

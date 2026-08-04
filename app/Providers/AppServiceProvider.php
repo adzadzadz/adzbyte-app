@@ -38,5 +38,14 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute(5)->by("{$userKey}|{$request->ip()}");
         });
+
+        RateLimiter::for('api-customer', fn (Request $request): Limit => Limit::perMinute(120)
+            ->by('customer-api:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
+
+        RateLimiter::for('api-integration', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by('integration-api:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
+
+        RateLimiter::for('api-webhooks', fn (Request $request): Limit => Limit::perMinute(180)
+            ->by('webhook-api:'.$request->ip()));
     }
 }

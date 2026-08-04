@@ -1,24 +1,23 @@
 # Project Status
 
-**Last updated:** 2026-08-04 (M2.1 administrator Overview and navigation foundation completed locally)
+**Last updated:** 2026-08-04 (A1.1 API contract and current-customer identity foundation completed locally)
 
 ## Current Stage
 
-Foundation phase F, management branding phase M0, the M1.1 customer Home, and the M2.1 administrator Overview are complete. Both Filament panels provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. The customer panel owns the authenticated root `/` dashboard and root-level auth routes; only administration uses `/admin`. Both panels now replace their stock account widgets with first-party navigation and authenticated identity context. The customer Home remains guided and spacious, while the administrator Overview is compact and reports only configured access safeguards until real operational records exist. Both panels share the locally bundled Adzbyte theme, Poppins typography, versioned logo assets, explicit panel identity, and accessible dark-first component treatment. Shared actions continue to create provisional customers and send signed customer activation links for later verified-payment orchestration.
+Foundation phase F, management branding phase M0, the M1.1 customer Home, the M2.1 administrator Overview, and the A1.1 API contract foundation are complete. Both Filament panels provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. The customer panel owns the authenticated root `/` dashboard and root-level auth routes; only administration uses `/admin`. Both panels replace their stock account widgets with first-party navigation and authenticated identity context. The versioned API now has separate customer, integration, and webhook route files, stateful Sanctum support, named throttles, stable error envelopes, and an OpenAPI-documented `GET /api/v1/me` identity resource that exposes no internal user ID, roles, password, or product data.
 
 The previously released PHP 8.3-compatible application remains deployed to Hostinger through the machine-managed `deploy` branch. M0 and the root-route change are verified on `main` but require a future explicitly authorized release before production changes from `/account` to `/`.
 
 ## In Progress
 
-Nothing. M2.1 implementation and local verification are complete.
+Nothing. A1.1 implementation and local verification are complete.
 
 ## Up Next
 
-**A1.1 versioned REST API contract foundation — establish separate `/api/v1`
-customer, integration, and webhook route surfaces, consistent JSON success and
-error envelopes, verified Sanctum customer identity, rate-limit boundaries, and
-an OpenAPI contract without adding product, order, checkout, or webhook business
-behavior.**
+**A1.2 reusable API idempotency foundation — add a persistence-backed,
+concurrency-safe idempotency boundary for future authenticated mutations,
+including scoped keys, request fingerprints, replayed responses, conflict
+handling, expiry, and tests, without adding a product mutation endpoint.**
 
 ## F2 Verification
 
@@ -52,6 +51,7 @@ behavior.**
 - Focused branding, routing, authentication, and panel-boundary verification passed with 26 tests and 128 assertions; the full PHP suite passed with 28 tests and 131 assertions, and the production Vite build emitted only local Poppins font assets.
 - M1.1 replaces the customer panel's stock account widget with a first-party Home while retaining Filament's panel authorization on every request. Focused dashboard and panel-boundary verification passed with 15 tests and 72 assertions; the full PHP suite passed with 31 tests and 145 assertions, and the production asset build passed.
 - M2.1 replaces the administrator panel's stock account widget with a first-party Overview, explicit role context, and configured safeguard labels without inventing operational data. Focused management dashboard verification passed with 18 tests and 83 assertions; the full PHP suite passed with 34 tests and 156 assertions, and the production asset build passed.
+- A1.1 adds stateful Sanctum middleware, separate versioned route surfaces, named customer/integration/webhook throttles, stable JSON errors, an API Resource boundary, `GET /api/v1/me`, and a machine-readable OpenAPI 3.1 contract. Nine focused API tests passed with 30 assertions; the full PHP suite passed with 43 tests and 186 assertions, route inspection confirmed the expected middleware stack, and Composer validation passed.
 - Repository diffs passed whitespace checks, and no supplied local password, production credential, or private key was found in the committed files.
 
 ## F1 Verification
@@ -117,3 +117,4 @@ These product decisions remain intentionally deferred with D1:
 - The local M0 slice moves the customer panel to `/`, removes the Laravel placeholder and Filament promotional widget, and keeps `/admin` unchanged; two disposable visual-QA customers were removed after verification.
 - The local M1.1 slice adds the first-party customer Home and removes the remaining stock customer account widget without claiming the still-planned purchase and order dashboard is complete. A requested verified local-only `customer` demo account exists at `demo@adzbyte.com`; its password is not stored in the repository.
 - The local M2.1 slice adds the first-party administrator Overview and removes the remaining stock administrator account widget without claiming the still-planned operational dashboard or SLA queue is complete. Its disposable visual-QA administrator was removed after verification.
+- The local A1.1 slice exposes only current-customer identity. The integration and webhook files intentionally contain no routes until their authentication/signature and business behavior arrive together; no anonymous, product, order, checkout, or provider endpoint was added.

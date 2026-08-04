@@ -34,6 +34,8 @@ Filament is a PHP/Livewire server-driven UI framework. It is not React. The sepa
 
 The REST API will be built under `/api/v1` alongside the Filament features. Filament remains the phase 1 management UI; the API is prepared for later selective use by `adzbyte-next`.
 
+The initial contract exposes authenticated customer identity at `GET /api/v1/me` through Sanctum. Its success and error envelopes are documented in the versioned [OpenAPI contract](docs/api/openapi.json); product, integration, and webhook business endpoints remain intentionally absent.
+
 ## Documentation
 
 The current source of truth is [Experimental Launch Products — Product and System Plan](docs/plans/2026-08-04-experimental-launch-products.md).
