@@ -2,7 +2,7 @@
 
 `adzbyte-app` is the authenticated management and backend application for Adzbyte's experimental launch products.
 
-The repository is in active implementation. The framework, access, authentication lifecycle, management branding, and first-party customer and administrator Home foundations are complete; domain, payment, management-resource, and fulfillment features remain on the implementation roadmap.
+The repository is in active implementation. The framework, authentication lifecycle, management branding, first-party customer and administrator Home foundations, API contract foundation, and administrator user/role management are complete; product domain, payment, operational management, collaboration, and fulfillment features remain on the implementation roadmap.
 
 ## Responsibility Boundary
 

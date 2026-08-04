@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use App\Filament\Resources\Users\UserResource;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
@@ -140,7 +141,7 @@ return [
 
     'policies' => [
         'path' => app_path('Policies'),
-        'merge' => true,
+        'merge' => false,
         'generate' => true,
         'methods' => [
             'viewAny', 'view', 'create', 'update', 'delete', 'deleteAny', 'restore',
@@ -192,6 +193,11 @@ return [
                 'create',
                 'update',
                 'delete',
+            ],
+            UserResource::class => [
+                'viewAny',
+                'view',
+                'update',
             ],
         ],
         'exclude' => [

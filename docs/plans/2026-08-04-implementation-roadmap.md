@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress — foundation F, branding M0, customer Home M1.1, administrator Home M2.1, and API foundation A1 complete |
+| Status | In progress — foundation F, branding M0, customer Home M1.1, administrator Home M2.1, user administration M2.2, and API foundation A1 complete |
 | Product source of truth | `docs/plans/2026-08-04-experimental-launch-products.md` |
 | Progress tracker | `docs/STATUS.md` |
 | Application | Laravel 13 / PHP 8.3 |
@@ -111,7 +111,7 @@
 - [ ] Customer conversation and attachment review
 - [ ] Draft delivery and feedback handling
 - [ ] Fulfillment and site lifecycle management
-- [ ] Roles, permissions, and user administration
+- [x] Roles, permissions, and user administration
 - [ ] Audit event visibility with customer/internal separation
 
 **Gate:** panel feature tests cover visibility, allowed actions, forbidden actions, ownership, validation, and the primary workflow.
