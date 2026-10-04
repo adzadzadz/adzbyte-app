@@ -1,10 +1,35 @@
 # Project Status
 
-**Last updated:** 2026-08-04 (pre-product core readiness audit and generic hardening completed locally)
+**Last updated:** 2026-10-05 (commerce product direction reset and documented)
 
 ## Current Stage
 
-The pre-product application core is complete: foundation phase F, management branding M0, the M1.1 customer Home, the M2.1 administrator Overview, M2.2 user/role administration, API foundation A1, and the generic production-readiness baseline. Both Filament panels provide login, logout, password reset, required email verification, verified email changes, and profile management without open registration. The customer panel owns the authenticated root `/` dashboard and root-level auth routes; only administration uses `/admin`. Both panels replace their stock account widgets with first-party navigation and authenticated identity context. The administrator panel provides policy-backed user identity editing and Shield role/permission management without exposing password, user-creation, or deletion controls. The versioned API has separate customer, integration, and webhook route files, stateful Sanctum support, named throttles, stable error envelopes, an OpenAPI-documented `GET /api/v1/me` identity resource, and a dormant persistence-backed idempotency boundary without any product route.
+The reusable pre-commerce application core is complete: foundation phase F,
+management branding M0, the customer Home, the administrator Overview,
+administrator user/role management, API foundation A1, and the generic
+production-readiness baseline. Both Filament panels provide login, logout,
+password reset, required email verification, verified email changes, and profile
+management. Public registration is now a product requirement but is not yet
+implemented. The customer panel owns the authenticated root `/` dashboard and
+root-level auth routes; only administration uses `/admin`.
+
+The product direction is now an API-first commerce and customer-service
+platform. `adzbyte-next` owns the primary public product listings, add-to-cart
+controls, and compact cart summary. Its **View Cart** action will hand the
+customer to `adzbyte-app`, which owns the authoritative catalog, anonymous and
+customer carts, registration, full cart, checkout, orders, PayMongo payments,
+subscriptions, purchased products, requests, reports, account portal, and
+administration. Customers must authenticate before payable order creation, but
+may review an anonymous cart first. Anyone may register without a cart handoff.
+The customer app may add authenticated product listings later through the same
+catalog services.
+
+The versioned API has separate customer, integration, and webhook route files,
+stateful Sanctum support, named throttles, stable error envelopes, an
+OpenAPI-documented `GET /api/v1/me` identity resource, and a dormant
+persistence-backed idempotency boundary. No catalog, cart, checkout, order,
+payment, subscription, purchased-product, request, or report record or route is
+implemented yet.
 
 Generic readiness now includes transactionally locked single-use activation, after-commit queue dispatch, bounded activation-notification retries, trusted-host and response-header hardening, a database-aware health endpoint, queue depth/staleness/failure signals, production configuration checks, and an operations/recovery runbook. Every remaining unchecked roadmap item was classified in that runbook and depends on a deferred product or external decision, or on a product vertical slice that does not yet exist.
 
@@ -12,14 +37,15 @@ The previously released PHP 8.3-compatible application remains deployed to Hosti
 
 ## In Progress
 
-Nothing. The authorized continuous non-product implementation list is complete.
+Commerce planning is active. No commerce application code is in progress.
 
 ## Up Next
 
-**Product-phase decision checkpoint — do not begin D1 or another product
-vertical slice until the user chooses to resume product discussion. The exact
-dependencies for every remaining roadmap area are recorded in the
-[core readiness runbook](operations/core-readiness.md).**
+**Refine the first-release product types and fulfillment requirements, then
+begin roadmap phase C1 with the catalog and pricing vertical slice. Do not invent
+inventory, shipping, download, service-delivery, tax, subscription, refund, or
+support rules that remain open in the
+[commerce platform plan](plans/2026-10-05-commerce-platform.md).**
 
 ## F2 Verification
 
@@ -74,34 +100,50 @@ dependencies for every remaining roadmap area are recorded in the
 
 ## Decisions Already Locked
 
-- `adzbyte-next` is the only public product UI.
-- `adzbyte-app` owns all customer and administrator management.
+- `adzbyte-next` owns the primary public product-listing experience,
+  add-to-cart controls, and compact cart summary.
+- Next.js has no checkout action. **View Cart** hands the customer to a
+  short-lived app-owned cart URL.
+- `adzbyte-app` owns the authoritative catalog, carts, registration, full cart,
+  checkout, orders, payments, subscriptions, purchased products, requests,
+  reports, customer account management, administration, and APIs.
+- Anyone may register directly in the app; a cart handoff is not required.
+- Customers may review an anonymous cart but must authenticate before payable
+  order creation or PayMongo authorization.
+- The app may show product listings inside the authenticated customer portal in
+  a later phase, using the same catalog services and records.
 - The [management branding plan](plans/2026-08-04-management-ui-branding.md) adapts the palette, Poppins typography, wordmark, square mark, and context-appropriate media from `adzbyte-next` into a dark-first Filament system; `adzbyte-app` must copy, optimize, and version what it uses without hotlinks or runtime repository coupling.
 - Both management panels are authenticated Filament panels in this repository: customers use the root `/` panel and administrators use `/admin`.
-- The REST API is built in parallel for restricted integration and later selective Next.js use.
+- Shop functionality originates in shared Laravel application services and is
+  exposed through versioned API contracts needed by Next.js and future clients.
+- Every customer-facing shop capability receives a versioned API contract even
+  when its initial app page calls the shared service directly.
 - Roles begin with `customer`, `administrator`, and `super_admin`.
 - `adzbyte-next` is live at `https://adzbyte.com` and `adzbyte-app` will be hosted at `https://app.adzbyte.com`.
 - The initial super-administrator identity email is `adzbite@gmail.com`; no password or activation secret is stored in the repository.
-- New buyers receive a single-use 24-hour signed activation link after verified payment; setting the password verifies the email and signs the customer into `/`.
-- Product/catalog discussion and D1 implementation are deferred until the authenticated `adzbyte-app` core is functional.
-- Existing account emails must sign in or reset their password before checkout can attach another order, without public account-existence disclosure.
+- Existing accounts must authenticate before an anonymous cart can be attached,
+  without public account-existence disclosure.
 - Laravel policies and record ownership remain authoritative across every interface.
-- The 6–12-hour commitment covers the first reviewable draft or consultation outcome after payment confirmation and a complete submitted brief.
+- PayMongo is the first payment provider for one-time and subscription billing.
+- Payment redirects are informational; only verified, idempotently processed
+  PayMongo webhooks confirm financial state or grant purchased access.
+- Customers can submit distinct requests and issue reports, communicate through
+  customer-visible threads, and manage them from the authenticated app.
 
 ## Decisions Needed Later
 
-These product decisions remain intentionally deferred with D1:
+The [commerce platform plan](plans/2026-10-05-commerce-platform.md) records the
+complete decision backlog. The immediate blockers are:
 
-- Exact product prices, entitlements, templates, and hosting/reactivation terms.
-  The current recommendation is Idea Test Page at PHP 99, Blog Lite at PHP 199,
-  Store Lite at PHP 299, Quick Consultation at PHP 99, First-Look Mockup and
-  Quote as a free non-checkout lead flow, 90 days of included hosting, and PHP 49
-  reactivation. Seed the confirmed entitlements in D1 while deferring concrete
-  template names until design assets exist.
-- Elapsed hours versus published business hours for the first-draft window
-- PayMongo methods and refund policy
-- Attachment limits, moderation rules, retention periods, and notification behavior
-- Hostinger Agency API availability and site credential-delivery rules
+- first-release product types and their fulfillment behavior;
+- initial products, prices, currency, tax, invoice, and availability rules;
+- whether variants, inventory, shipping, downloads, appointments, or manual
+  service fulfillment are needed initially;
+- cart expiry, merge, promotion, and abandoned-checkout rules;
+- enabled PayMongo methods, subscription capability, refunds, cancellation,
+  retries, grace periods, and entitlement suspension;
+- request/report categories, service targets, attachment rules, notifications,
+  and retention.
 
 ## Known Issues
 

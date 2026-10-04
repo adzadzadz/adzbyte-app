@@ -5,8 +5,8 @@ Read `docs/STATUS.md` before resuming project work. It records the current state
 ## Sources of Truth
 
 1. The user's latest explicit instruction
-2. `docs/plans/2026-08-04-experimental-launch-products.md` for product and system decisions
-3. `docs/plans/2026-08-04-implementation-roadmap.md` for implementation order and acceptance gates
+2. `docs/plans/2026-10-05-commerce-platform.md` for product and system decisions
+3. `docs/plans/2026-10-05-implementation-roadmap.md` for implementation order and acceptance gates
 4. `docs/STATUS.md` for current progress, blockers, and the next task
 5. `README.md` for the repository overview
 
@@ -14,10 +14,12 @@ Do not silently invent business rules when these sources are undecided or confli
 
 ## Non-Negotiable Boundary
 
-- `adzbyte-next` owns the anonymous campaign, product, purchase-call-to-action, and payment-return UI.
-- `adzbyte-app` owns all authenticated customer and administrator management, REST APIs, payments, processing, fulfillment, and the system of record.
-- Phase 1 management lives only in Filament at the authenticated root `/` customer panel and `/admin`.
-- Do not add an anonymous storefront or customer-management UI to this repository.
+- `adzbyte-next` owns the primary public product-listing experience, add-to-cart controls, and compact cart summary.
+- `adzbyte-next` has no checkout action. Its **View Cart** action hands the customer to `adzbyte-app` through a short-lived, server-created handoff.
+- `adzbyte-app` owns the authoritative catalog, carts, public registration, authentication, full cart, checkout, orders, payments, subscriptions, purchased products, customer service, REST APIs, processing, and the system of record.
+- Customer account management lives in the Filament root `/` panel and administration lives at `/admin`; future authenticated product listings may be added to the customer panel through the same catalog services.
+- Every customer-facing shop capability must have a versioned API contract, even when an app-owned page initially calls the same application service directly.
+- Do not implement a second checkout, payment authority, account portal, or business-rule source in `adzbyte-next`.
 
 ## Local Skills
 

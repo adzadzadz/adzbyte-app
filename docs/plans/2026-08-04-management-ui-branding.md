@@ -5,12 +5,12 @@
 | Status | Implemented and verified on 2026-08-04 |
 | Applies to | Authenticated Filament root `/` customer panel and `/admin` |
 | Brand source | `adzbyte-next/src/app/globals.css` and approved files in `adzbyte-next/public/images` |
-| Public UI owner | `adzbyte-next` |
+| Primary public storefront owner | `adzbyte-next` |
 | Management UI owner | `adzbyte-app` |
 
 ## Outcome
 
-The customer and administrator panels should be unmistakably Adzbyte while remaining calm, legible, and efficient for repeated management work. Shared branding creates continuity after a customer leaves the public site, but it does not move public campaign or product UI into this repository.
+The customer and administrator panels should be unmistakably Adzbyte while remaining calm, legible, and efficient for repeated management work. Shared branding creates continuity when a customer moves from the primary public storefront to the app-owned cart, checkout, and account experience. A future authenticated catalog in the customer panel must reuse the authoritative Laravel catalog rather than create a second product source.
 
 The implementation should feel like one product family with two operating contexts:
 
@@ -100,11 +100,11 @@ For every copied asset:
 - Use guided cards, progress indicators, plain-language statuses, and clear next-action hierarchy.
 - Allow contextual service imagery in onboarding, order headers, or empty states only when it maps to the customer's product.
 - Favor a warmer, more spacious composition than the admin panel while retaining efficient forms and accessible tables.
-- Make payment confirmation, brief completeness, draft readiness, corrections, and delivery visually distinct through semantic components rather than decorative color.
+- Make cart, checkout, payment, subscription, fulfillment, request, report, and purchased-product states visually distinct through semantic components rather than decorative color.
 
 ### Admin panel
 
-- Keep the logo and brand accents restrained so queues, overdue work, payment exceptions, and customer context dominate.
+- Keep the logo and brand accents restrained so order, billing, subscription, fulfillment, and customer-service queues dominate.
 - Favor compact tables, filters, bulk actions, clear timestamps, and persistent status labels.
 - Reserve purple for primary operational actions and selected navigation; destructive actions retain a distinct danger treatment.
 - Do not use marketing imagery in operational dashboards or resource pages.

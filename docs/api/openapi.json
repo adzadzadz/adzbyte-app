@@ -3,7 +3,7 @@
     "info": {
         "title": "Adzbyte App API",
         "version": "1.0.0",
-        "description": "Versioned authenticated management API. Public product UI remains outside adzbyte-app."
+        "description": "Versioned commerce and customer-management API. Adzbyte App is the system of record; adzbyte-next consumes approved storefront contracts."
     },
     "servers": [
         {

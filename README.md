@@ -1,24 +1,37 @@
 # Adzbyte App
 
-`adzbyte-app` is the authenticated management and backend application for Adzbyte's experimental launch products.
+`adzbyte-app` is Adzbyte's commerce backend, checkout application, customer
+portal, and administrative system of record.
 
-The repository is in active implementation. The framework, authentication lifecycle, management branding, first-party customer and administrator Home foundations, API contract foundation, and administrator user/role management are complete; product domain, payment, operational management, collaboration, and fulfillment features remain on the implementation roadmap.
+The reusable application foundation is complete: authentication, management
+branding, customer and administrator Home foundations, API contracts,
+idempotency, queues, operational hardening, and administrator user/role
+management. Catalog, cart, checkout, orders, PayMongo payments, subscriptions,
+purchased products, customer requests, and issue reports remain on the commerce
+implementation roadmap.
 
 ## Responsibility Boundary
 
 | Application | Responsibility |
 |---|---|
-| `adzbyte-next` | Public campaign pages, product presentation, purchase calls to action, and payment return pages |
-| `adzbyte-app` | Customer and administrator management, REST API, accounts, orders, briefs, messaging, drafts, payments, fulfillment, sites, notifications, and audit history |
+| `adzbyte-next` | Primary public product listings, product details, add-to-cart controls, and a compact cart summary |
+| `adzbyte-app` | Authoritative catalog, carts, registration, accounts, checkout, orders, payments, subscriptions, purchased products, customer service, REST APIs, administration, and audit history |
 
-`adzbyte-app` does not render an anonymous product catalog or campaign landing page.
+Next.js has no checkout action. Its **View Cart** action hands the customer to
+the Laravel application, where the full cart, authentication, checkout, PayMongo
+flow, and post-purchase account experience live. The app may later show product
+listings inside the authenticated customer portal without creating a second
+catalog source.
 
 ## Management Interfaces
 
 Both management experiences use Filament 5 and require authentication:
 
-- `/` — customers enter the authenticated dashboard and manage purchases, briefs, files, messages, drafts, approvals, and purchased product controls.
-- `/admin` — administrators manage customers, payments, reviews, conversations, drafts, fulfillment, sites, roles, and audit events.
+- `/` — customers manage their account, cart, checkout, orders, subscriptions,
+  purchased products, requests, reports, messages, and attachments.
+- `/admin` — administrators manage catalog, customers, orders, payments,
+  subscriptions, purchased products, customer-service cases, roles, and audit
+  events.
 
 Filament is a PHP/Livewire server-driven UI framework. It is not React. The separate `adzbyte-next` application remains the React/Next.js public frontend.
 
@@ -29,20 +42,27 @@ Filament is a PHP/Livewire server-driven UI framework. It is not React. The sepa
 - Spatie Laravel Permission and Filament Shield
 - Laravel policies for record ownership and action authorization
 - Laravel Sanctum for the versioned REST API and restricted integrations
-- PayMongo Hosted Checkout and signed webhooks
-- Manual phase 1 fulfillment with later Hostinger automation
+- PayMongo one-time payments, subscription billing, and signed webhooks
+- API-first storefront integration for `adzbyte-next`
 
-The REST API will be built under `/api/v1` alongside the Filament features. Filament remains the phase 1 management UI; the API is prepared for later selective use by `adzbyte-next`.
+The REST API is built under `/api/v1`. `adzbyte-next` consumes safe storefront
+catalog APIs and narrow server-authenticated cart/handoff APIs. Filament remains
+the account and administration UI, while shared Laravel services and policies
+keep behavior consistent across panels, APIs, jobs, and webhooks.
+Every customer-facing shop capability receives a versioned API contract even
+when its initial app page uses the shared application service directly.
 
 The initial contract exposes authenticated customer identity at `GET /api/v1/me` through Sanctum. Its success and error envelopes are documented in the versioned [OpenAPI contract](docs/api/openapi.json). A persistence-backed [idempotency contract](docs/api/idempotency.md) is ready for future retry-prone authenticated mutations; product, integration, and webhook business endpoints remain intentionally absent.
 
 ## Documentation
 
-The current source of truth is [Experimental Launch Products — Product and System Plan](docs/plans/2026-08-04-experimental-launch-products.md).
+The current source of truth is the [Commerce and Customer Service Platform Plan](docs/plans/2026-10-05-commerce-platform.md).
 
-That document defines the product scope, system boundary, authentication and RBAC model, REST API contract, post-payment brief, asynchronous messaging, first-draft SLA, payment flow, and hosting plan.
+That document defines application ownership, registration, cart handoff,
+checkout, commerce records, PayMongo payments and subscriptions, purchased
+products, requests, reports, APIs, and unresolved business decisions.
 
-Implementation sequencing is tracked in the [Implementation Roadmap](docs/plans/2026-08-04-implementation-roadmap.md), while [Project Status](docs/STATUS.md) records the current state and the single next task for a fresh work session.
+Implementation sequencing is tracked in the [Implementation Roadmap](docs/plans/2026-10-05-implementation-roadmap.md), while [Project Status](docs/STATUS.md) records the current state and the single next task for a fresh work session.
 
 The [Management UI Branding Plan](docs/plans/2026-08-04-management-ui-branding.md)
 defines how the authenticated Filament panels adapt Adzbyte's shared palette,

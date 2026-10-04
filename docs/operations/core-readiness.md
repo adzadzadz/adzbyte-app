@@ -1,9 +1,10 @@
 # Core Operations and Readiness Runbook
 
-This runbook covers the implemented pre-domain application only: identity,
-authenticated panels, user/role administration, customer activation, the API
-foundation, queues, and release infrastructure. Product, payment, upload,
-fulfillment, and customer-data retention procedures must be added with those
+This runbook covers the implemented pre-commerce application only: identity,
+authenticated panels, user/role administration, trusted customer activation,
+the API foundation, queues, and release infrastructure. Public registration,
+catalog, carts, checkout, orders, payments, subscriptions, customer-service
+cases, uploads, fulfillment, and retention procedures must be added with those
 vertical slices and their unresolved decisions.
 
 ## Automated signals
@@ -107,14 +108,15 @@ The remaining roadmap is intentionally not implemented by this audit:
 
 | Remaining area | Concrete dependency |
 |---|---|
-| D1 records, D2 states, D3 record policies | Confirmed product entitlements and the order/payment/collaboration data model |
-| Customer and operational management screens | Those records, transitions, SLA interpretation, uploads, and notification behavior |
+| Public registration | Registration abuse controls and checkout/account UX while preserving verification and role boundaries |
+| Catalog and pricing | Confirmed launch product types, fulfillment, prices, taxes, variants, availability, and entitlement rules |
+| Anonymous carts and Next.js handoff | Cart expiry/merge rules plus narrow service-token and signed-handoff contracts |
+| Checkout, orders, and PayMongo | Enabled methods, refund policy, provider credentials, and order/payment state machines |
+| Subscriptions | PayMongo account capability plus cancellation, retry, grace-period, plan-change, and entitlement rules |
+| Customer and operational panels | Commerce records, transitions, queues, notifications, uploads, and authorized actions |
 | Customer API beyond identity | The same domain models plus per-action ownership policies and request rules |
-| Restricted Next.js integration | Product/catalog contract and checkout behavior; a token with no permitted endpoint has no useful capability |
-| PayMongo | Enabled methods, refund policy, provider credentials, and payment/order records |
-| Collaboration and uploads | Questionnaire, attachment, moderation, retention, operating-hour, and correction decisions |
-| Hostinger automation | Confirmed Agency API/plan capability, domain strategy, credential delivery, and lifecycle rules |
-| Full production audits and end-to-end acceptance | Implemented product, payment, upload, queue, and fulfillment vertical slices to audit |
+| Requests, reports, and uploads | Categories, service targets, attachment security, retention, escalation, and notification behavior |
+| Full production audits and end-to-end acceptance | Implemented catalog, cart, checkout, payment, subscription, case, upload, queue, and fulfillment slices to audit |
 | Retention, privacy, takedown, and external alerting | Formal business/legal retention choices and an approved notification destination |
 
 These are product or external decisions, not missing generic framework work.

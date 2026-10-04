@@ -9,8 +9,8 @@ description: Use before writing application code for any adzbyte-app feature or 
 
 1. Read `AGENTS.md` and `docs/STATUS.md`.
 2. Read the exact relevant sections of:
-   - `docs/plans/2026-08-04-experimental-launch-products.md`
-   - `docs/plans/2026-08-04-implementation-roadmap.md`
+   - `docs/plans/2026-10-05-commerce-platform.md`
+   - `docs/plans/2026-10-05-implementation-roadmap.md`
 3. Inspect the current code, migrations, routes, policies, tests, and package versions involved.
 4. Check current official documentation before relying on unstable framework, package, provider, or API behavior.
 5. Define acceptance behavior, states, authorization rules, failure paths, and verification before editing.
@@ -19,14 +19,17 @@ If the source of truth is silent and the choice materially changes product behav
 
 ## Architecture Rules
 
-- Keep anonymous product UI in `adzbyte-next`; never add a public storefront here.
-- Keep phase 1 customer and administrator management in authenticated Filament panels.
+- Keep the primary public product listing, add-to-cart controls, and compact cart summary in `adzbyte-next`.
+- Keep the authoritative cart, public registration, authentication, checkout, orders, payments, subscriptions, customer service, and administration in `adzbyte-app`.
+- Next.js has no checkout action; its View Cart flow uses the documented short-lived app handoff.
+- Keep customer account and administrator management in their Filament panels. A future authenticated app catalog must reuse the authoritative catalog services.
+- Give every customer-facing shop capability a versioned API contract, even when its initial app-owned page uses the shared application service directly.
 - Use one `User` model and one identity history.
 - Put business workflows in application actions/services shared by Filament, REST controllers, jobs, and webhooks.
 - Keep controllers, Filament resources, and jobs thin.
 - Use Laravel policies for record authorization and Spatie permissions for capabilities.
 - Scope customer records by authenticated ownership. Never trust a supplied customer ID as identity.
-- Model payment, requirements, and fulfillment states separately.
+- Model order, payment, fulfillment, subscription, invoice, entitlement, and customer-service states separately where their lifecycles differ.
 - Expose named workflow actions instead of unrestricted status or payment CRUD.
 - Record material transitions and actors in the order event timeline.
 - Keep customer-visible communication separate from internal notes.
