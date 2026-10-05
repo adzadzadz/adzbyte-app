@@ -3,7 +3,7 @@
 | Planning field | Decision |
 |---|---|
 | Date | 2026-10-05 |
-| Status | Product direction approved; detailed commerce rules still being refined |
+| Status | Product direction and first-release approach approved; commercial rules still being refined |
 | Primary storefront | `adzbyte-next` at `https://adzbyte.com` |
 | Account, cart, and checkout application | `adzbyte-app` at `https://app.adzbyte.com` |
 | Backend and system of record | `adzbyte-app` |
@@ -23,6 +23,14 @@ The platform is not limited to the former experimental-launch catalog. Product
 types, pricing, fulfillment rules, and subscription offerings will be defined
 separately. The previous experimental product proposal is retired and is not an
 active product or implementation source.
+
+The approved implementation approach is documented in the
+[First Commerce Release Approach](2026-10-05-first-commerce-release.md). The
+first sellable type is a fixed-scope one-time service, fulfilled manually after
+administrator fit approval and paid in PHP through PayMongo Hosted Checkout v2.
+Exact products, PHP prices, tax and receipt treatment, approval rules, payment
+methods, and refund/cancellation policies remain explicit pre-implementation
+decisions.
 
 ## Application Ownership
 
@@ -97,24 +105,33 @@ way a customer account can begin.
 7. Laravel revalidates products, prices, quantities, discounts, availability,
    tax, fulfillment requirements, and subscription terms. Client-supplied
    totals are never trusted.
-8. The customer supplies required billing or fulfillment information, reviews
-   the final amount, and accepts applicable purchase and recurring-payment
+8. The customer supplies the required project brief, billing or fulfillment
+   information, reviews the final amount, and accepts the applicable purchase
    terms.
-9. Laravel creates an internal pending order before creating the PayMongo
-   Checkout Session, Payment Intent, or Subscription. This provides a stable
-   reconciliation reference even if the browser never returns.
-10. Laravel redirects the customer to the provider-controlled authorization
+9. Laravel creates an internal owned order with immutable product, price, scope,
+   and terms snapshots. For the first-release services, this order is not yet
+   payable.
+10. An authorized administrator confirms that the selected service fits the
+    submitted request, rejects it, or requests a customer correction. A
+    material price or scope change requires a new customer acceptance.
+11. Approval enables PayMongo authorization for the approved order snapshot.
+    Laravel creates the provider resource only after the order is persisted so
+    there is a stable reconciliation reference even if the browser never
+    returns.
+12. Laravel redirects the customer to the provider-controlled authorization
     page when required.
-11. The browser return route shows only a pending or informational result.
-12. A verified, idempotently processed PayMongo webhook changes the
+13. The browser return route shows only a pending or informational result.
+14. A verified, idempotently processed PayMongo webhook changes the
     authoritative payment, order, invoice, or subscription state.
-13. The customer manages the resulting order, subscription, purchased product,
+15. The customer manages the resulting order, subscription, purchased product,
     requests, and reports in `adzbyte-app`.
 
 The handoff token must be opaque, short-lived, single-use, and bound to the
 intended cart and return destination. Laravel must validate every line again
 after handoff and after authentication. Cart expiry, merge rules, promotion
-conflicts, and inventory reservations still require explicit policy decisions.
+conflicts, and inventory reservations require explicit policy decisions before
+the slice that uses them; promotions and inventory are excluded from the first
+release.
 
 ## Commerce Domain
 
@@ -293,7 +310,8 @@ published product in Laravel
   -> anonymous cart and compact Next.js cart summary
   -> signed handoff to the full app cart
   -> registration or login
-  -> authoritative checkout and pending order
+  -> checkout brief and immutable order snapshot
+  -> administrator fit approval
   -> PayMongo test payment
   -> verified webhook confirmation
   -> order and purchased product visible in the customer portal
@@ -301,27 +319,44 @@ published product in Laravel
   -> administrator responds and resolves it
 ```
 
-Subscription billing follows after the one-time purchase path is verified,
-unless the first confirmed launch product requires a subscription to be useful.
+Subscription billing follows after the one-time purchase path is verified.
+
+## First-Release Decisions Resolved
+
+- Implement a narrow native Laravel commerce domain instead of installing a
+  general-purpose commerce package or adding a second hosted store.
+- Launch with fixed-scope, one-time service products only.
+- Fulfill the services manually after administrator fit and scope approval.
+- Fix each service line quantity at one.
+- Store and charge first-release checkout prices in PHP; exact amounts still
+  require approval and the current USD figures must not be converted silently.
+- Use PayMongo Hosted Checkout v2 after a persisted approved order exists.
+- Exclude physical goods, inventory, shipping, downloads, appointments,
+  variants, promotions, and subscription checkout from the initial slice.
+- Keep monthly care plans and custom project ranges enquiry-only until their
+  separate billing and fulfillment rules are approved.
+
+The detailed scope, workflow, boundaries, sequencing, and development-entry
+gate are maintained in the
+[First Commerce Release Approach](2026-10-05-first-commerce-release.md).
 
 ## Decisions Still Required
 
 ### Catalog and fulfillment
 
-- Which product types launch first: physical goods, digital downloads, one-time
-  services, recurring services, or a defined combination.
-- Whether variants, inventory, backorders, shipping, downloads, appointments,
-  or manual service fulfillment are required in the first release.
-- Initial products, prices, currencies, tax treatment, and invoice/receipt
-  requirements.
+- Initial authoritative products, their exact PHP prices, tax treatment, and
+  invoice/receipt requirements.
 - Product publication, archival, purchase limits, and availability rules.
+- Required project-brief fields and the manual fulfillment states visible to
+  customers and administrators.
 
 ### Cart and checkout
 
 - Cart expiration and authenticated-cart merge rules.
-- Promotion, coupon, discount, tax, and shipping calculations.
+- Whether one cart may contain more than one distinct service package.
 - Required customer and billing fields for each product type.
-- Abandoned checkout behavior and notification policy.
+- Fit-approval authority, correction/rejection behavior, approval expiry, and
+  customer notifications.
 
 ### Payments and subscriptions
 
@@ -351,6 +386,7 @@ These decisions must be recorded here before their implementation slice begins.
 ## Official Provider References
 
 - [PayMongo Hosted Checkout](https://docs.paymongo.com/docs/payment-channels-hosted-checkout)
+- [PayMongo Checkout Session resource](https://docs.paymongo.com/reference/checkout-session-resource)
 - [PayMongo webhook setup and signature verification](https://docs.paymongo.com/docs/developer-tools-webhook-setup-management)
 - [PayMongo Subscriptions](https://docs.paymongo.com/docs/payment-acceptance-subscriptions)
 - [PayMongo subscription resource](https://docs.paymongo.com/reference/subscription-resource)

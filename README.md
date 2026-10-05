@@ -54,6 +54,25 @@ when its initial app page uses the shared application service directly.
 
 The initial contract exposes authenticated customer identity at `GET /api/v1/me` through Sanctum. Its success and error envelopes are documented in the versioned [OpenAPI contract](docs/api/openapi.json). A persistence-backed [idempotency contract](docs/api/idempotency.md) is ready for future retry-prone authenticated mutations; product, integration, and webhook business endpoints remain intentionally absent.
 
+## First Commerce Release
+
+The approved first implementation is a narrow native Laravel vertical slice for
+fixed-scope, one-time services. Each service line has a quantity of one, is
+fulfilled manually, and requires administrator fit approval before payment is
+enabled. Checkout uses PHP prices and PayMongo Hosted Checkout v2; the verified
+webhook, not the browser return, confirms payment.
+
+Physical goods, variants, inventory, shipping, downloads, appointments,
+promotions, and subscription checkout are outside the initial slice. Monthly
+care plans and custom project ranges remain enquiry-only until their separate
+commercial rules are approved. Exact launch products and PHP amounts, tax and
+receipt treatment, approval details, payment methods, and refund/cancellation
+rules remain development-entry decisions.
+
+See the [First Commerce Release Approach](docs/plans/2026-10-05-first-commerce-release.md)
+for the scope, approval-gated journey, architecture boundaries, delivery order,
+and remaining decisions.
+
 ## Documentation
 
 The current source of truth is the [Commerce and Customer Service Platform Plan](docs/plans/2026-10-05-commerce-platform.md).
@@ -63,6 +82,11 @@ checkout, commerce records, PayMongo payments and subscriptions, purchased
 products, requests, reports, APIs, and unresolved business decisions.
 
 Implementation sequencing is tracked in the [Implementation Roadmap](docs/plans/2026-10-05-implementation-roadmap.md), while [Project Status](docs/STATUS.md) records the current state and the single next task for a fresh work session.
+
+The [First Commerce Release Approach](docs/plans/2026-10-05-first-commerce-release.md)
+narrows that roadmap into the approved native Laravel, one-time-service, manual
+approval, and PayMongo Hosted Checkout path without treating unresolved
+commercial rules as implemented behavior.
 
 The [Management UI Branding Plan](docs/plans/2026-08-04-management-ui-branding.md)
 defines how the authenticated Filament panels adapt Adzbyte's shared palette,

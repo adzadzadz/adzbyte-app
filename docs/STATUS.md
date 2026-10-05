@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-05 (commerce product direction reset and documented)
+**Last updated:** 2026-10-06 (first commerce release approach documented)
 
 ## Current Stage
 
@@ -31,21 +31,33 @@ persistence-backed idempotency boundary. No catalog, cart, checkout, order,
 payment, subscription, purchased-product, request, or report record or route is
 implemented yet.
 
+The approved first commerce approach is a narrow native Laravel vertical slice
+for fixed-scope, one-time services charged in PHP through PayMongo Hosted
+Checkout v2. Services are fulfilled manually and require administrator fit
+approval before payment is enabled. Physical goods, inventory, shipping,
+downloads, appointments, variants, promotions, and subscription checkout are
+outside the initial slice. Exact launch products and PHP amounts, tax and
+receipt treatment, brief and approval rules, enabled payment methods, and
+refund/cancellation behavior still require decisions before their dependent
+slices begin.
+
 Generic readiness now includes transactionally locked single-use activation, after-commit queue dispatch, bounded activation-notification retries, trusted-host and response-header hardening, a database-aware health endpoint, queue depth/staleness/failure signals, production configuration checks, and an operations/recovery runbook. Every remaining unchecked roadmap item was classified in that runbook and depends on a deferred product or external decision, or on a product vertical slice that does not yet exist.
 
 The previously released PHP 8.3-compatible application remains deployed to Hostinger through the machine-managed `deploy` branch. M0 and the root-route change are verified on `main` but require a future explicitly authorized release before production changes from `/account` to `/`.
 
 ## In Progress
 
-Commerce planning is active. No commerce application code is in progress.
+Commerce development preparation is active. The implementation approach is
+documented, but no commerce application code is in progress.
 
 ## Up Next
 
-**Refine the first-release product types and fulfillment requirements, then
-begin roadmap phase C1 with the catalog and pricing vertical slice. Do not invent
-inventory, shipping, download, service-delivery, tax, subscription, refund, or
-support rules that remain open in the
-[commerce platform plan](plans/2026-10-05-commerce-platform.md).**
+**Approve the initial authoritative service packages, exact PHP prices, tax and
+receipt treatment, publication/availability rules, and whether one cart may
+contain multiple distinct services. Then begin roadmap phase C1 using the
+[first commerce release approach](plans/2026-10-05-first-commerce-release.md).
+Do not invent the remaining brief, approval, payment-method, refund,
+cancellation, or retention rules before their dependent slices.**
 
 ## F2 Verification
 
@@ -127,21 +139,39 @@ support rules that remain open in the
 - PayMongo is the first payment provider for one-time and subscription billing.
 - Payment redirects are informational; only verified, idempotently processed
   PayMongo webhooks confirm financial state or grant purchased access.
+- The first commerce implementation is a narrow native Laravel vertical slice,
+  not a second hosted store or installed general-purpose commerce platform.
+- The first sellable type is a fixed-scope one-time service with line quantity
+  one, manual fulfillment, and administrator fit approval before payment.
+- First-release checkout prices are stored and charged in PHP through PayMongo
+  Hosted Checkout v2; exact product amounts remain to be approved.
+- Physical goods, inventory, shipping, downloads, appointments, variants,
+  promotions, and subscription checkout are excluded from the initial slice.
+- Monthly care plans and custom project ranges remain enquiry-only until their
+  separate billing and fulfillment rules are approved.
 - Customers can submit distinct requests and issue reports, communicate through
   customer-visible threads, and manage them from the authenticated app.
 
 ## Decisions Needed Later
 
 The [commerce platform plan](plans/2026-10-05-commerce-platform.md) records the
-complete decision backlog. The immediate blockers are:
+complete decision backlog. The immediate C1 entry blockers are:
 
-- first-release product types and their fulfillment behavior;
-- initial products, prices, currency, tax, invoice, and availability rules;
-- whether variants, inventory, shipping, downloads, appointments, or manual
-  service fulfillment are needed initially;
-- cart expiry, merge, promotion, and abandoned-checkout rules;
-- enabled PayMongo methods, subscription capability, refunds, cancellation,
-  retries, grace periods, and entitlement suspension;
+- initial authoritative products, exact PHP prices, tax, receipt/invoice, and
+  publication/availability rules;
+
+Before the cart, checkout, and payment slices, the project must also resolve:
+
+- whether a cart may contain more than one distinct service, plus cart expiry
+  and authenticated merge rules;
+- required project-brief and billing fields, approval authority, correction and
+  rejection behavior, approval expiry, and customer notifications;
+- enabled PayMongo one-time methods, refunds, cancellation, and dispute rules;
+
+Deferred phases still require:
+
+- PayMongo subscription capability, retries, grace periods, plan changes,
+  cancellation timing, and entitlement suspension;
 - request/report categories, service targets, attachment rules, notifications,
   and retention.
 
@@ -169,3 +199,7 @@ complete decision backlog. The immediate blockers are:
 - The local A1.2 slice registers but does not attach the `idempotent` middleware. Its storage migration and daily prune command take effect only after a future explicitly authorized release; no production migration or scheduler change was made.
 - The local M2.2 slice adds only authenticated administrator management. It does not create, change, or delete the local demo customer, and it does not modify production users, roles, or permissions.
 - The local readiness slice changes no product catalog, order, payment, collaboration, upload, hosting, or fulfillment behavior. Its remaining-task classification is documented in `docs/operations/core-readiness.md`; the empty leftover `.superdesign` directory was removed and no Superdesign artifact is used.
+- The documented first commerce approach changes no application or production
+  behavior. It resolves the initial product-type, fulfillment, platform, and
+  payment-flow direction while leaving the listed commercial inputs as the C1
+  entry gate.

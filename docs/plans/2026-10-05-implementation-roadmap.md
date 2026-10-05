@@ -2,8 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Status | Generic application foundation complete; commerce planning in progress |
+| Status | Generic foundation complete; first commerce approach approved and commercial inputs pending |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
+| First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
 | Application | Laravel 13 / PHP 8.3 |
 | Management UI | Filament 5 customer panel at `/` and administrator panel at `/admin` |
@@ -51,9 +52,10 @@
 
 ### C1. Catalog and pricing
 
-- [ ] Resolve the first-release product types and fulfillment requirements.
-- [ ] Add products, sellable variants or plans, versioned prices, media,
-  publication state, and availability rules.
+- [x] Resolve the first-release product type and fulfillment boundary: manually
+  fulfilled one-time services with administrator fit approval before payment.
+- [ ] Add one-time service products, versioned PHP prices, media, publication
+  state, and basic availability rules.
 - [ ] Add versioned entitlement definitions.
 - [ ] Add administrator catalog management through shared services and policies.
 - [ ] Add safe, cacheable storefront catalog and product-detail APIs.
@@ -64,10 +66,16 @@
 public representation, and an administrator can change future catalog state
 without altering an existing price or entitlement snapshot.
 
+The first slice uses no variants, inventory, shipping, downloads, appointments,
+promotions, subscriptions, or line quantities greater than one. Exact launch
+products and PHP prices, tax and receipt treatment, and publication rules must
+be approved before implementation.
+
 ### C2. Anonymous cart and app handoff
 
 - [ ] Add anonymous and authenticated carts and cart items.
-- [ ] Define cart expiry, quantity, availability, promotion, and merge rules.
+- [ ] Define cart expiry, quantity-one, availability, multi-product-cart, and
+  merge rules; promotions are excluded from the first release.
 - [ ] Add narrow service-token abilities for Next.js cart mutations.
 - [ ] Return a server-calculated compact cart summary for `adzbyte-next`.
 - [ ] Add a short-lived, single-use signed **View Cart** handoff to the app.
@@ -100,13 +108,15 @@ never choose privileges or attach a cart/order to an unverified identity.
 - [ ] Add append-only order events and authorized transition services.
 - [ ] Add customer ownership and administrator capability policies.
 - [ ] Add the checkout review and terms snapshot.
+- [ ] Add the project brief and administrator fit approval, rejection, and
+  correction boundary before an order becomes payable.
 - [ ] Add idempotent cart-to-pending-order conversion.
 
 ### O2. PayMongo one-time payments
 
 - [ ] Confirm and document enabled PayMongo payment methods.
-- [ ] Create PayMongo checkout/payment resources only for a persisted pending
-  order.
+- [ ] Create a PayMongo Hosted Checkout v2 session only for a persisted,
+  authenticated, approved order snapshot.
 - [ ] Store provider session, payment, event, amount, currency, mode, and order
   references.
 - [ ] Verify webhook signatures against the raw body.
@@ -130,6 +140,9 @@ grant purchased access.
 ## Phase S — Subscriptions and Purchased Products
 
 ### S1. Subscription billing
+
+Subscription billing is deliberately deferred until the one-time service path
+is verified. Current monthly care plans remain enquiry-only.
 
 - [ ] Confirm PayMongo subscription capability and supported merchant methods.
 - [ ] Add internal subscription plans mapped to provider plans.

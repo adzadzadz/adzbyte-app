@@ -109,9 +109,9 @@ The remaining roadmap is intentionally not implemented by this audit:
 | Remaining area | Concrete dependency |
 |---|---|
 | Public registration | Registration abuse controls and checkout/account UX while preserving verification and role boundaries |
-| Catalog and pricing | Confirmed launch product types, fulfillment, prices, taxes, variants, availability, and entitlement rules |
-| Anonymous carts and Next.js handoff | Cart expiry/merge rules plus narrow service-token and signed-handoff contracts |
-| Checkout, orders, and PayMongo | Enabled methods, refund policy, provider credentials, and order/payment state machines |
+| Catalog and pricing | Approved service packages, exact PHP prices, tax/receipt treatment, publication, availability, and minimal purchased-service terms |
+| Anonymous carts and Next.js handoff | Cart expiry/merge and multi-service-cart rules plus narrow service-token and signed-handoff contracts |
+| Checkout, orders, and PayMongo | Brief fields, fit-approval/correction rules, enabled methods, refund policy, provider credentials, and order/payment state machines |
 | Subscriptions | PayMongo account capability plus cancellation, retry, grace-period, plan-change, and entitlement rules |
 | Customer and operational panels | Commerce records, transitions, queues, notifications, uploads, and authorized actions |
 | Customer API beyond identity | The same domain models plus per-action ownership policies and request rules |
