@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1.1 locally verified 2026-10-18; C1.2 next; B1 pending |
+| Status | C1.1 locally verified; dependency audit blocks CI qualification; C1.2/B1 pending |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -100,6 +100,9 @@ validation passed. Disposable SQLite apply/rollback/reapply passed. No existing
 database was migrated, no real content seeded, and no panel/API exposed. Local
 PHP was 8.5.11; CI PHP 8.3 and MySQL execution are separate verification facts.
 Model-level guards do not replace C1.2 authorization, locks, and audit history.
+Source `284dcbb` was pushed; CI run `39048141348` failed at the unchanged PHP
+dependency audit (11 advisories / 5 packages), before PHP tests. Resolve that
+blocker as a separate scoped follow-up; PHP 8.3 test success is not yet proven.
 
 **Acceptance:** an empty catalog returns an empty list; administrators can add,
 edit, publish/unpublish, enable/disable, and archive multiple synthetic packages

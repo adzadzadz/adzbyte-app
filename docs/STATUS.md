@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C1.1 catalog domain and persistence verified)
+**Last updated:** 2026-10-18 (C1.1 locally verified; CI blocked by existing dependency advisories)
 
 ## Current Stage
 
@@ -84,6 +84,10 @@ and record actor/time transition history. Test denied actors and concurrent/
 retry behavior before connecting any panel or REST adapter. See the
 [backend task cards](plans/2026-10-17-backend-development.md).**
 
+**CI blocker discovered after source push:** obtain direction for a separate
+dependency-remediation task before resuming the sequence. The unchanged lock
+file fails the security-audit gate; do not disable the audit to proceed.
+
 ## Latest Implementation Verification — 2026-10-18
 
 - `CatalogDomainTest`: 38 passed / 71 assertions; test-first failures captured
@@ -98,6 +102,15 @@ retry behavior before connecting any panel or REST adapter. See the
 - No existing local database, production environment, secrets, routes, panel
   behavior, or public API contract changed. The source migration awaits a
   future explicitly authorized release. No release workflow ran.
+- Source commit `284dcbb` was pushed to `main` and the remote head verified.
+  [CI run 39048141348](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048141348)
+  failed at `Audit PHP dependencies`: 11 advisories across `filament/filament`,
+  `laravel/framework`, `league/commonmark`, `league/flysystem`, and
+  `symfony/http-foundation`. Composer files and CI configuration are unchanged
+  by C1.1. PHP dependencies installed, but formatting, PHP tests, frontend
+  checks/build, and cache verification were skipped after the audit failed.
+  PHP 8.3 test success is therefore **not verified**. Dependency upgrades are a
+  separately scoped follow-up; none were attempted or audit exceptions added.
 
 ## Prior Planning Verification — 2026-10-17
 
@@ -234,6 +247,9 @@ Deferred phases still require:
 
 ## Known Issues
 
+- CI is blocked by the dependency-audit failure recorded above. C1.1 is locally
+  verified, not fully CI-qualified; remediate dependencies and rerun CI before
+  claiming PHP 8.3/application-release readiness.
 - The production super-administrator has not been bootstrapped. Its identity remains recorded, but password provisioning is a separate deliberate operation.
 - Production still runs the previous release with `/account`; the new root customer route and M0 branding require an explicitly authorized release before production smoke checks change to `/login` and `/`.
 

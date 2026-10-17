@@ -88,3 +88,9 @@ public API and cache invalidation. No new API contract is published in C1.1.
 - No UI, REST endpoint, actor-authorized action, provider behavior, or purchase
   snapshot is claimed. PHP 8.3 CI results and MySQL execution must be recorded
   separately when available. Resume with C1.2 in the handoff.
+- Source `284dcbb` was pushed. [CI run 39048141348](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048141348)
+  failed on the unmodified PHP dependency lock's security audit (11 advisories /
+  5 packages), so PHP 8.3 tests and subsequent checks were skipped. Local
+  verification stands; full CI qualification remains blocked pending a
+  separately scoped dependency update. No audit bypass or dependency change
+  was added to this slice.

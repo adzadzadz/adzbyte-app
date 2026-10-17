@@ -6,10 +6,10 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C1.2 — shared catalog actions/policies; unstarted |
+| Active card | C1.1 implemented/locally verified, CI blocked; C1.2 planned and unstarted |
 | Implementation | C1.1 locally verified: catalog domain/migration/factories/tests; no routes or admin screens yet |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Specify and test ProductPolicy capabilities and actor-authorized transaction actions; lock parent products for revision allocation/lifecycle changes and add actor/time audit history before panel/API exposure |
+| Next action | Obtain owner direction for a scoped dependency update to clear the audit blocker below; then resume C1.2 policy/transaction/audit work. Do not bypass the audit or claim PHP 8.3 tests passed |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | 109 passed / 416 assertions on PHP 8.5.11; focused catalog: 38 / 71; see session log |
 | Production | Older foundation release recorded in STATUS; not rechecked or changed by planning |
@@ -132,3 +132,21 @@ copying their full contents into the session log.
   documents, C1.2 references in current checkpoint/status/plan, stale-state
   review, and whitespace checks. All session edits belong to this C1.1 slice;
   no unrelated changes were present at start or incorporated.
+
+### 2026-10-18 — Source delivery and CI blocker
+
+- Source `284dcbb796ac90dab7d8de39f1bd97f248452f4a` was pushed to `origin/main`;
+  the remote head matched and checkout was clean before this evidence update.
+- [CI run 39048141348](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048141348)
+  failed at `composer audit --locked --no-interaction`: 11 advisories affecting
+  five locked packages (`filament/filament`, `laravel/framework`,
+  `league/commonmark`, `league/flysystem`, `symfony/http-foundation`).
+- Verified `composer.json`, `composer.lock`, and CI workflow unchanged from
+  the parent commit. CI installed dependencies under PHP 8.3 but skipped
+  formatting, tests, frontend verification/build, and cache checks after the
+  audit failure. Local PHP 8.5 results do not prove PHP 8.3 tests passed.
+- Source implementation is locally verified; full CI qualification is blocked.
+  No dependency updates, vulnerability suppressions, release, or production
+  changes were performed. Ask the owner whether to address dependencies as a
+  separate task before C1.2. Evidence-record commit message:
+  `Record catalog CI dependency audit blocker`.
