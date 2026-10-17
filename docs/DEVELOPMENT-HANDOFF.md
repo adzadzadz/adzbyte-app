@@ -83,7 +83,10 @@ copying their full contents into the session log.
   CI remains required. Full-suite regression caught an older assertion that
   products must return 404; it now checks an empty public catalog response.
 - No schema, real data, provider, dependency or panel changes. No deployment.
-  Source commit/push/CI and aggregate real Next.js rendering remain pending.
+  Initial source d639596 passed SQLite/application CI but failed the new MySQL
+  latest-empty-terms regression. Native per-engine JSON entry counting replaces
+  the nonportable string comparison; full CI rerun and aggregate real Next.js
+  rendering remain pending.
 
 
 ### 2026-10-18 — C1.3 administrator catalog management

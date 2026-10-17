@@ -55,3 +55,10 @@ checks with disposable fixtures and cleanup. Full local `composer test -- --comp
 on SQLite/PHP 8.5.11; Node 26.11.1 HTTP consumer. Full Pint, strict Composer
 validation, production Vite build, route/middleware inspection and whitespace
 checks pass. Delivery and both PHP 8.3/Node 24 CI jobs remain pending. No real catalog records are seeded.
+
+Initial source `d639596` passed the application CI job but failed MySQL at
+`test_latest_versions_determine_filtering_without_resurrecting_older_offers`: a
+SQL string comparison did not exclude the native JSON empty document. The read
+service now counts JSON entries using SQLite json_each and MySQL JSON_LENGTH.
+The existing regression covers both latest-zero-price and latest-empty-terms
+products; both engines must pass before this card closes.

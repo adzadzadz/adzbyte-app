@@ -38,8 +38,15 @@ final class PublicCatalog
     {
         $query->where('is_available', true)
             ->whereHas('currentPrice', fn (Builder $price) => $price->where('currency', 'PHP')->where('amount_minor', '>', 0))
-            // Model writes encode empty documents as []; JSON array length is
-            // not portable for nonempty objects on SQLite and MySQL.
-            ->whereHas('currentTerms', fn (Builder $terms) => $terms->where('content', '!=', '[]')->where('content', '!=', '{}'));
+            ->whereHas('currentTerms', function (Builder $terms): void {
+                // SQLite's array-length function returns zero for objects;
+                // MySQL compares JSON values differently from SQL strings.
+                // Count entries natively on each supported database engine.
+                if ($terms->getConnection()->getDriverName() === 'sqlite') {
+                    $terms->whereRaw('exists (select 1 from json_each(product_terms.content))');
+                } else {
+                    $terms->whereJsonLength('content', '>', 0);
+                }
+            });
     }
 }
