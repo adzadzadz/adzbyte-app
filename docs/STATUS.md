@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C1.1 locally verified; CI blocked by existing dependency advisories)
+**Last updated:** 2026-10-18 (dependency remediation locally verified; PHP 8.3 CI pending)
 
 ## Current Stage
 
@@ -84,9 +84,42 @@ and record actor/time transition history. Test denied actors and concurrent/
 retry behavior before connecting any panel or REST adapter. See the
 [backend task cards](plans/2026-10-17-backend-development.md).**
 
-**CI blocker discovered after source push:** obtain direction for a separate
-dependency-remediation task before resuming the sequence. The unchanged lock
-file fails the security-audit gate; do not disable the audit to proceed.
+The owner authorized dependency remediation. Both local audits now pass after
+scoped compatible lock-file updates; PHP 8.3 CI qualification is pending the new
+source push. No audit thresholds, ignores, or application behavior were changed.
+
+## Latest Dependency Verification — 2026-10-18
+
+| Audited package | Previous | Updated |
+|---|---|---|
+| `filament/filament` and synchronized Filament packages | 5.7.5 | 5.10.2 |
+| `laravel/framework` | 13.23.0 | 13.37.0 |
+| `league/commonmark` | 2.9.0 | 2.10.3 |
+| `league/flysystem` | 3.35.2 | 3.36.0 |
+| `symfony/http-foundation` | 7.4.15 | 7.4.21 |
+| `concurrently` | 9.2.4 | 9.2.5 |
+| `nanoid` | 3.3.17 | 3.3.20 |
+| `shell-quote` | 1.9.0 | 1.12.0 |
+| `source-map-js` | 1.2.1 | 1.2.2 |
+
+- Targeted Composer resolution updated 16 packages and added 2 required
+  dependencies; Livewire moved to 4.4.7 and Laravel Prompts to 0.3.26.
+  PHP resolution remains pinned to 8.3.0. Root manifests and CI are unchanged;
+  no major-version upgrade or advisory suppression was introduced.
+- Local Composer audit: 0 advisories / 0 abandoned packages. The previously
+  skipped npm audit exposed 4 affected packages, now fixed compatibly; npm
+  audit reports 0 vulnerabilities. Both lock files are updated.
+- Filament's upgrade script regenerated published CSS/JS/fonts. Replaced seven
+  unreferenced old font files with the seven referenced new generated files.
+  Upstream assets remain unmodified; `git diff --check` reports three upstream
+  template-string whitespace lines whose files were verified byte-identical to
+  vendor distributions. Authored/lock/CSS/font-reference whitespace checks pass.
+- Local full suite remains 109 tests / 416 assertions on PHP 8.5.11. Pint,
+  strict Composer validation, Vite build, isolated Laravel production-cache
+  generation, and cached login-route discovery pass. Temporary test caches
+  were cleared. No existing database was migrated or production changed.
+- PHP 8.3 CI result will be recorded after source delivery. The earlier failed
+  run below remains historical evidence, not the result for the new locks.
 
 ## Latest Implementation Verification — 2026-10-18
 
@@ -247,9 +280,9 @@ Deferred phases still require:
 
 ## Known Issues
 
-- CI is blocked by the dependency-audit failure recorded above. C1.1 is locally
-  verified, not fully CI-qualified; remediate dependencies and rerun CI before
-  claiming PHP 8.3/application-release readiness.
+- Dependencies are remediated locally; PHP 8.3 CI must pass on the new lock
+  files before claiming full CI qualification. The earlier failed run is retained
+  in the implementation evidence above.
 - The production super-administrator has not been bootstrapped. Its identity remains recorded, but password provisioning is a separate deliberate operation.
 - Production still runs the previous release with `/account`; the new root customer route and M0 branding require an explicitly authorized release before production smoke checks change to `/login` and `/`.
 

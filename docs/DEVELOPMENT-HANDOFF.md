@@ -6,10 +6,10 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C1.1 implemented/locally verified, CI blocked; C1.2 planned and unstarted |
+| Active card | Dependency remediation locally verified; PHP 8.3 CI pending; C1.2 unstarted |
 | Implementation | C1.1 locally verified: catalog domain/migration/factories/tests; no routes or admin screens yet |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Obtain owner direction for a scoped dependency update to clear the audit blocker below; then resume C1.2 policy/transaction/audit work. Do not bypass the audit or claim PHP 8.3 tests passed |
+| Next action | Commit/push the approved dependency locks and regenerated assets, verify PHP 8.3 CI, then resume C1.2 policy/transaction/audit work; do not infer CI success from local PHP 8.5 tests |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | 109 passed / 416 assertions on PHP 8.5.11; focused catalog: 38 / 71; see session log |
 | Production | Older foundation release recorded in STATUS; not rechecked or changed by planning |
@@ -150,3 +150,45 @@ copying their full contents into the session log.
   changes were performed. Ask the owner whether to address dependencies as a
   separate task before C1.2. Evidence-record commit message:
   `Record catalog CI dependency audit blocker`.
+
+### 2026-10-18 — Authorized dependency remediation
+
+- Owner authorized this follow-up with "Go". Started clean at `11a20b9`.
+- Resolved only the five Composer-audited packages and required dependencies
+  using `composer update filament/filament laravel/framework league/commonmark
+  league/flysystem symfony/http-foundation --with-dependencies --minimal-changes
+  --no-scripts --no-interaction --prefer-dist` after reviewing a dry run.
+  Used a temporary Composer cache, then explicitly ran the standard post-autoload
+  and post-update scripts under isolated testing environment settings.
+- Updated Filament 5.7.5 → 5.10.2, Laravel 13.23.0 → 13.37.0, CommonMark 2.9.0 →
+  2.10.3, Flysystem 3.35.2 → 3.36.0, HttpFoundation 7.4.15 → 7.4.21, plus necessary
+  synchronized/transitive packages (16 updates, 2 additions total). PHP resolver
+  platform remains 8.3.0; no root-manifest constraints changed.
+- The frontend audit, skipped in the failed CI run, exposed four affected
+  packages. Reviewed a dry run, then `npm audit fix --ignore-scripts` updated
+  concurrently 9.2.4 → 9.2.5, nanoid 3.3.17 → 3.3.20, shell-quote 1.9.0 → 1.12.0,
+  source-map-js 1.2.1 → 1.2.2. No force, overrides, or major upgrades used.
+- Fresh audits: Composer 0 advisories / 0 abandoned packages; npm 0
+  vulnerabilities. Reviewed maintainer/advisory references for
+  [Filament MFA](https://github.com/advisories/GHSA-7m6h-rg42-m449),
+  [CommonMark](https://github.com/advisories/GHSA-97jj-33gv-5xf9),
+  [HttpFoundation](https://symfony.com/cve-2026-108082),
+  [shell-quote](https://github.com/advisories/GHSA-pqg4-j6r4-53mv),
+  [nanoid](https://github.com/advisories/GHSA-2v37-7h3g-55p8), and
+  [source-map-js](https://github.com/advisories/GHSA-68fv-2mgg-jv7q).
+- Filament published assets are required generated output, not authored
+  feature changes. New JS components and hashed fonts accompany the upgraded
+  packages. Removed only seven tracked old fonts after confirming no repository
+  references; all seven new CSS references resolve. Preserved upstream template
+  strings exactly: three whitespace findings in code-editor/file-upload/
+  rich-editor distribution JS were byte-checked against vendor copies. Scoped
+  authored-file whitespace checks passed; no Git/audit checks were disabled.
+- Existing full suite: 109 tests / 416 assertions on PHP 8.5.11; Pint, strict
+  Composer validation, updated Vite build, and isolated Laravel optimize pass.
+  Both login routes are present with generated caches. Cleared temporary
+  config/route/event/view caches afterward. No development/production database,
+  credentials, feature behavior, or release state changed; no process started.
+- All changes are session-owned locks/generated assets plus status/handoff.
+  Intended source commit: `Update vulnerable application dependencies`.
+  Verify the new source's actual PHP 8.3 CI result before declaring the prior
+  audit blocker cleared remotely. Then C1.2 remains the next product task.
