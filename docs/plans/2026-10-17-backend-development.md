@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1.3 qualified; C1.4 implemented, CI pending; B1 pending |
+| Status | C1 development/B1 qualified across both source revisions; C2 gated by D04 |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -149,6 +149,16 @@ responses without importing Laravel internals.
 **Backend milestone B1:** administrator can manage the catalog and a test client
 can read its safe REST representation. The roadmap's real Next.js rendering
 gate remains pending until integration is demonstrated in that repository.
+
+**C1.4/B1 evidence (2026-10-18):** public list/detail Resources, stateless routes,
+strict query controls, exact string money, native current-offer filtering,
+named throttling, ETag revalidation, OpenAPI examples and an independent real
+HTTP/Node consumer. Backend `9b4bf7b` passes [both database CI jobs](https://github.com/adzadzadz/adzbyte-app/actions/runs/39055675151):
+206 / 1,300 on each engine/PHP 8.3.35, audits/build/cache gates included. The
+[public contract](2026-10-18-public-catalog.md) records the MySQL JSON correction
+and pre-boot fixture isolation. Actual Next.js consumer `805c003` passes local
+129-test/type/lint/build/audit and browser checks in [draft PR #6](https://github.com/adzadzadz/adzbyte-next/pull/6);
+its [source CI gate passes](https://github.com/adzadzadz/adzbyte-next/actions/runs/39056186126). Cart policy D04 is still unanswered.
 
 ### C2 — Carts and secure storefront handoff
 

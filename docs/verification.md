@@ -117,3 +117,22 @@ Real desktop/mobile interactions, validation feedback, denied access, history,
 role controls, and keyboard focus checks pass. No migration/dependency/provider
 or public-contract change is introduced. All applicable C1.3 development gates
 pass; C1.4 is next. Deployment remains separate.
+
+## Public catalog and real storefront qualification
+
+C1.4/B1 backend source `9b4bf7b` passes [CI 39055675151](https://github.com/adzadzadz/adzbyte-app/actions/runs/39055675151):
+206 tests / 1,300 assertions separately on SQLite and MySQL/PHP 8.3.35, HTTP/Node
+contract proof, both audits, formatting, metadata, build and caches. Native JSON
+entry counting fixes the MySQL empty-terms filter regression; pre-boot fixture
+isolation rejects inherited non-test connection settings. No schema changed.
+
+Aggregate C1 includes actual Next.js source `805c003` in [draft PR #6](https://github.com/adzadzadz/adzbyte-next/pull/6),
+with [CI 39056186126](https://github.com/adzadzadz/adzbyte-next/actions/runs/39056186126) passing
+129 tests / 29 files, type/lint/build and zero-finding dependency audit. Real
+desktop/mobile browser workflows pass against the actual isolated Laravel HTTP
+server, including outage/retry and committed catalog mutations. The [catalog
+contract](plans/2026-10-18-public-catalog.md) records sources, artifacts, environment,
+applicability and cleanup. This qualifies development source across both repos.
+Frontend promotion and production deployment remain separately authorized; no
+existing database or production catalog was changed. C2 onward remain incomplete
+until their explicit business inputs and own verification gates pass.

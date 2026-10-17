@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1.3 qualified; C1.4 implemented, CI pending; C1/B1 integration pending |
+| Status | C1 development/B1 qualified across both source revisions; C2 gated by D04 |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -75,8 +75,8 @@
 - [x] Add administrator catalog management through shared services and policies.
 - [x] Allow authorized add/edit, publish/unpublish, availability changes, and
   archival without code/deploy changes, preserving referenced price/term history.
-- [ ] Add safe, cacheable storefront catalog and product-detail APIs.
-- [ ] Test draft/unpublished visibility, price snapshots, and unauthorized
+- [x] Add safe, cacheable storefront catalog and product-detail APIs.
+- [x] Test draft/unpublished visibility, price snapshots, and unauthorized
   catalog mutations.
 
 C1.1 proof is recorded in the [domain specification](2026-10-18-catalog-domain.md)
@@ -102,6 +102,13 @@ PHP 8.3.35, including populated migration upgrades and real process races.
 After the authorized dependency update, [CI run 39048996685](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048996685)
 at source `a27f834` passes the full suite on PHP 8.3.35, both dependency audits,
 build, and cache gates. C1.1 is qualified; production is unchanged.
+
+C1.4/B1 backend qualification: source `9b4bf7b`, [CI 39055675151](https://github.com/adzadzadz/adzbyte-app/actions/runs/39055675151),
+206 / 1,300 on SQLite and MySQL/PHP 8.3. Immutable catalog price/terms versions
+remain intact; accepted order snapshots belong to O1. Actual Next.js consumer
+source `805c003` is locally/browser verified in [draft PR #6](https://github.com/adzadzadz/adzbyte-next/pull/6),
+with [source CI passing](https://github.com/adzadzadz/adzbyte-next/actions/runs/39056186126). See the [public contract](2026-10-18-public-catalog.md).
+C2 remains gated by the owner's explicit D04 cart rules.
 
 **Gate:** Laravel can publish a product, `adzbyte-next` can render only its safe
 public representation, and an administrator can change future catalog state

@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C1.4 implemented; delivery/CI verification pending)
+**Last updated:** 2026-10-18 (C1 development qualified across both repositories; C2 awaits D04)
 
 ## Current Stage
 
@@ -32,7 +32,7 @@ and domain guards for dynamic products and price/term versions. C1.2 adds
 capability-backed shared catalog actions, locked revision allocation, persistent
 retry receipts, and actor/time audit history. C1.3 adds protected administrator
 catalog list/create/view/edit pages and explicit revision/lifecycle actions.
-C1.4 now implements public catalog list/detail routes with explicit safe fields, exact string money, pagination/filtering, named throttling and ETag revalidation; source delivery and both CI jobs are pending. Cart, checkout, order,
+C1.4 public catalog list/detail routes are verified on both supported database engines: explicit safe fields, exact string money, pagination/filtering, named throttling and ETag revalidation. The real Next.js consumer is delivered separately in draft PR #6; its source CI passes. Cart, checkout, order,
 payment, subscription, purchased-product, request, and report records/routes
 remain unimplemented. Catalog/audit migrations have only run in disposable test
 databases, not the development or production database.
@@ -77,7 +77,7 @@ records behavior and concurrency boundaries. **C1.3 is complete:** administrator
 image references, add price/terms versions, and explicitly manage publication,
 availability, archival, and restoration. History is read-only, and permissions
 remain independent. See the [management contract](plans/2026-10-18-catalog-management.md).
-C1.4 public REST/catalog revalidation is implemented and locally tested; its delivery/CI gates and B1 remain pending. See the [public contract](plans/2026-10-18-public-catalog.md). D01 is resolved; D03's basic controls are
+C1.4 and B1 are verified complete at backend `9b4bf7b`: 206 tests / 1,300 assertions independently on SQLite/MySQL in PHP 8.3 CI. The Next.js consumer passes local/browser qualification; its source CI passes. See the [public contract](plans/2026-10-18-public-catalog.md). D01 is resolved; D03's basic controls are
 specified; D02 tax/receipt policy remains deferred to checkout/sales. The
 [decision register](decisions/commerce-development.md) and
 [development handoff](DEVELOPMENT-HANDOFF.md) preserve the remaining rules and
@@ -85,14 +85,47 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Finish C1.4 delivery and both PHP 8.3 database CI gates, then verify actual Next.js rendering for the aggregate C1 gate. D04 and later commercial rules were requested from the owner; dependent code remains gated by the [decision register](decisions/commerce-development.md).**
+**Resolve D04 before C2 cart implementation. The owner was asked to approve cart multiplicity, expiry, repricing, merging/duplicates and handoff lifetime. Checkout/payment/support/privacy/subscription inputs were also requested. No unanswered policy is inferred from the instruction to finish all phases. See the [decision register](decisions/commerce-development.md).**
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
 passed PHP 8.3 CI, including both audits, all 109 tests, production build, and
 cache checks. No audit thresholds or ignores were changed. C1.2 source
 `cea2199` now passes [PHP 8.3 CI](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
 with 154 tests / 660 assertions, both audits, build, and cache gates.
-C1.3 source `7d43b13` now passes both database CI jobs. C1.4 and B1 remain pending.
+C1.3 source `7d43b13` passes both database CI jobs; C1.4/B1 and real Next.js source qualification now pass at the revisions recorded below.
+
+## Public Catalog and Real Consumer — 2026-10-18
+
+C1 development and B1 are verified at the backend and frontend revisions below.
+Frontend source remains in a draft PR; source promotion/deployment is separate.
+C2 onward are incomplete and gated by unanswered owner decisions.
+
+- C1.4/B1 backend: `9b4bf7bac89c95ccc7929dd44b01e66444a93d0c` passes
+  [CI 39055675151](https://github.com/adzadzadz/adzbyte-app/actions/runs/39055675151):
+  **206 / 1,300 on each database**, PHP 8.3.35, both dependency audits, formatting,
+  metadata, build and cache gates. The public API is stateless, read-only,
+  allowlisted, throttled and revalidated through ETags; no stale payload cache.
+- MySQL qualification caught the latest-empty-terms availability predicate;
+  native JSON entry counting fixes it. Real browser setup caught an inherited
+  database connection in the HTTP harness; the target and array cache/session
+  settings now apply before application boot, with a regression assertion.
+- Actual Next.js source `805c003` on isolated `codex/public-catalog` consumes
+  the real backend at `/shop` and `/shop/{public_id}`. [Draft PR #6](https://github.com/adzadzadz/adzbyte-next/pull/6)
+  preserves the existing frontend checkout and its two unpublished commits.
+  Frontend [CI 39056186126](https://github.com/adzadzadz/adzbyte-next/actions/runs/39056186126) passes; no deploy-triggering develop push was made.
+- Frontend local proof: **129 tests / 29 files**, type check, lint, production
+  build, and **0 dependency audit findings**. Inherited critical dependencies
+  were patched, and a tested scoped glob override removes an unfixed lint chain.
+  Runtime: local Node 26.11.1, target CI Node 22. The PR documents the override,
+  observer-mock migration and tested comment-identity compatibility correction.
+- Real Chrome desktop/mobile proves list/detail/pagination, safe text/media,
+  exact price, content/price updates, unpublish/draft/archive denial, empty state,
+  upstream outage and retry, and keyboard focus/Enter. No unexpected console or
+  page errors; no horizontal overflow at 1440/320px. Evidence is in the frontend
+  PR's `docs/commerce/evidence/2026-10-18`.
+- Disposable SQLite and all browser QA scripts/credentials are removed; ports
+  8814/8815 are stopped. Existing application databases were not migrated.
+  No production catalog records, release, provider payment or deployment changed.
 
 ## Latest Catalog Management Verification — 2026-10-18
 

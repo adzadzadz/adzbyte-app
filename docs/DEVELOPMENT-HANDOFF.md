@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C1.4 — implemented; source delivery and CI pending |
-| Implementation | C1.3 qualified at 7d43b13; C1.4 public routes/services/resource, ETags, OpenAPI and HTTP consumer implemented |
+| Active card | C1 development/B1 verified; C2 blocked by unanswered D04 policy |
+| Implementation | Backend 9b4bf7b qualified on both engines; Next consumer 805c003 in draft PR #6, locally/browser qualified |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Run final local gates, commit/push C1.4 and qualify both CI jobs before Next.js integration or dependent implementation |
+| Next action | Record the owner D04 answer in the decision register/product plan before implementing C2; other commercial and privacy inputs remain pending. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | C1.4 local 206 / 1,299 on SQLite/PHP 8.5.11; HTTP consumer Node 26.11.1; C1.4 PHP 8.3/Node 24 CI pending |
+| Last recorded runtime tests | Backend 206 / 1,300 on both database CI jobs/PHP 8.3.35; frontend 129 tests/29 files, type/lint/build/audit and real browser passed; frontend CI passed |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -65,6 +65,34 @@ the product plan and implementation progress in the master roadmap; avoid
 copying their full contents into the session log.
 
 ## Session log
+
+### 2026-10-18 — C1.4 delivery and actual Next.js consumer
+
+- Backend `7424a90` passes both engines after native JSON-entry counting fixed
+  the first MySQL failure. `9b4bf7b` strengthens HTTP fixture isolation before
+  boot-time connection resolution; [CI 39055675151](https://github.com/adzadzadz/adzbyte-app/actions/runs/39055675151)
+  passes **206 / 1,300** independently on SQLite/MySQL under PHP 8.3.35.
+- Created `/private/tmp/adzbyte-next-catalog-20261018`, source branch
+  `codex/public-catalog`, from remote develop `512bda9`. Original frontend local
+  edits and unpublished `8ef0ca6`/`37eae8f` are untouched/excluded. Consumer source
+  `805c003` is pushed in [draft PR #6](https://github.com/adzadzadz/adzbyte-next/pull/6).
+  Merging develop would deploy, so it remains a draft source review.
+- Consumer has server-only origin configuration, strict v1 validation, no-store
+  reads, exact BigInt price display, safe media/text and local list/detail pages.
+  Backend authority is preserved; no cart/payment action is implemented.
+- Fixed inherited frontend dependency findings without audit suppressions:
+  Next/eslint-config 16.4.2, Vitest/coverage 5.0.5, scoped tested tinyglobby alias.
+  Observer classes and stored comment identity support the upgraded tools.
+  Local 129 tests/29 files, type/lint/build/audit all pass; frontend CI passed.
+- Browser desktop/mobile, real image load, changed content/price, hidden records,
+  empty/outage/retry, safe text and keyboard checks pass without unexpected
+  errors. QA uses synthetic localhost data and dummy authentication settings;
+  unrelated chat is disabled explicitly. All QA servers, fixture DB and private
+  scripts are stopped/deleted; committed synthetic screenshots/results remain.
+- D04 proposed cart rules were presented for an explicit answer. D02/D05–D09
+  policy inputs and deferred-subscription scope were requested; none has been
+  approved yet. C2 onward cannot be marked complete or implemented by guessing.
+
 
 ### 2026-10-18 — C1.4 public catalog (in progress)
 
