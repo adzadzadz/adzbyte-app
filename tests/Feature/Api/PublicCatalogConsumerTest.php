@@ -45,6 +45,10 @@ class PublicCatalogConsumerTest extends TestCase
         fclose($socket);
         $this->server = new Process([PHP_BINARY, '-S', $address, base_path('tests/Support/public-catalog-router.php')], base_path(), [
             ...$this->catalogWorkerEnvironment(), 'CATALOG_HTTP_DATABASE' => $this->database,
+            // Prove boot-time cache/session resolution cannot retain an
+            // inherited development database before the fixture override.
+            'CACHE_STORE' => 'database', 'SESSION_DRIVER' => 'database',
+            'DB_DATABASE' => $this->temporary.'.must-not-use',
         ]);
         $this->server->start();
         $deadline = microtime(true) + 10;
@@ -67,5 +71,6 @@ class PublicCatalogConsumerTest extends TestCase
         $this->assertSame('passed', $result['result']);
         $this->assertSame(2, $result['products']);
         $this->assertSame(2, $result['pages']);
+        $this->assertFileDoesNotExist($this->temporary.'.must-not-use');
     }
 }

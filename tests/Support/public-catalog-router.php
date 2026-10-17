@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 // A localhost HTTP harness, never a deployment entry point. It accepts only
 // a parent-created disposable database and serves public catalog routes.
@@ -19,6 +20,14 @@ if (getenv('CATALOG_TEST_DRIVER') === 'mysql') {
         throw new RuntimeException('Expected an existing disposable catalog database.');
     }
     require dirname(__DIR__, 2).'/vendor/autoload.php';
+    foreach (['DB_CONNECTION' => 'sqlite', 'DB_DATABASE' => $database, 'DB_URL' => ''] as $name => $value) {
+        putenv($name.'='.$value);
+        $_ENV[$name] = $_SERVER[$name] = $value;
+    }
+}
+foreach (['CACHE_STORE' => 'array', 'SESSION_DRIVER' => 'array'] as $name => $value) {
+    putenv($name.'='.$value);
+    $_ENV[$name] = $_SERVER[$name] = $value;
 }
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 if (! str_starts_with($path, '/api/v1/products')) {
@@ -34,6 +43,7 @@ $app->booted(function () use ($database): void {
             'database.connections.sqlite.database' => $database,
             'database.connections.sqlite.url' => null,
         ]);
+        DB::purge('sqlite');
     }
     config(['cache.default' => 'array', 'session.driver' => 'array']);
 });
