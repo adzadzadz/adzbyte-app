@@ -6,10 +6,10 @@
 |---|---|
 | Updated | 2026-10-17 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | P0 — resolve catalog entry decisions |
+| Active card | C1.1 — specify and implement dynamic catalog domain/persistence; unstarted |
 | Implementation | No commerce code started; existing foundation preserved |
-| Decision gate | D01–D03 pending; see [register](decisions/commerce-development.md) |
-| Next action | Prepare the launch-service decision packet from the register, obtain owner answers for D01–D03, and record them in the product plan; then specify C1.1 schema/acceptance cases |
+| Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
+| Next action | Specify C1.1 fields/schema, lifecycle transitions, policy boundaries, and tests for empty catalog, incomplete drafts, managed price/term versions, publication/availability/archive, and preserved history; then implement against synthetic fixtures |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | 71 passed / 345 assertions; historical, not rerun for planning |
 | Production | Older foundation release recorded in STATUS; not rechecked or changed by planning |
@@ -80,3 +80,20 @@ copying their full contents into the session log.
   Delivery locator: commit message `Document backend development and recovery plan`.
   This checkpoint precedes delivery; inspect Git for the actual commit and
   remote state when resuming. Live CI was not checked; no release ran.
+
+### 2026-10-17 — Dynamic service-package clarification
+
+- Planning commit `4f352be` was pushed to `origin/main` and its remote head was
+  verified in the preceding session. This session started with a clean checkout.
+- Owner clarified that no specific packages exist yet: packages must be dynamic
+  and manageable through the backend. Superseded P0 / the launch-package gate;
+  moved the next card to C1.1. No package names, prices, or content were invented.
+- Updated the product plan, backend cards, roadmap, decision register, STATUS,
+  first-release approach, README, and readiness dependency notes. Specified
+  empty/draft behavior, administrator controls, and historical-version safety.
+- This is a documentation change. No application code, migration, seed data,
+  credential, runtime process, or production state was changed. Runtime tests
+  and live CI were not rerun. Documentation checks passed: 45 local Markdown
+  links across 12 documents, consistent C1.1 continuation references, stale-gate
+  search/review, and `git diff --check`. Verify delivery state from Git when
+  resuming; intended commit: `Plan dynamic service package management`.

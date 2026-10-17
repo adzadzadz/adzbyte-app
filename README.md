@@ -65,9 +65,12 @@ webhook, not the browser return, confirms payment.
 Physical goods, variants, inventory, shipping, downloads, appointments,
 promotions, and subscription checkout are outside the initial slice. Monthly
 care plans and custom project ranges remain enquiry-only until their separate
-commercial rules are approved. Exact launch products and PHP amounts, tax and
-receipt treatment, approval details, payment methods, and refund/cancellation
-rules remain development-entry decisions.
+commercial rules are approved. Service packages are dynamic administrator-managed
+records: add/edit content, scope, versioned prices/terms, publication,
+availability, and archival without code changes. The catalog may start empty;
+no package names or amounts are predefined. Tax/receipt treatment, approval,
+payment, and refund/cancellation decisions remain required for their dependent
+purchasing slices, and do not block generic catalog development.
 
 See the [First Commerce Release Approach](docs/plans/2026-10-05-first-commerce-release.md)
 for the scope, approval-gated journey, architecture boundaries, delivery order,

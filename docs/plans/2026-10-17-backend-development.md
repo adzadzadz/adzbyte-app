@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | Development plan prepared; C1 commercial decisions pending |
+| Status | Dynamic catalog scope confirmed; C1.1 is next and unstarted |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -57,43 +57,51 @@ Task IDs below refine existing roadmap phases; the master roadmap remains the
 completion checklist. All cards are planned and unstarted. Resolve only the
 decisions needed by the next card. Do not turn an unresolved rule into a default.
 
-### P0 — Resolve the catalog entry gate
+### P0 — Superseded: predefined launch catalog gate
 
-**Dependency:** owner decisions D01–D03 in the decision register.
+The owner clarified on 2026-10-17 that no specific service packages exist yet.
+Packages, descriptions, scope, prices, and terms must be manageable data.
+The former requirement to approve launch products/amounts before C1 is retired;
+D01 is resolved and D03's basic controls are specified in the product plan.
 
-- Prepare and obtain explicit decisions for launch packages and scope, exact
-  PHP amounts, tax/receipt treatment, publication, availability, and minimal
-  versioned purchased-service terms.
-- Record approved answers in the product plan and link their evidence in the
-  register. No launch price may be inferred from the public site's USD prices.
-- Then write the C1 schema/API proposal with field allowlists, relationships,
-  indexes, capabilities, and migration strategy before implementation.
-
-**Exit:** D01–D03 are resolved with evidence and C1 acceptance cases are clear.
-The cart decisions can remain pending until C2.
+Proceed to C1.1 with an empty catalog and synthetic test data. D02 tax/receipt
+decisions move to checkout/sales readiness; no tax policy is invented. The
+remaining cart, payment, and fulfillment decisions still gate their own slices.
 
 ### C1 — Catalog, prices, entitlements, and product administration
 
-**Dependency:** P0. **Management:** `/admin` catalog and pricing.
+**Dependency:** confirmed dynamic-catalog requirements in the product plan;
+no real packages or prices required. **Management:** `/admin` catalog and pricing.
 
-1. **C1.1 — Domain and persistence.** Add stable product identifiers, approved
-   service metadata/media, publication/availability, immutable price versions
+1. **C1.1 — Domain and persistence.** First specify the schema, field allowlists,
+   relationships, indexes, lifecycle transitions, and acceptance tests. Then add
+   data-driven service metadata/scope/media, stable identifiers, draft/published/
+   archived lifecycle, separate availability, immutable optional price versions
    in integer PHP minor units, and versioned entitlement/fulfillment terms.
-   Define relationships, uniqueness, indexes, and local migration reversal.
+   Drafts may be incomplete; unset price is never treated as free. Include
+   empty-catalog behavior and local migration reversal.
 2. **C1.2 — Shared actions and policies.** Implement catalog changes and
    explicit publication/price-version actions with capabilities and audit
    evidence. Catalog edits must not rewrite accepted historical snapshots.
-3. **C1.3 — Filament management.** Expose validated product, price, entitlement,
-   and publication controls using the same actions/policies. Reuse existing
-   user/role management; add no general user-management API by assumption.
+3. **C1.3 — Filament management.** Let authorized administrators create and edit
+   packages, scope/deliverables, media, price/term versions, publication,
+   availability, and archival using the same actions/policies. New packages
+   start as drafts; adding a package requires no code change or deployment.
+   Retain referenced products/versions rather than deleting purchase history.
+   Reuse existing user/role management; add no general user-management API.
 4. **C1.4 — Public REST contract.** Add safe product list/detail responses,
    current price/availability, pagination, cache behavior/invalidation, and
    throttling. Add synthetic fixtures, OpenAPI examples, and consumer checks.
 
-**Acceptance:** public reads never expose drafts or internal fields; unauthorized
+**Acceptance:** an empty catalog returns an empty list; administrators can add,
+edit, publish/unpublish, enable/disable, and archive multiple synthetic packages
+without code changes. Incomplete/unpriced packages cannot be purchased; no real
+package or price is seeded. Public reads never expose drafts, archived products,
+or internal fields; unauthorized
 catalog writes fail in both services and panels; invalid money/publication
 changes fail; updates invalidate public caches; price/entitlement history is
-preserved. Migration and contract tests pass. Next.js can consume verified
+preserved, including referenced archived records. Migration and contract tests
+pass. Next.js can consume verified
 responses without importing Laravel internals.
 
 **Backend milestone B1:** administrator can manage the catalog and a test client
@@ -146,7 +154,8 @@ register/login, and retain the correct owned cart.
 
 ### O1 — Orders, checkout brief, and fit approval
 
-**Dependency:** C3 and D05; relevant terms/retention decisions from D08.
+**Dependency:** C3, D02 tax/receipt decisions, D05, any applicable D03 purchase
+constraints, and relevant terms/retention decisions from D08.
 
 1. **O1.1 — Order domain.** Persist opaque references, immutable product/price/
    scope/terms snapshots, totals, and append-only events. Model approval,

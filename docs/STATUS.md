@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-17 (backend development plan and continuation checkpoint prepared)
+**Last updated:** 2026-10-17 (dynamic catalog direction confirmed; fixed-package entry gate removed)
 
 ## Current Stage
 
@@ -36,10 +36,11 @@ for fixed-scope, one-time services charged in PHP through PayMongo Hosted
 Checkout v2. Services are fulfilled manually and require administrator fit
 approval before payment is enabled. Physical goods, inventory, shipping,
 downloads, appointments, variants, promotions, and subscription checkout are
-outside the initial slice. Exact launch products and PHP amounts, tax and
-receipt treatment, brief and approval rules, enabled payment methods, and
-refund/cancellation behavior still require decisions before their dependent
-slices begin.
+outside the initial slice. Packages are dynamic administrator-managed records;
+no initial products or amounts are specified or needed for catalog development.
+Tax/receipt treatment, brief and approval rules, enabled payment methods, and
+refund/cancellation behavior still require decisions before the purchasing
+slices that depend on them.
 
 Generic readiness now includes transactionally locked single-use activation, after-commit queue dispatch, bounded activation-notification retries, trusted-host and response-header hardening, a database-aware health endpoint, queue depth/staleness/failure signals, production configuration checks, and an operations/recovery runbook. Every remaining unchecked roadmap item was classified in that runbook and depends on a deferred product or external decision, or on a product vertical slice that does not yet exist.
 
@@ -54,22 +55,24 @@ breaks the master roadmap into dependency-ordered task cards, acceptance gates,
 API operation families, and verification requirements. No commerce application
 code is in progress.
 
-The active card is **P0: catalog entry decisions**, currently blocked on owner
-inputs D01–D03. The [decision register](decisions/commerce-development.md) indexes
-pending rules; the [development handoff](DEVELOPMENT-HANDOFF.md) records the
-resume procedure and session checkpoint. Frontend integration and production
-release remain separate milestones after backend acceptance.
+The next card is **C1.1: dynamic catalog domain and persistence**, unstarted and
+ready for specification/testing. The owner superseded P0's fixed-package gate:
+start with an empty catalog and build administrator add/edit, versioned
+price/terms, publication, availability, and archive controls. D01 is resolved;
+D03's basic controls are specified; D02 tax/receipt policy is deferred to
+checkout/sales. The [decision register](decisions/commerce-development.md) and
+[development handoff](DEVELOPMENT-HANDOFF.md) preserve the remaining rules and
+resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Prepare the launch-service decision packet and obtain owner answers for
-D01–D03: authoritative service packages and minimal purchased-service terms,
-exact PHP prices, tax/receipt treatment, and publication/availability rules.
-Record approved answers in the product plan, then specify and implement C1.1
-using the [backend task cards](plans/2026-10-17-backend-development.md).
-Resolve multi-service cart/merge/expiry rules before C2; brief, approval,
-payment-method, refund, cancellation, and retention rules before their dependent
-slices. Do not invent defaults.**
+**Specify the C1.1 schema, lifecycle transitions, policies, and acceptance tests
+for an empty-capable dynamic catalog, then implement its domain/persistence
+using the [backend task cards](plans/2026-10-17-backend-development.md). Package
+names, scope, amounts, and terms will be configured through administration;
+do not seed real packages or wait for a launch list. Preserve historical price/
+term versions. Resolve tax/receipt, cart, approval, payment, refund, and retention
+rules before their dependent purchasing slices.**
 
 ## Latest Planning Verification
 
@@ -77,6 +80,8 @@ slices. Do not invent defaults.**
   and the absence of commerce models, migrations, and business endpoints.
 - The backend plan, decision register, and handoff were prepared without
   application, database, credential, or production changes.
+- The owner clarified dynamic packages; the earlier fixed launch-catalog/price
+  gate was removed from current plans and the next card is now C1.1.
 - Local Markdown links, task/decision references, document consistency, and
   whitespace checks passed; see the development handoff for the checkpoint.
 - Runtime tests, live CI, and production were not rechecked for this
@@ -168,7 +173,10 @@ slices. Do not invent defaults.**
 - The first sellable type is a fixed-scope one-time service with line quantity
   one, manual fulfillment, and administrator fit approval before payment.
 - First-release checkout prices are stored and charged in PHP through PayMongo
-  Hosted Checkout v2; exact product amounts remain to be approved.
+  Hosted Checkout v2; administrators configure exact amounts dynamically.
+- No predefined package list is required. Authorized administrators will add,
+  edit, publish/unpublish, enable/disable, and archive packages through the
+  backend; drafts may be incomplete and historical purchases retain snapshots.
 - Physical goods, inventory, shipping, downloads, appointments, variants,
   promotions, and subscription checkout are excluded from the initial slice.
 - Monthly care plans and custom project ranges remain enquiry-only until their
@@ -179,13 +187,13 @@ slices. Do not invent defaults.**
 ## Decisions Needed Later
 
 The [commerce platform plan](plans/2026-10-05-commerce-platform.md) records the
-complete decision backlog. The immediate C1 entry blockers are:
-
-- initial authoritative products, exact PHP prices, tax, receipt/invoice, and
-  publication/availability rules;
+complete decision backlog. There is no commercial-content blocker to C1:
+the dynamic package requirement replaces the fixed launch-catalog gate.
 
 Before the cart, checkout, and payment slices, the project must also resolve:
 
+- tax and receipt/invoice treatment before checkout/sales, plus additional
+  package-specific/per-customer purchase constraints before enforcement;
 - whether a cart may contain more than one distinct service, plus cart expiry
   and authenticated merge rules;
 - required project-brief and billing fields, approval authority, correction and
@@ -226,7 +234,9 @@ Deferred phases still require:
 - The documented first commerce approach changes no application or production
   behavior. It resolves the initial product-type, fulfillment, platform, and
   payment-flow direction while leaving the listed commercial inputs as the C1
-  entry gate.
+  entry gate in that historical plan. The subsequent clarification below
+  supersedes the predefined-package requirement.
 - The 2026-10-17 backend plan adds task-level acceptance and API/access coverage
-  without implementing commerce. Resume from `docs/DEVELOPMENT-HANDOFF.md` and
-  resolve P0 / D01–D03 before beginning C1.
+  without implementing commerce. The subsequent dynamic-package clarification
+  supersedes P0: resume from `docs/DEVELOPMENT-HANDOFF.md` at C1.1 without waiting
+  for real package names, prices, or a launch catalog.

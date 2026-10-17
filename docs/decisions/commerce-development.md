@@ -1,18 +1,20 @@
 # Commerce Development Decision Register
 
-Last reviewed: 2026-10-17. All decisions below are **pending**. This register
-indexes development gates; the [product plan](../plans/2026-10-05-commerce-platform.md)
+Last reviewed: 2026-10-17. D01 is **resolved** by the dynamic-catalog direction;
+D03's basic controls are **specified**, with additional purchase constraints
+pending. Other items below remain pending for their dependent slices. This
+register indexes development gates; the [product plan](../plans/2026-10-05-commerce-platform.md)
 remains the authority for approved business rules. No proposed value is an
 approval. The [backend plan](../plans/2026-10-17-backend-development.md) maps
 these IDs to implementation cards.
 
-## Pending inputs
+## Decisions and remaining inputs
 
 | ID | Required decision and recorded output | Blocks |
 |---|---|---|
-| D01 | Launch service packages: stable name, scope/exclusions, exact integer PHP minor-unit amount, minimal entitlement/fulfillment terms, and authoritative source | P0 → C1 |
-| D02 | Tax included/excluded/other treatment and required invoice/receipt output, including what must be snapshotted and displayed | P0 → C1; checkout/receipt details before O1/O3 |
-| D03 | Initial publication default, publication/archive rules, sale availability, and per-customer purchase limits | P0 → C1 |
+| D01 | Resolved: packages are dynamic administrator-managed records; no launch names, scope, amounts, or entitlements are specified. Start empty; use synthetic tests. Prices/terms are configurable versions | No C1 commercial-content blocker; former P0 gate superseded |
+| D02 | Pending: tax included/excluded/other treatment and required invoice/receipt output, including snapshots and display. Do not infer policy from unset values | Before checkout/real sales and O1/O3 behavior that uses it; not empty/draft catalog development |
+| D03 | Basic controls specified: new drafts, explicit publish/unpublish, independent availability, archive with referenced history retained. Additional per-customer/package sale constraints remain pending | No blocker to basic C1; resolve extra constraints before their enforcement/purchase flow |
 | D04 | Single or multiple distinct services per cart; expiry; price-change behavior; authenticated merge/duplicate rules; handoff lifetime | C2 and C3 |
 | D05 | Required brief/billing fields, terms acceptance, approving capability, correction/rejection behavior, material-change acceptance, approval/payment-action expiry, and notifications | O1 |
 | D06 | Enabled merchant payment methods, fee handling, failed/expired attempts, cancellation, full/partial refunds, disputes, and reconciliation responsibilities | O2 |
@@ -26,22 +28,24 @@ requires an explicit scope decision; it is not permission to mark those tasks
 complete. Tax, privacy, and legal content must come from the owner's approved
 input, not an implementation assumption.
 
-## First decision packet to prepare
+## Catalog content to configure later
 
-Use one row per proposed launch service, with unanswered cells marked pending:
+There is no launch-service packet required before C1. Build the management
+fields and controls so authorized administrators can supply these values later:
 
-| Field | Required answer |
+| Field | Configuration behavior |
 |---|---|
-| Service name / stable reference | Pending |
-| Deliverables, exclusions, customer obligations | Pending |
-| Exact PHP price in minor units | Pending |
-| Tax and receipt/invoice treatment | Pending |
-| Purchased-service entitlement and manual fulfillment terms | Pending |
-| Publication, archival, availability, purchase limits | Pending |
-| Owner approval evidence and date | Pending |
+| Service name / stable reference | Managed content with stable identity; no predefined packages |
+| Deliverables, exclusions, customer obligations | Editable service scope and terms |
+| Exact PHP price in minor units | Configurable version; may be unset in a draft; never infer free |
+| Tax and receipt/invoice treatment | Pending D02 before purchase; no invented tax defaults |
+| Purchased-service entitlement and manual fulfillment terms | Configurable versions; accepted snapshots retained |
+| Publication, archival, availability | Explicit authorized lifecycle controls; drafts initially |
+| Additional purchase limits | Decide before enforcement; no arbitrary commercial limits |
 
-This is a decision template, not a seed fixture or permission to publish. Do
-not copy or convert prices from Next.js without explicit owner approval.
+No production packages are seeded by development. Do not copy or convert prices
+from Next.js without explicit instruction. Actual records are populated through
+the administration workflow when their content becomes available.
 
 ## Recording an answer
 
@@ -59,3 +63,4 @@ services before changing implementation. Preserve historical accepted terms.
 | Date | IDs | Result and evidence |
 |---|---|---|
 | 2026-10-17 | D01–D09 | Pending inputs indexed from existing product/first-release plans; no new commercial decision made |
+| 2026-10-17 | D01, D02, D03 | Owner clarified: "Treat the service packages as dynamic. There is no specifics at this point whatsoever so make sure we can add/modify & control it." Dynamic catalog/content management replaces the fixed launch-catalog gate; tax/receipt is deferred to dependent purchase behavior. See the product plan's dynamic service catalog section |

@@ -26,9 +26,11 @@ order, or administration authority.
 
 The first sellable product type is a fixed-scope, one-time service. Each service
 line has a quantity of one, is fulfilled manually, and requires a human fit and
-scope review before payment is enabled. The exact launch products and PHP price
-amounts must be approved before catalog implementation; the current pricing
-page is a candidate source, not an authoritative import.
+scope review before payment is enabled. Service packages are dynamic managed
+records, and no particular packages or amounts are specified. Administrators
+add and modify them through the backend; the catalog can initially be empty.
+No launch-product or exact-price approval is needed to develop this machinery.
+The current pricing page is not an authoritative import.
 
 This document defines the approved implementation boundary. It does not claim
 that commerce is implemented, that the current USD amounts have been converted,
@@ -58,8 +60,9 @@ collect money but would not constitute ecommerce capability in this app.
 
 ### Included
 
-- An authoritative Laravel catalog containing only approved fixed-price,
-  one-time service packages.
+- An authoritative dynamic Laravel catalog for one-time service packages, with
+  administrator creation/editing of content, prices, scope, and terms, explicit
+  publication/availability/archive controls, and safe incomplete drafts.
 - Versioned PHP prices stored in minor units, with accepted product, price,
   scope, and fulfillment terms snapshotted on the order.
 - Publication and basic sale availability controlled by authorized
@@ -213,14 +216,15 @@ integration and the complete customer journey remain launch requirements.
 Track unresolved inputs in the [decision register](../decisions/commerce-development.md)
 and resume work from the [development handoff](../DEVELOPMENT-HANDOFF.md).
 
-1. **Commercial input gate** — approve launch products, PHP prices, tax and
-   receipt treatment, publication/availability, and minimal purchased-service
-   terms before C1 (D01–D03). Resolve cart rules before C2 and the remaining
-   brief, approval, payment, cancellation/refund, and privacy inputs before the
-   slices that depend on them.
+1. **Dynamic catalog specification** — no launch packages or prices are
+   predefined. Specify data-driven catalog fields/lifecycle and tests, then
+   build C1. Resolve tax/receipt before checkout/sales, cart rules before C2,
+   and brief, approval, payment, cancellation/refund, and privacy inputs before
+   the slices that depend on them.
 2. **C1: catalog and pricing** — product, versioned price, minimal entitlement,
-   Filament management, safe storefront APIs, and migration of the approved
-   catalog out of hard-coded Next.js data.
+   Filament management, safe storefront APIs, and later Next.js consumption of
+   the managed catalog instead of hard-coded product data. No real import is
+   assumed or required.
 3. **C2: cart and handoff** — anonymous cart, quantity-one rules, summary,
    narrow server credential, secure cookie reference, and single-use handoff.
 4. **C3: registration and identity** — safe public registration and cart
@@ -238,15 +242,21 @@ Every slice requires successful and forbidden-path tests, OpenAPI alignment,
 reversible migrations where practical, and the applicable full verification
 gate before its roadmap status changes.
 
-## Decisions Required Before C1 Implementation
+## Catalog Configuration and Later Commercial Decisions
 
-- Which existing fixed-price packages are the initial authoritative products.
-- The exact PHP amount for each approved product; current USD figures must not be
-  converted silently or at runtime without an approved pricing policy.
-- Whether tax is included, excluded, zero-rated, or handled manually, plus the
-  required receipt or invoice output.
-- Publication defaults, sale availability, and any per-customer purchase limit.
-- Whether one cart may contain more than one distinct service package.
+The owner superseded the original C1 launch-package gate on 2026-10-17.
+Build an empty-capable catalog with administrator add/edit, draft/publish/
+unpublish, availability, and archive controls. Prices and entitlement terms
+are managed versions; incomplete drafts need no price and cannot be purchased.
+Adding a supported package needs no code change, migration, or deployment.
+Preserve historical orders and referenced versions when catalog records change.
+See the product plan's dynamic-catalog requirements for the full contract.
+
+Actual package content and PHP amounts will be configured when available.
+Current USD figures must not be silently imported/converted. Tax and receipt
+treatment remain required before checkout/sales; per-customer purchase limits
+before enforcement; multi-service cart rules before C2. None requires a fixed
+launch catalog to begin C1 development.
 
 ## Decisions Required Before Checkout and Payment
 

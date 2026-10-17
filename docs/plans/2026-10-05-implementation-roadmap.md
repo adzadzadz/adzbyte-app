@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Generic foundation complete; first commerce approach approved and commercial inputs pending |
+| Status | Generic foundation complete; dynamic catalog planned; C1.1 next |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -18,8 +18,9 @@
 - The first target is backend services, versioned REST contracts, and usable
   Filament management. Follow the [backend task cards](2026-10-17-backend-development.md)
   for the detailed C1 → C2 → C3 → O1 → O2 → O3/S2 → R1 sequence.
-- Resolve P0 / D01–D03 before C1. Later decisions block their dependent slices,
-  not unrelated completed foundation work. Keep backend readiness, actual
+- The owner superseded P0's predefined-package gate: build C1 against dynamic
+  managed records and an initially empty catalog. Tax/receipt and later
+  commercial decisions block purchasing behavior that needs them. Keep backend readiness, actual
   Next.js integration, and production promotion separately evidenced.
 - Implement in dependency order and deliver narrow end-to-end slices.
 - Keep Filament panels, API controllers, jobs, and webhooks on shared application
@@ -65,8 +66,12 @@
   fulfilled one-time services with administrator fit approval before payment.
 - [ ] Add one-time service products, versioned PHP prices, media, publication
   state, and basic availability rules.
+- [ ] Support an empty catalog and incomplete drafts; no predefined package
+  names/prices or production seeds. Unset price must not mean free.
 - [ ] Add versioned entitlement definitions.
 - [ ] Add administrator catalog management through shared services and policies.
+- [ ] Allow authorized add/edit, publish/unpublish, availability changes, and
+  archival without code/deploy changes, preserving referenced price/term history.
 - [ ] Add safe, cacheable storefront catalog and product-detail APIs.
 - [ ] Test draft/unpublished visibility, price snapshots, and unauthorized
   catalog mutations.
@@ -76,9 +81,10 @@ public representation, and an administrator can change future catalog state
 without altering an existing price or entitlement snapshot.
 
 The first slice uses no variants, inventory, shipping, downloads, appointments,
-promotions, subscriptions, or line quantities greater than one. Exact launch
-products and PHP prices, tax and receipt treatment, and publication rules must
-be approved before implementation.
+promotions, subscriptions, or line quantities greater than one. Package details
+and amounts are dynamically configured through administration. No initial
+catalog is needed to implement C1. Tax/receipt and purchase-policy decisions
+remain required before the checkout/sales behavior that depends on them.
 
 ### C2. Anonymous cart and app handoff
 

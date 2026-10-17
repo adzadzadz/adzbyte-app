@@ -28,9 +28,10 @@ The approved implementation approach is documented in the
 [First Commerce Release Approach](2026-10-05-first-commerce-release.md). The
 first sellable type is a fixed-scope one-time service, fulfilled manually after
 administrator fit approval and paid in PHP through PayMongo Hosted Checkout v2.
-Exact products, PHP prices, tax and receipt treatment, approval rules, payment
-methods, and refund/cancellation policies remain explicit pre-implementation
-decisions.
+Package names, scope, and PHP prices are administrator-managed data, with no
+initial packages specified. Tax and receipt treatment, approval rules, payment
+methods, and refund/cancellation policies remain decisions for the dependent
+checkout/payment slices, not prerequisites for the generic catalog backend.
 
 ### Development priority confirmed 2026-10-17
 
@@ -38,7 +39,7 @@ The first development target is the backend system, its versioned REST API for
 the frontend, and the Filament management needed for users, products, and later
 commerce operations. Existing identity and administrator user/role foundations
 are retained. Catalog management and safe catalog APIs are the next domain
-slice after the catalog decision gate.
+slice; a predefined launch catalog is not required.
 
 The [backend development plan](2026-10-17-backend-development.md) refines the
 existing roadmap into task cards and acceptance evidence. The
@@ -47,6 +48,40 @@ approved answers must still be recorded in this product plan. The
 [development handoff](../DEVELOPMENT-HANDOFF.md) preserves the current task and
 resume state. Backend readiness does not replace the integrated customer
 journey or authorize production release.
+
+### Dynamic service catalog confirmed 2026-10-17
+
+The owner specified that service packages are dynamic and that no particular
+packages or amounts are defined yet. Build the catalog and management controls
+without waiting for commercial content. This supersedes the earlier P0
+requirement to approve a launch package list and exact prices before C1.
+
+- The catalog may start empty. No real package names, amounts, scope, or
+  entitlements are hard-coded or seeded from the public website. Synthetic
+  records may be used only in isolated tests/demo fixtures.
+- Authorized administrators can add and modify names, descriptions, service
+  scope/deliverables, media, prices, and entitlement/fulfillment terms through
+  `/admin`. Adding another supported service package requires no code change,
+  migration, or deployment.
+- New packages start as drafts. Administrators explicitly publish/unpublish,
+  enable/disable availability, and archive packages. Publication and purchase
+  eligibility are separate; unavailable/incomplete packages cannot be bought.
+  Drafts and archived packages are excluded from public catalog responses.
+- Drafts can have incomplete content and no price. A missing price is not zero
+  or free, and must never enable purchase. No tax classification or receipt
+  promise is inferred from unset configuration.
+- Prices and entitlement terms are versioned. Edits affect future offers;
+  accepted order/purchase snapshots remain unchanged. Referenced products and
+  versions are retained, with archival used instead of destructive deletion.
+- Public REST responses read the same managed data and reflect eligible
+  publication/availability changes with appropriate cache invalidation.
+- This establishes dynamic catalog content and lifecycle controls. It does not
+  add unsupported billing types or settle future cart, tax, approval, refund,
+  fulfillment, or customer-service policies.
+
+Tax/receipt and other commercial decisions are resolved before the purchasing
+behavior that needs them. Catalog infrastructure and its empty/draft states
+can be implemented and verified now without inventing those decisions.
 
 ## Application Ownership
 
@@ -344,13 +379,16 @@ Subscription billing follows after the one-time purchase path is verified.
 - Launch with fixed-scope, one-time service products only.
 - Fulfill the services manually after administrator fit and scope approval.
 - Fix each service line quantity at one.
-- Store and charge first-release checkout prices in PHP; exact amounts still
-  require approval and the current USD figures must not be converted silently.
+- Store and charge first-release checkout prices in PHP; administrators configure
+  exact amounts per package. No initial amounts are specified and current USD
+  figures must not be imported or converted silently.
 - Use PayMongo Hosted Checkout v2 after a persisted approved order exists.
 - Exclude physical goods, inventory, shipping, downloads, appointments,
   variants, promotions, and subscription checkout from the initial slice.
 - Keep monthly care plans and custom project ranges enquiry-only until their
   separate billing and fulfillment rules are approved.
+- Service packages are dynamic managed records with an initially empty catalog;
+  no launch-package or exact-price decision blocks generic C1 development.
 
 The detailed scope, workflow, boundaries, sequencing, and development-entry
 gate are maintained in the
@@ -360,9 +398,10 @@ gate are maintained in the
 
 ### Catalog and fulfillment
 
-- Initial authoritative products, their exact PHP prices, tax treatment, and
-  invoice/receipt requirements.
-- Product publication, archival, purchase limits, and availability rules.
+- Tax treatment and invoice/receipt requirements before checkout and real sales.
+- Additional per-customer purchase limits or package-specific sale constraints
+  before enforcement; basic draft/publication/availability/archive controls are
+  already part of the dynamic-catalog requirement.
 - Required project-brief fields and the manual fulfillment states visible to
   customers and administrators.
 
