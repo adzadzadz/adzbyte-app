@@ -1,11 +1,16 @@
 # Core Operations and Readiness Runbook
 
-This runbook covers the implemented pre-commerce application only: identity,
+This runbook covers the implemented application foundation: identity,
 authenticated panels, user/role administration, trusted customer activation,
 the API foundation, queues, and release infrastructure. Public registration,
 catalog, carts, checkout, orders, payments, subscriptions, customer-service
 cases, uploads, fulfillment, and retention procedures must be added with those
 vertical slices and their unresolved decisions.
+
+C1.1 adds catalog domain code and a migration verified only in disposable test
+databases. Actor-authorized management, public catalog routes, operational
+catalog procedures, and deployment of the new schema remain pending. See the
+[catalog domain specification](../plans/2026-10-18-catalog-domain.md).
 
 ## Automated signals
 
@@ -109,7 +114,7 @@ The remaining roadmap is intentionally not implemented by this audit:
 | Remaining area | Concrete dependency |
 |---|---|
 | Public registration | Registration abuse controls and checkout/account UX while preserving verification and role boundaries |
-| Catalog and pricing | Dynamic managed records and empty/draft states; no predefined packages/prices needed. Implement authorized add/edit, price/term versioning, publication, availability, and archive controls. Tax/receipt remains a checkout/sales dependency |
+| Catalog and pricing | C1.1 domain/version storage and test-only migration verified. C1.2 authorized transactions/audit, C1.3 management, and C1.4 safe APIs/caching remain pending. No predefined packages/prices needed; tax/receipt remains a checkout/sales dependency |
 | Anonymous carts and Next.js handoff | Cart expiry/merge and multi-service-cart rules plus narrow service-token and signed-handoff contracts |
 | Checkout, orders, and PayMongo | Brief fields, fit-approval/correction rules, enabled methods, refund policy, provider credentials, and order/payment state machines |
 | Subscriptions | PayMongo account capability plus cancellation, retry, grace-period, plan-change, and entitlement rules |

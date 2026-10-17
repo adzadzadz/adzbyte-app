@@ -4,14 +4,14 @@
 
 | Field | State |
 |---|---|
-| Updated | 2026-10-17 |
+| Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C1.1 — specify and implement dynamic catalog domain/persistence; unstarted |
-| Implementation | No commerce code started; existing foundation preserved |
+| Active card | C1.2 — shared catalog actions/policies; unstarted |
+| Implementation | C1.1 locally verified: catalog domain/migration/factories/tests; no routes or admin screens yet |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Specify C1.1 fields/schema, lifecycle transitions, policy boundaries, and tests for empty catalog, incomplete drafts, managed price/term versions, publication/availability/archive, and preserved history; then implement against synthetic fixtures |
+| Next action | Specify and test ProductPolicy capabilities and actor-authorized transaction actions; lock parent products for revision allocation/lifecycle changes and add actor/time audit history before panel/API exposure |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | 71 passed / 345 assertions; historical, not rerun for planning |
+| Last recorded runtime tests | 109 passed / 416 assertions on PHP 8.5.11; focused catalog: 38 / 71; see session log |
 | Production | Older foundation release recorded in STATUS; not rechecked or changed by planning |
 
 ## Resume procedure
@@ -97,3 +97,38 @@ copying their full contents into the session log.
   links across 12 documents, consistent C1.1 continuation references, stale-gate
   search/review, and `git diff --check`. Verify delivery state from Git when
   resuming; intended commit: `Plan dynamic service package management`.
+
+### 2026-10-18 — C1.1 catalog domain and persistence
+
+- Started from clean `main` at `a56b7fa`. Applied the confirmed dynamic-package
+  requirement; no launch content or commercial amounts were invented.
+- Wrote [schema/invariant specification](plans/2026-10-18-catalog-domain.md)
+  and failing acceptance tests before implementation. Added `ProductStatus`,
+  `Product`, `ProductPrice`, `ProductTerms`, immutable-version guards, three
+  synthetic factories, and `2026_10_18_000000_create_catalog_tables`.
+- Verified empty/draft behavior; publication/availability/archive transitions;
+  protected identity; highest-version relations per product; append-only price/
+  terms history; no-price/zero-price behavior; current-offer rechecks; strict
+  integer money/revision validation; unique and foreign-key constraints.
+- Commands: `php artisan test --compact --filter=CatalogDomainTest` passed
+  38 tests / 71 assertions; `composer test -- --compact` passed 109 / 416;
+  explicit-path Pint formatting, full `vendor/bin/pint --test`, and
+  `composer validate --strict` passed. Runtime: local PHP 8.5.11, not PHP 8.3.
+- Migration apply, rollback (catalog only), and reapply passed on an empty
+  disposable SQLite file under `/private/tmp`; prior tables retained and no
+  packages seeded. File removed. No development/production migrations ran;
+  MySQL execution remains unverified. No runtime process or temporary account
+  was created; no secrets/dependencies/assets were changed.
+- No ProductPolicy, actor-authorized catalog actions/audit, admin resource,
+  catalog endpoint, cache adapter, or purchase behavior is exposed yet. Existing
+  API/auth/panel tests passed unchanged. Models are trusted primitives; bulk
+  SQL/model-query writes bypass event guards. C1.2 must use authorized model
+  writes under locks. `hasConfiguredOffer()` is configuration only, not payment
+  authority, and must be revalidated inside future transaction services.
+- Next: C1.2; C1.3/C1.4 and B1 remain incomplete. Intended source commit message:
+  `Add dynamic catalog domain and versioned persistence`. Check actual Git and
+  CI state when resuming; no release or production action was requested/run.
+- Documentation continuity checks passed: 52 local Markdown paths across 13
+  documents, C1.2 references in current checkpoint/status/plan, stale-state
+  review, and whitespace checks. All session edits belong to this C1.1 slice;
+  no unrelated changes were present at start or incorporated.

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Generic foundation complete; dynamic catalog planned; C1.1 next |
+| Status | Generic foundation and C1.1 domain complete; C1.2 next; catalog UI/API pending |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -64,17 +64,22 @@
 
 - [x] Resolve the first-release product type and fulfillment boundary: manually
   fulfilled one-time services with administrator fit approval before payment.
-- [ ] Add one-time service products, versioned PHP prices, media, publication
-  state, and basic availability rules.
-- [ ] Support an empty catalog and incomplete drafts; no predefined package
+- [x] Add C1.1 product/price persistence, media references, publication state,
+  and basic configuration-availability guards (no external adapter yet).
+- [x] Support an empty catalog and incomplete drafts; no predefined package
   names/prices or production seeds. Unset price must not mean free.
-- [ ] Add versioned entitlement definitions.
+- [x] Add immutable versioned terms/entitlement-document storage; actual
+  purchased-service interpretation and snapshots remain in later slices.
 - [ ] Add administrator catalog management through shared services and policies.
 - [ ] Allow authorized add/edit, publish/unpublish, availability changes, and
   archival without code/deploy changes, preserving referenced price/term history.
 - [ ] Add safe, cacheable storefront catalog and product-detail APIs.
 - [ ] Test draft/unpublished visibility, price snapshots, and unauthorized
   catalog mutations.
+
+C1.1 proof is recorded in the [domain specification](2026-10-18-catalog-domain.md)
+and STATUS: 38 focused tests / 71 assertions, full suite 109 / 416, and isolated
+SQLite migration apply/rollback/reapply. C1.2–C1.4 and B1 are not complete.
 
 **Gate:** Laravel can publish a product, `adzbyte-next` can render only its safe
 public representation, and an administrator can change future catalog state

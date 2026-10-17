@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-17 (dynamic catalog direction confirmed; fixed-package entry gate removed)
+**Last updated:** 2026-10-18 (C1.1 catalog domain and persistence verified)
 
 ## Current Stage
 
@@ -27,9 +27,12 @@ catalog services.
 The versioned API has separate customer, integration, and webhook route files,
 stateful Sanctum support, named throttles, stable error envelopes, an
 OpenAPI-documented `GET /api/v1/me` identity resource, and a dormant
-persistence-backed idempotency boundary. No catalog, cart, checkout, order,
-payment, subscription, purchased-product, request, or report record or route is
-implemented yet.
+persistence-backed idempotency boundary. C1.1 adds catalog models, a migration,
+and domain guards for dynamic products and price/term versions. No catalog
+management screens or public catalog routes exist yet. Cart, checkout, order,
+payment, subscription, purchased-product, request, and report records/routes
+remain unimplemented. The catalog migration has only run in disposable test
+databases, not the development or production database.
 
 The approved first commerce approach is a narrow native Laravel vertical slice
 for fixed-scope, one-time services charged in PHP through PayMongo Hosted
@@ -42,7 +45,12 @@ Tax/receipt treatment, brief and approval rules, enabled payment methods, and
 refund/cancellation behavior still require decisions before the purchasing
 slices that depend on them.
 
-Generic readiness now includes transactionally locked single-use activation, after-commit queue dispatch, bounded activation-notification retries, trusted-host and response-header hardening, a database-aware health endpoint, queue depth/staleness/failure signals, production configuration checks, and an operations/recovery runbook. Every remaining unchecked roadmap item was classified in that runbook and depends on a deferred product or external decision, or on a product vertical slice that does not yet exist.
+Generic readiness includes transactionally locked single-use activation,
+after-commit queue dispatch, bounded activation-notification retries, trusted
+hosts and response headers, database-aware health, queue signals, production
+configuration checks, and an operations/recovery runbook. Commerce development
+now builds on that foundation; remaining domain/adaptor work and its applicable
+decision dependencies are tracked in the roadmap and runbook.
 
 The previously released PHP 8.3-compatible application remains deployed to Hostinger through the machine-managed `deploy` branch. M0 and the root-route change are verified on `main` but require a future explicitly authorized release before production changes from `/account` to `/`.
 
@@ -52,29 +60,46 @@ Development planning is complete. The first target is the Laravel backend,
 versioned REST API, and Filament tools for user/product and later commerce
 management. The [backend development plan](plans/2026-10-17-backend-development.md)
 breaks the master roadmap into dependency-ordered task cards, acceptance gates,
-API operation families, and verification requirements. No commerce application
-code is in progress.
+API operation families, and verification requirements. **C1.1 is complete:**
+empty/draft product persistence, stable identity, lifecycle guards, immutable
+price/term versions, current-version relations, and configuration eligibility.
+The [catalog domain specification](plans/2026-10-18-catalog-domain.md) records
+the schema, invariants, boundaries, and verification.
 
-The next card is **C1.1: dynamic catalog domain and persistence**, unstarted and
-ready for specification/testing. The owner superseded P0's fixed-package gate:
-start with an empty catalog and build administrator add/edit, versioned
-price/terms, publication, availability, and archive controls. D01 is resolved;
-D03's basic controls are specified; D02 tax/receipt policy is deferred to
-checkout/sales. The [decision register](decisions/commerce-development.md) and
+The next card is **C1.2: shared catalog actions and policies**, unstarted.
+Administrator screens (C1.3), public REST/catalog caching (C1.4), and the B1
+backend milestone remain pending. D01 is resolved; D03's basic controls are
+specified; D02 tax/receipt policy remains deferred to checkout/sales. The
+[decision register](decisions/commerce-development.md) and
 [development handoff](DEVELOPMENT-HANDOFF.md) preserve the remaining rules and
 resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Specify the C1.1 schema, lifecycle transitions, policies, and acceptance tests
-for an empty-capable dynamic catalog, then implement its domain/persistence
-using the [backend task cards](plans/2026-10-17-backend-development.md). Package
-names, scope, amounts, and terms will be configured through administration;
-do not seed real packages or wait for a launch list. Preserve historical price/
-term versions. Resolve tax/receipt, cart, approval, payment, refund, and retention
-rules before their dependent purchasing slices.**
+**Implement C1.2: capability-backed ProductPolicy and shared actor-authorized
+transaction services for content changes, publication/unpublication,
+availability, archival/restoration, and new price/term revisions. Define explicit
+capabilities, allocate revisions under a parent lock with database uniqueness,
+and record actor/time transition history. Test denied actors and concurrent/
+retry behavior before connecting any panel or REST adapter. See the
+[backend task cards](plans/2026-10-17-backend-development.md).**
 
-## Latest Planning Verification
+## Latest Implementation Verification — 2026-10-18
+
+- `CatalogDomainTest`: 38 passed / 71 assertions; test-first failures captured
+  before implementation and strict numeric-validation corrections.
+- Full `composer test -- --compact`: 109 passed / 416 assertions on local PHP
+  8.5.11. PHP 8.3 runtime verification belongs to the existing CI workflow;
+  do not infer it from local results.
+- `vendor/bin/pint --test` and `composer validate --strict` passed.
+- Disposable SQLite clean apply → catalog-only rollback → reapply passed,
+  retaining prior tables and creating no packages; temporary database removed.
+  MySQL runtime migration verification is not claimed.
+- No existing local database, production environment, secrets, routes, panel
+  behavior, or public API contract changed. The source migration awaits a
+  future explicitly authorized release. No release workflow ran.
+
+## Prior Planning Verification — 2026-10-17
 
 - Repository inspection at `e08f6b0` confirmed existing user/auth/API foundations
   and the absence of commerce models, migrations, and business endpoints.
@@ -240,3 +265,6 @@ Deferred phases still require:
   without implementing commerce. The subsequent dynamic-package clarification
   supersedes P0: resume from `docs/DEVELOPMENT-HANDOFF.md` at C1.1 without waiting
   for real package names, prices, or a launch catalog.
+- C1.1 was implemented and locally verified on 2026-10-18. Its migration was
+  tested only in isolated databases. Resume at C1.2 using the current handoff;
+  admin management and public catalog APIs are still pending.

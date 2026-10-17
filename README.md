@@ -6,9 +6,11 @@ portal, and administrative system of record.
 The reusable application foundation is complete: authentication, management
 branding, customer and administrator Home foundations, API contracts,
 idempotency, queues, operational hardening, and administrator user/role
-management. Catalog, cart, checkout, orders, PayMongo payments, subscriptions,
-purchased products, customer requests, and issue reports remain on the commerce
-implementation roadmap.
+management. C1.1 adds the dynamic catalog domain and versioned price/terms
+persistence, verified in isolated tests. Catalog authorization services,
+management screens, and public REST endpoints remain next on the roadmap;
+cart, checkout, orders, payments, subscriptions, purchased products, requests,
+and reports remain planned. No real packages are seeded.
 
 ## Responsibility Boundary
 
@@ -83,8 +85,9 @@ For continued development, start with [Project Status](docs/STATUS.md) and the
 [Backend Development Plan](docs/plans/2026-10-17-backend-development.md) defines
 the backend-first task sequence, REST/access coverage, acceptance evidence, and
 milestones. The [Decision Register](docs/decisions/commerce-development.md)
-identifies unresolved inputs and the exact slices they block. Public registration
-and commerce remain planned; these documents do not imply implementation.
+identifies unresolved inputs and the exact slices they block. Current verified
+implementation is recorded separately from planned behavior in STATUS; public
+registration and the purchase flow remain planned.
 
 The current source of truth is the [Commerce and Customer Service Platform Plan](docs/plans/2026-10-05-commerce-platform.md).
 

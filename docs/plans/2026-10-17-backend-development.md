@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | Dynamic catalog scope confirmed; C1.1 is next and unstarted |
+| Status | C1.1 locally verified 2026-10-18; C1.2 next; B1 pending |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -54,7 +54,8 @@ than replacing authentication or duplicating behavior between panels and APIs.
 ## Delivery sequence and task cards
 
 Task IDs below refine existing roadmap phases; the master roadmap remains the
-completion checklist. All cards are planned and unstarted. Resolve only the
+completion checklist. C1.1 is locally verified; remaining implementation cards
+are unstarted. Resolve only the
 decisions needed by the next card. Do not turn an unresolved rule into a default.
 
 ### P0 — Superseded: predefined launch catalog gate
@@ -92,6 +93,13 @@ no real packages or prices required. **Management:** `/admin` catalog and pricin
 4. **C1.4 — Public REST contract.** Add safe product list/detail responses,
    current price/availability, pagination, cache behavior/invalidation, and
    throttling. Add synthetic fixtures, OpenAPI examples, and consumer checks.
+
+**C1.1 evidence (2026-10-18):** [domain specification](2026-10-18-catalog-domain.md),
+38 focused tests / 71 assertions; full suite 109 / 416; formatting and Composer
+validation passed. Disposable SQLite apply/rollback/reapply passed. No existing
+database was migrated, no real content seeded, and no panel/API exposed. Local
+PHP was 8.5.11; CI PHP 8.3 and MySQL execution are separate verification facts.
+Model-level guards do not replace C1.2 authorization, locks, and audit history.
 
 **Acceptance:** an empty catalog returns an empty list; administrators can add,
 edit, publish/unpublish, enable/disable, and archive multiple synthetic packages
