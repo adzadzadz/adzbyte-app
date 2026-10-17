@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C1.1/C1.2 MySQL verification gate; C1.3 waits |
-| Implementation | C1.2 verified on SQLite/PHP 8.3 CI at cea2199; MySQL gate pending; no catalog routes/admin screens yet |
+| Active card | C1.3 — Filament catalog management; unstarted |
+| Implementation | C1.1/C1.2 qualified on SQLite and MySQL/PHP 8.3 CI at 6697e81; no catalog routes/admin screens yet |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Qualify the new MySQL CI job, including full suite, real process races, and migration reversal, before implementing C1.3; follow the [phase gates](verification.md) |
+| Next action | Implement/test C1.3 through CatalogActions with stable retry UUIDs and explicit capabilities; require panel interaction/denial/retry/responsive evidence and both database CI jobs per the [phase gates](verification.md) |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | C1.2: 154 tests / 660 assertions on CI PHP 8.3.35 and local PHP 8.5.11 |
+| Last recorded runtime tests | 158 tests / 703 assertions on both SQLite/MySQL CI PHP 8.3.35 and local SQLite PHP 8.5.11 |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -97,6 +97,17 @@ copying their full contents into the session log.
   Explicit isolated connection names and pre-migration target assertions fix
   the harness. Added populated catalog upgrade/preservation evidence. MySQL
   qualification remains pending the corrected source run.
+- Corrected source `6697e81abf11530af10d9ff2f666561e0e2dd032` pushed;
+  [CI run 39051237331](https://github.com/adzadzadz/adzbyte-app/actions/runs/39051237331)
+  passed both jobs on PHP 8.3.35: **158 tests / 703 assertions on SQLite and
+  independently 158 / 703 on MySQL 8.0**, plus audits/build/caches. Local suite
+  also passes 158 / 703 on PHP 8.5.11. This supersedes pending qualification
+  above and closes the C1.1/C1.2 database gap. No application fix was required;
+  the new harness isolation issue was resolved and guarded before migration.
+  [Gate/evidence matrix](verification.md#current-catalog-qualification) records
+  applicability and the MySQL image digest. C1.3 is next; C1/B1 still require
+  admin screens, public REST, and their integration proof. No release ran.
+  Intended evidence-only commit: `Record verified SQLite and MySQL phase gates`.
 
 ### 2026-10-18 — C1.2 catalog actions and policies
 

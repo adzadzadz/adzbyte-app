@@ -5,7 +5,10 @@ Follow-up: C1.2 shared actions/policies now pass local and PHP 8.3 CI; see the
 [action contract](2026-10-18-catalog-actions.md). C1.1 boundaries below describe
 the original domain slice; C1.3 panel and C1.4 REST adapters remain pending.
 The owner now requires [all applicable phase gates](../verification.md);
-C1.1/C1.2 MySQL qualification is pending before C1.3 advances.
+C1.1/C1.2 now pass both SQLite and MySQL gates: source `6697e81`,
+[CI run 39051237331](https://github.com/adzadzadz/adzbyte-app/actions/runs/39051237331),
+158 tests / 703 assertions on each engine under PHP 8.3.35. This supersedes
+the original slice's MySQL limitation below; C1.3 is next.
 Parent: [backend plan](2026-10-17-backend-development.md). Product authority:
 [dynamic catalog requirements](2026-10-05-commerce-platform.md#dynamic-service-catalog-confirmed-2026-10-17).
 

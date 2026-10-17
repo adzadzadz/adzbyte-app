@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1.1/C1.2 MySQL qualification pending; C1.3 waits; catalog UI/API pending |
+| Status | C1.1/C1.2 qualified on SQLite and MySQL; C1.3 next; catalog UI/API pending |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -88,6 +88,11 @@ apply/rollback/reapply, Pint, and Composer validation pass. Source `cea2199`
 passes [CI run 39050287698](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
 on PHP 8.3.35 with the same counts, both audits, build, and cache gates.
 C1.3/C1.4 and B1 remain incomplete.
+The owner's expanded [phase gates](../verification.md#current-catalog-qualification)
+are now qualified for C1.1/C1.2 at source `6697e81`:
+[CI run 39051237331](https://github.com/adzadzadz/adzbyte-app/actions/runs/39051237331)
+passes 158 tests / 703 assertions separately on SQLite and MySQL 8.0 under
+PHP 8.3.35, including populated migration upgrades and real process races.
 After the authorized dependency update, [CI run 39048996685](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048996685)
 at source `a27f834` passes the full suite on PHP 8.3.35, both dependency audits,
 build, and cache gates. C1.1 is qualified; production is unchanged.

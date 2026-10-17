@@ -76,3 +76,30 @@ use the selected engine; the MySQL job must not silently fall back to SQLite.
 of earlier tables, and reapply. The suite also protects the MySQL test-target
 guard itself. This qualifies the tested engine/version; exact hosting-version
 compatibility and post-release behavior remain release gates.
+
+## Current catalog qualification
+
+Verified source: `6697e81abf11530af10d9ff2f666561e0e2dd032`, 2026-10-18;
+[CI run 39051237331](https://github.com/adzadzadz/adzbyte-app/actions/runs/39051237331).
+PHP 8.3.35; MySQL image `mysql:8.0` at digest
+`sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b`.
+Local supplementary runtime: PHP 8.5.11 with SQLite.
+
+| C1.1/C1.2 gate | Outcome/evidence |
+|---|---|
+| Behavior/validation/policies/history | Passed: full suite **158 tests / 703 assertions on each engine**, independently SQLite and MySQL on PHP 8.3.35; `CatalogDomainTest` and `CatalogActionsTest` cover the domain and forbidden paths |
+| Concurrency/retry | Passed: `CatalogConcurrencyTest`, five cases with four independent workers and a common start barrier; each job uses its selected engine, unique price/terms revisions and single identical create/revision commits |
+| Migration/recovery | Passed: `CatalogMigrationTest`, clean apply, populated C1.1 → C1.2 upgrade preserving product/price/terms records, audit/catalog reversal, prior user retention, and reapply on both engines |
+| Test-target isolation | Passed: explicit per-case connection names and database assertions before migration; three bootstrap guard cases reject missing/non-test/remote targets; disposable case schemas/workers/files are cleaned up |
+| Formatting/metadata/audits/build/cache | Passed: CI application job; Composer/npm audits 0 findings; local Pint, Composer validation, and whitespace checks also pass |
+| New panel/browser workflow | Not applicable to these cards: no catalog screens/assets added; required in C1.3 |
+| New public contract/consumer | Not applicable to these cards: no new endpoints or Next.js integration; existing API regressions pass in both suites; required in C1.4 and phase C1 exit |
+| External provider | Not applicable: these cards introduce no provider operation |
+| Delivery | Source pushed and CI-qualified; evidence-only follow-up recorded separately |
+| Production/hosting | Separate authorized release gate; no deployment, existing database migration, or production mutation performed |
+
+The initial MySQL run failed in the new test harness because copied connection
+metadata retained the original connection name. Correcting it and asserting the
+target before migrations resolved the failure. No application change was
+required. C1.1/C1.2 now pass their applicable development gates; C1/B1 remain
+incomplete until their admin, API, and integration requirements are verified.

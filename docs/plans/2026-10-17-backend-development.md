@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1.1/C1.2 MySQL qualification pending; C1.3 waits; B1 pending |
+| Status | C1.1/C1.2 qualified on SQLite and MySQL; C1.3 next; B1 pending |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -117,6 +117,13 @@ audit-migration apply/rollback/reapply pass. Source `cea2199` passes
 on PHP 8.3.35 with the same 154 / 660, both audits (0 findings), frontend build,
 and production caches. MySQL runtime is unverified. No existing database, panel, REST
 contract, or production environment changed. Resume with C1.3; C1.4/B1 pending.
+
+**Stronger completion gate qualified (2026-10-18):** source `6697e81` passes
+[CI run 39051237331](https://github.com/adzadzadz/adzbyte-app/actions/runs/39051237331)
+with 158 tests / 703 assertions separately on SQLite and MySQL 8.0 under
+PHP 8.3.35, including actual selected-engine races and populated migration
+upgrade/rollback/reapply. See the [gate/evidence matrix](../verification.md#current-catalog-qualification).
+This closes the earlier MySQL limitation; C1.3 remains next.
 
 **Acceptance:** an empty catalog returns an empty list; administrators can add,
 edit, publish/unpublish, enable/disable, and archive multiple synthetic packages

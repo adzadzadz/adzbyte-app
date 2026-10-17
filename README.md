@@ -90,6 +90,11 @@ identifies unresolved inputs and the exact slices they block. Current verified
 implementation is recorded separately from planned behavior in STATUS; public
 registration and the purchase flow remain planned.
 
+Every card and phase must pass the applicable [verification gates](docs/verification.md)
+before completion or dependent implementation. CI runs the full suite on
+SQLite and MySQL; phase-specific interface and integration proof is required
+where applicable.
+
 The current source of truth is the [Commerce and Customer Service Platform Plan](docs/plans/2026-10-05-commerce-platform.md).
 
 That document defines application ownership, registration, cart handoff,

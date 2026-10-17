@@ -1,7 +1,7 @@
 # C1.2 — Shared Catalog Actions and Policies
 
-Status: verified on SQLite/PHP 8.3 CI, 2026-10-18; MySQL qualification pending
-under the owner's [phase completion gate](../verification.md).
+Status: verified on SQLite and MySQL/PHP 8.3 CI, 2026-10-18, under the owner's
+[phase completion gate](../verification.md).
 Parent: [backend plan](2026-10-17-backend-development.md).
 
 Implement a `ProductPolicy` and shared `CatalogActions` before adding panel or
@@ -67,4 +67,10 @@ Source `cea2199` was pushed to `main` and passed
 [CI run 39050287698](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
 on PHP 8.3.35: 154 tests / 660 assertions, both audits (0 findings), formatting,
 Composer validation, frontend build, and production-cache checks.
-MySQL runtime remains unverified; C1.3 is next.
+The earlier MySQL limitation is now closed: source `6697e81` passed
+[CI run 39051237331](https://github.com/adzadzadz/adzbyte-app/actions/runs/39051237331)
+with 158 tests / 703 assertions separately on SQLite and MySQL 8.0 under
+PHP 8.3.35, including real selected-engine races and populated upgrade/reversal
+checks. See the [evidence matrix](../verification.md#current-catalog-qualification).
+C1.3 is next; exact hosting compatibility and production verification remain
+release gates.
