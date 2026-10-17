@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1.1 locally verified; dependencies remediated locally; PHP 8.3 CI pending; C1.2/B1 pending |
+| Status | C1.1 and dependency remediation pass PHP 8.3 CI; C1.2 next; B1 pending |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -100,13 +100,12 @@ validation passed. Disposable SQLite apply/rollback/reapply passed. No existing
 database was migrated, no real content seeded, and no panel/API exposed. Local
 PHP was 8.5.11; CI PHP 8.3 and MySQL execution are separate verification facts.
 Model-level guards do not replace C1.2 authorization, locks, and audit history.
-Source `284dcbb` was pushed; CI run `39048141348` failed at the unchanged PHP
-dependency audit (11 advisories / 5 packages), before PHP tests. Resolve that
-blocker as a separate scoped follow-up; PHP 8.3 test success is not yet proven.
-The owner authorized the follow-up and compatible Composer/npm fixes now pass
-both local audits (0 findings). Updated tests remain 109 / 416; build and cache
-checks pass. Verify the new locks' PHP 8.3 CI result in STATUS/handoff before
-declaring full qualification. No C1.2–C1.4 behavior was added by maintenance.
+Original source `284dcbb` failed CI at the old PHP dependency audit (11 advisories
+/ 5 packages), before tests. The owner-authorized compatible Composer/npm
+remediation at `a27f834` now passes [CI run 39048996685](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048996685)
+on PHP 8.3.35: both audits clear, 109 tests / 416 assertions, build/cache checks
+pass. This qualifies C1.1 on PHP 8.3. No C1.2–C1.4 behavior or production change
+was added by maintenance; resume with C1.2.
 
 **Acceptance:** an empty catalog returns an empty list; administrators can add,
 edit, publish/unpublish, enable/disable, and archive multiple synthetic packages

@@ -94,3 +94,8 @@ public API and cache invalidation. No new API contract is published in C1.1.
   verification stands; full CI qualification remains blocked pending a
   separately scoped dependency update. No audit bypass or dependency change
   was added to this slice.
+- Resolved by authorized dependency maintenance at `a27f834`:
+  [CI run 39048996685](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048996685)
+  passed on PHP 8.3.35 with 109 tests / 416 assertions, clear Composer/npm
+  audits, production build, and cache checks. The domain is now CI-qualified;
+  MySQL execution and production deployment remain separate, unperformed steps.

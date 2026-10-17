@@ -80,6 +80,9 @@
 C1.1 proof is recorded in the [domain specification](2026-10-18-catalog-domain.md)
 and STATUS: 38 focused tests / 71 assertions, full suite 109 / 416, and isolated
 SQLite migration apply/rollback/reapply. C1.2–C1.4 and B1 are not complete.
+After the authorized dependency update, [CI run 39048996685](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048996685)
+at source `a27f834` passes the full suite on PHP 8.3.35, both dependency audits,
+build, and cache gates. C1.1 is qualified; production is unchanged.
 
 **Gate:** Laravel can publish a product, `adzbyte-next` can render only its safe
 public representation, and an administrator can change future catalog state

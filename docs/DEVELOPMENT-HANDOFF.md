@@ -6,13 +6,13 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | Dependency remediation locally verified; PHP 8.3 CI pending; C1.2 unstarted |
-| Implementation | C1.1 locally verified: catalog domain/migration/factories/tests; no routes or admin screens yet |
+| Active card | C1.2 — shared catalog actions and policies; unstarted |
+| Implementation | C1.1 and dependency remediation pass PHP 8.3 CI; no catalog routes/admin screens yet |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Commit/push the approved dependency locks and regenerated assets, verify PHP 8.3 CI, then resume C1.2 policy/transaction/audit work; do not infer CI success from local PHP 8.5 tests |
+| Next action | Specify/test ProductPolicy capabilities and shared actor-authorized transaction actions for content/lifecycle and price/terms; allocate revisions under parent locks and add actor/time audit records before panel/API exposure |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | 109 passed / 416 assertions on PHP 8.5.11; focused catalog: 38 / 71; see session log |
-| Production | Older foundation release recorded in STATUS; not rechecked or changed by planning |
+| Last recorded runtime tests | 109 passed / 416 assertions on CI PHP 8.3.35 and local PHP 8.5.11; focused catalog: 38 / 71 |
+| Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
 
@@ -192,3 +192,21 @@ copying their full contents into the session log.
   Intended source commit: `Update vulnerable application dependencies`.
   Verify the new source's actual PHP 8.3 CI result before declaring the prior
   audit blocker cleared remotely. Then C1.2 remains the next product task.
+
+### 2026-10-18 — Dependency CI qualification complete
+
+- Maintenance source `a27f834bb05ee4d2ca5b3fd06da75f3b98a19475` was pushed to
+  `origin/main`. [CI run 39048996685](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048996685)
+  passed all required steps on PHP 8.3.35: 109 tests / 416 assertions, Composer
+  validation, Composer audit, Pint, clean npm install, npm audit, production
+  asset build, and Laravel caches. Both audits reported zero findings.
+- The original CI audit blocker is resolved for source development, and C1.1
+  now has PHP 8.3 runtime proof. No root constraints, audit thresholds, ignores,
+  application domain rules, or migrations changed in the maintenance task.
+- No production deployment, release workflow, or production dependency update
+  ran. Existing local database and credentials remain unchanged. Temporary test
+  caches were cleared; no session process remains running.
+- Current continuation task is C1.2, not C1.1 or another dependency audit.
+  Admin catalog management, public API/caching, B1, and storefront integration
+  are still unimplemented. This evidence-only follow-up is intended as
+  `Record successful dependency CI qualification`; inspect Git for final delivery.

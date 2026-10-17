@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (dependency remediation locally verified; PHP 8.3 CI pending)
+**Last updated:** 2026-10-18 (dependency audits cleared; C1.1 qualified on PHP 8.3 CI)
 
 ## Current Stage
 
@@ -84,9 +84,10 @@ and record actor/time transition history. Test denied actors and concurrent/
 retry behavior before connecting any panel or REST adapter. See the
 [backend task cards](plans/2026-10-17-backend-development.md).**
 
-The owner authorized dependency remediation. Both local audits now pass after
-scoped compatible lock-file updates; PHP 8.3 CI qualification is pending the new
-source push. No audit thresholds, ignores, or application behavior were changed.
+The owner-authorized dependency remediation is complete. Source `a27f834`
+passed PHP 8.3 CI, including both audits, all 109 tests, production build, and
+cache checks. No audit thresholds or ignores were changed. C1.2 is the next
+unstarted product task; C1.3/C1.4 and B1 remain pending.
 
 ## Latest Dependency Verification — 2026-10-18
 
@@ -118,8 +119,12 @@ source push. No audit thresholds, ignores, or application behavior were changed.
   strict Composer validation, Vite build, isolated Laravel production-cache
   generation, and cached login-route discovery pass. Temporary test caches
   were cleared. No existing database was migrated or production changed.
-- PHP 8.3 CI result will be recorded after source delivery. The earlier failed
-  run below remains historical evidence, not the result for the new locks.
+- Source `a27f834bb05ee4d2ca5b3fd06da75f3b98a19475` was pushed to `main`.
+  [CI run 39048996685](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048996685)
+  passed on PHP 8.3.35: 109 tests / 416 assertions, Composer validation, both
+  dependency audits (0 findings), formatting, Vite build, and Laravel production
+  caches. Earlier failed-run details below are historical and superseded by
+  this verified remediation. No release or production promotion ran.
 
 ## Latest Implementation Verification — 2026-10-18
 
@@ -142,8 +147,9 @@ source push. No audit thresholds, ignores, or application behavior were changed.
   `symfony/http-foundation`. Composer files and CI configuration are unchanged
   by C1.1. PHP dependencies installed, but formatting, PHP tests, frontend
   checks/build, and cache verification were skipped after the audit failed.
-  PHP 8.3 test success is therefore **not verified**. Dependency upgrades are a
-  separately scoped follow-up; none were attempted or audit exceptions added.
+  PHP 8.3 test success was therefore unverified for that original lock file.
+  The authorized dependency follow-up above now resolves the audit blocker
+  and verifies the same catalog behavior under PHP 8.3; no audit exceptions used.
 
 ## Prior Planning Verification — 2026-10-17
 
@@ -280,9 +286,9 @@ Deferred phases still require:
 
 ## Known Issues
 
-- Dependencies are remediated locally; PHP 8.3 CI must pass on the new lock
-  files before claiming full CI qualification. The earlier failed run is retained
-  in the implementation evidence above.
+- The earlier dependency-audit CI blocker is resolved by the verified follow-up
+  above. This source/CI verification does not imply deployment of the fixes to
+  the older production release.
 - The production super-administrator has not been bootstrapped. Its identity remains recorded, but password provisioning is a separate deliberate operation.
 - Production still runs the previous release with `/account`; the new root customer route and M0 branding require an explicitly authorized release before production smoke checks change to `/login` and `/`.
 
