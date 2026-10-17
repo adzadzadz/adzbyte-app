@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1.2 locally verified; PHP 8.3 CI pending; C1.3 next; catalog UI/API pending |
+| Status | C1.2 verified on PHP 8.3 CI; C1.3 next; catalog UI/API pending |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -81,11 +81,13 @@
 
 C1.1 proof is recorded in the [domain specification](2026-10-18-catalog-domain.md)
 and STATUS: 38 focused tests / 71 assertions, full suite 109 / 416, and isolated
-SQLite migration apply/rollback/reapply. C1.2 is locally verified with 154 tests /
+SQLite migration apply/rollback/reapply. C1.2 is verified with 154 tests /
 660 assertions, including independent-process concurrency and retry coverage;
 see the [action contract](2026-10-18-catalog-actions.md). Audit-migration
-apply/rollback/reapply, Pint, and Composer validation pass. C1.2 PHP 8.3 CI is
-pending source delivery; C1.3/C1.4 and B1 remain incomplete.
+apply/rollback/reapply, Pint, and Composer validation pass. Source `cea2199`
+passes [CI run 39050287698](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
+on PHP 8.3.35 with the same counts, both audits, build, and cache gates.
+C1.3/C1.4 and B1 remain incomplete.
 After the authorized dependency update, [CI run 39048996685](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048996685)
 at source `a27f834` passes the full suite on PHP 8.3.35, both dependency audits,
 build, and cache gates. C1.1 is qualified; production is unchanged.

@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C1.2 locally verified; PHP 8.3 CI pending)
+**Last updated:** 2026-10-18 (C1.2 verified on PHP 8.3 CI; C1.3 next)
 
 ## Current Stage
 
@@ -68,7 +68,7 @@ price/term versions, current-version relations, and configuration eligibility.
 The [catalog domain specification](plans/2026-10-18-catalog-domain.md) records
 the schema, invariants, boundaries, and verification.
 
-**C1.2 is locally complete:** shared actions enforce separate capabilities,
+**C1.2 is complete:** shared actions enforce separate capabilities,
 transactional lifecycle/content/version changes, immutable actor/time history,
 and duplicate-command safety. The [action contract](plans/2026-10-18-catalog-actions.md)
 records behavior and concurrency boundaries. The next card is **C1.3: Filament
@@ -90,8 +90,9 @@ versions, and test authorized/denied panel workflows. See the
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
 passed PHP 8.3 CI, including both audits, all 109 tests, production build, and
-cache checks. No audit thresholds or ignores were changed. C1.2 now passes local
-verification; its own PHP 8.3 CI qualification is pending source delivery.
+cache checks. No audit thresholds or ignores were changed. C1.2 source
+`cea2199` now passes [PHP 8.3 CI](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
+with 154 tests / 660 assertions, both audits, build, and cache gates.
 C1.3/C1.4 and B1 remain pending.
 
 ## Latest Catalog Action Verification — 2026-10-18
@@ -117,9 +118,14 @@ C1.3/C1.4 and B1 remain pending.
 - Full Pint and strict Composer validation pass. Clean migration apply,
   audit-only rollback retaining prior tables, and reapply passed on disposable
   SQLite, with no products seeded; all temporary databases were removed.
+- Source `cea219978d31b3dae519306820653e2c63277610` was pushed to `main`.
+  [CI run 39050287698](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
+  passed on PHP 8.3.35: 154 tests / 660 assertions, formatting, Composer
+  validation, both dependency audits (0 findings), production frontend build,
+  and Laravel production-cache generation. No audit thresholds changed.
 - No existing local/production database, credentials, dependencies, or frontend
-  assets changed. PHP 8.3 CI and MySQL runtime qualification are separate;
-  latest source CI is pending. No release or production promotion ran.
+  assets changed. MySQL runtime qualification remains unverified.
+  No release or production promotion ran.
 
 ## Latest Dependency Verification — 2026-10-18
 

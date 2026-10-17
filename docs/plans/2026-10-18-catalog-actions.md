@@ -1,6 +1,6 @@
 # C1.2 — Shared Catalog Actions and Policies
 
-Status: locally verified, 2026-10-18; source PHP 8.3 CI pending.
+Status: verified locally and on PHP 8.3 CI, 2026-10-18.
 Parent: [backend plan](2026-10-17-backend-development.md).
 
 Implement a `ProductPolicy` and shared `CatalogActions` before adding panel or
@@ -62,4 +62,8 @@ once. The initial no-delay transaction retries exhausted SQLite locks;
 post-rollback backoff fixes that reproduced failure. Pint, strict Composer
 validation, and isolated audit-migration apply/rollback/reapply pass. No existing
 database was migrated, and no panel, endpoint, or production change was made.
+Source `cea2199` was pushed to `main` and passed
+[CI run 39050287698](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
+on PHP 8.3.35: 154 tests / 660 assertions, both audits (0 findings), formatting,
+Composer validation, frontend build, and production-cache checks.
 MySQL runtime remains unverified; C1.3 is next.

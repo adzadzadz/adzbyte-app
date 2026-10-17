@@ -1,7 +1,7 @@
 # C1.1 — Dynamic Catalog Domain
 
 Status: specified test-first and locally implemented/verified on 2026-10-18.
-Follow-up: C1.2 shared actions/policies are now locally verified; see the
+Follow-up: C1.2 shared actions/policies now pass local and PHP 8.3 CI; see the
 [action contract](2026-10-18-catalog-actions.md). C1.1 boundaries below describe
 the original domain slice; C1.3 panel and C1.4 REST adapters remain pending.
 Parent: [backend plan](2026-10-17-backend-development.md). Product authority:

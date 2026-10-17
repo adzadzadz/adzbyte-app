@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1.2 locally verified; PHP 8.3 CI pending; C1.3 next; B1 pending |
+| Status | C1.2 verified on PHP 8.3 CI; C1.3 next; B1 pending |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -112,8 +112,10 @@ capability-backed policy, shared actor-authorized transactional actions,
 append-only audit receipts, immutable revision allocation, and retry safety.
 Full local suite: 154 tests / 660 assertions on PHP 8.5.11, including five
 four-process SQLite concurrency cases. Pint, Composer validation, and isolated
-audit-migration apply/rollback/reapply pass. PHP 8.3 CI is pending source
-delivery; MySQL runtime is unverified. No existing database, panel, REST
+audit-migration apply/rollback/reapply pass. Source `cea2199` passes
+[CI run 39050287698](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
+on PHP 8.3.35 with the same 154 / 660, both audits (0 findings), frontend build,
+and production caches. MySQL runtime is unverified. No existing database, panel, REST
 contract, or production environment changed. Resume with C1.3; C1.4/B1 pending.
 
 **Acceptance:** an empty catalog returns an empty list; administrators can add,

@@ -7,11 +7,11 @@
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
 | Active card | C1.3 — Filament catalog management; unstarted |
-| Implementation | C1.2 locally verified; source PHP 8.3 CI pending; no catalog routes/admin screens yet |
+| Implementation | C1.2 verified on PHP 8.3 CI at cea2199; no catalog routes/admin screens yet |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
 | Next action | Implement/test the C1.3 Filament resource using the [catalog action contract](plans/2026-10-18-catalog-actions.md), stable retry UUIDs, explicit role-management capabilities, and denied-actor panel coverage |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | C1.2 local PHP 8.5.11: 154 tests / 660 assertions; prior C1.1 CI PHP 8.3.35: 109 / 416; C1.2 CI pending |
+| Last recorded runtime tests | C1.2: 154 tests / 660 assertions on CI PHP 8.3.35 and local PHP 8.5.11 |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -101,6 +101,14 @@ copying their full contents into the session log.
   credentials, production environment, release workflow, or deploy branch
   changed. MySQL runtime is unverified. Next card: C1.3 Filament catalog
   management using these shared actions; C1.4 and B1 remain pending.
+- Delivery verified: `cea219978d31b3dae519306820653e2c63277610` pushed to `main`;
+  [CI run 39050287698](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
+  succeeded on PHP 8.3.35 with 154 tests / 660 assertions, both audits
+  (0 findings), formatting, Composer validation, frontend build, and Laravel
+  production caches. This supersedes the pending-delivery note above.
+  Local Markdown checks passed: 59 relative links across 14 documents.
+  This evidence-only follow-up does not change application/runtime behavior;
+  intended commit: `Record successful catalog action CI qualification`.
 
 ### 2026-10-17 — Backend development planning
 
