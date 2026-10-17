@@ -108,8 +108,8 @@ incomplete until their admin, API, and integration requirements are verified.
 
 C1.3 is locally/browser verified and awaiting both source CI jobs. The
 [management contract](plans/2026-10-18-catalog-management.md) records scope,
-acceptance, and saved browser artifacts. Local PHP 8.5.11: focused 25 / 309,
-full 183 / 1,012; formatting, Composer validation, build, and route checks pass.
+acceptance, and saved browser artifacts. Local PHP 8.5.11: focused 25 / 315,
+full 183 / 1,018; formatting, Composer validation, build, and route checks pass.
 Real desktop/mobile interactions, validation feedback, denied access, history,
 role controls, and keyboard focus checks pass. No migration/dependency/provider
 or public-contract change is introduced. PHP 8.3/MySQL qualification must pass

@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Support\Filament\CatalogInput;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -45,7 +46,9 @@ final class EditProduct extends EditRecord
             if (isset($exception->errors()['operation_id'])) {
                 throw ValidationException::withMessages(['data.name' => 'This change was already saved. Reload before making further changes.']);
             }
-            throw $exception;
+            Notification::make()->danger()->title('Could not save content')->body(implode(' ', $exception->validator->errors()->all()))->send();
+            throw ValidationException::withMessages(collect($exception->errors())
+                ->mapWithKeys(fn (array $messages, string $field): array => ['data.'.$field => $messages])->all());
         }
         $record->refresh();
 

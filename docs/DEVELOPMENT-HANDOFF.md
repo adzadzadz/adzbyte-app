@@ -11,7 +11,7 @@
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
 | Next action | Verify both CI jobs at the delivered C1.3 source revision before completion; then C1.4 safe public REST catalog and cache contracts |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | C1.3 local PHP 8.5.11: 183 tests / 1,012 assertions; focused 25 / 309; browser passed; C1.3 CI pending |
+| Last recorded runtime tests | C1.3 local PHP 8.5.11: 183 tests / 1,018 assertions; focused 25 / 315; browser passed; C1.3 CI pending |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -79,8 +79,8 @@ copying their full contents into the session log.
   retries, field injection is ignored/rejected, and domain/replay failures have
   visible feedback. Decimal prices store/display exactly; earlier revisions,
   unknown structured terms/media, and stable product identity remain intact.
-- Added `AdminCatalogManagementTest`: **25 / 309** pass. Full local
-  `composer test -- --compact`: **183 / 1,012** on PHP 8.5.11. Full Pint,
+- Added `AdminCatalogManagementTest`: **25 / 315** pass. Full local
+  `composer test -- --compact`: **183 / 1,018** on PHP 8.5.11. Full Pint,
   Composer validation, Vite build, route/middleware discovery, and whitespace
   checks pass. An early test omitted ViewAny and was denied correctly; its
   fixture now grants the intended resource-access prerequisites.
@@ -100,6 +100,13 @@ copying their full contents into the session log.
   `Add capability-backed administrator catalog management`.
   Source delivery and both required CI jobs are pending at this checkpoint;
   inspect Git/CI before completing C1.3. C1.4 and B1 remain pending.
+- Initial source `4b2d08b` pushed and passed
+  [CI run 39053548304](https://github.com/adzadzadz/adzbyte-app/actions/runs/39053548304),
+  both PHP 8.3 SQLite/MySQL jobs. Final review added required-name validation
+  for published products and mapped service validation errors to visible form
+  feedback. Regression coverage confirms blanking a published name leaves it
+  unchanged. The revised local suite passes 183 / 1,018 (focused 25 / 315);
+  qualify the follow-up source before completion. No business rule changed.
 
 ### 2026-10-18 — Mandatory phase verification gates
 

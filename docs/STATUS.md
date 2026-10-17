@@ -117,8 +117,8 @@ C1.3 CI qualification, C1.4, and B1 remain pending.
 - Shield exposes exactly the 11 catalog capabilities, without default grants
   or destructive Product permissions. Price/terms/change tables are read-only;
   history components reauthorize on mount and hydration.
-- **Local PHP 8.5.11:** `AdminCatalogManagementTest` 25 tests / 309 assertions;
-  full `composer test -- --compact` **183 tests / 1,012 assertions**. Full Pint,
+- **Local PHP 8.5.11:** `AdminCatalogManagementTest` 25 tests / 315 assertions;
+  full `composer test -- --compact` **183 tests / 1,018 assertions**. Full Pint,
   strict Composer validation, Vite build, route/middleware inspection, and
   whitespace checks pass. Supported PHP 8.3 and MySQL proof awaits source CI.
 - Real Chrome workflows passed at desktop 1440px and mobile 320px: draft create,

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Enums\ProductStatus;
+use App\Models\Product;
 use App\Support\Filament\CatalogInput;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Textarea;
@@ -15,7 +17,7 @@ final class ProductForm
     {
         return $schema->columns(1)->components([
             Section::make('Content')->description('Drafts may be incomplete. Publish and availability are managed separately.')->schema([
-                TextInput::make('name')->maxLength(255),
+                TextInput::make('name')->maxLength(255)->required(fn (?Product $record): bool => $record?->status === ProductStatus::Published),
                 TextInput::make('slug')->maxLength(255)->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')->unique(ignoreRecord: true)->helperText('Optional lowercase words separated by hyphens.'),
                 Textarea::make('summary')->rows(3)->columnSpanFull(),
                 Textarea::make('description')->rows(6)->columnSpanFull(),

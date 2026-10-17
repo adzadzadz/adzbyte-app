@@ -128,8 +128,8 @@ This closes the earlier MySQL limitation; C1.3 remains next.
 **C1.3 local/browser evidence (2026-10-18):** [management contract and screenshots](2026-10-18-catalog-management.md).
 Administrator list/create/view/edit pages and named shared-service actions,
 locked retry UUIDs, independent capabilities, exact decimal pricing, safe media,
-structured-data preservation, and readonly history. Focused 25 / 309; full local
-183 / 1,012 on PHP 8.5.11; Pint, Composer validation, build, routes, and real
+structured-data preservation, and readonly history. Focused 25 / 315; full local
+183 / 1,018 on PHP 8.5.11; Pint, Composer validation, build, routes, and real
 1440px/320px browser workflows pass. Both PHP 8.3 SQLite/MySQL CI jobs are pending
 source delivery; C1.3 remains partial until qualified. C1.4/B1 remain pending.
 

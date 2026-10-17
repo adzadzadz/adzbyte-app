@@ -29,7 +29,8 @@ Zero can be recorded but cannot enable an offer.
 
 New terms versions provide textual scope, deliverables, exclusions, customer
 obligations, fulfillment, and entitlement descriptions. No values or business
-benefits are prefilled. Existing unknown/structured document fields are retained;
+benefits are invented; existing textual sections are prefilled from the current
+version. Existing unknown/structured document fields are retained;
 entering text can explicitly replace a structured section, while leaving its
 empty textual input alone preserves it. Earlier versions are read-only. These
 are documentation fields, not executable entitlement rules or tax/receipt policy.
@@ -50,8 +51,8 @@ do not migrate the existing application database or modify production.
 
 ## Verification checkpoint
 
-- `AdminCatalogManagementTest`: 25 tests / 309 assertions; full
-  `composer test -- --compact`: 183 tests / 1,012 assertions, local PHP 8.5.11.
+- `AdminCatalogManagementTest`: 25 tests / 315 assertions; full
+  `composer test -- --compact`: 183 tests / 1,018 assertions, local PHP 8.5.11.
   Pint, strict Composer validation, Vite build, route/middleware discovery,
   and whitespace checks pass. Both source CI jobs remain pending.
 - Includes guest/customer/regular staff denial, narrow view/create/price roles,

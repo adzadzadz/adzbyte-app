@@ -138,7 +138,10 @@ class AdminCatalogManagementTest extends TestCase
         $published = Product::factory()->published()->create();
         Livewire::test(ViewProduct::class, ['record' => $published->id])
             ->callAction('enableAvailability')->assertNotified('Could not update product');
+        Livewire::test(EditProduct::class, ['record' => $published->id])
+            ->fillForm(['name' => ''])->call('save')->assertHasFormErrors(['name' => 'required']);
         $this->assertSame(ProductStatus::Draft, $blank->fresh()->status);
+        $this->assertSame($published->name, $published->fresh()->name);
         $this->assertFalse($published->fresh()->is_available);
         $this->assertDatabaseCount('product_changes', 0);
     }
