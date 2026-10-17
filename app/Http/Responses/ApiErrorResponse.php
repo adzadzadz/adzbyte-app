@@ -66,6 +66,8 @@ final class ApiErrorResponse
 
         $headers = $response->headers->all();
         unset($headers['content-length'], $headers['content-type']);
+        $headers['cache-control'] = 'no-store, private';
+        unset($headers['etag'], $headers['last-modified']);
 
         return self::make($code, $message, $status, $details, $headers);
     }

@@ -57,7 +57,7 @@ keep behavior consistent across panels, APIs, jobs, and webhooks.
 Every customer-facing shop capability receives a versioned API contract even
 when its initial app page uses the shared application service directly.
 
-The initial contract exposes authenticated customer identity at `GET /api/v1/me` through Sanctum. Its success and error envelopes are documented in the versioned [OpenAPI contract](docs/api/openapi.json). A persistence-backed [idempotency contract](docs/api/idempotency.md) is ready for future retry-prone authenticated mutations; product, integration, and webhook business endpoints remain intentionally absent.
+The API exposes authenticated customer identity at `GET /api/v1/me` through Sanctum and anonymous published catalog reads at `GET /api/v1/products` and `GET /api/v1/products/{public_id}`. Success/error envelopes and synthetic examples are in the [OpenAPI contract](docs/api/openapi.json); pagination, exact string money, field allowlists and ETag revalidation are specified in the [public catalog contract](docs/plans/2026-10-18-public-catalog.md). A persistence-backed [idempotency contract](docs/api/idempotency.md) is ready for future retry-prone authenticated mutations; integration and webhook business endpoints remain absent.
 
 ## First Commerce Release
 

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1.3 complete and CI-qualified; C1.4 next; C1/B1 integration pending |
+| Status | C1.3 qualified; C1.4 implemented, CI pending; C1/B1 integration pending |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |

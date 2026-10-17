@@ -26,7 +26,7 @@ class CatalogDomainTest extends TestCase
         $this->assertSame(0, ProductPrice::query()->count());
         $this->assertSame(0, ProductTerms::query()->count());
         $this->assertSame([], Product::query()->published()->get()->all());
-        $this->getJson('/api/v1/products')->assertNotFound();
+        $this->getJson('/api/v1/products')->assertOk()->assertJsonCount(0, 'data');
     }
 
     public function test_an_incomplete_draft_needs_no_price_or_terms_and_content_cannot_set_lifecycle(): void

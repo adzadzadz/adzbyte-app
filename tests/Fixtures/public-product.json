@@ -1,0 +1,22 @@
+{
+    "public_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+    "slug": "synthetic-public-service",
+    "name": "Synthetic public service",
+    "summary": "Contract fixture; not a real offering.",
+    "description": null,
+    "media": {
+        "image": "/images/synthetic.png"
+    },
+    "is_available": true,
+    "price": {
+        "version": 1,
+        "amount_minor": "9223372036854775807",
+        "currency": "PHP"
+    },
+    "terms": {
+        "version": 1,
+        "content": {
+            "scope": "Synthetic scope"
+        }
+    }
+}

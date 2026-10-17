@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C1.3 complete; both PHP 8.3 database CI jobs pass)
+**Last updated:** 2026-10-18 (C1.4 implemented; delivery/CI verification pending)
 
 ## Current Stage
 
@@ -32,7 +32,7 @@ and domain guards for dynamic products and price/term versions. C1.2 adds
 capability-backed shared catalog actions, locked revision allocation, persistent
 retry receipts, and actor/time audit history. C1.3 adds protected administrator
 catalog list/create/view/edit pages and explicit revision/lifecycle actions.
-Public catalog routes do not exist yet. Cart, checkout, order,
+C1.4 now implements public catalog list/detail routes with explicit safe fields, exact string money, pagination/filtering, named throttling and ETag revalidation; source delivery and both CI jobs are pending. Cart, checkout, order,
 payment, subscription, purchased-product, request, and report records/routes
 remain unimplemented. Catalog/audit migrations have only run in disposable test
 databases, not the development or production database.
@@ -77,8 +77,7 @@ records behavior and concurrency boundaries. **C1.3 is complete:** administrator
 image references, add price/terms versions, and explicitly manage publication,
 availability, archival, and restoration. History is read-only, and permissions
 remain independent. See the [management contract](plans/2026-10-18-catalog-management.md).
-Public REST/catalog caching (C1.4) and the B1
-backend milestone remain pending. D01 is resolved; D03's basic controls are
+C1.4 public REST/catalog revalidation is implemented and locally tested; its delivery/CI gates and B1 remain pending. See the [public contract](plans/2026-10-18-public-catalog.md). D01 is resolved; D03's basic controls are
 specified; D02 tax/receipt policy remains deferred to checkout/sales. The
 [decision register](decisions/commerce-development.md) and
 [development handoff](DEVELOPMENT-HANDOFF.md) preserve the remaining rules and
@@ -86,10 +85,7 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Implement C1.4: safe public product list/detail contracts with pagination,
-throttling, explicit field allowlists, publication/availability filtering,
-cache behavior/invalidation, OpenAPI examples, and consumer tests. See the
-[backend task cards](plans/2026-10-17-backend-development.md).**
+**Finish C1.4 delivery and both PHP 8.3 database CI gates, then verify actual Next.js rendering for the aggregate C1 gate. D04 and later commercial rules were requested from the owner; dependent code remains gated by the [decision register](decisions/commerce-development.md).**
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
 passed PHP 8.3 CI, including both audits, all 109 tests, production build, and

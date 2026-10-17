@@ -131,7 +131,7 @@ class ApiContractTest extends TestCase
         $this->assertIsCallable(RateLimiter::limiter('api-webhooks'));
     }
 
-    public function test_no_product_integration_or_webhook_route_is_exposed_by_the_foundation(): void
+    public function test_only_identity_and_public_catalog_routes_are_exposed(): void
     {
         $versionedApiRoutes = collect(Route::getRoutes()->getRoutes())
             ->filter(fn (\Illuminate\Routing\Route $route): bool => str_starts_with($route->uri(), 'api/v1'))
@@ -139,7 +139,7 @@ class ApiContractTest extends TestCase
             ->values()
             ->all();
 
-        $this->assertSame(['api.v1.me.show'], $versionedApiRoutes);
+        $this->assertSame(['api.v1.products.index', 'api.v1.products.show', 'api.v1.me.show'], $versionedApiRoutes);
     }
 
     public function test_api_error_responses_preserve_validation_details_and_rate_limit_headers(): void

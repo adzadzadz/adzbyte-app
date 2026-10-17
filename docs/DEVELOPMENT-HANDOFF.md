@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C1.4 — public catalog REST/cache contract; unstarted |
-| Implementation | C1.3 admin resource/actions/history qualified at 7d43b13; no public catalog endpoints |
+| Active card | C1.4 — implemented; source delivery and CI pending |
+| Implementation | C1.3 qualified at 7d43b13; C1.4 public routes/services/resource, ETags, OpenAPI and HTTP consumer implemented |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Specify/test C1.4 safe public list/detail payloads, publication/availability visibility, pagination/throttling, cache invalidation, OpenAPI, and consumer coverage |
+| Next action | Run final local gates, commit/push C1.4 and qualify both CI jobs before Next.js integration or dependent implementation |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | 183 tests / 1,018 assertions on both database CI jobs (PHP 8.3.35) and local SQLite PHP 8.5.11; focused 25 / 315; browser passed |
+| Last recorded runtime tests | C1.4 local 206 / 1,299 on SQLite/PHP 8.5.11; HTTP consumer Node 26.11.1; C1.4 PHP 8.3/Node 24 CI pending |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -65,6 +65,26 @@ the product plan and implementation progress in the master roadmap; avoid
 copying their full contents into the session log.
 
 ## Session log
+
+### 2026-10-18 — C1.4 public catalog (in progress)
+
+- Owner instructed continuous work through all phases with full verification.
+  D02/D04–D09 inputs were requested; unanswered rules remain gates.
+- Added the [public contract](plans/2026-10-18-public-catalog.md), test-first
+  list/detail endpoints, shared read service, explicit resource, bounded queries,
+  named anonymous limiter and stateless public routes. All API errors now use
+  no-store; successful catalog reads revalidate current data through ETags.
+- Added OpenAPI schemas/examples, synthetic JSON fixture and independent Node
+  HTTP consumer, run against a per-case disposable database and loopback PHP
+  server. Both CI jobs explicitly install Node 24 for this proof. Server and
+  fixture database are stopped/removed by test teardown.
+- Initial API tests failed against missing routes as expected. A SQLite JSON
+  object-length difference was caught and the filter made portable; real MySQL
+  CI remains required. Full-suite regression caught an older assertion that
+  products must return 404; it now checks an empty public catalog response.
+- No schema, real data, provider, dependency or panel changes. No deployment.
+  Source commit/push/CI and aggregate real Next.js rendering remain pending.
+
 
 ### 2026-10-18 — C1.3 administrator catalog management
 

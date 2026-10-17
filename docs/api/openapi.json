@@ -20,23 +20,278 @@
             "get": {
                 "operationId": "getCurrentUser",
                 "summary": "Return the authenticated customer identity",
-                "tags": ["Identity"],
+                "tags": [
+                    "Identity"
+                ],
                 "security": [
-                    {"sanctumBearer": []},
-                    {"sanctumSession": []}
+                    {
+                        "sanctumBearer": []
+                    },
+                    {
+                        "sanctumSession": []
+                    }
                 ],
                 "responses": {
                     "200": {
                         "description": "Authenticated customer identity",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/CurrentUserResponse"}
+                                "schema": {
+                                    "$ref": "#/components/schemas/CurrentUserResponse"
+                                }
                             }
                         }
                     },
-                    "401": {"$ref": "#/components/responses/Unauthenticated"},
-                    "403": {"$ref": "#/components/responses/Forbidden"},
-                    "429": {"$ref": "#/components/responses/RateLimited"}
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/api/v1/products": {
+            "get": {
+                "operationId": "listProducts",
+                "summary": "Read the published service catalog",
+                "tags": [
+                    "Catalog"
+                ],
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "If-None-Match",
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Previously returned ETag. Visibility and current state are rechecked before 304."
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "available",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ]
+                        },
+                        "description": "Optional advisory availability filter; unknown query fields are rejected."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Published catalog only. Every read queries current state; Cache-Control requires revalidation. No shared payload cache. 120 anonymous reads/minute/IP across both endpoints. No authorization or Set-Cookie is required.",
+                        "headers": {
+                            "ETag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "public, no-cache, must-revalidate"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductListResponse"
+                                },
+                                "example": {
+                                    "data": [
+                                        {
+                                            "public_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+                                            "slug": "synthetic-public-service",
+                                            "name": "Synthetic public service",
+                                            "summary": "Contract fixture; not a real offering.",
+                                            "description": null,
+                                            "media": {
+                                                "image": "/images/synthetic.png"
+                                            },
+                                            "is_available": true,
+                                            "price": {
+                                                "version": 1,
+                                                "amount_minor": "9223372036854775807",
+                                                "currency": "PHP"
+                                            },
+                                            "terms": {
+                                                "version": 1,
+                                                "content": {
+                                                    "scope": "Synthetic scope"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "meta": {
+                                        "api_version": "v1",
+                                        "current_page": 1,
+                                        "per_page": 20,
+                                        "total": 1,
+                                        "last_page": 1
+                                    },
+                                    "links": {
+                                        "next": null,
+                                        "prev": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "304": {
+                        "description": "Representation unchanged after revalidation; no body.",
+                        "headers": {
+                            "ETag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    },
+                    "422": {
+                        "description": "Stable error envelope; Cache-Control: no-store, private.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/products/{public_id}": {
+            "get": {
+                "operationId": "getProduct",
+                "summary": "Read a published product by stable reference",
+                "tags": [
+                    "Catalog"
+                ],
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "If-None-Match",
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Previously returned ETag. Visibility and current state are rechecked before 304."
+                    },
+                    {
+                        "name": "public_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Published catalog only. Every read queries current state; Cache-Control requires revalidation. No shared payload cache. 120 anonymous reads/minute/IP across both endpoints. No authorization or Set-Cookie is required.",
+                        "headers": {
+                            "ETag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "public, no-cache, must-revalidate"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "public_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+                                        "slug": "synthetic-public-service",
+                                        "name": "Synthetic public service",
+                                        "summary": "Contract fixture; not a real offering.",
+                                        "description": null,
+                                        "media": {
+                                            "image": "/images/synthetic.png"
+                                        },
+                                        "is_available": true,
+                                        "price": {
+                                            "version": 1,
+                                            "amount_minor": "9223372036854775807",
+                                            "currency": "PHP"
+                                        },
+                                        "terms": {
+                                            "version": 1,
+                                            "content": {
+                                                "scope": "Synthetic scope"
+                                            }
+                                        }
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "304": {
+                        "description": "Representation unchanged after revalidation; no body.",
+                        "headers": {
+                            "ETag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    },
+                    "404": {
+                        "description": "Stable error envelope; Cache-Control: no-store, private.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -59,27 +314,66 @@
             "CurrentUser": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["name", "email", "email_verified_at", "created_at", "updated_at"],
+                "required": [
+                    "name",
+                    "email",
+                    "email_verified_at",
+                    "created_at",
+                    "updated_at"
+                ],
                 "properties": {
-                    "name": {"type": "string"},
-                    "email": {"type": "string", "format": "email"},
-                    "email_verified_at": {"type": ["string", "null"], "format": "date-time"},
-                    "created_at": {"type": ["string", "null"], "format": "date-time"},
-                    "updated_at": {"type": ["string", "null"], "format": "date-time"}
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "email_verified_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
                 }
             },
             "CurrentUserResponse": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["data", "meta"],
+                "required": [
+                    "data",
+                    "meta"
+                ],
                 "properties": {
-                    "data": {"$ref": "#/components/schemas/CurrentUser"},
+                    "data": {
+                        "$ref": "#/components/schemas/CurrentUser"
+                    },
                     "meta": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": ["api_version"],
+                        "required": [
+                            "api_version"
+                        ],
                         "properties": {
-                            "api_version": {"type": "string", "const": "v1"}
+                            "api_version": {
+                                "type": "string",
+                                "const": "v1"
+                            }
                         }
                     }
                 }
@@ -87,16 +381,262 @@
             "ErrorResponse": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["error"],
+                "required": [
+                    "error"
+                ],
                 "properties": {
                     "error": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": ["code", "message", "details"],
+                        "required": [
+                            "code",
+                            "message",
+                            "details"
+                        ],
                         "properties": {
-                            "code": {"type": "string"},
-                            "message": {"type": "string"},
-                            "details": {"type": "object", "additionalProperties": true}
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            },
+                            "details": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                }
+            },
+            "Product": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "public_id",
+                    "slug",
+                    "name",
+                    "summary",
+                    "description",
+                    "media",
+                    "is_available",
+                    "price",
+                    "terms"
+                ],
+                "properties": {
+                    "public_id": {
+                        "type": "string",
+                        "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    "slug": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Plain text. Never render as trusted HTML."
+                    },
+                    "media": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "image": {
+                                "type": "string",
+                                "description": "Safe HTTPS URL or /images/ reference; resolve local paths against the storefront origin."
+                            },
+                            "thumbnail": {
+                                "type": "string",
+                                "description": "Safe HTTPS URL or /images/ reference; resolve local paths against the storefront origin."
+                            },
+                            "hero": {
+                                "type": "string",
+                                "description": "Safe HTTPS URL or /images/ reference; resolve local paths against the storefront origin."
+                            }
+                        }
+                    },
+                    "is_available": {
+                        "type": "boolean",
+                        "description": "Advisory catalog configuration only; purchases must revalidate."
+                    },
+                    "price": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "additionalProperties": false,
+                        "required": [
+                            "version",
+                            "amount_minor",
+                            "currency"
+                        ],
+                        "properties": {
+                            "version": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "amount_minor": {
+                                "type": "string",
+                                "pattern": "^(0|[1-9][0-9]*)$",
+                                "description": "Exact PHP minor units; parse with BigInt, never Number. Null price is unset, not zero."
+                            },
+                            "currency": {
+                                "type": "string",
+                                "const": "PHP"
+                            }
+                        }
+                    },
+                    "terms": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "additionalProperties": false,
+                        "required": [
+                            "version",
+                            "content"
+                        ],
+                        "properties": {
+                            "version": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "content": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "scope": {
+                                        "type": "string"
+                                    },
+                                    "deliverables": {
+                                        "type": "string"
+                                    },
+                                    "exclusions": {
+                                        "type": "string"
+                                    },
+                                    "customer_obligations": {
+                                        "type": "string"
+                                    },
+                                    "fulfillment": {
+                                        "type": "string"
+                                    },
+                                    "entitlements": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ProductResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Product"
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "type": "string",
+                                "const": "v1"
+                            }
+                        }
+                    }
+                }
+            },
+            "ProductListResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta",
+                    "links"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Product"
+                        }
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version",
+                            "current_page",
+                            "per_page",
+                            "total",
+                            "last_page"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "type": "string",
+                                "const": "v1"
+                            },
+                            "current_page": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 10000
+                            },
+                            "per_page": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100
+                            },
+                            "total": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "last_page": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        }
+                    },
+                    "links": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "next",
+                            "prev"
+                        ],
+                        "properties": {
+                            "next": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "prev": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
                         }
                     }
                 }
@@ -107,7 +647,9 @@
                 "description": "Authentication is required",
                 "content": {
                     "application/json": {
-                        "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
                     }
                 }
             },
@@ -115,20 +657,26 @@
                 "description": "The authenticated identity cannot access the customer API",
                 "content": {
                     "application/json": {
-                        "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
                     }
                 }
             },
             "RateLimited": {
-                "description": "The customer API rate limit was exceeded",
+                "description": "The named API rate limit was exceeded; no-store. Retry after the indicated seconds.",
                 "headers": {
                     "Retry-After": {
-                        "schema": {"type": "integer"}
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 },
                 "content": {
                     "application/json": {
-                        "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
                     }
                 }
             }

@@ -74,5 +74,8 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('api-webhooks', fn (Request $request): Limit => Limit::perMinute(180)
             ->by('webhook-api:'.$request->ip()));
+
+        RateLimiter::for('api-catalog', fn (Request $request): Limit => Limit::perMinute(120)
+            ->by('catalog-api:'.$request->ip()));
     }
 }
