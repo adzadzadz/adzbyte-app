@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1.3 locally/browser verified; source CI pending; C1.4 next after qualification |
+| Status | C1.3 complete and CI-qualified; C1.4 next; B1 pending |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -130,8 +130,10 @@ Administrator list/create/view/edit pages and named shared-service actions,
 locked retry UUIDs, independent capabilities, exact decimal pricing, safe media,
 structured-data preservation, and readonly history. Focused 25 / 315; full local
 183 / 1,018 on PHP 8.5.11; Pint, Composer validation, build, routes, and real
-1440px/320px browser workflows pass. Both PHP 8.3 SQLite/MySQL CI jobs are pending
-source delivery; C1.3 remains partial until qualified. C1.4/B1 remain pending.
+1440px/320px browser workflows pass. Source `7d43b13` passed
+[CI run 39053801945](https://github.com/adzadzadz/adzbyte-app/actions/runs/39053801945)
+on PHP 8.3.35: 183 / 1,018 independently on SQLite and MySQL, both audits,
+formatting, build, and caches. C1.3 is complete; C1.4/B1 remain pending.
 
 **Acceptance:** an empty catalog returns an empty list; administrators can add,
 edit, publish/unpublish, enable/disable, and archive multiple synthetic packages

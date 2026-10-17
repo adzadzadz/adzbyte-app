@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1.3 locally/browser verified; CI pending; C1.4 next after qualification |
+| Status | C1.3 complete and CI-qualified; C1.4 next; C1/B1 integration pending |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -72,8 +72,8 @@
   purchased-service interpretation and snapshots remain in later slices.
 - [x] Add C1.2 capability-backed shared catalog actions, locked revision
   allocation, duplicate-command receipts, and append-only actor/time history.
-- [ ] Add administrator catalog management through shared services and policies.
-- [ ] Allow authorized add/edit, publish/unpublish, availability changes, and
+- [x] Add administrator catalog management through shared services and policies.
+- [x] Allow authorized add/edit, publish/unpublish, availability changes, and
   archival without code/deploy changes, preserving referenced price/term history.
 - [ ] Add safe, cacheable storefront catalog and product-detail APIs.
 - [ ] Test draft/unpublished visibility, price snapshots, and unauthorized
@@ -87,11 +87,13 @@ see the [action contract](2026-10-18-catalog-actions.md). Audit-migration
 apply/rollback/reapply, Pint, and Composer validation pass. Source `cea2199`
 passes [CI run 39050287698](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
 on PHP 8.3.35 with the same counts, both audits, build, and cache gates.
-C1.3/C1.4 and B1 remain incomplete.
+C1.4 and B1 remain incomplete.
 The C1.3 implementation is now locally/browser verified (183 tests / 1,018
 assertions, focused 25 / 315, build/format/metadata gates, real desktop/mobile
 workflows), with [management evidence](2026-10-18-catalog-management.md).
-Both source CI jobs must pass before its checklist is completed.
+Source `7d43b13` passes [CI run 39053801945](https://github.com/adzadzadz/adzbyte-app/actions/runs/39053801945)
+on PHP 8.3.35 with 183 / 1,018 independently on SQLite and MySQL, both audits,
+build, formatting, and cache gates. C1.3 is qualified; C1.4 is next.
 The owner's expanded [phase gates](../verification.md#current-catalog-qualification)
 are now qualified for C1.1/C1.2 at source `6697e81`:
 [CI run 39051237331](https://github.com/adzadzadz/adzbyte-app/actions/runs/39051237331)

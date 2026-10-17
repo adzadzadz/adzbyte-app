@@ -10,8 +10,8 @@ management. C1.1 adds the dynamic catalog domain and versioned price/terms
 persistence; C1.2 adds capability-backed shared actions, locked revision
 allocation, retry safety, and actor/time audit history, verified in isolated
 tests. C1.3 adds administrator catalog management through those actions, including
-read-only history and capability controls. Its local/browser checks pass and CI
-qualification is pending. Public REST catalog endpoints remain next on the roadmap;
+read-only history and capability controls. Its local/browser checks and both
+PHP 8.3 SQLite/MySQL CI jobs pass. Public REST catalog endpoints remain next on the roadmap;
 cart, checkout, orders, payments, subscriptions, purchased products, requests,
 and reports remain planned. No real packages are seeded.
 

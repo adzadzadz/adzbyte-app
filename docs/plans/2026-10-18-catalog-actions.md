@@ -72,5 +72,6 @@ The earlier MySQL limitation is now closed: source `6697e81` passed
 with 158 tests / 703 assertions separately on SQLite and MySQL 8.0 under
 PHP 8.3.35, including real selected-engine races and populated upgrade/reversal
 checks. See the [evidence matrix](../verification.md#current-catalog-qualification).
-C1.3 is next; exact hosting compatibility and production verification remain
-release gates.
+C1.3's [management card](2026-10-18-catalog-management.md) is now complete at
+`7d43b13`, with browser proof and 183 / 1,018 on both database CI jobs. C1.4 is
+next; exact hosting compatibility and production verification remain release gates.

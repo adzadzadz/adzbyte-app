@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C1.3 locally/browser verified; SQLite/MySQL CI pending)
+**Last updated:** 2026-10-18 (C1.3 complete; both PHP 8.3 database CI jobs pass)
 
 ## Current Stage
 
@@ -73,8 +73,7 @@ the schema, invariants, boundaries, and verification.
 completion gate:** shared actions enforce separate capabilities,
 transactional lifecycle/content/version changes, immutable actor/time history,
 and duplicate-command safety. The [action contract](plans/2026-10-18-catalog-actions.md)
-records behavior and concurrency boundaries. **C1.3 is locally/browser verified
-and awaiting both CI jobs:** administrators can create drafts, edit content and
+records behavior and concurrency boundaries. **C1.3 is complete:** administrators can create drafts, edit content and
 image references, add price/terms versions, and explicitly manage publication,
 availability, archival, and restoration. History is read-only, and permissions
 remain independent. See the [management contract](plans/2026-10-18-catalog-management.md).
@@ -87,8 +86,7 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Qualify C1.3's delivered source on both CI jobs before completing the card.
-Then implement C1.4: safe public product list/detail contracts with pagination,
+**Implement C1.4: safe public product list/detail contracts with pagination,
 throttling, explicit field allowlists, publication/availability filtering,
 cache behavior/invalidation, OpenAPI examples, and consumer tests. See the
 [backend task cards](plans/2026-10-17-backend-development.md).**
@@ -98,7 +96,7 @@ passed PHP 8.3 CI, including both audits, all 109 tests, production build, and
 cache checks. No audit thresholds or ignores were changed. C1.2 source
 `cea2199` now passes [PHP 8.3 CI](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
 with 154 tests / 660 assertions, both audits, build, and cache gates.
-C1.3 CI qualification, C1.4, and B1 remain pending.
+C1.3 source `7d43b13` now passes both database CI jobs. C1.4 and B1 remain pending.
 
 ## Latest Catalog Management Verification — 2026-10-18
 
@@ -120,7 +118,11 @@ C1.3 CI qualification, C1.4, and B1 remain pending.
 - **Local PHP 8.5.11:** `AdminCatalogManagementTest` 25 tests / 315 assertions;
   full `composer test -- --compact` **183 tests / 1,018 assertions**. Full Pint,
   strict Composer validation, Vite build, route/middleware inspection, and
-  whitespace checks pass. Supported PHP 8.3 and MySQL proof awaits source CI.
+  whitespace checks pass. Source `7d43b13d8161ed83b0abdde6438412de9440256e`
+  passed [CI run 39053801945](https://github.com/adzadzadz/adzbyte-app/actions/runs/39053801945):
+  PHP 8.3.35, **183 tests / 1,018 assertions separately on SQLite and MySQL**,
+  formatting, Composer validation, both audits (0 findings), frontend build,
+  and Laravel production-cache generation.
 - Real Chrome workflows passed at desktop 1440px and mobile 320px: draft create,
   edit, price/terms, publish/enable, archive/restore, read-only history, inline
   price validation/correction, view-only denial, role controls, and Escape/focus
@@ -132,7 +134,8 @@ C1.3 CI qualification, C1.4, and B1 remain pending.
   database, credentials, and temporary scripts were removed. A QA-only router
   bypassed an old Vite hot marker to use compiled assets, preserving that
   existing file. No existing database, secrets, dependencies, release, or
-  production environment changed. C1.3 remains partial until both CI jobs pass.
+  production environment changed. C1.3's applicable development gates now pass;
+  public REST/cache contracts and integrated C1/B1 acceptance remain pending.
 
 ## Latest Catalog Action Verification — 2026-10-18
 

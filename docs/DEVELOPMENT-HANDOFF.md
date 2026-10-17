@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C1.3 — Filament catalog management; locally/browser verified, CI pending |
-| Implementation | C1.3 admin resource/actions/history implemented; no public catalog endpoints; source CI pending |
+| Active card | C1.4 — public catalog REST/cache contract; unstarted |
+| Implementation | C1.3 admin resource/actions/history qualified at 7d43b13; no public catalog endpoints |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Verify both CI jobs at the delivered C1.3 source revision before completion; then C1.4 safe public REST catalog and cache contracts |
+| Next action | Specify/test C1.4 safe public list/detail payloads, publication/availability visibility, pagination/throttling, cache invalidation, OpenAPI, and consumer coverage |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | C1.3 local PHP 8.5.11: 183 tests / 1,018 assertions; focused 25 / 315; browser passed; C1.3 CI pending |
+| Last recorded runtime tests | 183 tests / 1,018 assertions on both database CI jobs (PHP 8.3.35) and local SQLite PHP 8.5.11; focused 25 / 315; browser passed |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -107,6 +107,14 @@ copying their full contents into the session log.
   feedback. Regression coverage confirms blanking a published name leaves it
   unchanged. The revised local suite passes 183 / 1,018 (focused 25 / 315);
   qualify the follow-up source before completion. No business rule changed.
+- Final implementation `7d43b13d8161ed83b0abdde6438412de9440256e` pushed;
+  [CI run 39053801945](https://github.com/adzadzadz/adzbyte-app/actions/runs/39053801945)
+  passed both jobs on PHP 8.3.35: 183 / 1,018 on SQLite and independently the
+  same counts on MySQL, with formatting, metadata, both audits (0 findings),
+  frontend build, and Laravel cache gates. This supersedes pending source
+  qualification above. C1.3 is complete; C1.4 is next and unstarted.
+  Evidence-only follow-up: `Record completed catalog management qualification`.
+  No release, existing database migration, or production change occurred.
 
 ### 2026-10-18 — Mandatory phase verification gates
 

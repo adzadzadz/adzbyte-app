@@ -1,6 +1,8 @@
 # C1.3 — Filament Catalog Management
 
-Status: locally/browser verified, source CI pending, 2026-10-18.
+Status: verified complete, locally, in browser, and on both database CI jobs,
+2026-10-18. Source `7d43b13`;
+[CI run 39053801945](https://github.com/adzadzadz/adzbyte-app/actions/runs/39053801945).
 Parent: [backend cards](2026-10-17-backend-development.md).
 Completion follows the [phase gates](../verification.md). The preceding source
 at `afac72d` passed [both CI jobs](https://github.com/adzadzadz/adzbyte-app/actions/runs/39051435393).
@@ -54,7 +56,9 @@ do not migrate the existing application database or modify production.
 - `AdminCatalogManagementTest`: 25 tests / 315 assertions; full
   `composer test -- --compact`: 183 tests / 1,018 assertions, local PHP 8.5.11.
   Pint, strict Composer validation, Vite build, route/middleware discovery,
-  and whitespace checks pass. Both source CI jobs remain pending.
+  and whitespace checks pass. Both source CI jobs pass on PHP 8.3.35: 183 tests /
+  1,018 assertions independently on SQLite and MySQL, clear audits, build, and
+  cache gates. C1.4 is next; production promotion remains separate.
 - Includes guest/customer/regular staff denial, narrow view/create/price roles,
   revoked access, direct history authorization, filters, incomplete drafts,
   lifecycle, invalid inputs, identity injection, escaped text, existing versions,

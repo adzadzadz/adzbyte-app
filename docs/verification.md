@@ -106,11 +106,14 @@ incomplete until their admin, API, and integration requirements are verified.
 
 ## Administrator catalog qualification
 
-C1.3 is locally/browser verified and awaiting both source CI jobs. The
+C1.3 is verified complete at source `7d43b13d8161ed83b0abdde6438412de9440256e`:
+[CI run 39053801945](https://github.com/adzadzadz/adzbyte-app/actions/runs/39053801945)
+passes 183 tests / 1,018 assertions independently on SQLite and MySQL under
+PHP 8.3.35, both audits (0 findings), formatting, metadata, build, and caches. The
 [management contract](plans/2026-10-18-catalog-management.md) records scope,
 acceptance, and saved browser artifacts. Local PHP 8.5.11: focused 25 / 315,
 full 183 / 1,018; formatting, Composer validation, build, and route checks pass.
 Real desktop/mobile interactions, validation feedback, denied access, history,
 role controls, and keyboard focus checks pass. No migration/dependency/provider
-or public-contract change is introduced. PHP 8.3/MySQL qualification must pass
-before C1.3 completion or C1.4 implementation. Deployment remains separate.
+or public-contract change is introduced. All applicable C1.3 development gates
+pass; C1.4 is next. Deployment remains separate.
