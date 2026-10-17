@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (dependency audits cleared; C1.1 qualified on PHP 8.3 CI)
+**Last updated:** 2026-10-18 (C1.2 locally verified; PHP 8.3 CI pending)
 
 ## Current Stage
 
@@ -28,10 +28,12 @@ The versioned API has separate customer, integration, and webhook route files,
 stateful Sanctum support, named throttles, stable error envelopes, an
 OpenAPI-documented `GET /api/v1/me` identity resource, and a dormant
 persistence-backed idempotency boundary. C1.1 adds catalog models, a migration,
-and domain guards for dynamic products and price/term versions. No catalog
+and domain guards for dynamic products and price/term versions. C1.2 adds
+capability-backed shared catalog actions, locked revision allocation, persistent
+retry receipts, and actor/time audit history. No catalog
 management screens or public catalog routes exist yet. Cart, checkout, order,
 payment, subscription, purchased-product, request, and report records/routes
-remain unimplemented. The catalog migration has only run in disposable test
+remain unimplemented. Catalog/audit migrations have only run in disposable test
 databases, not the development or production database.
 
 The approved first commerce approach is a narrow native Laravel vertical slice
@@ -66,8 +68,11 @@ price/term versions, current-version relations, and configuration eligibility.
 The [catalog domain specification](plans/2026-10-18-catalog-domain.md) records
 the schema, invariants, boundaries, and verification.
 
-The next card is **C1.2: shared catalog actions and policies**, unstarted.
-Administrator screens (C1.3), public REST/catalog caching (C1.4), and the B1
+**C1.2 is locally complete:** shared actions enforce separate capabilities,
+transactional lifecycle/content/version changes, immutable actor/time history,
+and duplicate-command safety. The [action contract](plans/2026-10-18-catalog-actions.md)
+records behavior and concurrency boundaries. The next card is **C1.3: Filament
+catalog management**. Administrator screens (C1.3), public REST/catalog caching (C1.4), and the B1
 backend milestone remain pending. D01 is resolved; D03's basic controls are
 specified; D02 tax/receipt policy remains deferred to checkout/sales. The
 [decision register](decisions/commerce-development.md) and
@@ -76,18 +81,45 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Implement C1.2: capability-backed ProductPolicy and shared actor-authorized
-transaction services for content changes, publication/unpublication,
-availability, archival/restoration, and new price/term revisions. Define explicit
-capabilities, allocate revisions under a parent lock with database uniqueness,
-and record actor/time transition history. Test denied actors and concurrent/
-retry behavior before connecting any panel or REST adapter. See the
+**Implement C1.3: a capability-backed Filament catalog resource using
+CatalogActions for draft creation, content edits, lifecycle/availability,
+and price/terms revisions. Keep operation UUIDs stable across a failed request
+retry, expose explicit capabilities in role management, preserve historical
+versions, and test authorized/denied panel workflows. See the
 [backend task cards](plans/2026-10-17-backend-development.md).**
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
 passed PHP 8.3 CI, including both audits, all 109 tests, production build, and
-cache checks. No audit thresholds or ignores were changed. C1.2 is the next
-unstarted product task; C1.3/C1.4 and B1 remain pending.
+cache checks. No audit thresholds or ignores were changed. C1.2 now passes local
+verification; its own PHP 8.3 CI qualification is pending source delivery.
+C1.3/C1.4 and B1 remain pending.
+
+## Latest Catalog Action Verification — 2026-10-18
+
+- Added `ProductCapability`, convention-discovered `ProductPolicy`, shared
+  `CatalogActions`, append-only `ProductChange`, and the audit migration.
+  Role seeding defines 11 capabilities without granting regular roles or
+  creating products. No catalog screen, REST route, or API contract changed.
+- Every mutation requires an actor and UUID operation ID. Same-command retries
+  replay their original result identity; conflicting reuse fails; authorization
+  is rechecked. Content cannot inject lifecycle, identity, or revision fields.
+- Parent locks serialize lifecycle and revision allocation; existing unique
+  constraints remain the revision boundary. Transactions include the audit
+  receipt and roll back together. Concurrency failures retry with bounded
+  backoff only after rollback; nested transactions leave recovery to the caller.
+- Unpublish/archive disable availability; restore returns to draft. New zero
+  prices or empty terms disable an offer and retain earlier revisions.
+- Full `composer test -- --compact`: **154 tests / 660 assertions passed** on
+  local PHP 8.5.11. Includes 45 new cases with independent-process races for
+  distinct price/terms revisions and identical create/price/terms commands.
+  Four workers use a common start barrier and isolated file-backed SQLite;
+  initial tests exposed immediate lock-retry exhaustion, fixed with backoff.
+- Full Pint and strict Composer validation pass. Clean migration apply,
+  audit-only rollback retaining prior tables, and reapply passed on disposable
+  SQLite, with no products seeded; all temporary databases were removed.
+- No existing local/production database, credentials, dependencies, or frontend
+  assets changed. PHP 8.3 CI and MySQL runtime qualification are separate;
+  latest source CI is pending. No release or production promotion ran.
 
 ## Latest Dependency Verification — 2026-10-18
 

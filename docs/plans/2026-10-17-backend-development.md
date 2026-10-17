@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1.1 and dependency remediation pass PHP 8.3 CI; C1.2 next; B1 pending |
+| Status | C1.2 locally verified; PHP 8.3 CI pending; C1.3 next; B1 pending |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -65,7 +65,7 @@ Packages, descriptions, scope, prices, and terms must be manageable data.
 The former requirement to approve launch products/amounts before C1 is retired;
 D01 is resolved and D03's basic controls are specified in the product plan.
 
-Proceed to C1.1 with an empty catalog and synthetic test data. D02 tax/receipt
+Continue to C1.3 with an empty catalog and synthetic test data. D02 tax/receipt
 decisions move to checkout/sales readiness; no tax policy is invented. The
 remaining cart, payment, and fulfillment decisions still gate their own slices.
 
@@ -105,7 +105,16 @@ Original source `284dcbb` failed CI at the old PHP dependency audit (11 advisori
 remediation at `a27f834` now passes [CI run 39048996685](https://github.com/adzadzadz/adzbyte-app/actions/runs/39048996685)
 on PHP 8.3.35: both audits clear, 109 tests / 416 assertions, build/cache checks
 pass. This qualifies C1.1 on PHP 8.3. No C1.2–C1.4 behavior or production change
-was added by maintenance; resume with C1.2.
+was added by maintenance.
+
+**C1.2 evidence (2026-10-18):** [action contract](2026-10-18-catalog-actions.md),
+capability-backed policy, shared actor-authorized transactional actions,
+append-only audit receipts, immutable revision allocation, and retry safety.
+Full local suite: 154 tests / 660 assertions on PHP 8.5.11, including five
+four-process SQLite concurrency cases. Pint, Composer validation, and isolated
+audit-migration apply/rollback/reapply pass. PHP 8.3 CI is pending source
+delivery; MySQL runtime is unverified. No existing database, panel, REST
+contract, or production environment changed. Resume with C1.3; C1.4/B1 pending.
 
 **Acceptance:** an empty catalog returns an empty list; administrators can add,
 edit, publish/unpublish, enable/disable, and archive multiple synthetic packages

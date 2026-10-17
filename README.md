@@ -7,8 +7,9 @@ The reusable application foundation is complete: authentication, management
 branding, customer and administrator Home foundations, API contracts,
 idempotency, queues, operational hardening, and administrator user/role
 management. C1.1 adds the dynamic catalog domain and versioned price/terms
-persistence, verified in isolated tests. Catalog authorization services,
-management screens, and public REST endpoints remain next on the roadmap;
+persistence; C1.2 adds capability-backed shared actions, locked revision
+allocation, retry safety, and actor/time audit history, verified in isolated
+tests. Catalog management screens and public REST endpoints remain next on the roadmap;
 cart, checkout, orders, payments, subscriptions, purchased products, requests,
 and reports remain planned. No real packages are seeded.
 

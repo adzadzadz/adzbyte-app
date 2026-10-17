@@ -86,6 +86,11 @@ class Product extends Model
         return $this->hasMany(ProductTerms::class);
     }
 
+    public function changes(): HasMany
+    {
+        return $this->hasMany(ProductChange::class);
+    }
+
     public function currentPrice(): HasOne
     {
         return $this->prices()->one()->ofMany('version', 'max');

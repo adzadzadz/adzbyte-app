@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C1.2 — shared catalog actions and policies; unstarted |
-| Implementation | C1.1 and dependency remediation pass PHP 8.3 CI; no catalog routes/admin screens yet |
+| Active card | C1.3 — Filament catalog management; unstarted |
+| Implementation | C1.2 locally verified; source PHP 8.3 CI pending; no catalog routes/admin screens yet |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Specify/test ProductPolicy capabilities and shared actor-authorized transaction actions for content/lifecycle and price/terms; allocate revisions under parent locks and add actor/time audit records before panel/API exposure |
+| Next action | Implement/test the C1.3 Filament resource using the [catalog action contract](plans/2026-10-18-catalog-actions.md), stable retry UUIDs, explicit role-management capabilities, and denied-actor panel coverage |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | 109 passed / 416 assertions on CI PHP 8.3.35 and local PHP 8.5.11; focused catalog: 38 / 71 |
+| Last recorded runtime tests | C1.2 local PHP 8.5.11: 154 tests / 660 assertions; prior C1.1 CI PHP 8.3.35: 109 / 416; C1.2 CI pending |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -61,6 +61,46 @@ the product plan and implementation progress in the master roadmap; avoid
 copying their full contents into the session log.
 
 ## Session log
+
+### 2026-10-18 — C1.2 catalog actions and policies
+
+- Owner authorized C1.2 with "proceed" after the next-card briefing. Started
+  clean on `main` at `a1cda22`. Added the test-first
+  [action contract](plans/2026-10-18-catalog-actions.md); initial acceptance
+  run failed because the capabilities/actions did not yet exist.
+- Added `ProductCapability`, `ProductPolicy`, `CatalogActions`, `ProductChange`,
+  `2026_10_18_010000_create_product_changes_table`, and `Product::changes()`.
+  RoleSeeder defines capabilities without granting roles. No other permissions,
+  routes, API contracts, panel behavior, dependencies, or assets changed.
+- Shared services authorize each command, use fresh locked product state,
+  retain old price/term versions, allocate revisions with unique constraints,
+  and atomically record actor/time before/after history. UUID command receipts
+  prevent duplicate writes and reject conflicting reuse, including on retries.
+- Added `CatalogActionsTest`, `CatalogConcurrencyTest`, and the isolated
+  `tests/Support/catalog-command.php` worker. Coverage includes denied actors,
+  exact capabilities, invalid/injected fields, lifecycle/availability,
+  audit immutability/rollback, stale models, old-command replay, and concurrency.
+  The worker only accepts an existing temporary catalog-test database.
+- Independent-process tests exposed SQLite lock exhaustion with immediate
+  transaction retries. Bounded backoff after rollback resolves it; nested
+  transaction recovery belongs to the outer caller. Five concurrency cases
+  each start four workers at a common barrier; distinct revisions allocate
+  1–4, identical create/price/terms operations commit once.
+- Local PHP 8.5.11: `composer test -- --compact` passed **154 / 660**;
+  `vendor/bin/pint --test`, `composer validate --strict`, and `git diff --check`
+  passed. Disposable SQLite clean apply, audit-only rollback preserving prior
+  tables, and reapply passed. Temporary database/script and worker files were
+  removed; no runtime process or account remains outside test databases.
+- Updated README, STATUS, roadmap, backend cards, and catalog specifications.
+  Every changed/untracked path is session-owned; no unrelated work existed.
+  Intended source commit: `Add authorized catalog actions and audit history`.
+  Source push and PHP 8.3 CI qualification are pending at this checkpoint;
+  inspect Git/CI for actual delivery. Prior source `a1cda22` CI was read live
+  and passed [run 39049174801](https://github.com/adzadzadz/adzbyte-app/actions/runs/39049174801).
+- No existing development/production database was migrated or seeded; no
+  credentials, production environment, release workflow, or deploy branch
+  changed. MySQL runtime is unverified. Next card: C1.3 Filament catalog
+  management using these shared actions; C1.4 and B1 remain pending.
 
 ### 2026-10-17 — Backend development planning
 
