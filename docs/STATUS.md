@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C1.2 verified on PHP 8.3 CI; C1.3 next)
+**Last updated:** 2026-10-18 (mandatory phase gates; C1.1/C1.2 MySQL qualification pending)
 
 ## Current Stage
 
@@ -68,11 +68,12 @@ price/term versions, current-version relations, and configuration eligibility.
 The [catalog domain specification](plans/2026-10-18-catalog-domain.md) records
 the schema, invariants, boundaries, and verification.
 
-**C1.2 is complete:** shared actions enforce separate capabilities,
+**C1.2 implementation is verified on SQLite/PHP 8.3 CI; MySQL qualification
+is pending under the owner's stronger completion gate:** shared actions enforce separate capabilities,
 transactional lifecycle/content/version changes, immutable actor/time history,
 and duplicate-command safety. The [action contract](plans/2026-10-18-catalog-actions.md)
-records behavior and concurrency boundaries. The next card is **C1.3: Filament
-catalog management**. Administrator screens (C1.3), public REST/catalog caching (C1.4), and the B1
+records behavior and concurrency boundaries. Close the MySQL gate before starting
+**C1.3: Filament catalog management**. Administrator screens (C1.3), public REST/catalog caching (C1.4), and the B1
 backend milestone remain pending. D01 is resolved; D03's basic controls are
 specified; D02 tax/receipt policy remains deferred to checkout/sales. The
 [decision register](decisions/commerce-development.md) and
@@ -81,7 +82,8 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Implement C1.3: a capability-backed Filament catalog resource using
+**First qualify the new MySQL CI gate for C1.1/C1.2. Then implement C1.3:
+a capability-backed Filament catalog resource using
 CatalogActions for draft creation, content edits, lifecycle/availability,
 and price/terms revisions. Keep operation UUIDs stable across a failed request
 retry, expose explicit capabilities in role management, preserve historical
@@ -96,6 +98,15 @@ with 154 tests / 660 assertions, both audits, build, and cache gates.
 C1.3/C1.4 and B1 remain pending.
 
 ## Latest Catalog Action Verification — 2026-10-18
+
+The owner now requires every phase/card to pass all applicable gates before
+completion or dependent work. [Verification policy](verification.md) records
+the checks and evidence format. A new MySQL CI job and guarded test configuration
+exercise the full suite, real MySQL races, and repeatable migration reversal.
+Local SQLite: 158 tests / 683 assertions pass on PHP 8.5.11; Pint, Composer
+validation, and whitespace checks pass. MySQL CI is pending at this checkpoint.
+Earlier 154-test source qualification below remains valid historical evidence,
+but did not test MySQL. Existing local/production databases remain untouched.
 
 - Added `ProductCapability`, convention-discovered `ProductPolicy`, shared
   `CatalogActions`, append-only `ProductChange`, and the audit migration.

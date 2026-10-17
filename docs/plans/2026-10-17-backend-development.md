@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1.2 verified on PHP 8.3 CI; C1.3 next; B1 pending |
+| Status | C1.1/C1.2 MySQL qualification pending; C1.3 waits; B1 pending |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -297,6 +297,11 @@ separate; do not put public operations inside the existing verified-customer gro
 
 ## Verification and completion evidence
 
+The owner's [phase verification policy](../verification.md) is mandatory for
+every card and aggregate phase. Required pending/failed checks keep the card
+partial and block dependent implementation. Record explicit applicability;
+never treat a skipped check or an unrelated green CI run as proof.
+
 For each card, record acceptance cases and test names before implementation,
 then add behavior and forbidden-path tests. Use synthetic data in a disposable
 test database; never reset or seed a valuable database to satisfy a test.
@@ -305,7 +310,7 @@ test database; never reset or seed a valuable database to satisfy a test.
 |---|---|
 | Documentation only | Link/path checks, consistency review, `git diff --check` |
 | PHP behavior/API/policy | Focused cases, full `composer test`, `vendor/bin/pint --test`, contract alignment |
-| Persistence | Clean test-database apply, meaningful uniqueness/concurrency cases, rollback/reapply where practical, production compatibility notes |
+| Persistence | Clean/upgrade apply and rollback/reapply, history/FK/uniqueness, real concurrency/retry cases on SQLite and MySQL; compatibility notes |
 | Panel/assets | Build and focused interaction/responsive checks for new workflows |
 | Provider | Mocked failure cases plus recorded test-mode callback/payment proof; no live charge |
 | Release candidate | Existing CI gates and applicable Q acceptance, backup/recovery/configuration evidence |

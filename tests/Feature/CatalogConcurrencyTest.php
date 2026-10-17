@@ -10,26 +10,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Process\Process;
+use Tests\Support\UsesIsolatedCatalogDatabase;
 use Tests\TestCase;
 
 class CatalogConcurrencyTest extends TestCase
 {
-    private string $database;
+    use UsesIsolatedCatalogDatabase;
 
     private array $workers = [];
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->database = tempnam(sys_get_temp_dir(), 'catalog-concurrency-');
-        config([
-            'database.default' => 'catalog_concurrency',
-            'database.connections.catalog_concurrency' => [
-                'driver' => 'sqlite', 'database' => $this->database,
-                'foreign_key_constraints' => true, 'busy_timeout' => 5000,
-            ],
-        ]);
-        $this->artisan('migrate', ['--database' => 'catalog_concurrency', '--force' => true])->assertSuccessful();
+        $this->setUpCatalogDatabase();
         $this->seed(RoleSeeder::class);
     }
 
@@ -40,10 +33,7 @@ class CatalogConcurrencyTest extends TestCase
                 $worker->stop();
             }
         }
-        DB::purge('catalog_concurrency');
-        foreach (glob($this->database.'*') as $path) {
-            unlink($path);
-        }
+        $this->tearDownCatalogDatabase();
         parent::tearDown();
     }
 
@@ -81,13 +71,13 @@ class CatalogConcurrencyTest extends TestCase
         $actor->assignRole(UserRole::SuperAdmin->value);
         $product = $command === 'create' ? null : Product::factory()->create();
         $operationId = (string) Str::uuid();
-        $barrier = $this->database.'.go';
+        $barrier = $this->temporary.'.go';
         for ($i = 0; $i < 4; $i++) {
             $worker = new Process([
                 PHP_BINARY, base_path('tests/Support/catalog-command.php'),
                 $this->database, (string) $actor->id, (string) ($product?->id ?? 0),
                 $command, $sameOperation ? $operationId : (string) Str::uuid(), $barrier,
-            ], base_path(), ['APP_ENV' => 'testing', 'APP_CONFIG_CACHE' => $this->database.'.unused-config']);
+            ], base_path(), $this->catalogWorkerEnvironment());
             $worker->setTimeout(20);
             $worker->start();
             $this->workers[] = $worker;

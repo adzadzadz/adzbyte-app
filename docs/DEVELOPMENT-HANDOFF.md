@@ -6,15 +6,19 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C1.3 — Filament catalog management; unstarted |
-| Implementation | C1.2 verified on PHP 8.3 CI at cea2199; no catalog routes/admin screens yet |
+| Active card | C1.1/C1.2 MySQL verification gate; C1.3 waits |
+| Implementation | C1.2 verified on SQLite/PHP 8.3 CI at cea2199; MySQL gate pending; no catalog routes/admin screens yet |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Implement/test the C1.3 Filament resource using the [catalog action contract](plans/2026-10-18-catalog-actions.md), stable retry UUIDs, explicit role-management capabilities, and denied-actor panel coverage |
+| Next action | Qualify the new MySQL CI job, including full suite, real process races, and migration reversal, before implementing C1.3; follow the [phase gates](verification.md) |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | C1.2: 154 tests / 660 assertions on CI PHP 8.3.35 and local PHP 8.5.11 |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
+
+Every phase/card must satisfy the [verification policy](verification.md).
+Required failures or pending evidence keep the card partial; resolve them
+before dependent implementation. Preserve source/runtime/release distinctions.
 
 1. Read STATUS and this checkpoint, then the active task card and its decision
    entries. Read affected product-plan sections before implementing. Project
@@ -61,6 +65,30 @@ the product plan and implementation progress in the master roadmap; avoid
 copying their full contents into the session log.
 
 ## Session log
+
+### 2026-10-18 — Mandatory phase verification gates
+
+- Owner required every phase to be fully verified. Added
+  [completion/evidence gates](verification.md) for cards and phase exits and
+  aligned the roadmap/backend plan. Pending/failed required checks keep work
+  partial and block dependent implementation.
+- Reopened the concrete C1.1/C1.2 MySQL gap before C1.3. Added
+  `phpunit.mysql.xml`, guarded `mysql-bootstrap.php`, the `verify-mysql` CI job,
+  `UsesIsolatedCatalogDatabase`, `CatalogMigrationTest`, and bootstrap safety
+  tests. Race workers now use the selected SQLite/MySQL engine. Only explicitly
+  named disposable test databases on loopback hosts are accepted; configuration
+  caches and application DB credentials cannot redirect the MySQL runner.
+- Local SQLite on PHP 8.5.11: full suite **158 tests / 683 assertions**;
+  full Pint, strict Composer validation, and whitespace checks pass. Catalog
+  migration reversal/reapply is now part of both database suites.
+- Local standalone MySQL 8.0.35 and 8.4.0 binaries crashed during initialization
+  of new temporary data directories, before any server started. Their own temp
+  directories/logs were removed. Existing servers/databases were not accessed;
+  MySQL qualification will use the isolated GitHub Actions service.
+- CI/source delivery is pending at this checkpoint. Changed files belong to
+  this verification task; no application behavior, dependencies, production
+  data, release, or deployment changed. C1.3 remains unstarted until the new
+  gate passes. Intended commit: `Require complete phase verification on SQLite and MySQL`.
 
 ### 2026-10-18 — C1.2 catalog actions and policies
 

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1.2 verified on PHP 8.3 CI; C1.3 next; catalog UI/API pending |
+| Status | C1.1/C1.2 MySQL qualification pending; C1.3 waits; catalog UI/API pending |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -250,6 +250,9 @@ is denied in panels and APIs.
 
 ## Definition of Done for Every Task
 
+- Follow the owner-required [phase verification gate](../verification.md).
+  A task/phase stays partial until all applicable checks pass at its delivered
+  source revision; dependent implementation waits for those gates.
 - Acceptance behavior and any durable business decision are documented.
 - Authorization, ownership, validation, idempotency, and forbidden paths are
   tested where relevant.

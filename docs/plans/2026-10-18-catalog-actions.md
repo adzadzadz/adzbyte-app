@@ -1,6 +1,7 @@
 # C1.2 — Shared Catalog Actions and Policies
 
-Status: verified locally and on PHP 8.3 CI, 2026-10-18.
+Status: verified on SQLite/PHP 8.3 CI, 2026-10-18; MySQL qualification pending
+under the owner's [phase completion gate](../verification.md).
 Parent: [backend plan](2026-10-17-backend-development.md).
 
 Implement a `ProductPolicy` and shared `CatalogActions` before adding panel or

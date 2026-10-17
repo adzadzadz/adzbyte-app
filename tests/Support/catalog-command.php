@@ -7,22 +7,32 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Contracts\Console\Kernel;
 
-require dirname(__DIR__, 2).'/vendor/autoload.php';
+if (getenv('CATALOG_TEST_DRIVER') === 'mysql') {
+    require __DIR__.'/mysql-bootstrap.php';
+} else {
+    require dirname(__DIR__, 2).'/vendor/autoload.php';
+}
 $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 
 [$script, $database, $actorId, $productId, $command, $operationId, $barrier] = $argv;
-if (realpath(dirname($database)) !== realpath(sys_get_temp_dir())
+if (getenv('CATALOG_TEST_DRIVER') === 'mysql') {
+    if ($database !== getenv('TEST_MYSQL_DATABASE')) {
+        throw new RuntimeException('The worker must use its isolated test database.');
+    }
+} elseif (realpath(dirname($database)) !== realpath(sys_get_temp_dir())
     || ! str_starts_with(basename($database), 'catalog-concurrency-') || ! is_file($database)) {
     throw new RuntimeException('Expected an existing disposable catalog test database.');
 }
-config([
-    'database.default' => 'sqlite',
-    'database.connections.sqlite.database' => $database,
-    'database.connections.sqlite.url' => null,
-    'database.connections.sqlite.busy_timeout' => 5000,
-    'cache.default' => 'array',
-]);
+if (getenv('CATALOG_TEST_DRIVER') !== 'mysql') {
+    config([
+        'database.default' => 'sqlite',
+        'database.connections.sqlite.database' => $database,
+        'database.connections.sqlite.url' => null,
+        'database.connections.sqlite.busy_timeout' => 5000,
+    ]);
+}
+config(['cache.default' => 'array']);
 $actor = User::findOrFail($actorId);
 $product = $command === 'create' ? null : Product::findOrFail($productId);
 touch($barrier.'.'.getmypid().'.ready');

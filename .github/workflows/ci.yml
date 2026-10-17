@@ -23,6 +23,53 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  verify-mysql:
+    name: Verify MySQL behavior
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test-only-password
+          MYSQL_ROOT_HOST: '%'
+          MYSQL_DATABASE: adzbyte_test_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl, mbstring, pdo_mysql, pdo_sqlite, sqlite3
+          coverage: none
+          tools: composer:v2
+
+      - name: Prepare application environment
+        run: cp .env.example .env
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Generate CI application key
+        run: php artisan key:generate --ansi
+
+      - name: Run MySQL suite and independent-process races
+        env:
+          TEST_MYSQL_DATABASE: adzbyte_test_ci
+          TEST_MYSQL_HOST: 127.0.0.1
+          TEST_MYSQL_USERNAME: root
+          TEST_MYSQL_PASSWORD: test-only-password
+        run: php vendor/bin/phpunit --configuration phpunit.mysql.xml
+
   verify:
     name: Verify application
     runs-on: ubuntu-24.04
