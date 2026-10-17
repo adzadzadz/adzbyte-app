@@ -206,9 +206,18 @@ requests back into the same application.
 
 ## Delivery Sequence
 
+The [backend development plan](2026-10-17-backend-development.md) provides the
+task cards and completion evidence for this sequence. Backend services, REST
+contracts, and Filament management are the first target; real Next.js
+integration and the complete customer journey remain launch requirements.
+Track unresolved inputs in the [decision register](../decisions/commerce-development.md)
+and resume work from the [development handoff](../DEVELOPMENT-HANDOFF.md).
+
 1. **Commercial input gate** — approve launch products, PHP prices, tax and
-   receipt treatment, brief fields, approval rules, payment methods, and initial
-   cancellation/refund terms.
+   receipt treatment, publication/availability, and minimal purchased-service
+   terms before C1 (D01–D03). Resolve cart rules before C2 and the remaining
+   brief, approval, payment, cancellation/refund, and privacy inputs before the
+   slices that depend on them.
 2. **C1: catalog and pricing** — product, versioned price, minimal entitlement,
    Filament management, safe storefront APIs, and migration of the approved
    catalog out of hard-coded Next.js data.

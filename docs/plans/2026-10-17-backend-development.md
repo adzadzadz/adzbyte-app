@@ -1,0 +1,301 @@
+# Backend Development Plan
+
+| Field | Value |
+|---|---|
+| Created | 2026-10-17 |
+| Status | Development plan prepared; C1 commercial decisions pending |
+| First target | Laravel backend, REST contracts, and Filament management |
+| Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
+| Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
+| Master checklist | [Implementation roadmap](2026-10-05-implementation-roadmap.md) |
+| Current checkpoint | [Development handoff](../DEVELOPMENT-HANDOFF.md) |
+| Decision gates | [Decision register](../decisions/commerce-development.md) |
+
+## Outcome and boundaries
+
+Build the authoritative backend needed to manage users, products, carts,
+orders, payments, purchased services, and customer communication. Deliver a
+versioned REST contract for every customer-facing shop capability and usable
+Filament management screens alongside each domain slice. Backend readiness is
+the first target; the complete commerce launch also requires the real Next.js
+integration and end-to-end acceptance already defined in the product plan.
+
+`adzbyte-next` owns public discovery, add-to-cart, and the compact cart summary.
+`adzbyte-app` owns identity, full cart, checkout, all business records, account
+pages, administration, and provider processing. Customer pages stay in the `/`
+panel and administrator pages in `/admin`.
+
+The first purchase path remains fixed-scope, one-time services, quantity one
+per line, manual fulfillment, human fit approval before payment, and PHP
+pricing through PayMongo Hosted Checkout v2. Subscriptions, physical goods,
+variants, shipping, downloads, appointments, and promotions remain deferred.
+This plan authorizes no production release, migration, or data change.
+
+## Verified starting point
+
+Repository inspection on 2026-10-17 at `e08f6b0` found:
+
+- Authentication, verification, activation, profiles, customer/admin Home,
+  roles/policies, and administrator user list/edit management already exist.
+  User creation, deletion, password administration, and unrestricted staff
+  promotion are not existing management features.
+- API route groups, stable errors, Sanctum identity at `GET /api/v1/me`, an
+  OpenAPI contract, and dormant authenticated idempotency middleware exist.
+- Health, queue monitoring, retry controls, CI, and recovery documentation exist.
+- No commerce models, migrations, or business endpoints exist. Public
+  registration is not implemented. Integration/webhook route files are empty.
+- The last recorded full suite is 71 tests / 345 assertions; it was not rerun
+  for this documentation change. Historical dependency versions and production
+  claims must be rechecked when relevant to implementation or release.
+
+Preserve these foundations. Extend shared actions/services and policies rather
+than replacing authentication or duplicating behavior between panels and APIs.
+
+## Delivery sequence and task cards
+
+Task IDs below refine existing roadmap phases; the master roadmap remains the
+completion checklist. All cards are planned and unstarted. Resolve only the
+decisions needed by the next card. Do not turn an unresolved rule into a default.
+
+### P0 — Resolve the catalog entry gate
+
+**Dependency:** owner decisions D01–D03 in the decision register.
+
+- Prepare and obtain explicit decisions for launch packages and scope, exact
+  PHP amounts, tax/receipt treatment, publication, availability, and minimal
+  versioned purchased-service terms.
+- Record approved answers in the product plan and link their evidence in the
+  register. No launch price may be inferred from the public site's USD prices.
+- Then write the C1 schema/API proposal with field allowlists, relationships,
+  indexes, capabilities, and migration strategy before implementation.
+
+**Exit:** D01–D03 are resolved with evidence and C1 acceptance cases are clear.
+The cart decisions can remain pending until C2.
+
+### C1 — Catalog, prices, entitlements, and product administration
+
+**Dependency:** P0. **Management:** `/admin` catalog and pricing.
+
+1. **C1.1 — Domain and persistence.** Add stable product identifiers, approved
+   service metadata/media, publication/availability, immutable price versions
+   in integer PHP minor units, and versioned entitlement/fulfillment terms.
+   Define relationships, uniqueness, indexes, and local migration reversal.
+2. **C1.2 — Shared actions and policies.** Implement catalog changes and
+   explicit publication/price-version actions with capabilities and audit
+   evidence. Catalog edits must not rewrite accepted historical snapshots.
+3. **C1.3 — Filament management.** Expose validated product, price, entitlement,
+   and publication controls using the same actions/policies. Reuse existing
+   user/role management; add no general user-management API by assumption.
+4. **C1.4 — Public REST contract.** Add safe product list/detail responses,
+   current price/availability, pagination, cache behavior/invalidation, and
+   throttling. Add synthetic fixtures, OpenAPI examples, and consumer checks.
+
+**Acceptance:** public reads never expose drafts or internal fields; unauthorized
+catalog writes fail in both services and panels; invalid money/publication
+changes fail; updates invalidate public caches; price/entitlement history is
+preserved. Migration and contract tests pass. Next.js can consume verified
+responses without importing Laravel internals.
+
+**Backend milestone B1:** administrator can manage the catalog and a test client
+can read its safe REST representation. The roadmap's real Next.js rendering
+gate remains pending until integration is demonstrated in that repository.
+
+### C2 — Carts and secure storefront handoff
+
+**Dependency:** C1 and D04. **Management:** app-owned full-cart page; limited
+staff inspection only if an approved support need exists.
+
+1. **C2.1 — Cart service.** Add anonymous/customer carts, server-calculated
+   quantity-one lines, availability/price revalidation, expiry, and approved
+   multi-service behavior. Never accept client totals or arbitrary owners.
+2. **C2.2 — Restricted REST access.** Add revocable server credentials scoped to
+   cart/summary/handoff operations. Bind each request to its cart authority;
+   possession of the Next.js service token alone must not expose all carts.
+   Specify retry identity for service-token and anonymous operations: the
+   current authenticated middleware is not automatically a cart boundary.
+3. **C2.3 — Handoff and full cart.** Mint and atomically consume an opaque,
+   short-lived single-use handoff bound to the cart and allowed destination;
+   show the full cart in the app before authentication.
+
+**Acceptance:** expiry, replay, tampering, cross-cart access, excessive token
+abilities, changed prices, unavailable services, duplicate retries, and
+concurrent line/handoff operations are covered. Browser bundles contain no
+service credential. Document cookie, CSRF/origin, return-destination, and token
+rotation behavior before wiring the actual storefront.
+
+### C3 — Public registration and cart ownership
+
+**Dependency:** C2 and the D04 attachment/merge rules. This completes the public
+registration item also listed under roadmap F1; it is one implementation.
+
+1. **C3.1 — Registration.** Add app-owned public customer registration through
+   shared identity actions, server-assigned roles, verification, generic
+   duplicate-identity handling, and abuse throttles. Preserve trusted activation.
+2. **C3.2 — Cart attachment.** Preserve and attach/merge the cart through login,
+   registration, verification, password recovery, and session rotation only
+   after the identity and ownership requirements are satisfied.
+
+**Acceptance:** direct registration works without a cart. Role injection,
+enumeration, duplicate identity, session fixation, unverified payable-order
+creation, and attaching another customer's cart fail. Existing panel/auth tests
+remain green. Specify the identity/bootstrap API contract without moving
+account pages into Next.js or introducing unrestricted token issuance.
+
+**Backend milestone B2:** a test client can build a cart, hand it to the app,
+register/login, and retain the correct owned cart.
+
+### O1 — Orders, checkout brief, and fit approval
+
+**Dependency:** C3 and D05; relevant terms/retention decisions from D08.
+
+1. **O1.1 — Order domain.** Persist opaque references, immutable product/price/
+   scope/terms snapshots, totals, and append-only events. Model approval,
+   order, payment, and fulfillment states separately with allowed transitions.
+2. **O1.2 — Checkout contract.** Add owned review/brief submission and idempotent
+   cart-to-order conversion through shared services, panel pages, and REST.
+3. **O1.3 — Staff review.** Add authorized approve/reject/request-correction
+   actions, actor/time history, and approved expiry/notification rules. Material
+   changes require customer acceptance again before payment.
+
+**Acceptance:** repeat/concurrent checkout creates one order; catalog changes
+cannot rewrite its snapshot; unauthorized transitions and cross-owner reads
+fail; correction/rejection cannot accidentally enable Pay Now. Tests cover the
+approved transition table through both panel and REST entry points.
+
+### O2 — PayMongo payment processing
+
+**Dependency:** O1 and D06, test-mode credentials, current official provider
+contract verification, and the applicable D08 operational decisions.
+
+1. **O2.1 — Payment attempts.** Create provider sessions only for persisted,
+   owned, approved snapshots; store mode, amount, currency, provider IDs, and
+   reconciliation references. Handle timeout/retry without duplicate charging.
+2. **O2.2 — Webhooks.** Verify raw-body signatures, durably deduplicate events,
+   validate order/amount/currency/mode, and process delayed/out-of-order events
+   through allowed transitions. Browser returns remain informational.
+3. **O2.3 — Operations.** Add policy-backed payment/event/reconciliation views
+   and the approved failure, expiry, cancellation, dispute, and refund handling.
+   Define recovery and retries for provider-success/local-failure cases.
+
+**Acceptance:** mocked contract/failure tests plus a separately recorded
+PayMongo test-mode payment demonstrate one authoritative paid transition.
+Invalid signatures, mismatches, replay, redirects, and concurrent processing
+cannot grant access. Provider-dependent verification remains explicitly pending
+if test credentials or callbacks are unavailable; never substitute mock success.
+
+### O3 + S2 — Order portal and purchased-service fulfillment
+
+**Dependency:** O2 and D07 fulfillment/access rules.
+
+- Add customer-owned order/payment/timeline/approved receipt representations,
+  administrator operations, and material-event notifications.
+- Create one purchased-service record per paid item using snapshotted terms;
+  make creation retry-safe and expose owned list/detail REST contracts.
+- Add explicit manual fulfillment actions and histories. Confirmed payment
+  must not imply completed service delivery. Apply approved refund/access rules.
+
+**Acceptance:** duplicate events cannot duplicate purchases or notifications;
+unauthorized reads/transitions fail; historical terms stay stable. Paid service
+and fulfillment state appear consistently in the portal, API, and admin panel.
+
+**Backend milestone B3:** the one-time service path works through test payment
+and purchased-service management. It is not the complete commerce launch gate.
+
+### R1 — Requests, reports, and staff communication
+
+**Dependency:** purchased-service linkage where applicable and D07/D08.
+
+- Add distinct request/report types with owned cases, public references,
+  messages, staff assignment, internal notes, and append-only activity.
+- Keep account/payment/privacy/security reporting possible without an active
+  purchased service. Implement approved states, categories, and notifications.
+- Add private attachments only after their file/access/retention rules are
+  resolved; document any approved deferral rather than silently omitting scope.
+- Add customer and staff panel workflows and versioned customer contracts.
+
+**Acceptance:** customers open and follow their own cases; staff triage,
+respond, and resolve them; internal notes and other customers' records never
+appear in customer payloads, counts, searches, notifications, or downloads.
+
+### Q — Integration and launch qualification
+
+**Dependency:** C1–R1 and launch decisions in D08.
+
+- Coordinate the separately owned Next.js changes against verified contracts:
+  catalog rendering, compact cart, secure cookies/server token, and handoff.
+- Demonstrate the actual public-product → cart → app authentication → brief →
+  approval → PayMongo test payment → webhook → purchased service → support
+  request/report → staff response path. Record environment and commit IDs.
+- Complete applicable roadmap Q checks: cross-account/capability boundaries,
+  query/index review, private uploads if included, queue failures, provider
+  recovery, backup restore, retention, accessibility, and responsive workflows.
+- Produce a release candidate with configuration/migration inventory, rollback
+  compatibility, known limits, and evidence. Production promotion remains a
+  separately authorized operation; document post-release verification there.
+
+**Exit:** backend acceptance and the real integrated journey both pass, or their
+remaining blockers are explicit. Subscription Q checks are deferred with S1 and
+must not be marked passed for this one-time-service launch.
+
+## REST delivery matrix
+
+These are planned operation families, not live routes or finalized URLs. Freeze
+method/path/schema/auth/error/idempotency details in OpenAPI with each slice.
+Keep the published contract limited to implemented behavior.
+
+| Slice | Operations | Access and authority |
+|---|---|---|
+| Existing | `GET /api/v1/me` | Verified customer via Sanctum; identity only |
+| C1 | Product list/detail and current safe price/availability | Public, rate-limited, cacheable; no drafts/internal metadata |
+| C2 | Cart create/read/mutate/summary; mint handoff | Next.js server token with narrow abilities plus cart authority; no browser secret |
+| C2/C3 | Consume handoff; owned cart read/mutate/attach | App web/session and documented cart proof; verify identity before ownership attachment |
+| C3 | Registration and identity lifecycle needed by clients | App-owned bootstrap; customer-only role, CSRF/session and throttling rules documented |
+| O1 | Review/brief, submit order, correction/acceptance, owned order reads | Verified owner, action policies, snapshot validation, retry protection |
+| O2/O3 | Start allowed payment; read payment/order status and receipt | Verified owner; provider return cannot change payment state |
+| O2 | Provider payment webhook | Raw-body signature and durable event deduplication; no customer session |
+| S2 | Purchased-service list/detail and allowed actions | Verified owner plus current snapshotted entitlement |
+| R1 | Request/report create/read, messages, allowed downloads | Owner and policy checks; customer-safe fields only |
+
+Administrator-only actions may stay panel-only. Add an integration/admin API
+only for a defined consumer with explicit capabilities. Keep public catalog,
+anonymous bootstrap, customer, integration, and webhook middleware boundaries
+separate; do not put public operations inside the existing verified-customer group.
+
+## Verification and completion evidence
+
+For each card, record acceptance cases and test names before implementation,
+then add behavior and forbidden-path tests. Use synthetic data in a disposable
+test database; never reset or seed a valuable database to satisfy a test.
+
+| Change | Required evidence |
+|---|---|
+| Documentation only | Link/path checks, consistency review, `git diff --check` |
+| PHP behavior/API/policy | Focused cases, full `composer test`, `vendor/bin/pint --test`, contract alignment |
+| Persistence | Clean test-database apply, meaningful uniqueness/concurrency cases, rollback/reapply where practical, production compatibility notes |
+| Panel/assets | Build and focused interaction/responsive checks for new workflows |
+| Provider | Mocked failure cases plus recorded test-mode callback/payment proof; no live charge |
+| Release candidate | Existing CI gates and applicable Q acceptance, backup/recovery/configuration evidence |
+
+Existing CI additionally validates Composer, audits locked PHP/npm dependencies,
+builds Vite assets, and generates Laravel production caches. Run checks in an
+isolated local/CI environment; cache commands may mutate local runtime files.
+Do not claim green CI, remote state, or production health from old notes.
+
+A card is complete only when its acceptance evidence exists, the corresponding
+master-roadmap items can be checked truthfully, and status/handoff are updated.
+A partial implementation stays partial even when committed. Keep source commit,
+CI result, release promotion, migration, and live verification as separate facts.
+
+## Continuity documents
+
+- [STATUS](../STATUS.md): short current state, blocker, and one next task.
+- [Development handoff](../DEVELOPMENT-HANDOFF.md): active task, exact resume
+  action, changed files, checks, Git/runtime state, and session checkpoints.
+- [Decision register](../decisions/commerce-development.md): pending gates and
+  links to owner-approved decisions in the product plan.
+- [Master roadmap](2026-10-05-implementation-roadmap.md): verified phase progress.
+
+Update the handoff at meaningful checkpoints and before stopping, including
+when no code was completed. Resume by reconciling it with the real checkout;
+never rely on conversation history alone. Keep credentials, customer data,
+database dumps, and provider payloads containing sensitive data out of records.

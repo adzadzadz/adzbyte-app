@@ -6,12 +6,21 @@
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
+| Backend task cards | `docs/plans/2026-10-17-backend-development.md` |
+| Decision gates | `docs/decisions/commerce-development.md` |
+| Resume checkpoint | `docs/DEVELOPMENT-HANDOFF.md` |
 | Application | Laravel 13 / PHP 8.3 |
 | Management UI | Filament 5 customer panel at `/` and administrator panel at `/admin` |
 | API prefix | `/api/v1` |
 
 ## Delivery Rules
 
+- The first target is backend services, versioned REST contracts, and usable
+  Filament management. Follow the [backend task cards](2026-10-17-backend-development.md)
+  for the detailed C1 → C2 → C3 → O1 → O2 → O3/S2 → R1 sequence.
+- Resolve P0 / D01–D03 before C1. Later decisions block their dependent slices,
+  not unrelated completed foundation work. Keep backend readiness, actual
+  Next.js integration, and production promotion separately evidenced.
 - Implement in dependency order and deliver narrow end-to-end slices.
 - Keep Filament panels, API controllers, jobs, and webhooks on shared application
   services and Laravel policies.
@@ -230,3 +239,6 @@ is denied in panels and APIs.
 - No secrets, payment credentials, or customer data are committed.
 - Roadmap and status documents reflect verified implementation rather than
   intent.
+- The [development handoff](../DEVELOPMENT-HANDOFF.md) records the active card,
+  changed paths, checks, Git/runtime state, decision blockers, and one next
+  action. Update it at meaningful checkpoints and before an interruption.

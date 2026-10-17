@@ -75,6 +75,14 @@ and remaining decisions.
 
 ## Documentation
 
+For continued development, start with [Project Status](docs/STATUS.md) and the
+[Development Handoff](docs/DEVELOPMENT-HANDOFF.md). The
+[Backend Development Plan](docs/plans/2026-10-17-backend-development.md) defines
+the backend-first task sequence, REST/access coverage, acceptance evidence, and
+milestones. The [Decision Register](docs/decisions/commerce-development.md)
+identifies unresolved inputs and the exact slices they block. Public registration
+and commerce remain planned; these documents do not imply implementation.
+
 The current source of truth is the [Commerce and Customer Service Platform Plan](docs/plans/2026-10-05-commerce-platform.md).
 
 That document defines application ownership, registration, cart handoff,

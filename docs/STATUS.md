@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-06 (first commerce release approach documented)
+**Last updated:** 2026-10-17 (backend development plan and continuation checkpoint prepared)
 
 ## Current Stage
 
@@ -47,17 +47,41 @@ The previously released PHP 8.3-compatible application remains deployed to Hosti
 
 ## In Progress
 
-Commerce development preparation is active. The implementation approach is
-documented, but no commerce application code is in progress.
+Development planning is complete. The first target is the Laravel backend,
+versioned REST API, and Filament tools for user/product and later commerce
+management. The [backend development plan](plans/2026-10-17-backend-development.md)
+breaks the master roadmap into dependency-ordered task cards, acceptance gates,
+API operation families, and verification requirements. No commerce application
+code is in progress.
+
+The active card is **P0: catalog entry decisions**, currently blocked on owner
+inputs D01–D03. The [decision register](decisions/commerce-development.md) indexes
+pending rules; the [development handoff](DEVELOPMENT-HANDOFF.md) records the
+resume procedure and session checkpoint. Frontend integration and production
+release remain separate milestones after backend acceptance.
 
 ## Up Next
 
-**Approve the initial authoritative service packages, exact PHP prices, tax and
-receipt treatment, publication/availability rules, and whether one cart may
-contain multiple distinct services. Then begin roadmap phase C1 using the
-[first commerce release approach](plans/2026-10-05-first-commerce-release.md).
-Do not invent the remaining brief, approval, payment-method, refund,
-cancellation, or retention rules before their dependent slices.**
+**Prepare the launch-service decision packet and obtain owner answers for
+D01–D03: authoritative service packages and minimal purchased-service terms,
+exact PHP prices, tax/receipt treatment, and publication/availability rules.
+Record approved answers in the product plan, then specify and implement C1.1
+using the [backend task cards](plans/2026-10-17-backend-development.md).
+Resolve multi-service cart/merge/expiry rules before C2; brief, approval,
+payment-method, refund, cancellation, and retention rules before their dependent
+slices. Do not invent defaults.**
+
+## Latest Planning Verification
+
+- Repository inspection at `e08f6b0` confirmed existing user/auth/API foundations
+  and the absence of commerce models, migrations, and business endpoints.
+- The backend plan, decision register, and handoff were prepared without
+  application, database, credential, or production changes.
+- Local Markdown links, task/decision references, document consistency, and
+  whitespace checks passed; see the development handoff for the checkpoint.
+- Runtime tests, live CI, and production were not rechecked for this
+  documentation-only session. Earlier verification entries below are historical
+  evidence, not results of the latest planning session.
 
 ## F2 Verification
 
@@ -188,7 +212,7 @@ Deferred phases still require:
 - Commit `937fec5` fixes the PHP 8.3 dependency resolution mismatch; GitHub CI run 2 passed.
 - The local super-administrator identity is verified; its password is not stored in the repository.
 - The session-owned development server was stopped.
-- Remote `main` is released from source commit `12ed0c81d235`; the generated `deploy` branch and Hostinger deployment are at `eda1d21cc641`.
+- The last recorded production release promoted source commit `12ed0c81d235` to generated `deploy` commit `eda1d21cc641`; current `main` includes later unreleased work. Production state was not rechecked during planning on 2026-10-17.
 - The first production database, `.env`, SSH path, pre-migration backup, migrations, scheduler cron, and queue cron were created and verified during the authorized release window.
 - Hostinger SMTP is active for `notifications@adzbyte.com`; the protected production `.env` holds the mailbox credential and all temporary credential files were removed after verification.
 - No database seeders ran and no production super-administrator was created.
@@ -203,3 +227,6 @@ Deferred phases still require:
   behavior. It resolves the initial product-type, fulfillment, platform, and
   payment-flow direction while leaving the listed commercial inputs as the C1
   entry gate.
+- The 2026-10-17 backend plan adds task-level acceptance and API/access coverage
+  without implementing commerce. Resume from `docs/DEVELOPMENT-HANDOFF.md` and
+  resolve P0 / D01–D03 before beginning C1.

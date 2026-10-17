@@ -32,6 +32,22 @@ Exact products, PHP prices, tax and receipt treatment, approval rules, payment
 methods, and refund/cancellation policies remain explicit pre-implementation
 decisions.
 
+### Development priority confirmed 2026-10-17
+
+The first development target is the backend system, its versioned REST API for
+the frontend, and the Filament management needed for users, products, and later
+commerce operations. Existing identity and administrator user/role foundations
+are retained. Catalog management and safe catalog APIs are the next domain
+slice after the catalog decision gate.
+
+The [backend development plan](2026-10-17-backend-development.md) refines the
+existing roadmap into task cards and acceptance evidence. The
+[decision register](../decisions/commerce-development.md) indexes pending inputs;
+approved answers must still be recorded in this product plan. The
+[development handoff](../DEVELOPMENT-HANDOFF.md) preserves the current task and
+resume state. Backend readiness does not replace the integrated customer
+journey or authorize production release.
+
 ## Application Ownership
 
 ### `adzbyte-next`
