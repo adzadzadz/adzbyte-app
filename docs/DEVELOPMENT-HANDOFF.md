@@ -89,6 +89,14 @@ copying their full contents into the session log.
   this verification task; no application behavior, dependencies, production
   data, release, or deployment changed. C1.3 remains unstarted until the new
   gate passes. Intended commit: `Require complete phase verification on SQLite and MySQL`.
+- Source `c61e183` pushed; [CI run 39050845576](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050845576)
+  passed the SQLite/application job but failed six MySQL cases in the new
+  isolation helper: copying a connection retained its original `name`, so the
+  Laravel migrator resolved the primary disposable test schema instead of the
+  fresh per-case schema. No existing development/production database was used.
+  Explicit isolated connection names and pre-migration target assertions fix
+  the harness. Added populated catalog upgrade/preservation evidence. MySQL
+  qualification remains pending the corrected source run.
 
 ### 2026-10-18 — C1.2 catalog actions and policies
 

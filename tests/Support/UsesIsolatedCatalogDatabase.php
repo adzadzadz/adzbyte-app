@@ -36,8 +36,12 @@ trait UsesIsolatedCatalogDatabase
         }
         config([
             'database.default' => 'catalog_concurrency',
-            'database.connections.catalog_concurrency' => $connection,
+            // Laravel's migrator resolves the connection by its stored name.
+            // Never inherit the original connection's name with its credentials.
+            'database.connections.catalog_concurrency' => [...$connection, 'name' => 'catalog_concurrency'],
         ]);
+        $this->assertSame('catalog_concurrency', DB::connection()->getName());
+        $this->assertSame($this->database, DB::connection()->getDatabaseName());
         if ($migrate) {
             $this->artisan('migrate', ['--database' => 'catalog_concurrency', '--force' => true])->assertSuccessful();
         }

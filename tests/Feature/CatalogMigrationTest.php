@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Product;
+use App\Models\ProductPrice;
+use App\Models\ProductTerms;
+use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Tests\Support\UsesIsolatedCatalogDatabase;
 use Tests\TestCase;
@@ -28,9 +31,21 @@ class CatalogMigrationTest extends TestCase
         $this->artisan('migrate', ['--force' => true])->assertSuccessful();
         $this->assertTrue(Schema::hasTable('product_changes'));
         $this->assertSame(0, Product::count());
+        $user = User::factory()->create();
+        $product = Product::factory()->create();
+        $price = ProductPrice::factory()->create(['product_id' => $product->id]);
+        $terms = ProductTerms::factory()->create(['product_id' => $product->id]);
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasTable('product_changes'));
         $this->assertTrue(Schema::hasTable('products'));
+        $this->assertTrue($product->is(Product::findOrFail($product->id)));
+        $this->assertSame($price->amount_minor, $price->fresh()->amount_minor);
+        $this->assertSame($terms->content, $terms->fresh()->content);
+        // Upgrade a populated C1.1 schema to C1.2, preserving prior records.
+        $this->artisan('migrate', ['--force' => true])->assertSuccessful();
+        $this->assertTrue(Schema::hasTable('product_changes'));
+        $this->assertTrue($product->is(Product::findOrFail($product->id)));
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasTable('products'));
         $this->assertFalse(Schema::hasTable('product_prices'));
@@ -42,5 +57,6 @@ class CatalogMigrationTest extends TestCase
         $this->assertTrue(Schema::hasTable('product_prices'));
         $this->assertTrue(Schema::hasTable('product_terms'));
         $this->assertSame(0, Product::count());
+        $this->assertSame($user->email, $user->fresh()->email);
     }
 }
