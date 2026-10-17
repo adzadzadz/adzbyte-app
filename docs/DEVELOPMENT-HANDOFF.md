@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C1.3 — Filament catalog management; unstarted |
-| Implementation | C1.1/C1.2 qualified on SQLite and MySQL/PHP 8.3 CI at 6697e81; no catalog routes/admin screens yet |
+| Active card | C1.3 — Filament catalog management; locally/browser verified, CI pending |
+| Implementation | C1.3 admin resource/actions/history implemented; no public catalog endpoints; source CI pending |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Implement/test C1.3 through CatalogActions with stable retry UUIDs and explicit capabilities; require panel interaction/denial/retry/responsive evidence and both database CI jobs per the [phase gates](verification.md) |
+| Next action | Verify both CI jobs at the delivered C1.3 source revision before completion; then C1.4 safe public REST catalog and cache contracts |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | 158 tests / 703 assertions on both SQLite/MySQL CI PHP 8.3.35 and local SQLite PHP 8.5.11 |
+| Last recorded runtime tests | C1.3 local PHP 8.5.11: 183 tests / 1,012 assertions; focused 25 / 309; browser passed; C1.3 CI pending |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -65,6 +65,41 @@ the product plan and implementation progress in the master roadmap; avoid
 copying their full contents into the session log.
 
 ## Session log
+
+### 2026-10-18 — C1.3 administrator catalog management
+
+- Owner said "okay, proceed" after current main `afac72d` passed
+  [CI run 39051435393](https://github.com/adzadzadz/adzbyte-app/actions/runs/39051435393),
+  both jobs 158 / 703. Started clean; C1.3 is the only implementation scope.
+- Added the [management contract](plans/2026-10-18-catalog-management.md) and
+  initially failing panel acceptance coverage. Implemented Products resource,
+  list/create/view/edit pages, content form, CatalogInput, three read-only history
+  managers with parent-record authorization, and capability discovery in Shield.
+- Every mutation uses CatalogActions; locked operation UUIDs cover lost-response
+  retries, field injection is ignored/rejected, and domain/replay failures have
+  visible feedback. Decimal prices store/display exactly; earlier revisions,
+  unknown structured terms/media, and stable product identity remain intact.
+- Added `AdminCatalogManagementTest`: **25 / 309** pass. Full local
+  `composer test -- --compact`: **183 / 1,012** on PHP 8.5.11. Full Pint,
+  Composer validation, Vite build, route/middleware discovery, and whitespace
+  checks pass. An early test omitted ViewAny and was denied correctly; its
+  fixture now grants the intended resource-access prerequisites.
+- Actual Chrome interaction/layout checks passed at 1440px/320px with native
+  action dialogs, validation/correction, all lifecycle actions, readonly staff,
+  history, role permissions, and Escape/focus restoration. Artifacts are in
+  `docs/evidence/2026-10-18-catalog-management`. No document overflow or
+  unexpected console/page errors remained. The harness initially targeted the
+  zero-height modal wrapper and used array cache, so it was corrected to target
+  the visible window and use the disposable database cache for notifications.
+- Browser QA migrated/seeded only a temporary SQLite file under `/private/tmp`;
+  no existing database was migrated. Synthetic fixture credentials, scripts,
+  database, and localhost server are cleaned up. A QA-only router served built
+  assets while leaving the pre-existing `public/hot` file untouched.
+- All changed/untracked paths are session-owned. No unrelated work, dependency,
+  secrets, production, release, or deploy-branch change. Intended source commit:
+  `Add capability-backed administrator catalog management`.
+  Source delivery and both required CI jobs are pending at this checkpoint;
+  inspect Git/CI before completing C1.3. C1.4 and B1 remain pending.
 
 ### 2026-10-18 — Mandatory phase verification gates
 

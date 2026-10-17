@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use App\Filament\Resources\Products\ProductResource;
 use App\Filament\Resources\Users\UserResource;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Filament\Pages\Dashboard;
@@ -187,6 +188,10 @@ return [
     'resources' => [
         'subject' => 'model',
         'manage' => [
+            ProductResource::class => [
+                'viewAny', 'view', 'create', 'update', 'publish', 'unpublish',
+                'setAvailability', 'archive', 'restore', 'revisePrice', 'reviseTerms',
+            ],
             RoleResource::class => [
                 'viewAny',
                 'view',

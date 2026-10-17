@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (mandatory phase gates; C1.1/C1.2 qualified on SQLite and MySQL)
+**Last updated:** 2026-10-18 (C1.3 locally/browser verified; SQLite/MySQL CI pending)
 
 ## Current Stage
 
@@ -30,8 +30,9 @@ OpenAPI-documented `GET /api/v1/me` identity resource, and a dormant
 persistence-backed idempotency boundary. C1.1 adds catalog models, a migration,
 and domain guards for dynamic products and price/term versions. C1.2 adds
 capability-backed shared catalog actions, locked revision allocation, persistent
-retry receipts, and actor/time audit history. No catalog
-management screens or public catalog routes exist yet. Cart, checkout, order,
+retry receipts, and actor/time audit history. C1.3 adds protected administrator
+catalog list/create/view/edit pages and explicit revision/lifecycle actions.
+Public catalog routes do not exist yet. Cart, checkout, order,
 payment, subscription, purchased-product, request, and report records/routes
 remain unimplemented. Catalog/audit migrations have only run in disposable test
 databases, not the development or production database.
@@ -72,8 +73,12 @@ the schema, invariants, boundaries, and verification.
 completion gate:** shared actions enforce separate capabilities,
 transactional lifecycle/content/version changes, immutable actor/time history,
 and duplicate-command safety. The [action contract](plans/2026-10-18-catalog-actions.md)
-records behavior and concurrency boundaries. The next card is
-**C1.3: Filament catalog management**. Administrator screens (C1.3), public REST/catalog caching (C1.4), and the B1
+records behavior and concurrency boundaries. **C1.3 is locally/browser verified
+and awaiting both CI jobs:** administrators can create drafts, edit content and
+image references, add price/terms versions, and explicitly manage publication,
+availability, archival, and restoration. History is read-only, and permissions
+remain independent. See the [management contract](plans/2026-10-18-catalog-management.md).
+Public REST/catalog caching (C1.4) and the B1
 backend milestone remain pending. D01 is resolved; D03's basic controls are
 specified; D02 tax/receipt policy remains deferred to checkout/sales. The
 [decision register](decisions/commerce-development.md) and
@@ -82,11 +87,10 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Implement C1.3: a capability-backed Filament catalog resource using
-CatalogActions for draft creation, content edits, lifecycle/availability,
-and price/terms revisions. Keep operation UUIDs stable across a failed request
-retry, expose explicit capabilities in role management, preserve historical
-versions, and test authorized/denied panel workflows. See the
+**Qualify C1.3's delivered source on both CI jobs before completing the card.
+Then implement C1.4: safe public product list/detail contracts with pagination,
+throttling, explicit field allowlists, publication/availability filtering,
+cache behavior/invalidation, OpenAPI examples, and consumer tests. See the
 [backend task cards](plans/2026-10-17-backend-development.md).**
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
@@ -94,7 +98,41 @@ passed PHP 8.3 CI, including both audits, all 109 tests, production build, and
 cache checks. No audit thresholds or ignores were changed. C1.2 source
 `cea2199` now passes [PHP 8.3 CI](https://github.com/adzadzadz/adzbyte-app/actions/runs/39050287698)
 with 154 tests / 660 assertions, both audits, build, and cache gates.
-C1.3/C1.4 and B1 remain pending.
+C1.3 CI qualification, C1.4, and B1 remain pending.
+
+## Latest Catalog Management Verification — 2026-10-18
+
+- Added four `/admin/products` routes for list, draft creation, view, and content
+  editing. Named actions call CatalogActions for all mutations; no direct
+  resource CRUD, deletion, public API, or purchase behavior was introduced.
+- Form saves and modal commands retain locked UUIDs for lost-response retries;
+  conflicting reuse produces visible errors. Create, edit, price, and terms
+  replay cases, revoked permissions, view-only/create-only/price-only staff,
+  direct history access, injection, and escaped markup are covered.
+- PHP price strings convert and display without floating-point rounding,
+  including PHP_INT_MAX minor units. Image references accept HTTPS or safe
+  `/images/` paths; structured media and terms documents are preserved.
+  Textual scope/deliverables/obligations/fulfillment/access descriptions create
+  new terms versions without inventing executable entitlement rules.
+- Shield exposes exactly the 11 catalog capabilities, without default grants
+  or destructive Product permissions. Price/terms/change tables are read-only;
+  history components reauthorize on mount and hydration.
+- **Local PHP 8.5.11:** `AdminCatalogManagementTest` 25 tests / 309 assertions;
+  full `composer test -- --compact` **183 tests / 1,012 assertions**. Full Pint,
+  strict Composer validation, Vite build, route/middleware inspection, and
+  whitespace checks pass. Supported PHP 8.3 and MySQL proof awaits source CI.
+- Real Chrome workflows passed at desktop 1440px and mobile 320px: draft create,
+  edit, price/terms, publish/enable, archive/restore, read-only history, inline
+  price validation/correction, view-only denial, role controls, and Escape/focus
+  restoration. Checked layouts have no document overflow; no unexpected console
+  or page errors. [Browser results](evidence/2026-10-18-catalog-management/browser-result.json)
+  and [screenshots](plans/2026-10-18-catalog-management.md#browser-evidence) are saved.
+- The browser used a disposable SQLite database with database sessions/cache,
+  mail array transport, and synthetic admin/viewer fixtures. Its server,
+  database, credentials, and temporary scripts were removed. A QA-only router
+  bypassed an old Vite hot marker to use compiled assets, preserving that
+  existing file. No existing database, secrets, dependencies, release, or
+  production environment changed. C1.3 remains partial until both CI jobs pass.
 
 ## Latest Catalog Action Verification — 2026-10-18
 

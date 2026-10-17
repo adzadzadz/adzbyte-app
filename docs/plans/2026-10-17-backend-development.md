@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1.1/C1.2 qualified on SQLite and MySQL; C1.3 next; B1 pending |
+| Status | C1.3 locally/browser verified; source CI pending; C1.4 next after qualification |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -124,6 +124,14 @@ with 158 tests / 703 assertions separately on SQLite and MySQL 8.0 under
 PHP 8.3.35, including actual selected-engine races and populated migration
 upgrade/rollback/reapply. See the [gate/evidence matrix](../verification.md#current-catalog-qualification).
 This closes the earlier MySQL limitation; C1.3 remains next.
+
+**C1.3 local/browser evidence (2026-10-18):** [management contract and screenshots](2026-10-18-catalog-management.md).
+Administrator list/create/view/edit pages and named shared-service actions,
+locked retry UUIDs, independent capabilities, exact decimal pricing, safe media,
+structured-data preservation, and readonly history. Focused 25 / 309; full local
+183 / 1,012 on PHP 8.5.11; Pint, Composer validation, build, routes, and real
+1440px/320px browser workflows pass. Both PHP 8.3 SQLite/MySQL CI jobs are pending
+source delivery; C1.3 remains partial until qualified. C1.4/B1 remain pending.
 
 **Acceptance:** an empty catalog returns an empty list; administrators can add,
 edit, publish/unpublish, enable/disable, and archive multiple synthetic packages

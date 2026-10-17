@@ -9,7 +9,9 @@ idempotency, queues, operational hardening, and administrator user/role
 management. C1.1 adds the dynamic catalog domain and versioned price/terms
 persistence; C1.2 adds capability-backed shared actions, locked revision
 allocation, retry safety, and actor/time audit history, verified in isolated
-tests. Catalog management screens and public REST endpoints remain next on the roadmap;
+tests. C1.3 adds administrator catalog management through those actions, including
+read-only history and capability controls. Its local/browser checks pass and CI
+qualification is pending. Public REST catalog endpoints remain next on the roadmap;
 cart, checkout, orders, payments, subscriptions, purchased products, requests,
 and reports remain planned. No real packages are seeded.
 
