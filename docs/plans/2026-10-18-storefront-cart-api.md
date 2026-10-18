@@ -1,7 +1,7 @@
 # C2.2 restricted cart REST contract
 
-Status: implemented, verification pending. C2.1 qualified at 31274f3 before this
-card began. The full supported-runtime/database CI gates remain pending here.
+Status: verified complete for C2.2 at 8656e31. C2.1 qualified at 31274f3 before
+this card began. Actual storefront controls and handoff remain C2.3.
 
 ## Authority and operations
 
@@ -103,7 +103,17 @@ content/API and independent-process cart/category/catalog regressions pass.
 
 Pint, Composer strict metadata, whitespace and actual route/middleware discovery
 pass. Current PHP 8.3 CI on both supported databases, audits/build/cache and
-pushed-source readback remain required before C2.2 completion or C2.3 work.
+pushed-source readback pass at the exact revision recorded below.
 See [caller/credential documentation](../api/storefront-carts.md). Actual Next
 controls, customer notice rendering and handoff are intentionally unimplemented
 until that gate passes; C2 aggregate is incomplete.
+
+Final source `8656e31d8af038d099dc449b44e598c59f3ac61a` passes
+[CI 39090091899](https://github.com/adzadzadz/adzbyte-app/actions/runs/39090091899):
+**266 tests / 4,929 assertions independently on SQLite and MySQL 8.0.46,
+PHP 8.3.35**. Both audits, formatting, strict Composer metadata, production asset
+build and Laravel caches pass. Full source is pushed/read back and clean;
+fixture servers, workers, credentials and disposable databases are removed.
+All applicable C2.2 development gates pass. No provider/browser/persistence
+surface was added; no production change or existing database migration. C2.3
+must still qualify actual Next controls, replacement status and app transfer/UI.

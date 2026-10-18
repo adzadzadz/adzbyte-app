@@ -1,6 +1,7 @@
 # C2.3 storefront controls and app cart handoff
 
-Status: planned; qualify C2.1 and C2.2 first. No deployment or live credentials.
+Status: in progress; C2.1 and C2.2 qualified at 31274f3 / 8656e31 before this
+card began. No deployment or live credentials.
 
 The Next storefront owns Add to Cart and a compact server-returned summary.
 Laravel owns the full cart and all prices, availability, category rules and
@@ -38,6 +39,15 @@ grants. Store the resulting app authority only in the trusted server session;
 customer identity is not attached until C3's authenticated merge/claim flow.
 Never infer an owner from a public cart ID or administrator role.
 
+Mint uses a new narrow `cart:handoff` ability. A durable per-cart command receipt
+records the issuance nonce, expiry and issuing credential reference; no transfer
+secret. The opaque value derives from an application-key HMAC over the issuance
+nonce and bound context, so a lost mint response can recover the same value.
+Expired/used/revoked issuance retries require a fresh operation. Never revive an
+old token after cleanup. Only expired transfer rows older than 24 hours may be
+pruned; immutable command history remains and prevents UUID reissuance. Cart
+records/items are not pruned or expired by that operation.
+
 Use a dedicated app landing page with no third-party scripts. Deliver the
 short-lived token in a URL fragment so it does not enter HTTP request/referrer
 logs; immediately clear it from browser history and POST it to the same-origin
@@ -45,6 +55,17 @@ CSRF-protected consume route. The page then redirects to the full cart. Failures
 show a generic expired/used-link message with a fresh-link recovery instruction,
 without reflecting the token. Revalidate all cart state before display/actions;
 no order or payment is created by transfer.
+
+Expose documented app-session operations under `/api/v1/cart` plus
+`/api/v1/cart-handoffs/consume` through the app's web/session/CSRF middleware.
+These are distinct from service-token storefront routes: app guest authority
+comes only from the trusted server session created by an atomic consume. API
+requests cannot submit a cart owner/reference/hash to select another cart.
+App form adapters use the same services. Keep safe private Resources and hide
+unpublished current content/prices just as in C2.2. The landing page has a
+dedicated nonce CSP/no-referrer policy and no third-party scripts; global headers
+must preserve its stricter policy. Real CSRF tests and browser fixtures must run
+with the unit-test bypass disabled.
 
 ## Gates
 

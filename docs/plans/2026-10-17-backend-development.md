@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1/category prerequisite and C2.1 qualified; C2.2 next |
+| Status | C1/category prerequisite and C2.1/C2.2 qualified; C2.3 next |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -177,6 +177,13 @@ staff inspection only if an approved support need exists.
 3. **C2.3 — Handoff and full cart.** Mint and atomically consume an opaque,
    short-lived single-use handoff bound to the cart and allowed destination;
    show the full cart in the app before authentication.
+
+C2.1 source `31274f3` passes both database/PHP 8.3 CI jobs (243 / 1,671).
+C2.2 source `8656e31` passes [CI 39090091899](https://github.com/adzadzadz/adzbyte-app/actions/runs/39090091899)
+with 266 / 4,929 independently on SQLite/MySQL 8.0.46/PHP 8.3.35,
+audits/build/caches and actual HTTP consumer. Contracts:
+[cart service](2026-10-18-cart-service.md), [restricted REST](2026-10-18-storefront-cart-api.md).
+C2.3 controls/notification/handoff are next; C2 aggregate remains incomplete.
 
 **Acceptance:** expiry, replay, tampering, cross-cart access, excessive token
 abilities, changed prices, unavailable services, duplicate retries, and

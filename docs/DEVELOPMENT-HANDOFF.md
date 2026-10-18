@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C2.1 verified at 31274f3; C2.2 implemented, CI pending |
-| Implementation | Restricted cart REST/credential commands/Resources/OpenAPI pass full local 266 / 4,929, including real HTTP/Node consumer and durable cross-request throttle. Draft/archive content/prices are withheld. Prior cart domain/category/Next source gates remain qualified. C2.3 UI/handoff/customer notification rendering has not begun. |
+| Active card | C2.1/C2.2 verified; C2.3 handoff and actual controls next |
+| Implementation | API source 8656e31 passes both PHP 8.3.35 database CI jobs: 266 / 4,929 each, audits/build/caches, actual HTTP/Node consumer, narrow credentials and privacy/rate/proof boundaries. Domain/category/Next source gates remain qualified. C2.3 UI/handoff/customer notification rendering has not begun. |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Qualify C2.2 current source on both database/PHP 8.3 CI jobs, resolve any failure and record evidence before C2.3 handoff/UI. Later commercial/privacy decisions remain open. |
+| Next action | Implement C2.3 handoff persistence/atomic consumption, app guest-session/full-cart APIs/UI, Next secure proxy and controls with replacement notice; qualify all source/runtime/browser/security gates before C3. Later commercial/privacy decisions remain open. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | Backend 206 / 1,300 on both database CI jobs/PHP 8.3.35; frontend 129 tests/29 files, type/lint/build/audit and real browser passed; frontend CI passed |
+| Last recorded runtime tests | Backend 266 / 4,929 on each database/PHP 8.3.35 CI; frontend 131 tests/29 files, type/lint/build/audit and actual category browser proof passed at f202534; no cart UI yet |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure

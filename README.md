@@ -11,9 +11,12 @@ persistence; C1.2 adds capability-backed shared actions, locked revision
 allocation, retry safety, and actor/time audit history, verified in isolated
 tests. C1.3 adds administrator catalog management through those actions, including
 read-only history and capability controls. Its local/browser checks and both
-PHP 8.3 SQLite/MySQL CI jobs pass. Public REST catalog endpoints remain next on the roadmap;
-cart, checkout, orders, payments, subscriptions, purchased products, requests,
-and reports remain planned. No real packages are seeded.
+PHP 8.3 SQLite/MySQL CI jobs pass. C1.4 adds safe public catalog endpoints and a
+real Next consumer. Categories, C2.1 persistent carts and C2.2 proof-scoped server
+APIs are verified (266 tests on each database/PHP 8.3 CI). Actual cart controls,
+replacement notification and handoff/full-cart UI are C2.3; checkout, orders,
+payments, subscriptions, purchased products, requests and reports remain planned.
+No real packages are seeded.
 
 ## Responsibility Boundary
 
@@ -57,7 +60,7 @@ keep behavior consistent across panels, APIs, jobs, and webhooks.
 Every customer-facing shop capability receives a versioned API contract even
 when its initial app page uses the shared application service directly.
 
-The API exposes authenticated customer identity at `GET /api/v1/me` through Sanctum and anonymous published catalog reads at `GET /api/v1/products` and `GET /api/v1/products/{public_id}`. Success/error envelopes and synthetic examples are in the [OpenAPI contract](docs/api/openapi.json); pagination, exact string money, field allowlists and ETag revalidation are specified in the [public catalog contract](docs/plans/2026-10-18-public-catalog.md). A persistence-backed [idempotency contract](docs/api/idempotency.md) is ready for future retry-prone authenticated mutations; integration and webhook business endpoints remain absent.
+The API exposes authenticated customer identity at `GET /api/v1/me`, anonymous published catalog reads at `GET /api/v1/products` and `GET /api/v1/products/{public_id}`, and narrow [server cart operations](docs/api/storefront-carts.md) under `/api/v1/storefront/carts`. Success/error envelopes and examples are in [OpenAPI](docs/api/openapi.json); the [public catalog contract](docs/plans/2026-10-18-public-catalog.md) covers exact money, fields and ETags. Cart commands use their own proof-scoped durable receipts and fresh responses. The generic [idempotency boundary](docs/api/idempotency.md) remains available for later authenticated mutations; broad integration and webhook business endpoints remain absent.
 
 ## First Commerce Release
 

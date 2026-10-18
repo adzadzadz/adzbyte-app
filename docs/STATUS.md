@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C2.1 verified; C2.2 restricted REST CI pending)
+**Last updated:** 2026-10-18 (C2.1/C2.2 verified; C2.3 handoff/UI next)
 
 ## Current Stage
 
@@ -32,9 +32,9 @@ and domain guards for dynamic products and price/term versions. C1.2 adds
 capability-backed shared catalog actions, locked revision allocation, persistent
 retry receipts, and actor/time audit history. C1.3 adds protected administrator
 catalog list/create/view/edit pages and explicit revision/lifecycle actions.
-C1.4 public catalog list/detail routes are verified on both supported database engines: explicit safe fields, exact string money, pagination/filtering, named throttling and ETag revalidation. The real Next.js consumer is delivered separately in draft PR #6; its source CI passes. Cart, checkout, order,
+C1.4 public catalog list/detail routes are verified on both supported database engines: explicit safe fields, exact string money, pagination/filtering, named throttling and ETag revalidation. The real Next.js consumer is delivered separately in draft PR #6; its source CI passes. C2.1/C2.2 add persistent carts and proof-scoped server REST operations, including category replacement and durable notice effects. Actual storefront cart controls and app handoff/UI remain C2.3; checkout, order,
 payment, subscription, purchased-product, request, and report records/routes
-remain unimplemented. Catalog/audit migrations have only run in disposable test
+remain unimplemented. Commerce migrations have only run in disposable test
 databases, not the development or production database.
 
 The approved first commerce approach is a narrow native Laravel vertical slice
@@ -85,7 +85,7 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**C2.2 — qualify [restricted cart REST access](plans/2026-10-18-storefront-cart-api.md).** Protected create/resolve/read/add/replace/remove/confirm endpoints, narrow credential commands, safe Resources and OpenAPI are implemented. Full local suite passes 266 / 4,929, including real Bearer authority, ownership/proof/error/rate/privacy boundaries and an actual HTTP/Node consumer. Both supported-engine/PHP 8.3 CI gates remain pending; C2.3 has not begun. The [cart domain](plans/2026-10-18-cart-service.md) is verified at `31274f3` (243 / 1,671 per database), and category/real catalog consumer remain qualified at backend `4859e4e` / frontend `f202534`. Later checkout/payment/support/privacy/subscription inputs remain pending. Actual Next controls, customer notice rendering and handoff/full-cart UI remain unimplemented; C2 aggregate is incomplete.
+**C2.3 — implement [handoff and actual storefront/app controls](plans/2026-10-18-cart-handoff.md).** [Restricted cart REST](plans/2026-10-18-storefront-cart-api.md) is verified at `8656e31`: 266 / 4,929 independently on SQLite/MySQL 8.0.46/PHP 8.3.35 CI, including real HTTP/Node consumer, authority/proof/error/rate/privacy boundaries, audits/build/caches. The [cart domain](plans/2026-10-18-cart-service.md) is verified at `31274f3`, and category/real catalog consumer remain qualified at backend `4859e4e` / frontend `f202534`. Later checkout/payment/support/privacy/subscription inputs remain pending. Actual Next controls, customer notice rendering and handoff/full-cart UI remain unimplemented; C2 aggregate is incomplete.
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
 passed PHP 8.3 CI, including both audits, all 109 tests, production build, and

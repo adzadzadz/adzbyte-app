@@ -163,3 +163,16 @@ The [contract](plans/2026-10-18-cart-service.md) records the correction, source,
 applicability and cleanup. No new HTTP/UI/provider surface exists in C2.1; these
 remain required for C2.2/C2.3. C2 aggregate remains incomplete. No existing
 database or production changed.
+
+## C2.2 restricted cart REST qualification
+
+Source `8656e31` passes [CI 39090091899](https://github.com/adzadzadz/adzbyte-app/actions/runs/39090091899):
+266 tests / 4,929 assertions independently on SQLite/MySQL 8.0.46/PHP 8.3.35,
+both audits, formatting, metadata, production assets and caches. Positive and
+forbidden real Bearer/proof cases, strict input/ownership/UUID/review/privacy,
+600-request service and 120-request cart limits, credential issuance/revocation,
+stateless first-party Origin and a real HTTP/Node/OpenAPI consumer pass. The
+HTTP fixture uses the disposable database cache and proves a persistent 429
+across actual HTTP requests. No new migration, dependency, provider or browser
+UI; existing recovery/concurrency tests still pass. The [contract](plans/2026-10-18-storefront-cart-api.md)
+records proof and cleanup. C2.3 actual controls/notification/transfer remain next.
