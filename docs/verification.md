@@ -176,3 +176,11 @@ HTTP fixture uses the disposable database cache and proves a persistent 429
 across actual HTTP requests. No new migration, dependency, provider or browser
 UI; existing recovery/concurrency tests still pass. The [contract](plans/2026-10-18-storefront-cart-api.md)
 records proof and cleanup. C2.3 actual controls/notification/transfer remain next.
+
+## C2.3 and aggregate C2 qualification
+
+All applicable development gates pass at backend `0c3d606` / frontend `5467e0d`.
+The [evidence record](evidence/2026-10-18-cart/qualification.md) contains PHP 8.3.35
+SQLite/MySQL 292 / 5,200 each, frontend 141 tests/31 files and both CI links,
+16 actual built Next/Laravel desktop/320px checks, migration/concurrency/CSRF/
+privacy/retry proof and cleanup. C3 remains next; deployment is separate.

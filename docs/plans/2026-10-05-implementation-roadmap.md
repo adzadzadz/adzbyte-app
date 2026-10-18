@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1/category prerequisite and C2.1/C2.2 qualified; C2.3 next |
+| Status | C1/category and aggregate C2 qualified; C3 next |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -123,16 +123,20 @@ remain required before the checkout/sales behavior that depends on them.
 ### C2. Anonymous cart and app handoff
 
 - [x] Add anonymous and authenticated carts and cart items (C2.1; attachment/merge is C3).
-- [ ] Implement quantity-one, availability, multi-product/category limits and
-  merge rules with no time-based cart/item expiry; promotions are excluded.
+- [x] Implement quantity-one, availability and multi-product/category limits with
+  no time-based cart/item expiry; promotions excluded. Authenticated merge is C3.
 - [x] Add narrow service-token abilities for Next.js cart mutations (C2.2).
 - [x] Return a server-calculated compact cart summary for `adzbyte-next` (API verified; actual controls are C2.3).
-- [ ] Add a short-lived, single-use signed **View Cart** handoff to the app.
-- [ ] Render the full cart in the customer application before authentication.
-- [ ] Test tampering, replay, expiry, cross-cart access, and concurrent updates.
+- [x] Add a short-lived, single-use signed **View Cart** handoff to the app.
+- [x] Render the full cart in the customer application before authentication.
+- [x] Test tampering, replay, expiry, cross-cart access, and concurrent updates.
 
 **Gate:** Next.js never calculates an authoritative total and a valid cart can
 move to the app without exposing another customer's cart or a privileged token.
+
+C2 development qualified at backend `0c3d606` / frontend `5467e0d`: both source
+CI gates and real integrated desktop/mobile browser proof pass. See
+[qualification](../evidence/2026-10-18-cart/qualification.md). No deployment.
 
 ### C3. Registration and checkout identity
 

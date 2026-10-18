@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-18",
+  "backend": "0c3d606",
+  "frontend": "C2.3 working source",
+  "checks": [
+    "Lost committed response retries the same UUID and preserves the replacement notice",
+    "Committed replacement notice and mixed regular category preserved",
+    "Duplicate service remains quantity one",
+    "Desktop storefront has no document overflow",
+    "Refresh restores persistent cart using encrypted HttpOnly host cookie",
+    "320px storefront has no document overflow",
+    "320px app cart has no document overflow",
+    "Keyboard View Cart consumes token and opens pre-login app cart without fragment",
+    "Real app HTTP mutation rejects missing CSRF",
+    "Native CSRF-protected form confirms current changed price",
+    "Desktop app cart has no document overflow",
+    "Consumed handoff replay fails and clears token from URL",
+    "Availability is revalidated and unavailable service can be removed",
+    "Detail Add shares cart; app removal is reflected in storefront",
+    "Expired transfer shows recovery instruction without expiring saved cart",
+    "Browser requests and loaded client bundles contain no service token/cookie key"
+  ],
+  "pageErrors": [],
+  "unexpectedConsoleErrors": [],
+  "expectedErrors": [
+    "Expired/replayed transfer: HTTP 410",
+    "Deliberately lost committed cart response: net::ERR_FAILED"
+  ],
+  "widths": [
+    1440,
+    320
+  ],
+  "synthetic": true
+}

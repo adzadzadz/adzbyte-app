@@ -1,6 +1,6 @@
 # C2.3 storefront controls and app cart handoff
 
-Status: in progress; C2.1 and C2.2 qualified at 31274f3 / 8656e31 before this
+Status: verified complete at backend 0c3d606 / frontend 5467e0d; C2.1 and C2.2 qualified at 31274f3 / 8656e31 before this
 card began. No deployment or live credentials.
 
 The Next storefront owns Add to Cart and a compact server-returned summary.
@@ -84,8 +84,10 @@ production promotion remains separate. Registration/login merge belongs to C3.
 Local PHP 8.5 suite: 292 tests / 5,200 assertions, including real CSRF tests,
 four-process mint/consume contention, populated migration recovery and issuer
 revocation/key/authority rotation. Pint and production asset build pass.
-PHP 8.3 database CI and actual integrated desktop/mobile browser proof remain
-pending; this card is partial. No C3 implementation has begun.
+Backend source `0c3d606` passes PHP 8.3.35 CI on SQLite and MySQL 8.0.46:
+292 tests / 5,200 assertions each. Actual built Next `5467e0d` + Laravel Chrome
+passes 16 desktop/320px checks, including deliberately losing a committed
+replacement response and retrying its UUID. Frontend [source CI 39092597589](https://github.com/adzadzadz/adzbyte-next/actions/runs/39092597589) passes 141 tests/type/lint/build/audit. All C2 development gates pass; see [qualification](../evidence/2026-10-18-cart/qualification.md). C3 is next.
 
 App sessions use the configured session lifetime; session/browser storage loss
 does not delete or expire persistent cart contents. Guest recovery depends on
