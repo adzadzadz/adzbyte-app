@@ -51,7 +51,10 @@ card, reconcile every required gate and close its outstanding failures.
 
 ## Database regression gates
 
-The default suite uses disposable SQLite. The MySQL configuration runs the same
+The native HTTP contract suite renders production Blade views and requires
+`npm ci` and `npm run build` before `composer test`; both CI jobs build assets
+before running tests. An explicit manifest preflight gives a setup error instead
+of an opaque HTTP 500. The default suite uses disposable SQLite. The MySQL configuration runs the same
 suite against a disposable `adzbyte_test_` database on a loopback test server:
 
 ```sh

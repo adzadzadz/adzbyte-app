@@ -7,11 +7,11 @@
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
 | Active card | O1.3a verified at 770606b / CI 39099527223, 381 / 6,166 each. O1.3b implemented; local 397 / 6,373; final supported-engine CI pending. |
-| Implementation | O1.2 source 538e3ca passes PHP 8.3 SQLite/MySQL CI 39098787766, 364 / 6,019 each, audits/build/cache gates. Actual HTTP/OpenAPI and nine built Next-to-checkout browser checks pass. See [qualification](evidence/2026-10-18-checkout/qualification.md). |
+| Implementation | O1.3b source 5c74a847bf9c2ce755a544829192b8bfb370ef23 is pushed; CI 39101521962 found missing built Vite assets before the native HTTP view test. Both job build steps now precede tests; corrected-source CI is required. Full local 397 / 6,373; fifteen browser checks, actual HTTP/OpenAPI/native form and database-queue/SMTP success/three-attempt failure/recovery pass. See [qualification](evidence/2026-10-18-order-review/qualification.md). |
 | Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. PayMongo test credentials deferred by owner; O2 provider qualification blocked until configured. O3/S2 precise entitlements/refund access still requires definition. |
 | Next action | Qualify current O1.3b source on PHP 8.3 SQLite/MySQL, then record aggregate O1. Fifteen real Chrome checks, actual HTTP/OpenAPI/native validation and database-queue/SMTP success/failure/recovery pass. See [qualification](evidence/2026-10-18-order-review/qualification.md). All private QA fixtures/processes removed. O2 is blocked on owner-deferred test credentials; no provider/production changes. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | Backend 331 / 5,680 each on PHP 8.3.35 SQLite/MySQL 8.0.46 CI 39095546942; Next Node 22.23.3 CI 39096289880, 144 tests/31 files/type/lint/build/audit. Desktop/320px actual browser checks pass. All private QA fixtures/processes removed. |
+| Last recorded runtime tests | Local PHP 8.5.11: 397 / 6,373. O1.3a PHP 8.3 SQLite/MySQL CI 39099527223: 381 / 6,166 each. Next Node 22 CI 39096289880: 144 tests/31 files/type/lint/build/audit; unchanged source 52148d3 used in actual O1 browser journey. Final O1.3b supported CI pending. All private fixtures/processes removed. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -444,3 +444,8 @@ copying their full contents into the session log.
   required. All private QA DB/password/token/key/script/log state, Chrome and
   both servers are removed. No existing DB, provider, release or production
   changed. Intended source delivery: Connect Admin and customer order review.
+
+- Initial O1.3b CI 39101521962 failed the new real native view read because clean
+  CI had no Vite manifest before tests. Added an explicit prerequisite assertion
+  and moved production builds before both suites. All existing audit/build/cache
+  gates are retained. Qualify the correction before aggregate O1 completion.

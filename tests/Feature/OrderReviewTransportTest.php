@@ -39,6 +39,7 @@ class OrderReviewTransportTest extends TestCase
 
     public function test_independent_management_and_customer_review_consumer_uses_actual_sessions_and_csrf(): void
     {
+        $this->assertFileExists(public_path('build/manifest.json'), 'Build production assets before running the native HTTP contract suite (npm ci && npm run build).');
         $customer = User::factory()->create();
         $customer->assignRole('customer');
         $other = User::factory()->create();

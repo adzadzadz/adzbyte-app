@@ -32,10 +32,13 @@ and domain guards for dynamic products and price/term versions. C1.2 adds
 capability-backed shared catalog actions, locked revision allocation, persistent
 retry receipts, and actor/time audit history. C1.3 adds protected administrator
 catalog list/create/view/edit pages and explicit revision/lifecycle actions.
-C1.4 public catalog list/detail routes are verified on both supported database engines: explicit safe fields, exact string money, pagination/filtering, named throttling and ETag revalidation. The real Next.js consumer is delivered separately in draft PR #6; its source CI passes. C2.1/C2.2 add persistent carts and proof-scoped server REST operations, including category replacement and durable notice effects. Actual storefront cart controls and app handoff/UI remain C2.3 (now verified); checkout, order,
-payment, subscription, purchased-service, support-request and report routes
-remain unimplemented; O1.1/O1.2 order snapshots and owned checkout routes are qualified. Commerce migrations have only run in disposable test
-databases, not the development or production database.
+C1 public catalog, C2 carts/category replacement/handoff, and C3 verified ownership
+are qualified with the real Next consumer in draft PR #6. O1.1/O1.2 immutable
+order snapshots and owned checkout are qualified. O1.3 review, communication,
+settings and recoverable notifications are implemented at `5c74a84`, awaiting
+final supported-engine CI 39101521962. Payment, subscription, purchased-service
+and support-case processing remain pending. Commerce migrations have only run
+in disposable test databases, never the existing development or production DB.
 
 The approved first commerce approach is a narrow native Laravel vertical slice
 for fixed-scope, one-time services charged in PHP through PayMongo Hosted
@@ -44,9 +47,9 @@ approval before payment is enabled. Physical goods, inventory, shipping,
 downloads, appointments, variants, promotions, and subscription checkout are
 outside the initial slice. Packages are dynamic administrator-managed records;
 no initial products or amounts are specified or needed for catalog development.
-Tax/receipt treatment, brief and approval rules, enabled payment methods, and
-refund/cancellation behavior still require decisions before the purchasing
-slices that depend on them.
+Tax/receipt, review, payment and fulfillment/support use owner-authorized
+configurable starter defaults. Actual merchant tax/document settings, provider
+methods and sandbox payment/refund outcomes remain qualification requirements.
 
 Generic readiness includes transactionally locked single-use activation,
 after-commit queue dispatch, bounded activation-notification retries, trusted
@@ -57,7 +60,7 @@ decision dependencies are tracked in the roadmap and runbook.
 
 The previously released PHP 8.3-compatible application remains deployed to Hostinger through the machine-managed `deploy` branch. M0 and the root-route change are verified on `main` but require a future explicitly authorized release before production changes from `/account` to `/`.
 
-## In Progress
+## Verified Foundation and Catalog
 
 Development planning is complete. The first target is the Laravel backend,
 versioned REST API, and Filament tools for user/product and later commerce
@@ -78,7 +81,7 @@ image references, add price/terms versions, and explicitly manage publication,
 availability, archival, and restoration. History is read-only, and permissions
 remain independent. See the [management contract](plans/2026-10-18-catalog-management.md).
 C1.4 and B1 are verified complete at backend `9b4bf7b`: 206 tests / 1,300 assertions independently on SQLite/MySQL in PHP 8.3 CI. The Next.js consumer passes local/browser qualification; its source CI passes. See the [public contract](plans/2026-10-18-public-catalog.md). D01 is resolved; D03's basic controls are
-specified; D02 tax/receipt policy remains deferred to checkout/sales. The
+specified; D02 configurable starter tax/receipt rules are implemented; merchant qualification remains a launch gate. The
 [decision register](decisions/commerce-development.md) and
 [development handoff](DEVELOPMENT-HANDOFF.md) preserve the remaining rules and
 resume checkpoint. Frontend integration and production release remain separate.
@@ -110,8 +113,7 @@ See [qualification](evidence/2026-10-18-ownership/qualification.md). Private QA
 fixtures and processes are removed; no deployment or existing DB migration.
 D02/D05/D08 now use owner-authorized configurable defaults; see the
 [decision register](decisions/commerce-development.md). Admin approval favors
-clarification/conversation; no time-based cart expiry. O1 must implement verified
-ownership before order creation. Payments, fulfillment/support and launch remain
+clarification/conversation; no time-based cart expiry. O1 enforces verified ownership before order creation. Payments, fulfillment/support and launch remain
 pending; D06/D07 configurable defaults are authorized; PayMongo test credentials are deferred by the owner. Frontend remains
 in draft PR #6, with original frontend changes preserved.
 
@@ -126,7 +128,7 @@ C1.3 source `7d43b13` passes both database CI jobs; C1.4/B1 and real Next.js sou
 
 C1 development and B1 are verified at the backend and frontend revisions below.
 Frontend source remains in a draft PR; source promotion/deployment is separate.
-C2 onward are incomplete and gated by unanswered owner decisions.
+At that historical checkpoint, C2 onward were incomplete. Current progress is recorded above.
 
 - C1.4/B1 backend: `9b4bf7bac89c95ccc7929dd44b01e66444a93d0c` passes
   [CI 39055675151](https://github.com/adzadzadz/adzbyte-app/actions/runs/39055675151):

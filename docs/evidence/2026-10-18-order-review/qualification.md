@@ -36,3 +36,13 @@ O2 requires owner-configured PayMongo test credentials and actual sandbox proof;
 the owner deferred those credentials. O3/S2 precise entitlements/refund access
 and launch merchant/legal configuration remain later decisions, not completed
 by the configurable starter defaults.
+
+## CI setup correction
+
+Initial adapter source 5c74a84 / CI 39101521962 failed the native HTTP view
+read with HTTP 500 on a clean checkout: both CI jobs ran tests before production
+Vite assets existed. Local qualification had built assets. The required native
+HTTP consumer now asserts manifest availability explicitly. Both jobs install
+and build assets before the suite; audits, formatting, full database suites and
+production-cache checks remain required. No application behavior or audit gate
+was bypassed. The corrected source must pass fresh CI before O1 completion.

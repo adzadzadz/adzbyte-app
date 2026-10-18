@@ -143,8 +143,13 @@ role assignments are never accepted from public application input.
 Run the test suite with:
 
 ```bash
+npm ci
+npm run build
 composer test
 ```
+
+The native HTTP contract tests render built Blade pages and require the Vite
+manifest. Both CI database jobs build assets before the suite.
 
 ## CI and Deployment
 
