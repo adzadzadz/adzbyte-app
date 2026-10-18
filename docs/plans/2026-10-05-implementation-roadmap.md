@@ -312,3 +312,8 @@ Source8f13521 / [CI 39114275120](https://github.com/adzadzadz/adzbyte-app/action
 ## O2.2 qualified checkpoint — 2026-10-18
 
 Source7560514 / [CI39116369733](https://github.com/adzadzadz/adzbyte-app/actions/runs/39116369733), **477 / 6,908 per engine**, PHP8.3.35 SQLite/MySQL8.0.46. Actual signed test payment, provider delivery Success, duplicate settlement safety, native paid UI, independent review and all source gates pass. [Evidence](../evidence/2026-10-18-payments/webhook-qualification.md). O2.3 operations/refunds is next; O2 aggregate remains incomplete.
+
+
+## O2.3a qualified checkpoint — 2026-10-18
+
+Source28a0f86 / [CI39123794458](https://github.com/adzadzadz/adzbyte-app/actions/runs/39123794458), **505 /7,164 per engine**, PHP8.3.35 SQLite/MySQL8.0.46; audits/source/cache gates pass. Actual preserved signed test receipt recovered through Admin with one settlement/resolution and unchanged original rejection. Native/REST/OpenAPI, independent review, migration and process races pass. [Evidence](../evidence/2026-10-18-payments/reconciliation-qualification.md). O2.3b expiry/cancellation is next; O2.3c refunds and aggregate O2 remain incomplete.

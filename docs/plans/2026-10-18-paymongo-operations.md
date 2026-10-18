@@ -80,3 +80,37 @@ uses the shared action and hides reconciliation when no eligible receipt remains
 No generic payment/history editing, creation or deletion routes exist.
 
 [O2.3a evidence](../evidence/2026-10-18-payments/reconciliation-qualification.md).
+
+## O2.3b planned acceptance boundary
+
+Before implementation, retain these invariants from the verified provider
+contract ([session lifecycle](https://docs.paymongo.com/docs/payment-channels-key-concepts),
+[expiry API](https://docs.paymongo.com/reference/expire-a-checkout-session)):
+
+- Only a matching confirmed expired session retires the captured attempt and
+  clears its order pointer. QR expiry, elapsed time, cancellation redirect and
+  an ambiguous HTTP result are insufficient. Paid/pending/processing evidence
+  blocks cancellation/replacement and requires its authoritative outcome.
+- Customer cancellation is owned, explicit, revision/UUID guarded and allowed
+  before payment under the captured configurable policy. Unpaid requests can
+  cancel locally; a reserved provider attempt must first close safely. Admin
+  expiry and unknown-session recovery require separate exact capabilities.
+- Reserve/audit the command before outbound work. Run provider HTTP outside
+  locks, with no automatic POST retry, then reauthorize/recheck under order and
+  attempt locks. A competing paid webhook wins; cancellation cannot overwrite it.
+- Hide payable continuation while closure is unresolved. Preserve the original
+  command and session history. A named GET-only verification can finish an
+  expiry that succeeded at the provider but failed to commit locally. An
+  explicit later Admin expiry command can act only after fresh matching state;
+  never clear a pointer merely to make another checkout possible.
+- Unknown creation without a captured session identity stays protected. Any
+  Admin-supplied recovery ID must pass full provider/captured commercial proof
+  before binding; it cannot mark paid from GET alone or bypass signed receipts.
+- New configurable cancellation settings are versioned and captured. Existing
+  policy snapshots remain immutable, with an explicitly fixed legacy default
+  corresponding to the owner's approved starter rule. Later settings changes
+  must not silently rewrite accepted requests.
+- Verify actual provider creation/expiry/readback in synthetic test mode,
+  provider-success/local-failure recovery, paid/processing races, owned native
+  and REST commands, permission revocation, four-process conflicts, migrations,
+  and supported PHP8.3 SQLite/MySQL before qualification.

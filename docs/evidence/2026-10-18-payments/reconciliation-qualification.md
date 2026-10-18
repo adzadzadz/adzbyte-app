@@ -1,7 +1,7 @@
 # O2.3a audited signed-receipt reconciliation
 
 2026-10-18. Local, independent, actual-provider and native gates pass.
-Current-source PHP8.3 SQLite/MySQL CI remains pending delivery. Aggregate O2.3,
+Qualified source`28a0f865d27490775cc4706feb43a1d34e0d72a3` / [CI39123794458](https://github.com/adzadzadz/adzbyte-app/actions/runs/39123794458) passes **505 tests /7,164 assertions per engine**, PHP8.3.35 SQLite/MySQL8.0.46. Both audits zero; metadata/format/build/production caches pass. Remote main matches qualified source. Aggregate O2.3,
 refunds, expiry/cancellation, purchased access and production remain incomplete.
 [Contract](../../plans/2026-10-18-paymongo-operations.md).
 
@@ -66,5 +66,4 @@ state/callback/credential files until that work finishes, then disable only the
 dedicated test hook and remove temporary secrets/raw captures/processes. Persistent
 owner-requested credential archives remain ignored mode0600.
 
-No refund/access/fulfillment outcome is inferred from this card. Next gate is
-supported PHP8.3 SQLite/MySQL CI; then O2.3b provider expiry/cancellation recovery.
+No refund/access/fulfillment outcome is inferred from this card. O2.3a is qualified. Next: O2.3b provider expiry/cancellation recovery.

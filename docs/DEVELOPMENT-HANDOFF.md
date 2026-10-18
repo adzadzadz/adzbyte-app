@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | O2.3a reconciliation final delivery pending; local505 /7,164, actual preserved signed payment recovery and desktop/320px pass. O2.2 qualified7560514 / CI39116369733 |
+| Active card | O2.3b expiry/cancellation starting; O2.3a qualified28a0f86 / CI39123794458, 505 /7,164 per PHP8.3.35 SQLite/MySQL8.0.46 engine; actual/native and independent gates pass |
 | Implementation | f128d5cdcd7f963fa60d5a29cf2f22d44c567286 / CI 39103121139 passes PHP 8.3.35 SQLite/MySQL 8.0.46, 401 / 6,427 each, both audits/build/cache gates. Four review findings fixed and five transaction retry copies consolidated; independent approval and actual HTTP/privacy proof recorded in [review qualification](evidence/2026-10-18-laravel-review/qualification.md). O1 integrated browser evidence remains at its recorded e27fefa revision. |
 | Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. Saved test credentials are authorized and actual QRPh test session creation/replay/expiry passes. D07 refund/access defaults approved; support attachments deferred for Drive links. Dedicated test webhook, actual payment/callback/refund outcomes and Q launch settings remain qualification inputs. |
-| Next action | Deliver O2.3a and qualify current PHP8.3 SQLite/MySQL CI; then O2.3b expiry/cancellation recovery, O2.3c refunds/disputes, followed by O3/S2 and R1/Q |
+| Next action | Implement/fully qualify O2.3b expiry/cancellation recovery, then O2.3c refunds/disputes, followed by O3/S2 and R1/Q |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | Current O2.2 local PHP8.5.11 SQLite477 /6,908; Pint/metadata/build/whitespace pass. [Actual test callback and native paid UI](evidence/2026-10-18-payments/webhook-qualification.md) pass. O2.1 source8f13521 CI39114275120 remains436 /6,688 each PHP8.3.35 SQLite/MySQL8.0.46. |
+| Last recorded runtime tests | O2.3a source28a0f86 / [CI39123794458](https://github.com/adzadzadz/adzbyte-app/actions/runs/39123794458) passes505 /7,164 each PHP8.3.35 SQLite/MySQL8.0.46; all audits/source/cache gates pass. Local PHP8.5.11 full505 /7,164, actual preserved signed-payment Admin reconciliation, desktop1470/mobile320 and independent review pass. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -51,7 +51,7 @@ Replace the current checkpoint with concrete values as work proceeds:
 | Runtime | Any local process started and whether stopped; temporary fixtures/accounts and cleanup state |
 | Git | Branch and commit(s), dirty state, push result, CI URL/result or not checked |
 | Deployment | Source/deploy commits if relevant; explicit statement whether release/production changed |
-| Next action | Deliver O2.3a and qualify current PHP8.3 SQLite/MySQL CI; then O2.3b expiry/cancellation recovery, O2.3c refunds/disputes, followed by O3/S2 and R1/Q |
+| Next action | Implement/fully qualify O2.3b expiry/cancellation recovery, then O2.3c refunds/disputes, followed by O3/S2 and R1/Q |
 
 Update after a completed card, before switching tasks, before a risky operation,
 and before stopping. For abrupt interruption, reconstruct missing evidence from
@@ -71,7 +71,7 @@ copying their full contents into the session log.
 - Shared exact-capability Admin/REST reads and fresh-provider/signed-receipt reconciliation; original rejected receipt retained, immutable actor/UUID resolution and one settlement atomically committed. No manual paid override or provider POST. [Contract](plans/2026-10-18-paymongo-operations.md).
 - Reviewer found paid-with-refund/dispute ambiguity and cross-action Admin UUID conflict; current GET requires explicit false/empty refunds and conflicts deny409 before GET. Native browser found numeric route generation; Laravel public route key corrected with regression.
 - Actual preserved eventevt_q8HBA6ZmirecamrEGPmrPodm/paymentpay_PYHgGkTio373Bm8z9fYGVEcN nowpaid/rev4, one settlement and one resolution; original raw receipt hash unchanged. Two distinct test payments now each have one settlement. No re-payment, refund or live action.
-- Final local505 /7,164; Pint/metadata/build/whitespace, four-process races, migration and actual HTTP/OpenAPI/session/CSRF pass; desktop1470/mobile320 without overflow/console warnings. [Evidence](evidence/2026-10-18-payments/reconciliation-qualification.md). Final source CI pending.
+- Final local505 /7,164; Pint/metadata/build/whitespace, four-process races, migration and actual HTTP/OpenAPI/session/CSRF pass; desktop1470/mobile320 without overflow/console warnings. [Evidence](evidence/2026-10-18-payments/reconciliation-qualification.md). Source28a0f86 / CI39123794458 nowpasses PHP8.3.35 SQLite/MySQL8.0.46, 505 /7,164 each; all source gates pass.
 - Private reconciliation UI exec65923/59861 stopped after capture. Ingress exec94883/59860 and tunnel exec27148 remain for next sandbox card. Private state /private/tmp/adzbyte-paymongo-webhook-state.json nowincludes reconciliation identity/hash; private env and first rejected raw callback retained for refund/cleanup. Do not blindly repeat payment or resolution.
 
 ### 2026-10-18 — O2.2 local and actual-provider verification
