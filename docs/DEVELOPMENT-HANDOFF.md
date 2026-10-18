@@ -6,10 +6,10 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | Category prerequisite partial before C2; owner cart rules recorded |
-| Implementation | Category schema/actions/admin and compatible opt-in API implemented; full local suite 221 / 1,447 passed; new browser/consumer/PHP 8.3 CI gates pending. Prior C1 remains qualified at 9b4bf7b / frontend 805c003. |
+| Active card | Category prerequisite verified; C2.1 persistent cart service next |
+| Implementation | Category source 4859e4e passes both database CI jobs/PHP 8.3.35 (221 / 1,447 each); Next source f202534 passes CI (131 tests/29 files) and actual desktop/mobile browser consumer proof. Category admin/assignment/denials pass real browser checks. Cart enforcement remains unimplemented. |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Finish category browser and real Next consumer checks, then both database PHP 8.3 CI gates before C2. Different-service selection behavior remains a pending question; later commercial and privacy decisions remain open. |
+| Next action | Implement C2.1 against its recorded contract, including persistent quantity-one lines, scoped authority, exact totals, category constraints, availability/repricing and retries; qualify both engines before C2.2. Later commercial/privacy decisions remain open. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | Backend 206 / 1,300 on both database CI jobs/PHP 8.3.35; frontend 129 tests/29 files, type/lint/build/audit and real browser passed; frontend CI passed |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |

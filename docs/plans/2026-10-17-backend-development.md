@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1 development/B1 qualified across both source revisions; C2 gated by D04 |
+| Status | C1 development/B1 and category prerequisite qualified; C2.1 next |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -158,7 +158,7 @@ HTTP/Node consumer. Backend `9b4bf7b` passes [both database CI jobs](https://git
 [public contract](2026-10-18-public-catalog.md) records the MySQL JSON correction
 and pre-boot fixture isolation. Actual Next.js consumer `805c003` passes local
 129-test/type/lint/build/audit and browser checks in [draft PR #6](https://github.com/adzadzadz/adzbyte-next/pull/6);
-its [source CI gate passes](https://github.com/adzadzadz/adzbyte-next/actions/runs/39056186126). Cart policy D04 is still unanswered.
+its [source CI gate passes](https://github.com/adzadzadz/adzbyte-next/actions/runs/39056186126). D04 rules are recorded; the [category prerequisite](2026-10-18-category-cart-controls.md) precedes C2.
 
 ### C2 — Carts and secure storefront handoff
 
@@ -166,8 +166,9 @@ its [source CI gate passes](https://github.com/adzadzadz/adzbyte-next/actions/ru
 staff inspection only if an approved support need exists.
 
 1. **C2.1 — Cart service.** Add anonymous/customer carts, server-calculated
-   quantity-one lines, availability/price revalidation, expiry, and approved
-   multi-service behavior. Never accept client totals or arbitrary owners.
+   quantity-one lines, availability/price revalidation, no time-based cart/item
+   expiry, and approved multi-service/category behavior. Never accept client
+   totals or arbitrary owners. See the [service contract](2026-10-18-cart-service.md).
 2. **C2.2 — Restricted REST access.** Add revocable server credentials scoped to
    cart/summary/handoff operations. Bind each request to its cart authority;
    possession of the Next.js service token alone must not expose all carts.

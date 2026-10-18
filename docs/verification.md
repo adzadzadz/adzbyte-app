@@ -136,3 +136,16 @@ applicability and cleanup. This qualifies development source across both repos.
 Frontend promotion and production deployment remain separately authorized; no
 existing database or production catalog was changed. C2 onward remain incomplete
 until their explicit business inputs and own verification gates pass.
+
+## Category prerequisite qualification
+
+Category source `4859e4e` passes [both database PHP 8.3.35 CI jobs](https://github.com/adzadzadz/adzbyte-app/actions/runs/39087894642):
+221 tests / 1,447 assertions on each engine, including populated category
+upgrade/reversal, four-process duplicate creates, domain/policy/admin and real
+HTTP/OpenAPI compatibility. Formatting/metadata/audits/build/caches pass.
+Actual category admin create/toggle/assignment, validation/history/denial and
+1440/320px checks pass. Next source `f202534` passes [source CI](https://github.com/adzadzadz/adzbyte-next/actions/runs/39088192681),
+131 tests/29 files, type/lint/audit/build and real category read/toggle propagation
+at both browser widths without unexpected page/console errors. The [contract](plans/2026-10-18-category-cart-controls.md)
+records artifacts, synthetic environment and cleanup. C2 enforcement is separate
+and remains next; no existing database migration or deployment occurred.

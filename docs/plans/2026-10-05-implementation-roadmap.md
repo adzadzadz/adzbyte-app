@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1 development/B1 qualified; category prerequisite in progress before C2 |
+| Status | C1 development/B1 and category prerequisite qualified; C2.1 next |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -108,7 +108,7 @@ C1.4/B1 backend qualification: source `9b4bf7b`, [CI 39055675151](https://github
 remain intact; accepted order snapshots belong to O1. Actual Next.js consumer
 source `805c003` is locally/browser verified in [draft PR #6](https://github.com/adzadzadz/adzbyte-next/pull/6),
 with [source CI passing](https://github.com/adzadzadz/adzbyte-next/actions/runs/39056186126). See the [public contract](2026-10-18-public-catalog.md).
-C2 follows the [category prerequisite](2026-10-18-category-cart-controls.md). Owner-approved D04 rules are recorded; different-service selection behavior is being clarified.
+C2 follows the verified [category prerequisite](2026-10-18-category-cart-controls.md), backend 4859e4e / frontend f202534 with both source CI gates green. Owner-approved D04 rules are recorded; conflicting adds preserve the existing selection and require removal first.
 
 **Gate:** Laravel can publish a product, `adzbyte-next` can render only its safe
 public representation, and an administrator can change future catalog state

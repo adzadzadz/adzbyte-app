@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (category prerequisite in progress before C2)
+**Last updated:** 2026-10-18 (category prerequisite verified; C2.1 next)
 
 ## Current Stage
 
@@ -85,7 +85,7 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Verify the [category prerequisite](plans/2026-10-18-category-cart-controls.md) before C2.** The owner approved multiple services, quantity one, a category toggle limiting that category to one service, and no time-based cart/item expiry. Recommended current-price review, deduplicating merge with explicit conflict resolution, and 60-second single-use handoff are recorded in the [decision register](decisions/commerce-development.md). The handoff link's expiry does not expire the cart. Different-service selection behavior is being clarified. Category implementation is partial: local full suite passes 221 tests / 1,447 assertions; browser, real consumer and both PHP 8.3 CI gates are pending. Later checkout/payment/support/privacy/subscription inputs remain pending.
+**C2.1 — implement the [persistent cart service](plans/2026-10-18-cart-service.md).** The [category prerequisite](plans/2026-10-18-category-cart-controls.md) is verified at backend `4859e4e` and frontend `f202534`, with green source CI for both. Backend: 221 tests / 1,447 assertions on each engine/PHP 8.3.35. Frontend: 131 tests/29 files, type/lint/build/audit; actual desktop/mobile consumer and admin browser proof pass. Owner approved multiple services, quantity one, a category toggle limiting that category to one service, and no time-based cart/item expiry. Current-price review, duplicate-safe merge, and 60-second single-use transfer links are recorded in the [decision register](decisions/commerce-development.md). Conflicting adds preserve the current selection and prompt removal first. Later checkout/payment/support/privacy/subscription inputs remain pending. Category source does not yet enforce a cart rule; C2 remains unimplemented.
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
 passed PHP 8.3 CI, including both audits, all 109 tests, production build, and
