@@ -7,6 +7,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\View\PanelsRenderHook;
@@ -29,6 +30,9 @@ class AccountPanelProvider extends PanelProvider
             ->emailVerification()
             ->emailChangeVerification()
             ->profile()
+            ->navigationItems([
+                NavigationItem::make('Cart')->url(fn () => route('cart.show'))->icon('heroicon-o-shopping-cart')->sort(2),
+            ])
             ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => view('auth.registration-link'))
             ->discoverResources(in: app_path('Filament/Account/Resources'), for: 'App\Filament\Account\Resources')
             ->discoverPages(in: app_path('Filament/Account/Pages'), for: 'App\Filament\Account\Pages')

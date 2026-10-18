@@ -78,3 +78,30 @@ test databases. Supported PHP 8.3 SQLite/MySQL source CI is pending.
 No ownership/session/login adapters, safe merge Resource/REST/UI, Next retirement
 continuation or integrated B2 journey have been implemented yet. C3.2 remains
 partial. Continue within this card; do not begin O1 or claim C3/B2 complete.
+
+## Adapter checkpoint (partial, before integrated B2 proof)
+
+Domain `0719fb4` passed PHP 8.3.35 CI 39094211348: 316 / 5,483 on each engine.
+Current source adds verified owned-session access, login/activation/verification
+attachment, explicit native/API merge controls, account Cart navigation, owned
+recovery across logout/password reset/stale guest sessions, and static proof-
+scoped retirement REST. Owner/guest/receipt queries are scoped independently of
+staff Gate overrides. Source receipts bind source reference; target history
+never authorizes retirement or source replay. A negative regression prevents
+incoming proofs from probing target-cart future merge activity.
+
+Local complete backend suite: **330 / 5,679** before the additional independent
+Node schema unit; that unit and actual catalog/cart HTTP consumers also pass.
+Pint/whitespace and asset build pass. The test-only Livewire harness explicitly
+attaches its real test session because Livewire unit requests disable middleware;
+real HTTP/browser CSRF remains enabled and required.
+
+Next working source passes **144 tests/31 files**, type/lint/build. A confirmed
+retirement rotates to a fresh guest proof/UUID, retains only a coarse encrypted
+account-history hint, labels new selections and links to the app account cart.
+Missing/unconfirmed authority never resets silently; pending create recovery is
+also covered. No owned cart read/write is delegated to Next or WordPress identity.
+
+Current adapter source CI, current Next source CI and the complete real built
+registration/login/reset/merge/new-browser B2 journey remain pending. C3.2 and
+aggregate C3/B2 are incomplete; O1 remains gated by owner decisions.

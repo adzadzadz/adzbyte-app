@@ -1255,7 +1255,7 @@
             "get": {
                 "operationId": "readAppSessionCart",
                 "summary": "Read the current app session cart",
-                "description": "Authority comes only from the trusted server session established by a consumed transfer. No owner/cart selector/proof header is accepted as replacement authority. GET/HEAD are bodyless; mutations require JSON, exact configured Origin and CSRF. 120 requests/minute per app IP.",
+                "description": "Trusted guest session or fresh verified customer session linked to the active owned cart. Same safe Cart Resource; no caller-selected owner/cart/hash. Logout/identity or role/verification changes revoke owned session access. Cart contents have no time-based expiry.",
                 "security": [
                     {
                         "appCartSession": []
@@ -1690,6 +1690,285 @@
                     }
                 }
             }
+        },
+        "/api/v1/cart/merge": {
+            "get": {
+                "tags": [
+                    "Cart"
+                ],
+                "operationId": "previewCustomerCartMerge",
+                "summary": "Preview incoming and active account carts plus required category choices",
+                "description": "Verified customer web session plus trusted guest session context required. No cart/user selectors, guest proofs or bearer-only fallback. Draft content/category details are redacted. Re-read after a stale fingerprint or intervening selection/catalog change.",
+                "security": [
+                    {
+                        "appCartSession": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Private no-store current preview; no mutation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartMergeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Origin does not match APP_URL.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No app cart exists in this trusted session scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unknown/invalid input or stale offer/operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "409": {
+                        "description": "Previous issuance expired, was consumed/pruned or its binding changed; request a new operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cart/attach": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "operationId": "attachCustomerCart",
+                "summary": "Claim or explicitly merge the trusted guest cart into the verified account",
+                "description": "Fresh verified customer, exact app Origin, web session, real CSRF, UUID and current keyed preview fingerprint. Restricted-category conflicts require customer choices; regular items survive and duplicate products remain quantity one. Existing quoted versions are preserved for current-offer review. Receipt binds source, guest authority, actor, UUID, state and choices. Original guest proof/links are revoked; authorized retry returns current active account cart. No expiry, payable order or payment is created. Login/activation automatically claim only nonconflicting selections; conflicts resume this workflow.",
+                "security": [
+                    {
+                        "appCartSession": [],
+                        "appCsrf": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Origin",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        },
+                        "description": "Same durable per-cart UUID only for an identical command. Never reuse an issuance UUID for another operation."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CartAttachRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Private safe fresh cart, same projection as storefront REST.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Origin does not match APP_URL.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No app cart exists in this trusted session scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "The app CSRF/session token is missing or invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unknown/invalid input or stale offer/operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "409": {
+                        "description": "Previous issuance expired, was consumed/pruned or its binding changed; request a new operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/storefront/carts/retired": {
+            "get": {
+                "operationId": "acknowledgeRetiredGuestCart",
+                "summary": "Acknowledge only that this guest source was claimed or merged",
+                "description": "Requires narrow service cart:read plus original X-Cart-Proof and creation UUID. Returns only a static retired=true, never owner, target, contents, timing or future account activity. Unknown/unclaimed/wrong proof returns 404. Incoming proof cannot probe target cart receipts. Next may rotate to a new guest context only after this acknowledgement; it never retains anonymous access to owned records.",
+                "security": [
+                    {
+                        "storefrontBearer": [],
+                        "cartProof": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "creation_operation_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Private no-store static acknowledgement",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartRetiredResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "retired": true
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Service identity, token type or ability is forbidden.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cart/product/creation operation does not exist in this proof scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid request, proof, current offer or command reuse; no-store.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1720,7 +1999,7 @@
                 "type": "apiKey",
                 "in": "cookie",
                 "name": "adzbyte-session",
-                "description": "Laravel web session initialized by the transfer landing page. Cart read/mutation additionally requires a grant from a valid consumed handoff. Cookie name is configurable via SESSION_COOKIE."
+                "description": "Laravel server web session. Guest context comes only from valid handoff consumption; owned context requires a fresh verified customer identity and active-cart link. Registration/landing may initialize a session before a cart grant. Cookie name is configurable via SESSION_COOKIE."
             },
             "appCsrf": {
                 "type": "apiKey",
@@ -2646,6 +2925,174 @@
                         "additionalProperties": false,
                         "properties": {
                             "api_version": {
+                                "const": "v1"
+                            }
+                        }
+                    }
+                }
+            },
+            "CartMergePreview": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "fingerprint",
+                    "incoming",
+                    "saved",
+                    "conflicts"
+                ],
+                "properties": {
+                    "fingerprint": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$",
+                        "description": "Opaque keyed current-state fingerprint. Re-read after HTTP 409; never a cart authority token."
+                    },
+                    "incoming": {
+                        "$ref": "#/components/schemas/Cart"
+                    },
+                    "saved": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Cart"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "conflicts": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "key",
+                                "category",
+                                "products"
+                            ],
+                            "properties": {
+                                "key": {
+                                    "type": "string",
+                                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                                },
+                                "category": {
+                                    "type": "string"
+                                },
+                                "products": {
+                                    "type": "array",
+                                    "minItems": 2,
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "required": [
+                                            "public_id",
+                                            "name"
+                                        ],
+                                        "properties": {
+                                            "public_id": {
+                                                "type": "string",
+                                                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "CartMergeResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/CartMergePreview"
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "type": "string",
+                                "const": "v1"
+                            }
+                        }
+                    }
+                }
+            },
+            "CartAttachRequest": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "fingerprint",
+                    "choices"
+                ],
+                "properties": {
+                    "fingerprint": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "choices": {
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "propertyNames": {
+                                    "type": "string",
+                                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                                },
+                                "additionalProperties": {
+                                    "type": "string",
+                                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                                }
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            }
+                        ],
+                        "description": "Exactly one group-key -> selected product ULID per current conflict, no extra groups. Empty object/array when no conflicts. Source and owner come only from trusted session; no cart/user/proof fields accepted."
+                    }
+                }
+            },
+            "CartRetiredResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "retired"
+                        ],
+                        "properties": {
+                            "retired": {
+                                "type": "boolean",
+                                "const": true
+                            }
+                        }
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "type": "string",
                                 "const": "v1"
                             }
                         }

@@ -2,12 +2,14 @@
 
 namespace Tests\Feature\Api;
 
+use App\Actions\Carts\CartActions;
 use App\Actions\Catalog\CatalogActions;
 use App\Enums\UserRole;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\User;
+use App\Services\Carts\CartPrincipal;
 use App\Services\Carts\StorefrontCredential;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -96,6 +98,31 @@ class StorefrontCartTest extends TestCase
         $this->api('POST', $path, [], ['Idempotency-Key' => (string) Str::uuid()])->assertCreated();
         $this->assertDatabaseCount('cart_handoffs', 2);
         $this->assertDatabaseCount('carts', 1);
+    }
+
+    public function test_retirement_acknowledgement_never_exposes_owned_cart_or_future_activity(): void
+    {
+        $creation = (string) Str::uuid();
+        $source = $this->api('POST', '/api/v1/storefront/carts', [], ['Idempotency-Key' => $creation])->assertCreated()->json('data.public_id');
+        $path = '/api/v1/storefront/carts/retired?creation_operation_id='.$creation;
+        $this->api('GET', $path)->assertNotFound();
+        $actor = User::factory()->create();
+        $actor->assignRole(UserRole::Customer->value);
+        $guest = CartPrincipal::guest($this->proof);
+        $actions = app(CartActions::class);
+        $state = $actions->mergePreview($actor, $guest, $source);
+        $actions->attach($actor, $guest, $source, (string) Str::uuid(), $state['fingerprint']);
+        $expected = ['data' => ['retired' => true], 'meta' => ['api_version' => 'v1']];
+        $this->api('GET', '/api/v1/storefront/carts/'.$source)->assertNotFound();
+        $this->api('GET', $path)->assertOk()->assertExactJson($expected)->assertHeader('Cache-Control', 'no-store, private');
+        $this->api('GET', $path, [], ['X-Cart-Proof' => bin2hex(random_bytes(32))])->assertNotFound();
+        $this->api('GET', $path.'&owner='.$actor->id)->assertUnprocessable();
+        $this->api('GET', '/api/v1/storefront/carts/retired?creation_operation_id='.Str::uuid())->assertNotFound();
+        $actions->add(CartPrincipal::customer($actor), $source, $this->offer()->public_id, (string) Str::uuid());
+        $this->api('GET', $path)->assertOk()->assertExactJson($expected);
+        $this->api('HEAD', $path)->assertOk()->assertContent('');
+        $token = $this->service->createToken('read-only', ['cart:read'])->plainTextToken;
+        $this->api('GET', $path, [], ['Authorization' => 'Bearer '.$token])->assertOk()->assertExactJson($expected);
     }
 
     #[DataProvider('badAbilities')]

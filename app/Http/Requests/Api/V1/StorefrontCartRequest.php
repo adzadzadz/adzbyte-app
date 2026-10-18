@@ -31,15 +31,16 @@ class StorefrontCartRequest extends FormRequest
         $bodyFields = match ($method) {
             'add' => ['product'], 'confirm' => ['versions'], default => []
         };
+        $creationQuery = in_array($method, ['resolve', 'retired'], true);
 
         return [
             'body' => ['present', $bodyFields === [] ? 'array' : 'array:'.implode(',', $bodyFields), ...$bodyFields === [] ? ['size:0'] : []],
-            'query' => ['present', $method === 'resolve' ? 'array:creation_operation_id' : 'array', ...$method !== 'resolve' ? ['size:0'] : []],
+            'query' => ['present', $creationQuery ? 'array:creation_operation_id' : 'array', ...! $creationQuery ? ['size:0'] : []],
             ...$this->requiresProof ? ['proof' => ['required', 'string', 'regex:/^[a-f0-9]{64}$/D']] : [],
             ...! $this->isRead() ? ['operation_id' => ['required', 'uuid']] : [],
             ...$method === 'add' ? ['body.product' => ['required', 'ulid']] : [],
             ...$method === 'confirm' ? ['body.versions' => ['required', 'array']] : [],
-            ...$method === 'resolve' ? ['query.creation_operation_id' => ['required', 'uuid']] : [],
+            ...$creationQuery ? ['query.creation_operation_id' => ['required', 'uuid']] : [],
         ];
     }
 

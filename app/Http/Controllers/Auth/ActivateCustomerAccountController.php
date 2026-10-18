@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ActivateCustomerAccountRequest;
 use App\Models\User;
+use App\Services\Carts\CartSession;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -40,6 +41,6 @@ class ActivateCustomerAccountController extends Controller
         Auth::guard('web')->login($user);
         $request->session()->regenerate();
 
-        return redirect('/')->with('status', 'Your account is active.');
+        return redirect(app(CartSession::class)->hasContext($request->session()) ? '/cart' : '/')->with('status', 'Your account is active.');
     }
 }

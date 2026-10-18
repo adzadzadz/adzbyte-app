@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Cart;
 
 use App\Actions\Carts\CartActions;
+use App\Enums\UserRole;
+use App\Http\Resources\Api\V1\CartMergeResource;
 use App\Http\Resources\Api\V1\CartResource;
 use App\Services\Carts\CartSession;
 use App\Services\Carts\CommerceOrigins;
@@ -17,18 +19,39 @@ final class CartPageController
     public function show(Request $request, CartActions $actions, CartSession $context): Response
     {
         $cart = null;
+        $owned = false;
         try {
+            $actor = $request->user()?->fresh();
+            if ($actor?->hasVerifiedEmail() && $actor->hasRole(UserRole::Customer->value)) {
+                if ($context->hasGuest($request->session())) {
+                    $guest = $context->claimContext($request->session());
+                    $preview = $actions->mergePreview($actor, $guest['principal'], $guest['reference']);
+
+                    return response()->view('cart.merge', ['preview' => (new CartMergeResource($preview))->resolve($request)])
+                        ->header('Cache-Control', 'no-store, private');
+                }
+                if (! $context->hasContext($request->session()) && ($saved = $actions->owned($actor)) !== null) {
+                    $context->saveOwned($request->session(), $actor, $saved['public_id']);
+                }
+            }
             $snapshot = $actions->read($context->principal($request->session()), $context->reference($request->session()));
+            $owned = $context->principal($request->session())->actor() !== null;
             $cart = (new CartResource($snapshot))->resolve($request);
-        } catch (ModelNotFoundException) {
-            // Missing/rotated guest authority never selects another cart.
-        } catch (HttpException $exception) {
-            if ($exception->getStatusCode() !== 404) {
+        } catch (ModelNotFoundException|HttpException $exception) {
+            if ($exception instanceof HttpException && $exception->getStatusCode() !== 404) {
                 throw $exception;
+            }
+            if (isset($actor) && $actor->hasVerifiedEmail() && $actor->hasRole(UserRole::Customer->value) && $context->hasGuest($request->session())) {
+                $context->afterAuthentication($request->session(), $actor, $actions);
+                if ($context->hasContext($request->session()) && ! $context->hasGuest($request->session())) {
+                    $snapshot = $actions->read($context->principal($request->session()), $context->reference($request->session()));
+                    $cart = (new CartResource($snapshot))->resolve($request);
+                    $owned = true;
+                }
             }
         }
 
-        return response()->view('cart.show', ['cart' => $cart, 'shop' => CommerceOrigins::storefront().'/shop'])
+        return response()->view('cart.show', ['cart' => $cart, 'shop' => CommerceOrigins::storefront().'/shop', 'owned' => $owned])
             ->header('Cache-Control', 'no-store, private');
     }
 

@@ -180,6 +180,20 @@ class CartOwnershipTest extends TestCase
         $this->assertSame($this->customer->id, CustomerCart::sole()->user_id);
     }
 
+    public function test_incoming_proof_cannot_target_or_probe_the_account_carts_other_receipts(): void
+    {
+        [$first, $target, $targetCreation] = $this->guest([$this->offer()]);
+        $this->claim($first, $target);
+        [$incoming, $source, $sourceCreation] = $this->guest([$this->offer()]);
+        $state = $this->actions->mergePreview($this->customer, $incoming, $source);
+        $operation = (string) Str::uuid();
+        $this->actions->attach($this->customer, $incoming, $source, $operation, $state['fingerprint']);
+        $this->assertTrue($this->actions->retired($incoming, $sourceCreation));
+        $this->expectStatus(404, fn () => $this->actions->retired($incoming, $targetCreation));
+        $this->missing(fn () => $this->actions->attach($this->customer, $incoming, $target, $operation, $state['fingerprint']));
+        $this->assertCount(2, $this->actions->attach($this->customer, $incoming, $source, $operation, $state['fingerprint'])['lines']);
+    }
+
     private function guest(array $products): array
     {
         $guest = CartPrincipal::guest(bin2hex(random_bytes(32)));

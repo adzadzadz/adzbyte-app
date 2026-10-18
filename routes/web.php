@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AppCartController;
 use App\Http\Controllers\Api\V1\ConsumeCartHandoffController;
 use App\Http\Controllers\Auth\ActivateCustomerAccountController;
 use App\Http\Controllers\Auth\RegisterCustomerController;
+use App\Http\Controllers\Cart\CartMergeController;
 use App\Http\Controllers\Cart\CartPageController;
 use App\Http\Controllers\Cart\HandoffLandingController;
 use App\Http\Middleware\EnsureAppCartOrigin;
@@ -21,6 +22,7 @@ Route::middleware(['throttle:app-cart', EnsureAppCartOrigin::class])->group(func
     Route::get('/cart/handoff', [HandoffLandingController::class, 'show'])->name('cart.handoff');
     Route::delete('/cart/items/{product}', [CartPageController::class, 'remove'])->whereUlid('product')->name('cart.remove');
     Route::post('/cart/confirm', [CartPageController::class, 'confirm'])->name('cart.confirm');
+    Route::post('/cart/attach', [CartMergeController::class, 'store'])->middleware(['auth:web', 'verified', 'customer.api'])->name('cart.attach');
 });
 
 // App guest cart APIs deliberately use the web session and CSRF middleware.
@@ -29,6 +31,8 @@ Route::prefix('api/v1')->as('api.v1.')->middleware(['throttle:app-cart', EnsureA
     Route::get('cart', [AppCartController::class, 'show'])->name('cart.show');
     Route::delete('cart/items/{product}', [AppCartController::class, 'remove'])->whereUlid('product')->name('cart.remove');
     Route::post('cart/confirm', [AppCartController::class, 'confirm'])->name('cart.confirm');
+    Route::get('cart/merge', [CartMergeController::class, 'show'])->middleware(['auth:web', 'verified', 'customer.api'])->name('cart.merge.show');
+    Route::post('cart/attach', [CartMergeController::class, 'store'])->middleware(['auth:web', 'verified', 'customer.api'])->name('cart.attach');
 });
 
 Route::middleware('signed')->group(function (): void {

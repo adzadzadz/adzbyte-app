@@ -19,6 +19,11 @@ final class StorefrontCartController
         return $this->respond($request, $actions->resolveCreation($request->principal(), $request->validated('query.creation_operation_id')));
     }
 
+    public function retired(StorefrontCartRequest $request, CartActions $actions): JsonResponse
+    {
+        return response()->json(['data' => ['retired' => $actions->retired($request->principal(), $request->validated('query.creation_operation_id'))], 'meta' => ['api_version' => 'v1']])->header('Cache-Control', 'no-store, private');
+    }
+
     public function show(StorefrontCartRequest $request, CartActions $actions, string $cart): JsonResponse
     {
         return $this->respond($request, $actions->read($request->principal(), $cart));

@@ -17,6 +17,7 @@ Route::prefix('v1')->as('api.v1.')->group(function (): void {
         ->middleware(['auth:sanctum', 'throttle:api-storefront'])->group(function (): void {
             Route::post('carts', [StorefrontCartController::class, 'store'])->middleware('storefront.token:cart:create')->name('carts.store');
             Route::get('carts/resolve', [StorefrontCartController::class, 'resolve'])->middleware('storefront.token:cart:read')->name('carts.resolve');
+            Route::get('carts/retired', [StorefrontCartController::class, 'retired'])->middleware('storefront.token:cart:read')->name('carts.retired');
             Route::get('carts/{cart}', [StorefrontCartController::class, 'show'])->whereUlid('cart')->middleware('storefront.token:cart:read')->name('carts.show');
             Route::post('carts/{cart}/items', [StorefrontCartController::class, 'add'])->whereUlid('cart')->middleware('storefront.token:cart:write')->name('carts.add');
             Route::delete('carts/{cart}/items/{product}', [StorefrontCartController::class, 'remove'])->whereUlid('cart')->whereUlid('product')->middleware('storefront.token:cart:write')->name('carts.remove');

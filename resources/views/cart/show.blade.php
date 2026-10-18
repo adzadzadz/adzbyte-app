@@ -32,11 +32,13 @@
                 <h2 class="text-xl font-semibold">No cart is open</h2>
                 <p class="mt-3 text-slate-300">Return to the website and select View Cart to open your saved selections.</p>
                 <a href="{{ $shop }}" class="mt-5 inline-block underline">Browse services</a>
+                <p class="mt-4"><a href="{{ route('filament.account.auth.login') }}" class="underline">Sign in to recover your account cart</a></p>
             </section>
         @elseif ($cart['items'] === [])
             <section class="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
                 <h2 class="text-xl font-semibold">Your cart is empty</h2>
                 <a href="{{ $shop }}" class="mt-5 inline-block underline">Choose a service</a>
+                @if ($owned)<a href="/" class="mt-4 block underline">Back to account</a>@endif
             </section>
         @else
             @if (! $cart['selection_valid'])
@@ -87,7 +89,13 @@
                             <button type="submit" class="w-full rounded-lg bg-[#8139ff] px-4 py-3 font-medium hover:bg-violet-600 focus-visible:outline-2 focus-visible:outline-offset-4">Confirm reviewed prices and terms</button>
                         </form>
                     @elseif ($cart['selection_valid'])
+                        @if ($owned)
+                        <p class="mt-6 text-slate-300">Your selections are saved in your account.</p>
+                        <a href="/" class="mt-5 block rounded-lg bg-[#8139ff] px-4 py-3 text-center font-medium focus-visible:outline-2 focus-visible:outline-offset-4">Back to account</a>
+                        @else
                         <a href="{{ route('filament.account.auth.login') }}" class="mt-6 block rounded-lg bg-[#8139ff] px-4 py-3 text-center font-medium hover:bg-violet-600 focus-visible:outline-2 focus-visible:outline-offset-4">Sign in to continue</a>
+                        <a href="{{ route('registration.show') }}" class="mt-4 block text-center underline">Create your account</a>
+                        @endif
                     @endif
                     <p class="mt-5 text-sm text-slate-400">Review your selections before continuing.</p>
                 </section>

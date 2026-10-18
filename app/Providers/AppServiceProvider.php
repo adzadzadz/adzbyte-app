@@ -2,13 +2,21 @@
 
 namespace App\Providers;
 
+use App\Actions\Carts\CartActions;
+use App\Http\Responses\CustomerLoginResponse;
 use App\Models\User;
+use App\Services\Carts\CartSession;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
+use Filament\Auth\Http\Responses\Contracts\LoginResponse;
+use Filament\Facades\Filament;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Events\DiagnosingHealth;
 use Illuminate\Http\Request;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\QueueBusy;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(LoginResponse::class, CustomerLoginResponse::class);
     }
 
     /**
@@ -32,6 +40,23 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         FilamentShield::prohibitDestructiveCommands($this->app->isProduction());
+
+        Event::listen(Login::class, function ($event): void {
+            $request = request();
+            if ($event->guard !== 'web' || ! $event->user instanceof User || ! $request->hasSession()
+                || str_starts_with($request->path(), 'admin/')
+                || (! $request->routeIs('account-activation.*') && Filament::getCurrentPanel()?->getId() === 'admin')) {
+                return;
+            }
+            app(CartSession::class)->afterAuthentication($request->session(), $event->user, app(CartActions::class));
+        });
+        Event::listen(Verified::class, function ($event): void {
+            $request = request();
+            if ($event->user instanceof User && $request->hasSession() && Auth::guard('web')->id() === $event->user->id
+                && ! $request->is('admin', 'admin/*') && Filament::getCurrentPanel()?->getId() !== 'admin') {
+                app(CartSession::class)->afterAuthentication($request->session(), $event->user, app(CartActions::class));
+            }
+        });
 
         Event::listen(DiagnosingHealth::class, function (): void {
             DB::select('select 1');
