@@ -45,6 +45,7 @@ final class OrderActions
         return OrderTransaction::run(function () use ($actor, $input, $operationId): Order {
             $customer = $this->customer($actor);
             Gate::forUser($customer)->authorize('create', Order::class);
+            $policy = app(CommercePolicyActions::class)->current();
             // Retry checks precede live catalog validation: immutable accepted
             // input stays recoverable after later catalog/settings changes.
             $hash = CanonicalValue::hash(['actor' => $customer->id, 'input' => $input]);
@@ -55,7 +56,6 @@ final class OrderActions
                 return $this->hydrate(Order::where('user_id', $customer->id)->whereKey($receipt->order_id)->lockForUpdate()->firstOrFail());
             }
             abort_if(Order::where('creation_operation_id', $operationId)->exists(), 409);
-            $policy = app(CommercePolicyActions::class)->current();
             CommerceRules::submission($input, $policy->content);
             $cart = $this->cart($customer);
             $existing = Order::where('user_id', $customer->id)->where('cart_id', $cart->id)->where('cart_revision', $cart->revision)->lockForUpdate()->first();
@@ -99,6 +99,8 @@ final class OrderActions
     {
         return OrderTransaction::run(function () use ($actor, $reference): Order {
             $customer = $this->customer($actor);
+            // Match review commands: policy before order/revision locks.
+            app(CommercePolicyActions::class)->current();
             $order = Order::where('user_id', $customer->id)->where('public_id', $reference)->lockForUpdate()->firstOrFail();
             Gate::forUser($customer)->authorize('view', $order);
 

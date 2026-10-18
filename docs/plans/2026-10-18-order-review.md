@@ -67,3 +67,8 @@ No new routes, screens, email/provider transport or dependencies in O1.3a: those
 surfaces are O1.3b. Required current-source PHP 8.3 SQLite/MySQL CI is pending.
 All new migration activity used disposable test databases; existing DBs and
 production remain untouched. Test workers/files are removed by teardown.
+
+Lock-order follow-up: customer reads and submission retries now take the shared
+policy lock before the order, matching Admin review commands. This avoids a
+policy/order lock inversion introduced by current aggregate hydration. The
+follow-up source must pass its own full supported-engine CI before O1.3b.
