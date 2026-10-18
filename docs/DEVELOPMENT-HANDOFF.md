@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | Independent Laravel review fixes locally verified and approved; current-source CI pending; O2 still blocked on owner-deferred PayMongo test configuration |
-| Implementation | e27fefaa520e3e9407b3046f285fefe551b8dcb3 / CI 39101761212 passes PHP 8.3.35 SQLite/MySQL 8.0.46, 397 / 6,374 each, both audits/builds/cache gates. Fifteen actual browser checks and HTTP/OpenAPI/native form/database-queue/SMTP success/failure/recovery pass. See [qualification](evidence/2026-10-18-order-review/qualification.md). |
+| Active card | Independent Laravel review approved and CI-qualified; O2 still blocked on owner-deferred PayMongo test configuration |
+| Implementation | f128d5cdcd7f963fa60d5a29cf2f22d44c567286 / CI 39103121139 passes PHP 8.3.35 SQLite/MySQL 8.0.46, 401 / 6,427 each, both audits/build/cache gates. Four review findings fixed and five transaction retry copies consolidated; independent approval and actual HTTP/privacy proof recorded in [review qualification](evidence/2026-10-18-laravel-review/qualification.md). O1 integrated browser evidence remains at its recorded e27fefa revision. |
 | Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. PayMongo configuration remains absent; owner said they will configure it later. O2 requires test credentials and actual sandbox proof. O3/S2 precise entitlements/refund access and Q launch merchant/legal settings remain later inputs. |
-| Next action | Verify current-source PHP 8.3 SQLite/MySQL CI for the Laravel review corrections, then retain the O2 prerequisite. Once owner configures local PayMongo test credentials through normal secret setup (never chat), recheck presence without exposing values, verify current official provider contract, then scope O2.1. Do not treat mocks as provider qualification or advance dependent phases. See [review evidence](evidence/2026-10-18-laravel-review/qualification.md). |
+| Next action | O2 remains gated after review approval: once owner configures local PayMongo test credentials through normal secret setup (never chat), recheck presence without exposing values, verify current official provider contract, then scope O2.1. Do not treat mocks as provider qualification or advance dependent phases. See [review evidence](evidence/2026-10-18-laravel-review/qualification.md). |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | Source e27fefa, CI 39101761212: 397 / 6,374 separately on SQLite/MySQL, PHP 8.3.35. Local same counts on PHP 8.5.11. Next unchanged 52148d3 was used in the fifteen-check O1 journey; its CI 39096289880 passes 144 tests/31 files/type/lint/build/audit on Node 22. All private fixtures/processes removed. |
+| Last recorded runtime tests | Source f128d5c, CI 39103121139: 401 / 6,427 separately on SQLite/MySQL, PHP 8.3.35. Full local same counts on PHP 8.5.11 before final test-only HTTP expansion; final expanded HTTP consumer 1 / 10 passes locally and is included in CI. Next unchanged 52148d3 was used in the historical fifteen-check O1 journey; its CI 39096289880 passes 144 tests/31 files/type/lint/build/audit on Node 22. Test teardown removes private fixtures/processes; reviewer used only PHP stdin/in-memory SQLite. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -65,6 +65,26 @@ the product plan and implementation progress in the master roadmap; avoid
 copying their full contents into the session log.
 
 ## Session log
+
+### 2026-10-18 — Independent Laravel checkup qualified
+
+- User requested a full independent review before remaining phases. Reviewer
+  covered authored application/routes/config/schema/resources and risk-based
+  tests/CI, reproduced four issues and approved the corrective implementation.
+- Fixed customer private-terms projection, activation email race, managed-user
+  stale authorization and latent cross-resource middleware replay. Consolidated
+  five identical transaction retry loops around Laravel's existing primitives;
+  preserved the verified SQLite backoff and stricter commerce permission rules.
+- Source f128d5c is pushed and remote main read back. CI 39103121139 passes
+  both required jobs: 401 / 6,427 each, PHP 8.3.35, SQLite/MySQL 8.0.46,
+  audits zero and formatting/metadata/build/caches pass. Current HTTP consumer
+  checks native/JSON metadata privacy. See the [full report](evidence/2026-10-18-laravel-review/qualification.md).
+- No existing DB/schema, dependency, secret, provider, release or production
+  change. Independent reproductions left no files/processes; tests clean up
+  disposable fixtures. Final evidence-only follow-up reuses source qualification.
+- Review gate cleared. PayMongo configuration remains absent and deferred by
+  owner; O2 and dependent phases remain incomplete. No repeated credential
+  question or provider action was attempted.
 
 ### 2026-10-18 — C1.4 delivery and actual Next.js consumer
 

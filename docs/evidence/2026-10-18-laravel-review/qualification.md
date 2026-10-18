@@ -4,6 +4,12 @@ Date: 2026-10-18. Baseline: `d902fa853d7475344e11b503377084685a25f556`.
 Framework: locked Laravel **13.37.0**, Filament **5.10.2**, supported PHP **8.3**.
 Owner requested a full independent check before remaining phase implementation.
 
+**Qualified source:** `f128d5cdcd7f963fa60d5a29cf2f22d44c567286`, pushed and
+remote main read back. [CI 39103121139](https://github.com/adzadzadz/adzbyte-app/actions/runs/39103121139)
+passes **401 tests / 6,427 assertions independently on PHP 8.3.35 SQLite and
+MySQL 8.0.46**. Both required jobs succeeded. The independent review gate is
+cleared; the existing provider prerequisite remains.
+
 ## Review decision and coverage
 
 Independent `code_reviewer` agent `laravel_checkup` reproduced four defects
@@ -149,7 +155,7 @@ Official references consulted, with installed source used to resolve version dri
 | Full corrected suite | **401 / 6,427** on local PHP 8.5.11 SQLite before the final test-only metadata consumer expansion; includes migration recovery, ownership, HTTP/SMTP and queue failure/recovery |
 | Final expanded HTTP metadata consumer | Passed **1 test / 10 PHPUnit assertions**, with independent Node/OpenAPI assertions on actual JSON/native proposal HTML; local PHP 8.5.11 |
 | Formatting/metadata/assets | Full Pint, strict Composer validation, Node consumer syntax and production Vite build pass |
-| Supported PHP 8.3 SQLite/MySQL, audits and caches | Pending current-source CI; old source results do not qualify these changes |
+| Supported PHP 8.3 SQLite/MySQL, audits and caches | Passed at **f128d5c / CI 39103121139**: **401 / 6,427 per engine**, PHP 8.3.35, MySQL 8.0.46; Composer/npm audits zero findings, formatting, metadata, production build and Laravel caches pass |
 | New browser matrix | Not applicable: no visual/interaction change; customer Blade rendering and real HTTP projection regressions cover affected output; historical integrated browser evidence remains at its recorded revision |
 | Schema/provider/production | No schema or provider change; existing databases, secrets and production untouched |
 
@@ -160,9 +166,10 @@ databases and loopback processes use existing teardown cleanup.
 
 ## Continuation gate
 
-Independent code approval is granted for the corrective tree, conditional on
-current source verification. Once those gates pass, no architecture blocker from
-this review prevents the approved roadmap. **O2 still requires owner-deferred
+Independent code approval and the required current-source CI gates now pass.
+No unresolved architecture blocker from this review prevents the approved roadmap.
+This final evidence update changes documentation only and reuses the qualified
+implementation gates above. **O2 still requires owner-deferred
 PayMongo test credentials and actual sandbox payment/callback proof.** A presence-only
 local check found no PayMongo configuration keys. No secret values were read into
 the report or requested in chat. O3/S2, R1 and Q remain incomplete; S1 is deferred.

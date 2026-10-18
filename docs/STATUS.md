@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (independent Laravel review corrections verified locally; current CI pending)
+**Last updated:** 2026-10-18 (independent Laravel review approved and CI-qualified; O2 credentials deferred)
 
 ## Current Stage
 
@@ -94,7 +94,9 @@ for private terms exposure, activation email and managed-user authorization race
 and latent parameterized-route idempotency replay. Five transaction retry copies
 now share one native-backed helper. Full local PHP 8.5.11 SQLite **401 / 6,427**,
 focused actual HTTP metadata/privacy proof, formatting, metadata and build pass.
-Current PHP 8.3 SQLite/MySQL source CI must pass before advancing. See the
+Source `f128d5c` passes [CI 39103121139](https://github.com/adzadzadz/adzbyte-app/actions/runs/39103121139):
+**401 / 6,427 per engine**, PHP 8.3.35 SQLite/MySQL 8.0.46, both audits zero,
+formatting/metadata/build/production caches passed. The review gate is cleared. See the
 [review and qualification record](evidence/2026-10-18-laravel-review/qualification.md).
 
 **O2 — blocked on PayMongo test configuration deferred by the owner.**
