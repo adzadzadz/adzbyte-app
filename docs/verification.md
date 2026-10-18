@@ -149,3 +149,17 @@ Actual category admin create/toggle/assignment, validation/history/denial and
 at both browser widths without unexpected page/console errors. The [contract](plans/2026-10-18-category-cart-controls.md)
 records artifacts, synthetic environment and cleanup. C2 enforcement is separate
 and remains next; no existing database migration or deployment occurred.
+
+## C2.1 cart domain qualification
+
+Source `31274f3` passes [CI 39089160730](https://github.com/adzadzadz/adzbyte-app/actions/runs/39089160730):
+243 tests / 1,671 assertions independently on SQLite/MySQL 8.0.46/PHP 8.3.35,
+including actual process contention, populated cart upgrade/reversal, owner/proof
+denials, persistent lines, category replacement/notice receipts, availability,
+current-offer review and exact subtotals. Audits, metadata, formatting, production
+assets and caches pass. MySQL's canonical JSON key order exposed a test-only
+strict array-order comparison; the final assertion compares JSON object values.
+The [contract](plans/2026-10-18-cart-service.md) records the correction, source,
+applicability and cleanup. No new HTTP/UI/provider surface exists in C2.1; these
+remain required for C2.2/C2.3. C2 aggregate remains incomplete. No existing
+database or production changed.

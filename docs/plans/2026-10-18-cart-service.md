@@ -1,6 +1,6 @@
 # C2.1 persistent cart service
 
-Status: implemented, verification pending; category prerequisite qualified at
+Status: verified complete for C2.1 shared domain/service; category prerequisite qualified at
 4859e4e / frontend f202534 with green CI. No existing database
 will be migrated. REST credentials, transport/cookies, handoff and full cart UI
 are C2.2/C2.3, followed by login attachment in C3.
@@ -69,7 +69,7 @@ Current price/terms/category reads use database locking reads rather than
 potentially stale MySQL consistent snapshots after waiting for another writer.
 
 Pint and whitespace checks pass. Both supported-engine/PHP 8.3 CI gates and
-remaining source-delivery checks are pending; C2.1 remains partial. No new HTTP,
+source-delivery checks pass at the source recorded below. No new HTTP,
 panel, browser or provider surface exists in this card; their integration gates
 remain required for C2.2/C2.3. CartPrincipal stores a hash only; C2.2 must generate
 the actual guest secret cryptographically and keep it out of browser bundles,
@@ -91,4 +91,13 @@ MySQL returned the same public reference/name in canonical member order. The
 retry assertion now compares JSON object values with `assertEquals`; list
 contents and all notification values remain asserted, with no gate skipped or
 application behavior changed. Fresh supported-runtime CI is required after this
-test correction; no dependent implementation has started.
+test correction; no dependent implementation started before qualification.
+
+Final C2.1 source `31274f30d2e66c0dd6fc80503b0735721f47774b` passes
+[CI 39089160730](https://github.com/adzadzadz/adzbyte-app/actions/runs/39089160730):
+**243 tests / 1,671 assertions independently on SQLite and MySQL 8.0.46,
+PHP 8.3.35**, Composer/npm audits with no findings, full Pint, metadata,
+production assets and Laravel caches. Source is pushed and read back; all test
+databases/workers are cleaned up. No existing database migration or production
+mutation. All applicable C2.1 gates pass. C2.2 REST is next; C2 aggregate, actual
+customer-facing replacement notification and handoff remain incomplete.

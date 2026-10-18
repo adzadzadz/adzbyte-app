@@ -89,6 +89,9 @@ can be implemented and verified now without inventing those decisions.
   one distinct service from that category per cart; regular-category services
   can coexist. Products without a category behave as regular services. Existing
   catalog records remain uncategorized; no real category or offer is seeded.
+  Selecting a different service in a restricted category replaces its previous
+  selection and notifies the customer; services in other categories stay in
+  the cart. Check the replacement's availability before removing an item.
 - A cart can contain multiple distinct services, quantity one each. Neither the
   cart nor its lines expire because time passes. Revalidate current publication
   and availability; unavailable items cannot contribute a payable offer.
@@ -105,9 +108,8 @@ can be implemented and verified now without inventing those decisions.
 
 Implementation first adds a category prerequisite to C1, then resumes C2/C3.
 Category assignment and toggling must revalidate existing carts, preserve order
-history, and use shared services/policies. The behavior for selecting a different
-service within an already-selected restricted category is being clarified;
-category persistence/management can proceed independently.
+history, and use shared services/policies. Replacement notification effects must
+survive command retries. Login-merge conflicts still require explicit choice.
 
 ## Application Ownership
 

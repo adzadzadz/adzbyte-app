@@ -64,7 +64,5 @@ services before changing implementation. Preserve historical accepted terms.
 |---|---|---|
 | 2026-10-17 | D01–D09 | Pending inputs indexed from existing product/first-release plans; no new commercial decision made |
 | 2026-10-17 | D01, D02, D03 | Owner clarified: "Treat the service packages as dynamic. There is no specifics at this point whatsoever so make sure we can add/modify & control it." Dynamic catalog/content management replaces the fixed launch-catalog gate; tax/receipt is deferred to dependent purchase behavior. See the product plan's dynamic service catalog section |
-
 | 2026-10-18 | D03, D04 | Owner requested a category toggle: one service from a restricted category may coexist with services from regular categories. Cart items must not expire by time; availability is rechecked. Owner said "go for recommended" and "Go" for the remaining proposed D04 defaults. Handoff clarified as a short-lived transfer link, independent of the persistent cart. Price review and duplicate-safe login merging approved; category conflict behavior must preserve customer choice |
-
 | 2026-10-18 | D04 clarification | Owner answered: "Replace but it should notify the customer that it has been replaced." This supersedes the temporary preserve-and-remove-first implementation default. Direct category selection now atomically replaces prior category items and returns durable notice effects. Login merging still requires explicit conflict resolution. |

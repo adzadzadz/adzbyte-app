@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1 development/B1 and category prerequisite qualified; C2.1 next |
+| Status | C1/category prerequisite and C2.1 qualified; C2.2 next |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |

@@ -6,10 +6,10 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | Category prerequisite verified; C2.1 persistent cart service implemented, CI pending |
-| Implementation | Cart schema/actions/principal/policy/snapshot and exact minor-unit arithmetic pass full local 243 / 1,671; five independent-process race scenarios and populated migration reversal pass. Category source 4859e4e / Next f202534 remain CI/browser-qualified. Owner clarified automatic replacement with customer notification; immutable command effects preserve retry notice metadata. No new cart HTTP/UI adapter yet. |
+| Active card | C2.1 verified at 31274f3; C2.2 restricted REST next |
+| Implementation | Cart domain source passes both PHP 8.3.35 database CI jobs: 243 / 1,671 each, audits/build/caches, five process-race scenarios and populated migration recovery. Owner-approved automatic replacement has durable notice effects. Actual HTTP/UI and notification rendering remain next. Category source 4859e4e / Next f202534 remain CI/browser-qualified. |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Qualify C2.1 on both engines/PHP 8.3 CI and record source evidence; resolve any failure before C2.2 restricted REST access. Later commercial/privacy decisions remain open. |
+| Next action | Implement C2.2 protected cart APIs against the recorded contract, then all HTTP/consumer/security and both database CI gates before C2.3 handoff/UI. Later commercial/privacy decisions remain open. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | Backend 206 / 1,300 on both database CI jobs/PHP 8.3.35; frontend 129 tests/29 files, type/lint/build/audit and real browser passed; frontend CI passed |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
