@@ -85,5 +85,10 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('app-cart', fn (Request $request): Limit => Limit::perMinute(120)
             ->by('app-cart:'.$request->ip()));
+
+        RateLimiter::for('registration', fn (Request $request): array => $request->isMethod('POST') ? [
+            Limit::perMinute(5)->by('registration-ip:'.$request->ip()),
+            Limit::perHour(3)->by('registration-email:'.hash('sha256', is_string($request->input('email')) ? mb_strtolower(trim($request->input('email'))) : 'invalid')),
+        ] : [Limit::perMinute(60)->by('registration-bootstrap:'.$request->ip())]);
     }
 }

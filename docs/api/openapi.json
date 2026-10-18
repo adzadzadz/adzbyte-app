@@ -1553,6 +1553,143 @@
                     }
                 }
             }
+        },
+        "/api/v1/registration": {
+            "get": {
+                "tags": [
+                    "Customer identity"
+                ],
+                "summary": "Initialize anonymous registration web session and CSRF bootstrap",
+                "operationId": "registrationBootstrap",
+                "security": [],
+                "responses": {
+                    "200": {
+                        "description": "Private no-store bootstrap; no account or cart creation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RegistrationBootstrap"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Stable API error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Stable API error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Customer identity"
+                ],
+                "summary": "Request queued customer registration/activation instructions",
+                "operationId": "requestCustomerRegistration",
+                "description": "Always returns the same accepted outcome for unknown/existing/privileged identities. Dedicated database queue processes identity/activation asynchronously, even if the default queue driver is sync. Unverified customer-only identities receive existing single-use signed activation. No tokens or identity/cart attachment returned. Limits: 5 accepted requests/minute/IP and 3/hour/normalized-email hash. Follow email activation to verify address and choose strong password; existing active identities use app sign-in/password recovery.",
+                "security": [
+                    {
+                        "appWebSession": [],
+                        "appCsrf": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Origin",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Exact configured APP_URL origin. Caller Host or forwarded headers do not define trust."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegistrationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Identical private no-store accepted response; no synchronous account-existence lookup",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RegistrationAccepted"
+                                },
+                                "example": {
+                                    "data": {
+                                        "message": "Check your email for account instructions. If you already have an active account, sign in or reset your password."
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Stable API error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "Stable API error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Stable API error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Stable API error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1583,13 +1720,19 @@
                 "type": "apiKey",
                 "in": "cookie",
                 "name": "adzbyte-session",
-                "description": "App guest session opened by a valid consumed cart transfer. Cookie name follows SESSION_COOKIE (template default APP_NAME=Adzbyte gives adzbyte-session). This session alone is not customer authentication or ownership attachment."
+                "description": "Laravel web session initialized by the transfer landing page. Cart read/mutation additionally requires a grant from a valid consumed handoff. Cookie name is configurable via SESSION_COOKIE."
             },
             "appCsrf": {
                 "type": "apiKey",
                 "in": "header",
                 "name": "X-CSRF-TOKEN",
                 "description": "CSRF value from the app landing page meta tag/current app session. Required for app-session mutations; a Bearer token/cart proof is not a substitute."
+            },
+            "appWebSession": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "adzbyte-session",
+                "description": "Server-side Laravel web session initialized by the registration bootstrap/form. Cookie name is configurable via SESSION_COOKIE. This does not imply verified identity or cart ownership."
             }
         },
         "schemas": {
@@ -2409,6 +2552,100 @@
                         "properties": {
                             "api_version": {
                                 "type": "string",
+                                "const": "v1"
+                            }
+                        }
+                    }
+                }
+            },
+            "RegistrationRequest": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255
+                    }
+                },
+                "description": "Name/email only, normalized by server. Roles, password, verified state, user/cart IDs and auth-token requests are forbidden. Processing is queued; no identity is authenticated by submission."
+            },
+            "RegistrationAccepted": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "message"
+                        ],
+                        "properties": {
+                            "message": {
+                                "type": "string",
+                                "const": "Check your email for account instructions. If you already have an active account, sign in or reset your password."
+                            }
+                        }
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "const": "v1"
+                            }
+                        }
+                    }
+                }
+            },
+            "RegistrationBootstrap": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "csrf_token",
+                            "submit"
+                        ],
+                        "properties": {
+                            "csrf_token": {
+                                "type": "string"
+                            },
+                            "submit": {
+                                "const": "/api/v1/registration"
+                            }
+                        }
+                    },
+                    "meta": {
+                        "type": "object",
+                        "required": [
+                            "api_version"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "api_version": {
                                 "const": "v1"
                             }
                         }

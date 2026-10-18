@@ -147,6 +147,7 @@ class ApiContractTest extends TestCase
             'api.v1.storefront.carts.handoffs.store',
             'api.v1.cart-handoffs.consume', 'api.v1.cart.show', 'api.v1.cart.remove', 'api.v1.cart.confirm',
             'api.v1.me.show',
+            'api.v1.registration.bootstrap', 'api.v1.registration.store',
         ];
         sort($expected);
         sort($versionedApiRoutes);

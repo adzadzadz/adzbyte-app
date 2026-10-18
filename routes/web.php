@@ -3,10 +3,18 @@
 use App\Http\Controllers\Api\V1\AppCartController;
 use App\Http\Controllers\Api\V1\ConsumeCartHandoffController;
 use App\Http\Controllers\Auth\ActivateCustomerAccountController;
+use App\Http\Controllers\Auth\RegisterCustomerController;
 use App\Http\Controllers\Cart\CartPageController;
 use App\Http\Controllers\Cart\HandoffLandingController;
 use App\Http\Middleware\EnsureAppCartOrigin;
 use Illuminate\Support\Facades\Route;
+
+Route::middleware(['throttle:registration', EnsureAppCartOrigin::class])->group(function (): void {
+    Route::get('/register', [RegisterCustomerController::class, 'show'])->name('registration.show');
+    Route::post('/register', [RegisterCustomerController::class, 'store'])->name('registration.store');
+    Route::get('/api/v1/registration', [RegisterCustomerController::class, 'bootstrap'])->name('api.v1.registration.bootstrap');
+    Route::post('/api/v1/registration', [RegisterCustomerController::class, 'store'])->name('api.v1.registration.store');
+});
 
 Route::middleware(['throttle:app-cart', EnsureAppCartOrigin::class])->group(function (): void {
     Route::get('/cart', [CartPageController::class, 'show'])->name('cart.show');

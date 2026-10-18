@@ -218,11 +218,11 @@ class AuthenticationLifecycleTest extends TestCase
         ])->assertTooManyRequests();
     }
 
-    public function test_filament_authentication_features_are_enabled_without_registration(): void
+    public function test_existing_panel_authentication_coexists_with_customer_only_public_registration(): void
     {
         $this->get('/password-reset/request')->assertOk();
         $this->get('/admin/password-reset/request')->assertOk();
-        $this->get('/register')->assertNotFound();
+        $this->get('/register')->assertOk();
         $this->get('/admin/register')->assertNotFound();
 
         $customer = User::factory()->create();
