@@ -86,7 +86,7 @@ resume checkpoint. Frontend integration and production release remain separate.
 ## Up Next
 
 **O1.1 — order domain (implemented; supported-engine CI pending).** Local
-PHP 8.5.11 full suite passes 350 / 5,874, including four-process duplicate/conflict
+PHP 8.5.11 full suite passes 353 / 5,899, including four-process duplicate/conflict
 submissions, immutable snapshots/settings, tax rounding, scoped ownership and
 non-destructive migration recovery. Pint/metadata/build pass. See the
 [order domain contract](plans/2026-10-18-order-domain.md). O1.2 must wait for

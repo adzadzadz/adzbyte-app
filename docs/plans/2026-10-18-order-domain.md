@@ -66,8 +66,8 @@ identity; no generic HTTP state setter will exist.
 
 ## Local checkpoint
 
-Local PHP 8.5.11: **350 tests / 5,874 assertions**, including **19 focused
-order checks / 194 assertions**. Four-process same UUID, new UUID and conflicting
+Local PHP 8.5.11: **353 tests / 5,899 assertions**, including **22 focused
+order checks / 219 assertions**. Four-process same UUID, new UUID and conflicting
 input cases create one order; new UUID aliases are durably bound so later reuse
 cannot create another order. Policy/catalog/profile edits preserve accepted
 snapshots. Injected line failure rolls back header/revision/history. Unknown
@@ -82,3 +82,9 @@ forward repair rather than destructive reversal. No existing DB was migrated.
 Pint, strict Composer metadata, asset build and whitespace pass. Current PHP 8.3
 SQLite/MySQL CI is required before O1.2 starts. No UI/API/provider adapter exists
 in O1.1; those verification gates are not applicable to this domain card.
+
+A fourth four-process scenario initializes shared starter settings concurrently
+for different customers. Current locking reads avoid stale MySQL repeatable-read
+snapshots after waiting for another customer's first settings commit. Fresh
+fingerprints still cannot authorize unavailable services, unaccepted new terms
+or restricted-category conflicts; focused regressions preserve every cart line.

@@ -10,6 +10,7 @@ use App\Models\OrderEvent;
 use App\Models\OrderLine;
 use App\Models\OrderRevision;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\User;
 use App\Services\Carts\CartPrincipal;
 use App\Services\Orders\CommerceRules;
@@ -224,6 +225,45 @@ class OrderDomainTest extends TestCase
         $this->expectValidation(fn () => $order->forceFill(['revision' => 0])->save());
         $this->assertSame('pending', $order->fresh()->approval_status);
         $this->assertSame('unpaid', $order->fresh()->payment_status);
+    }
+
+    public function test_new_unavailable_or_changed_terms_are_blocked_even_with_a_fresh_review_fingerprint(): void
+    {
+        $this->product->is_available = false;
+        $this->product->save();
+        $this->input['fingerprint'] = app(OrderActions::class)->review($this->customer)['fingerprint'];
+        $this->denied(409, fn () => app(OrderActions::class)->submit($this->customer, $this->input, (string) Str::uuid()));
+        $this->product->is_available = true;
+        $this->product->save();
+        $this->product->termsVersions()->create(['version' => 2, 'content' => ['scope' => 'New terms requiring acceptance']]);
+        $review = app(OrderActions::class)->review($this->customer);
+        $this->assertTrue($review['cart']['requires_review']);
+        $this->input['fingerprint'] = $review['fingerprint'];
+        $this->denied(409, fn () => app(OrderActions::class)->submit($this->customer, $this->input, (string) Str::uuid()));
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_restricted_category_conflicts_never_convert_to_an_order_or_drop_selections(): void
+    {
+        $category = ProductCategory::create(['name' => 'Synthetic category', 'limit_one_per_cart' => false]);
+        $this->product->category_id = $category->id;
+        $this->product->save();
+        $second = Product::factory()->published()->create(['category_id' => $category->id]);
+        $second->prices()->create(['version' => 1, 'amount_minor' => 5000, 'currency' => 'PHP']);
+        $second->termsVersions()->create(['version' => 1, 'content' => ['scope' => 'Synthetic second scope']]);
+        $second->is_available = true;
+        $second->save();
+        $cart = app(CartActions::class)->owned($this->customer);
+        app(CartActions::class)->add(CartPrincipal::customer($this->customer), $cart['public_id'], $second->public_id, (string) Str::uuid());
+        $category->limit_one_per_cart = true;
+        $category->save();
+        $review = app(OrderActions::class)->review($this->customer);
+        $this->assertFalse($review['cart']['selection_valid']);
+        $this->assertCount(1, $review['cart']['category_conflicts']);
+        $this->input['fingerprint'] = $review['fingerprint'];
+        $this->denied(409, fn () => app(OrderActions::class)->submit($this->customer, $this->input, (string) Str::uuid()));
+        $this->assertDatabaseCount('orders', 0);
+        $this->assertDatabaseCount('cart_items', 2);
     }
 
     private function denied(int $status, callable $action): void
