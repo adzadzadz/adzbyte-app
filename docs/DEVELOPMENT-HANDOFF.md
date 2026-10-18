@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C2/C3.1 verified; C3.2 adapters partial, B2 proof next |
-| Implementation | API source 8656e31 passes both PHP 8.3.35 database CI jobs: 266 / 4,929 each, audits/build/caches, actual HTTP/Node consumer, narrow credentials and privacy/rate/proof boundaries. Domain/category/Next source gates remain qualified. C2.3 backend now implements atomic 60-second single-use transfer, trusted app session, CSRF/Origin-protected APIs, full-cart page and review/remove forms; 292 tests / 5,200 assertions pass on each PHP 8.3.35 SQLite/MySQL CI job. Next 5467e0d has 141 local tests/type/lint/build/audit passed; actual integrated Chrome desktop/320px passes 16 checks. Frontend CI 39092597589 passed. All C2 development gates qualified in [evidence](evidence/2026-10-18-cart/qualification.md). |
-| Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Qualify current C3.2 adapter source on PHP 8.3 SQLite/MySQL CI and actual B2 browser journey: Next add -> handoff -> registration/real email activation -> owned cart -> further additions/conflict choice -> logout/login/password reset/new-browser recovery. Domain 0719fb4 CI passed; current local backend 330 / 5,679 plus Node schema/HTTP consumers, Next 144 tests/type/lint/build pass. Current adapter/frontend CI and B2 remain pending; no O1. Later commercial/privacy decisions remain open. |
+| Active card | C3.2 / aggregate C3 identity and B2 verified; O1.1 next |
+| Implementation | Backend 40ae2b7 and Next 52148d3 pass current CI and actual 15-check registration/SMTP activation/login/merge/password reset/new-browser/browser privacy journey. See [qualification](evidence/2026-10-18-ownership/qualification.md). No order/payment routes yet. |
+| Decision gate | D02/D05/D08 configurable common defaults authorized by latest owner answers, recorded in [register](decisions/commerce-development.md). Admin approval/clarification, versioned settings, cart no-expiry preserved. D06/D07 questions pending for later phases; D09 deferred subscription scope. |
+| Next action | Implement O1.1 from a written acceptance/transition/schema contract: immutable order and accepted settings snapshots, independent approval/order/payment/fulfillment states, append-only history, ownership/capability boundaries. Verify clean/populated migration recovery and independent-process contention on SQLite/MySQL supported PHP CI before O1.2. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | C3.1 f32bc36: 302 / 5,331 each on PHP 8.3.35 SQLite/MySQL CI 39093386908, audits/build/caches plus actual ten-check browser/SMTP proof. C2.3 292 / 5,200 on each database/PHP 8.3.35 CI; Next 5467e0d: 141 tests/31 files, type/lint/build/audit and actual cart browser proof passed; frontend source CI green |
+| Last recorded runtime tests | Backend 331 / 5,680 each on PHP 8.3.35 SQLite/MySQL 8.0.46 CI 39095546942; Next Node 22.23.3 CI 39096289880, 144 tests/31 files/type/lint/build/audit. Desktop/320px actual browser checks pass. All private QA fixtures/processes removed. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure

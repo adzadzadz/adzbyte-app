@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1/category and aggregate C2 qualified; C3 next |
+| Status | C1/C2/C3 identity and B2 qualified; O1.1 next |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -141,11 +141,11 @@ CI gates and real integrated desktop/mobile browser proof pass. See
 ### C3. Registration and checkout identity
 
 - [x] Enable public customer registration in `adzbyte-app` (C3.1 f32bc36, CI 39093386908).
-- [ ] Preserve the cart across registration, verification, login, password
+- [x] Preserve the cart across registration, verification, login, password
   reset, and session rotation.
-- [ ] Attach or merge the cart only after authentication using documented rules.
-- [ ] Require authenticated ownership before payable order creation.
-- [ ] Add abuse throttles and tests for account enumeration, role injection,
+- [x] Attach or merge the cart only after authentication using documented rules.
+- [ ] Require authenticated ownership before payable order creation (enforce/test in O1; no order endpoint exists in C3).
+- [x] Add abuse throttles and tests for account enumeration, role injection,
   unverified accounts, and duplicate identities.
 
 **Gate:** anyone can safely create a customer account, while a public request can
@@ -289,3 +289,6 @@ is denied in panels and APIs.
 - The [development handoff](../DEVELOPMENT-HANDOFF.md) records the active card,
   changed paths, checks, Git/runtime state, decision blockers, and one next
   action. Update it at meaningful checkpoints and before an interruption.
+
+C3 identity/B2 qualification: [current evidence](../evidence/2026-10-18-ownership/qualification.md).
+The downstream payable-order guard remains an O1 acceptance requirement.

@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-18",
+  "backend": "40ae2b78493473f15dce6fd9ab80722219bedb9e",
+  "frontend": "52148d3eff3e92ea27696dd2aaebec711a8c287a",
+  "runtime": "PHP 8.5.11 / Node 26.11.1 / built Next 16.4.2 / Chrome / disposable SQLite / real loopback SMTP",
+  "viewports": [
+    1440,
+    320
+  ],
+  "checks": [
+    "activation-owned-cart",
+    "stale-storefront-tab-recovers-owned-cart",
+    "new-guest-selections",
+    "explicit-category-merge",
+    "actual-session-merge-openapi-consumer",
+    "real-csrf-rejects-attach",
+    "explicit-merge-owned-cart",
+    "real-csrf-logout",
+    "login-dedup-and-price-review",
+    "password-recovery-preserves-guest",
+    "new-browser-owned-recovery",
+    "other-customer-denied",
+    "anonymous-retirement-and-cookie-privacy",
+    "used-handoff-generic-denial",
+    "actual-client-bundle-private-credentials-absent"
+  ],
+  "unexpectedErrors": [],
+  "intentionalHttpErrors": [
+    "Failed to load resource: the server responded with a status of 410 (Gone)"
+  ],
+  "passed": true
+}

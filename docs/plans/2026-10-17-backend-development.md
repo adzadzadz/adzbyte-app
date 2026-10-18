@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1/category prerequisite and C2.1/C2.2 qualified; C2.3 next |
+| Status | C1/C2/C3 identity and B2 verified; O1.1 next |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -373,3 +373,10 @@ Update the handoff at meaningful checkpoints and before stopping, including
 when no code was completed. Resume by reconciling it with the real checkout;
 never rely on conversation history alone. Keep credentials, customer data,
 database dumps, and provider payloads containing sensitive data out of records.
+
+## Current C3/B2 exit
+
+Verified at backend 40ae2b7 / Next 52148d3, current CI and actual 15-check browser/SMTP journey.
+See [qualification](../evidence/2026-10-18-ownership/qualification.md). D02/D05/D08
+configurable defaults are authorized; O1.1 is next. Earlier partial checkpoints
+are historical.

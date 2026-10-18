@@ -474,3 +474,16 @@ These decisions must be recorded here before their implementation slice begins.
 - [PayMongo Subscriptions](https://docs.paymongo.com/docs/payment-acceptance-subscriptions)
 - [PayMongo subscription resource](https://docs.paymongo.com/reference/subscription-resource)
 - [Laravel Sanctum](https://laravel.com/docs/13.x/sanctum)
+
+
+## Configurable commerce defaults authorized 2026-10-18
+
+The owner authorized configurable common defaults for tax/documents, approval,
+Terms/Privacy and retention. Admin is the current approver; clarification and
+conversation are the normal path, while rejection remains available. The exact
+answers and selected defaults are recorded in the [decision register](../decisions/commerce-development.md#configurable-starter-defaults-authorized-2026-10-18)
+and supersede the corresponding unanswered D02/D05/D08 items above for O1
+development. Implement versioned settings and accepted snapshots, with no
+invented merchant tax registration or legal identity. The cart no-expiry rule
+continues to apply. Production legal/document qualification, merchant/payment
+configuration and operational readiness remain distinct from development.

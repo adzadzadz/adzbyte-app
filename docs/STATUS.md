@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C2/C3.1 verified; C3.2 ownership/merge next)
+**Last updated:** 2026-10-18 (C3 identity/B2 verified; O1.1 next)
 
 ## Current Stage
 
@@ -9,8 +9,8 @@ management branding M0, the customer Home, the administrator Overview,
 administrator user/role management, API foundation A1, and the generic
 production-readiness baseline. Both Filament panels provide login, logout,
 password reset, required email verification, verified email changes, and profile
-management. Public registration is now a product requirement but is not yet
-implemented. The customer panel owns the authenticated root `/` dashboard and
+management. Public customer registration and verified cart ownership/merge are implemented
+and qualified through C3/B2. The customer panel owns the authenticated root `/` dashboard and
 root-level auth routes; only administration uses `/admin`.
 
 The product direction is now an API-first commerce and customer-service
@@ -32,7 +32,7 @@ and domain guards for dynamic products and price/term versions. C1.2 adds
 capability-backed shared catalog actions, locked revision allocation, persistent
 retry receipts, and actor/time audit history. C1.3 adds protected administrator
 catalog list/create/view/edit pages and explicit revision/lifecycle actions.
-C1.4 public catalog list/detail routes are verified on both supported database engines: explicit safe fields, exact string money, pagination/filtering, named throttling and ETag revalidation. The real Next.js consumer is delivered separately in draft PR #6; its source CI passes. C2.1/C2.2 add persistent carts and proof-scoped server REST operations, including category replacement and durable notice effects. Actual storefront cart controls and app handoff/UI remain C2.3; checkout, order,
+C1.4 public catalog list/detail routes are verified on both supported database engines: explicit safe fields, exact string money, pagination/filtering, named throttling and ETag revalidation. The real Next.js consumer is delivered separately in draft PR #6; its source CI passes. C2.1/C2.2 add persistent carts and proof-scoped server REST operations, including category replacement and durable notice effects. Actual storefront cart controls and app handoff/UI remain C2.3 (now verified); checkout, order,
 payment, subscription, purchased-product, request, and report records/routes
 remain unimplemented. Commerce migrations have only run in disposable test
 databases, not the development or production database.
@@ -85,7 +85,21 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**C3.2 — verified cart ownership and explicit login-merge conflicts.** C3.1 is verified at f32bc36 / CI 39093386908: 302 / 5,331 each on PHP 8.3.35 SQLite/MySQL. Native registration and strict API bootstrap/submission now reuse queued provisional customer/email activation, generic identity outcomes and CSRF/Origin/abuse controls. Local full suite 302 / 5,331, build/format/metadata and ten actual desktop/mobile checks pass, including real loopback SMTP receipt and activation. Both supported-engine CI jobs now pass, including audits/build/caches; C3.2 can begin from the [ownership contract](plans/2026-10-18-cart-ownership.md). See the [registration contract](plans/2026-10-18-public-registration.md). [C2.3 handoff and actual controls](plans/2026-10-18-cart-handoff.md) are verified complete. [Restricted cart REST](plans/2026-10-18-storefront-cart-api.md) is verified at `8656e31`: 266 / 4,929 independently on SQLite/MySQL 8.0.46/PHP 8.3.35 CI, including real HTTP/Node consumer, authority/proof/error/rate/privacy boundaries, audits/build/caches. The [cart domain](plans/2026-10-18-cart-service.md) is verified at `31274f3`, and category/real catalog consumer remain qualified at backend `4859e4e` / frontend `f202534`. Later checkout/payment/support/privacy/subscription inputs remain pending. C2.3 and aggregate C2 development are verified: backend 0c3d606 passes 292 tests / 5,200 assertions on each PHP 8.3.35 database CI job; Next 5467e0d passes 141 tests/type/lint/build/audit/current CI and 16 actual integrated desktop/320px browser checks. See [qualification](evidence/2026-10-18-cart/qualification.md). C3 registration/verified ownership/merge is next.
+**O1.1 — order domain.** C3 identity/B2 are verified complete at backend
+`40ae2b7` / [CI 39095546942](https://github.com/adzadzadz/adzbyte-app/actions/runs/39095546942):
+331 tests / 5,680 assertions each on PHP 8.3.35 SQLite/MySQL 8.0.46; all source
+checks pass. Next `52148d3` / [CI 39096289880](https://github.com/adzadzadz/adzbyte-next/actions/runs/39096289880)
+passes 144 tests/31 files/type/lint/build/audit under Node 22.23.3. The actual
+built two-app registration/real SMTP activation/login/merge/reset/new-browser
+journey passes 15 checks at desktop/320px with no unexpected errors or overflow.
+See [qualification](evidence/2026-10-18-ownership/qualification.md). Private QA
+fixtures and processes are removed; no deployment or existing DB migration.
+D02/D05/D08 now use owner-authorized configurable defaults; see the
+[decision register](decisions/commerce-development.md). Admin approval favors
+clarification/conversation; no time-based cart expiry. O1 must implement verified
+ownership before order creation. Payments, fulfillment/support and launch remain
+pending; D06/D07 questions are pending for their later slices. Frontend remains
+in draft PR #6, with original frontend changes preserved.
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
 passed PHP 8.3 CI, including both audits, all 109 tests, production build, and

@@ -1,7 +1,7 @@
 # C3.2 verified customer cart ownership and merge
 
-Status: in progress, domain locally verified; interfaces/integration pending after C3.1 f32bc36 passes PHP 8.3 SQLite/MySQL CI, 302 / 5,331
-each, real SMTP activation and desktop/mobile proof. Aggregate C3/B2 are pending.
+Status: verified complete at backend 40ae2b7 and Next 52148d3. Both source CI
+runs and the actual B2 journey pass; see [qualification](../evidence/2026-10-18-ownership/qualification.md). Historical partial checkpoints below are superseded.
 
 Only a fresh verified customer identity plus the trusted guest session may
 claim a cart. Public IDs, service credentials, staff Gate overrides and caller
@@ -105,3 +105,25 @@ also covered. No owned cart read/write is delegated to Next or WordPress identit
 Current adapter source CI, current Next source CI and the complete real built
 registration/login/reset/merge/new-browser B2 journey remain pending. C3.2 and
 aggregate C3/B2 are incomplete; O1 remains gated by owner decisions.
+
+## Final qualification
+
+# C3.2 / C3 identity and B2 qualification
+
+Verified 2026-10-18. Backend source `40ae2b78493473f15dce6fd9ab80722219bedb9e`:
+[CI 39095546942](https://github.com/adzadzadz/adzbyte-app/actions/runs/39095546942),
+**331 tests / 5,680 assertions independently on SQLite and MySQL 8.0.46, PHP 8.3.35**.
+Both jobs pass; metadata, formatting, dependency audits (0 findings), production
+assets and Laravel caches pass. Local PHP 8.5.11 suite and actual Node contract
+consumers also pass. Independent four-process ownership races and populated
+migration reversal/reapply/ambiguity guards run on both engines in CI.
+
+Frontend source `52148d3eff3e92ea27696dd2aaebec711a8c287a`:
+[CI 39096289880](https://github.com/adzadzadz/adzbyte-next/actions/runs/39096289880),
+Node **22.23.3**, **144 tests / 31 files**, type/lint/build and audit (0 findings).
+Local Node 26.11.1 full suite/type/lint/build also pass. Source is isolated in
+`codex/public-catalog`, draft PR #6; no develop push/merge or deployment.
+
+
+All required checks and cleanup are recorded in the linked qualification. The
+owner supplied configurable D02/D05/D08 defaults; O1.1 is next.
