@@ -1,6 +1,7 @@
 # C2.1 persistent cart service
 
-Status: planned; category prerequisite must qualify first. No existing database
+Status: implemented, verification pending; category prerequisite qualified at
+4859e4e / frontend f202534 with green CI. No existing database
 will be migrated. REST credentials, transport/cookies, handoff and full cart UI
 are C2.2/C2.3, followed by login attachment in C3.
 
@@ -42,3 +43,31 @@ earlier identity state. Full PHP 8.3 CI, audits/build/cache/format/metadata and
 source readback. No new browser workflow, HTTP contract or provider is exposed
 in C2.1; those gates apply when C2.2/C2.3 adapters are introduced. C2 aggregate
 remains incomplete until the actual Next-to-app journey passes.
+
+## Current evidence
+
+Local PHP 8.5.11/SQLite: full suite **242 tests / 1,659 assertions** passes,
+including 15 cart-domain/authority cases, populated upgrade/reversal and five
+four-process cart race scenarios. Older catalog/category migration tests now
+explicitly target their preceding migration boundary so they continue proving
+their original reversals after this later schema is added. No real DB migrated.
+
+Covered: two-year no-expiry time travel; native-max plus native-max exact
+subtotal; distinct restricted/regular category coexistence and conflict
+preservation; later rule changes; revoked customer roles; cross-guest/customer
+denial including the SuperAdmin Gate override; immutable history and cart/offer
+identity; current-price/terms confirmation, intervening change atomic rollback,
+replays that cannot re-add removed products or silently confirm newer prices;
+unavailable/draft/archive rejection and removable retained lines. Four independent
+workers prove create retry, identical add retry, same-product deduplication,
+regular-product additions and restricted-category contention. Bounded retries
+handle SQLite contention and MySQL deadlocks without replaying partial writes.
+Current price/terms/category reads use database locking reads rather than
+potentially stale MySQL consistent snapshots after waiting for another writer.
+
+Pint and whitespace checks pass. Both supported-engine/PHP 8.3 CI gates and
+remaining source-delivery checks are pending; C2.1 remains partial. No new HTTP,
+panel, browser or provider surface exists in this card; their integration gates
+remain required for C2.2/C2.3. CartPrincipal stores a hash only; C2.2 must generate
+the actual guest secret cryptographically and keep it out of browser bundles,
+public responses and logs. Audit snapshots contain no bearer credential.

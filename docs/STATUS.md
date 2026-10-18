@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (category prerequisite verified; C2.1 next)
+**Last updated:** 2026-10-18 (category prerequisite verified; C2.1 CI pending)
 
 ## Current Stage
 
@@ -85,7 +85,7 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**C2.1 — implement the [persistent cart service](plans/2026-10-18-cart-service.md).** The [category prerequisite](plans/2026-10-18-category-cart-controls.md) is verified at backend `4859e4e` and frontend `f202534`, with green source CI for both. Backend: 221 tests / 1,447 assertions on each engine/PHP 8.3.35. Frontend: 131 tests/29 files, type/lint/build/audit; actual desktop/mobile consumer and admin browser proof pass. Owner approved multiple services, quantity one, a category toggle limiting that category to one service, and no time-based cart/item expiry. Current-price review, duplicate-safe merge, and 60-second single-use transfer links are recorded in the [decision register](decisions/commerce-development.md). Conflicting adds preserve the current selection and prompt removal first. Later checkout/payment/support/privacy/subscription inputs remain pending. Category source does not yet enforce a cart rule; C2 remains unimplemented.
+**C2.1 — qualify the [persistent cart service](plans/2026-10-18-cart-service.md).** Domain implementation passes local full suite 242 / 1,659, including authority, no-expiry, exact subtotal, category enforcement, offer review, migration recovery and five real four-process race scenarios. Supported PHP 8.3 CI on SQLite/MySQL is pending; C2.2 has not begun. The [category prerequisite](plans/2026-10-18-category-cart-controls.md) is verified at backend `4859e4e` and frontend `f202534`, with green source CI for both (221 / 1,447 per database; frontend 131 tests/29 files plus type/lint/build/audit and actual browser proof). Owner-approved rules are in the [decision register](decisions/commerce-development.md). Later checkout/payment/support/privacy/subscription inputs remain pending. The cart domain has no HTTP/UI adapter yet; C2 aggregate remains incomplete.
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
 passed PHP 8.3 CI, including both audits, all 109 tests, production build, and

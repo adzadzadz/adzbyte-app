@@ -29,13 +29,13 @@ class ProductCategoryMigrationTest extends TestCase
 
     public function test_category_upgrade_and_reversal_preserve_catalog_versions_and_prior_tables(): void
     {
-        $paths = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($path) => ! str_ends_with($path, '_add_product_categories.php')));
+        $paths = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($path) => basename($path) < '2026_10_18_020000_add_product_categories.php'));
         $this->artisan('migrate', ['--path' => $paths, '--realpath' => true, '--force' => true])->assertSuccessful();
         $user = User::factory()->create();
         $product = Product::factory()->create();
         $price = ProductPrice::factory()->create(['product_id' => $product->id]);
         $terms = ProductTerms::factory()->create(['product_id' => $product->id]);
-        $this->artisan('migrate', ['--force' => true])->assertSuccessful();
+        $this->artisan('migrate', ['--path' => ['database/migrations/2026_10_18_020000_add_product_categories.php'], '--force' => true])->assertSuccessful();
         $this->assertNull($product->fresh()->category_id);
         $category = ProductCategory::create(['name' => 'Synthetic migration category', 'limit_one_per_cart' => true]);
         $product->update(['category_id' => $category->id]);
@@ -48,7 +48,7 @@ class ProductCategoryMigrationTest extends TestCase
         $this->assertSame($price->amount_minor, $price->fresh()->amount_minor);
         $this->assertSame($terms->content, $terms->fresh()->content);
         $this->assertSame($user->email, $user->fresh()->email);
-        $this->artisan('migrate', ['--force' => true])->assertSuccessful();
+        $this->artisan('migrate', ['--path' => ['database/migrations/2026_10_18_020000_add_product_categories.php'], '--force' => true])->assertSuccessful();
         $this->assertNull($product->fresh()->category_id);
         $this->assertDatabaseCount('product_categories', 0);
         $this->assertTrue(Schema::hasTable('product_category_changes'));

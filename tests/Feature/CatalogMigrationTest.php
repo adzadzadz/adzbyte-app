@@ -28,7 +28,7 @@ class CatalogMigrationTest extends TestCase
 
     public function test_catalog_and_audit_apply_rollback_and_reapply_preserve_prior_tables(): void
     {
-        $this->artisan('migrate', ['--force' => true])->assertSuccessful();
+        $this->migrateCatalog();
         $this->assertTrue(Schema::hasTable('product_changes'));
         $this->assertSame(0, Product::count());
         $user = User::factory()->create();
@@ -44,7 +44,7 @@ class CatalogMigrationTest extends TestCase
         $this->assertSame($price->amount_minor, $price->fresh()->amount_minor);
         $this->assertSame($terms->content, $terms->fresh()->content);
         // Upgrade a populated C1.1 schema to C1.2, preserving prior records.
-        $this->artisan('migrate', ['--force' => true])->assertSuccessful();
+        $this->migrateCatalog();
         $this->assertTrue(Schema::hasTable('product_changes'));
         $this->assertTrue($product->is(Product::findOrFail($product->id)));
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
@@ -56,11 +56,17 @@ class CatalogMigrationTest extends TestCase
         $this->assertFalse(Schema::hasTable('product_terms'));
         $this->assertTrue(Schema::hasTable('users'));
         $this->assertTrue(Schema::hasTable('api_idempotency_keys'));
-        $this->artisan('migrate', ['--force' => true])->assertSuccessful();
+        $this->migrateCatalog();
         $this->assertTrue(Schema::hasTable('product_changes'));
         $this->assertTrue(Schema::hasTable('product_prices'));
         $this->assertTrue(Schema::hasTable('product_terms'));
         $this->assertSame(0, Product::count());
         $this->assertSame($user->email, $user->fresh()->email);
+    }
+
+    private function migrateCatalog(): void
+    {
+        $paths = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($path) => basename($path) <= '2026_10_18_020000_add_product_categories.php'));
+        $this->artisan('migrate', ['--path' => $paths, '--realpath' => true, '--force' => true])->assertSuccessful();
     }
 }
