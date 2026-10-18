@@ -6,10 +6,10 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | O1.1 domain implemented; supported-engine source CI pending |
+| Active card | O1.1 verified; O1.2 checkout adapters next |
 | Implementation | Backend 40ae2b7 and Next 52148d3 pass current CI and actual 15-check registration/SMTP activation/login/merge/password reset/new-browser/browser privacy journey. See [qualification](evidence/2026-10-18-ownership/qualification.md). No order/payment routes yet. |
 | Decision gate | D02/D05/D08 configurable common defaults authorized by latest owner answers, recorded in [register](decisions/commerce-development.md). Admin approval/clarification, versioned settings, cart no-expiry preserved. D06/D07 questions pending for later phases; D09 deferred subscription scope. |
-| Next action | Qualify current O1.1 source on PHP 8.3 SQLite/MySQL CI before O1.2. Local 353 / 5,899, 22 focused checks, four-process retries/conflicting submissions, immutable settings/order snapshots, rollback guards, exact tax arithmetic and strict ownership pass; formatting/metadata/build pass. See [contract](plans/2026-10-18-order-domain.md). No checkout adapter yet. |
+| Next action | Implement [O1.2 checkout contract](plans/2026-10-18-checkout-contract.md). O1.1 source 55cbb94 passes PHP 8.3.35 SQLite/MySQL CI 39097303894: 353 / 5,899 each, audits/build/caches. See [qualification](evidence/2026-10-18-order-domain/qualification.md). Customer review/submission/order Resources, native checkout/summary and actual HTTP/browser proof next. Aggregate O1 remains incomplete. D06/D07 answers and local PayMongo test configuration are pending for later cards. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | Backend 331 / 5,680 each on PHP 8.3.35 SQLite/MySQL 8.0.46 CI 39095546942; Next Node 22.23.3 CI 39096289880, 144 tests/31 files/type/lint/build/audit. Desktop/320px actual browser checks pass. All private QA fixtures/processes removed. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |

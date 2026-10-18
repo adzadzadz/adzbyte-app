@@ -85,12 +85,12 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**O1.1 — order domain (implemented; supported-engine CI pending).** Local
-PHP 8.5.11 full suite passes 353 / 5,899, including four-process duplicate/conflict
-submissions, immutable snapshots/settings, tax rounding, scoped ownership and
-non-destructive migration recovery. Pint/metadata/build pass. See the
-[order domain contract](plans/2026-10-18-order-domain.md). O1.2 must wait for
-current PHP 8.3 SQLite/MySQL CI. C3 identity/B2 are verified complete at backend
+**O1.2 — checkout adapters.** O1.1 is verified at 55cbb94 /
+[CI 39097303894](https://github.com/adzadzadz/adzbyte-app/actions/runs/39097303894):
+353 / 5,899 each on PHP 8.3.35 SQLite/MySQL 8.0.46, audits/build/caches passed.
+See [qualification](evidence/2026-10-18-order-domain/qualification.md). Native
+checkout/order summary and v1 REST review/submission/owned reads are next, with
+actual browser and contract proof. Aggregate O1 remains incomplete. C3 identity/B2 are verified complete at backend
 `40ae2b7` / [CI 39095546942](https://github.com/adzadzadz/adzbyte-app/actions/runs/39095546942):
 331 tests / 5,680 assertions each on PHP 8.3.35 SQLite/MySQL 8.0.46; all source
 checks pass. Next `52148d3` / [CI 39096289880](https://github.com/adzadzadz/adzbyte-next/actions/runs/39096289880)

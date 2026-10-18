@@ -1,6 +1,8 @@
 # O1.1 order domain and accepted settings
 
-Status: implemented, local gates passed; supported-engine source CI pending. Depends on fully qualified C3/B2 (40ae2b7 / 52148d3).
+Status: verified complete at 55cbb94 / CI 39097303894, PHP 8.3.35 SQLite/MySQL
+353 / 5,899 each. See [qualification](../evidence/2026-10-18-order-domain/qualification.md).
+Earlier pending checkpoints below are historical. Depends on fully qualified C3/B2 (40ae2b7 / 52148d3).
 D02/D05/D08 configurable defaults are authorized in the decision register.
 This card introduces domain persistence/services only. O1.2 adds versioned
 customer/native adapters; O1.3 adds Admin settings/review/conversation tools.
