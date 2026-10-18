@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Orders\OrderReviewActions;
 use App\Http\Controllers\Api\V1\AppCartController;
 use App\Http\Controllers\Api\V1\ConsumeCartHandoffController;
 use App\Http\Controllers\Auth\ActivateCustomerAccountController;
@@ -8,6 +9,8 @@ use App\Http\Controllers\Cart\CartMergeController;
 use App\Http\Controllers\Cart\CartPageController;
 use App\Http\Controllers\Cart\HandoffLandingController;
 use App\Http\Controllers\Orders\CheckoutController;
+use App\Http\Controllers\Orders\OrderManagementController;
+use App\Http\Controllers\Orders\OrderReviewController;
 use App\Http\Middleware\EnsureAppCartOrigin;
 use Illuminate\Support\Facades\Route;
 
@@ -40,11 +43,27 @@ Route::middleware(['auth:web', 'verified', 'customer.api', 'throttle:checkout', 
     Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/orders', [CheckoutController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [CheckoutController::class, 'order'])->whereUlid('order')->name('orders.show');
+    Route::get('/orders/{order}', [OrderReviewController::class, 'show'])->whereUlid('order')->name('orders.show');
+    Route::get('/api/v1/orders/{order}/review', [OrderReviewController::class, 'show'])->whereUlid('order')->name('api.v1.orders.review');
+    foreach (['reply', 'resubmit', 'accept_proposal'] as $command) {
+        $path = str_replace('_', '-', $command);
+        Route::post('/orders/{order}/'.$path, [OrderReviewController::class, 'command'])->whereUlid('order')->defaults('command', $command)->name('orders.'.$command);
+        Route::post('/api/v1/orders/{order}/'.$path, [OrderReviewController::class, 'command'])->whereUlid('order')->defaults('command', $command)->name('api.v1.orders.'.$command);
+    }
     Route::get('/api/v1/checkout', [CheckoutController::class, 'show'])->name('api.v1.checkout.show');
     Route::post('/api/v1/orders', [CheckoutController::class, 'store'])->name('api.v1.orders.store');
     Route::get('/api/v1/orders', [CheckoutController::class, 'index'])->name('api.v1.orders.index');
     Route::get('/api/v1/orders/{order}', [CheckoutController::class, 'order'])->whereUlid('order')->name('api.v1.orders.show');
+});
+
+Route::prefix('api/v1/management')->as('api.v1.management.')->middleware(['auth:web', 'verified', 'throttle:checkout', EnsureAppCartOrigin::class])->group(function (): void {
+    Route::get('/commerce-settings', [OrderManagementController::class, 'settings'])->name('settings.show');
+    Route::put('/commerce-settings', [OrderManagementController::class, 'settings'])->name('settings.update');
+    Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderManagementController::class, 'show'])->whereUlid('order')->name('orders.show');
+    foreach (array_keys(OrderReviewActions::STAFF) as $command) {
+        Route::post('/orders/{order}/'.$command, [OrderManagementController::class, 'command'])->whereUlid('order')->defaults('command', $command)->name('orders.'.$command);
+    }
 });
 
 Route::middleware('signed')->group(function (): void {

@@ -6,6 +6,7 @@ use App\Actions\Carts\CartActions;
 use App\Actions\Orders\OrderActions;
 use App\Actions\Orders\OrderReviewActions;
 use App\Enums\OrderCapability;
+use App\Models\OrderEvent;
 use App\Models\OrderMessage;
 use App\Models\Product;
 use App\Models\User;
@@ -13,6 +14,7 @@ use App\Services\Carts\CartPrincipal;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Tests\Support\UsesIsolatedCatalogDatabase;
@@ -42,7 +44,7 @@ class OrderReviewMigrationTest extends TestCase
         $customer = $this->customerCart();
         $a = app(OrderActions::class);
         $input = ['brief' => ['goal' => 'Synthetic goal', 'scope' => 'Synthetic scope'], 'billing' => ['name' => 'Synthetic buyer', 'email' => 'buyer@example.test', 'country' => 'PH'], 'accept_terms' => true, 'fingerprint' => $a->review($customer)['fingerprint']];
-        $order = $a->submit($customer, $input, (string) Str::uuid());
+        $order = Event::fakeFor(fn () => $a->submit($customer, $input, (string) Str::uuid()), ['eloquent.created: '.OrderEvent::class]);
         $before = $a->read($customer, $order->public_id)->currentRevision->toArray();
         $migration = require database_path('migrations/2026_10_18_070000_create_order_review.php');
         $migration->up();
@@ -57,7 +59,7 @@ class OrderReviewMigrationTest extends TestCase
         $admin = User::factory()->create();
         $admin->assignRole('administrator');
         $admin->givePermissionTo(array_column(OrderCapability::cases(), 'value'));
-        $order = app(OrderReviewActions::class)->staff($admin, $order->public_id, 'propose', ['expected_revision' => 1, 'message' => 'Synthetic proposal'], (string) Str::uuid());
+        $order = Event::fakeFor(fn () => app(OrderReviewActions::class)->staff($admin, $order->public_id, 'propose', ['expected_revision' => 1, 'message' => 'Synthetic proposal'], (string) Str::uuid()), ['eloquent.created: '.OrderEvent::class]);
         try {
             $migration->down();
             $this->fail('Destructive reversal succeeded');

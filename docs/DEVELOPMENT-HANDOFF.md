@@ -6,10 +6,10 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | O1.3a review domain implemented; local passed 381 / 6,167; source CI qualification pending. O1.3b adapters unstarted. |
+| Active card | O1.3a verified at 770606b / CI 39099527223, 381 / 6,166 each. O1.3b implemented; local 397 / 6,373; final supported-engine CI pending. |
 | Implementation | O1.2 source 538e3ca passes PHP 8.3 SQLite/MySQL CI 39098787766, 364 / 6,019 each, audits/build/cache gates. Actual HTTP/OpenAPI and nine built Next-to-checkout browser checks pass. See [qualification](evidence/2026-10-18-checkout/qualification.md). |
 | Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. PayMongo test credentials deferred by owner; O2 provider qualification blocked until configured. O3/S2 precise entitlements/refund access still requires definition. |
-| Next action | Qualify O1.3a domain on full PHP 8.3 SQLite/MySQL CI before O1.3b Admin/customer adapters and notifications. See [review contract](plans/2026-10-18-order-review.md). Local tests cover four independent-process races and populated migration recovery. No current database migrated; payment transitions disabled. |
+| Next action | Qualify current O1.3b source on PHP 8.3 SQLite/MySQL, then record aggregate O1. Fifteen real Chrome checks, actual HTTP/OpenAPI/native validation and database-queue/SMTP success/failure/recovery pass. See [qualification](evidence/2026-10-18-order-review/qualification.md). All private QA fixtures/processes removed. O2 is blocked on owner-deferred test credentials; no provider/production changes. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | Backend 331 / 5,680 each on PHP 8.3.35 SQLite/MySQL 8.0.46 CI 39095546942; Next Node 22.23.3 CI 39096289880, 144 tests/31 files/type/lint/build/audit. Desktop/320px actual browser checks pass. All private QA fixtures/processes removed. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
@@ -422,3 +422,25 @@ copying their full contents into the session log.
   PHP 8.3 SQLite/MySQL source CI required before O1.3b adapters/notifications.
 - No existing database migration, real data, credentials, release or production
   change. No browser/server fixture started for this domain increment.
+
+### 2026-10-18 — O1.3b interfaces and recoverable notifications
+
+- O1.3a final source 770606b passes both jobs in CI 39099527223 (381 / 6,166 each).
+- Added customer/native and management session API contracts, explicit review
+  projections, strict body/query/revision/UUID rules, bounded public/private
+  conversation, versioned settings with stale-edit protection and real Admin
+  resource/action dialogs. Missing permissions fail closed; Roles exposes exact
+  capabilities with no default grants.
+- Added durable event/recipient delivery receipts, after-commit jobs, generic
+  account-link notifications, scheduled dispatch recovery and explicit exhausted
+  retry. Actual three-attempt SMTP failure, queue success/receipt and privacy
+  tests pass with credential-free loopback transport.
+- Actual built Next -> checkout -> Admin/customer review journey passes 15 checks
+  desktop/320px, with no unexpected errors/overflow. Final request refinement
+  caught and corrected a nested-validation field retention regression; actual
+  HTTP native recovery/resubmission and API consumers requalify the final rules.
+- Populated review/delivery upgrades, empty reversal/reapply and fail-closed
+  history recovery pass locally; supported MySQL/PHP 8.3 current-source CI remains
+  required. All private QA DB/password/token/key/script/log state, Chrome and
+  both servers are removed. No existing DB, provider, release or production
+  changed. Intended source delivery: Connect Admin and customer order review.

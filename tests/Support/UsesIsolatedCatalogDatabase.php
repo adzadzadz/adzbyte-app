@@ -64,6 +64,8 @@ trait UsesIsolatedCatalogDatabase
             'APP_ENV' => 'testing',
             'APP_CONFIG_CACHE' => $this->temporary.'.unused-config',
             'CATALOG_TEST_DRIVER' => $this->mysql ? 'mysql' : 'sqlite',
+            'QUEUE_CONNECTION' => 'database',
+            'MAIL_MAILER' => 'array',
         ];
         if ($this->mysql) {
             $connection = DB::connection()->getConfig();

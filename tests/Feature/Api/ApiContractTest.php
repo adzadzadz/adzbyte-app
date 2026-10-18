@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Actions\Orders\OrderReviewActions;
 use App\Enums\UserRole;
 use App\Http\Responses\ApiErrorResponse;
 use App\Models\User;
@@ -148,6 +149,9 @@ class ApiContractTest extends TestCase
             'api.v1.cart-handoffs.consume', 'api.v1.cart.show', 'api.v1.cart.remove', 'api.v1.cart.confirm',
             'api.v1.me.show',
             'api.v1.checkout.show', 'api.v1.orders.store', 'api.v1.orders.index', 'api.v1.orders.show',
+            'api.v1.orders.review', 'api.v1.orders.reply', 'api.v1.orders.resubmit', 'api.v1.orders.accept_proposal',
+            'api.v1.management.settings.show', 'api.v1.management.settings.update', 'api.v1.management.orders.index', 'api.v1.management.orders.show',
+            ...array_map(fn ($action) => 'api.v1.management.orders.'.$action, array_keys(OrderReviewActions::STAFF)),
             'api.v1.registration.bootstrap', 'api.v1.registration.store',
             'api.v1.storefront.carts.retired', 'api.v1.cart.merge.show', 'api.v1.cart.attach',
         ];

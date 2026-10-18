@@ -85,7 +85,15 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**O1.3 — Admin review, clarification, settings, expiry and fresh acceptance.**
+**O1.3 — implemented; final supported-engine CI pending.**
+O1.3a domain is qualified at 770606b / CI 39099527223 (381 / 6,166 each).
+O1.3b adds native/customer/management API review, Admin action dialogs, versioned
+settings, conversation/private notes and recoverable queued notifications.
+Fifteen actual Chrome checks pass at desktop/320px; real HTTP/OpenAPI/native form
+and database-queue/SMTP success/failure/recovery pass. See
+[review qualification](evidence/2026-10-18-order-review/qualification.md).
+O2 must wait for final O1 qualification and owner-configured PayMongo test credentials.
+
 O1.2 is verified at `538e3ca` / [CI 39098787766](https://github.com/adzadzadz/adzbyte-app/actions/runs/39098787766):
 364 tests / 6,019 assertions independently on PHP 8.3.35 SQLite/MySQL;
 audits, formatting, metadata, build and caches pass. Actual HTTP/OpenAPI and

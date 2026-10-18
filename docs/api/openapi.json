@@ -16,6 +16,2862 @@
         }
     ],
     "paths": {
+      "/api/v1/orders/{order}/review": {
+        "get": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1OrdersReviewGet",
+          "summary": "Read review",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000
+              }
+            }
+          ]
+        }
+      },
+      "/api/v1/orders/{order}/reply": {
+        "post": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1OrdersReplyPost",
+          "summary": "Apply reply",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": [],
+              "appCsrf": []
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "419": {
+              "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Encoded body exceeds 256 KiB.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "Origin",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+            },
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "X-CSRF-TOKEN",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Session CSRF token returned by the private read response."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewMessageCommand"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/orders/{order}/resubmit": {
+        "post": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1OrdersResubmitPost",
+          "summary": "Apply resubmit",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": [],
+              "appCsrf": []
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "419": {
+              "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Encoded body exceeds 256 KiB.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "Origin",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+            },
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "X-CSRF-TOKEN",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Session CSRF token returned by the private read response."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewCorrection"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/orders/{order}/accept-proposal": {
+        "post": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1OrdersAcceptProposalPost",
+          "summary": "Apply accept-proposal",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": [],
+              "appCsrf": []
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "419": {
+              "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Encoded body exceeds 256 KiB.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "Origin",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+            },
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "X-CSRF-TOKEN",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Session CSRF token returned by the private read response."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewProposalAcceptance"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/management/orders": {
+        "get": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1ManagementOrdersGet",
+          "summary": "Read orders",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ManagementOrderListResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000
+              }
+            }
+          ]
+        }
+      },
+      "/api/v1/management/orders/{order}": {
+        "get": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "getManagedOrderReview",
+          "summary": "Read {order}",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000
+              }
+            }
+          ]
+        }
+      },
+      "/api/v1/management/orders/{order}/approve": {
+        "post": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1ManagementOrdersApprovePost",
+          "summary": "Apply approve",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": [],
+              "appCsrf": []
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "419": {
+              "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Encoded body exceeds 256 KiB.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "Origin",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+            },
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "X-CSRF-TOKEN",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Session CSRF token returned by the private read response."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewApproval"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/management/orders/{order}/reject": {
+        "post": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1ManagementOrdersRejectPost",
+          "summary": "Apply reject",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": [],
+              "appCsrf": []
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "419": {
+              "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Encoded body exceeds 256 KiB.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "Origin",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+            },
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "X-CSRF-TOKEN",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Session CSRF token returned by the private read response."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewMessageCommand"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/management/orders/{order}/clarify": {
+        "post": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1ManagementOrdersClarifyPost",
+          "summary": "Apply clarify",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": [],
+              "appCsrf": []
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "419": {
+              "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Encoded body exceeds 256 KiB.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "Origin",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+            },
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "X-CSRF-TOKEN",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Session CSRF token returned by the private read response."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewMessageCommand"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/management/orders/{order}/message": {
+        "post": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1ManagementOrdersMessagePost",
+          "summary": "Apply message",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": [],
+              "appCsrf": []
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "419": {
+              "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Encoded body exceeds 256 KiB.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "Origin",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+            },
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "X-CSRF-TOKEN",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Session CSRF token returned by the private read response."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewMessageCommand"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/management/orders/{order}/note": {
+        "post": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1ManagementOrdersNotePost",
+          "summary": "Apply note",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": [],
+              "appCsrf": []
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "419": {
+              "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Encoded body exceeds 256 KiB.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "Origin",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+            },
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "X-CSRF-TOKEN",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Session CSRF token returned by the private read response."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewMessageCommand"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/management/orders/{order}/propose": {
+        "post": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1ManagementOrdersProposePost",
+          "summary": "Apply propose",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": [],
+              "appCsrf": []
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "419": {
+              "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Encoded body exceeds 256 KiB.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrderReviewResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "Origin",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+            },
+            {
+              "name": "order",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            {
+              "name": "X-CSRF-TOKEN",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Session CSRF token returned by the private read response."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewMessageCommand"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/management/commerce-settings": {
+        "get": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1ManagementCommerceSettingsGet",
+          "summary": "Read commerce-settings",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CommerceSettingsResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": []
+        },
+        "put": {
+          "tags": [
+            "Order review"
+          ],
+          "operationId": "reviewApiV1ManagementCommerceSettingsPut",
+          "summary": "Apply commerce-settings",
+          "description": "Verified web session only; no service bearer fallback. Exact Origin and real CSRF are required for writes. Actor-scoped UUID and expected revision/version reject retries with changed input and stale commands. Management requires fresh Admin role and exact capabilities (View for order detail/actions). Customers are queried by authenticated ownership; only public messages count in their conversation. Bodyless GET; page is the only query on review/list reads, fixed page size 20. Settings accepts no query. Responses are private no-store. Approval never records payment.",
+          "security": [
+            {
+              "appCartSession": [],
+              "appCsrf": []
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Customer session required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Verified customer role and exact write Origin required.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No record in the current customer scope.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Malformed or undocumented input.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "Rate limit exceeded; retry after the response header.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "419": {
+              "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Encoded body exceeds 256 KiB.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Current safe customer projection.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CommerceSettingsResponse"
+                  }
+                }
+              },
+              "headers": {
+                "Cache-Control": {
+                  "schema": {
+                    "type": "string",
+                    "const": "no-store, private"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "Origin",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+            },
+            {
+              "name": "X-CSRF-TOKEN",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Session CSRF token returned by the private read response."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommerceSettingsUpdate"
+                }
+              }
+            }
+          }
+        }
+      },
         "/api/v1/me": {
             "get": {
                 "operationId": "getCurrentUser",
@@ -2680,6 +5536,570 @@
             }
         },
         "schemas": {
+        "ReviewMessage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "public_id",
+            "audience",
+            "sender",
+            "body",
+            "created_at"
+          ],
+          "properties": {
+            "public_id": {
+              "type": "string",
+              "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+            },
+            "audience": {
+              "type": "string",
+              "enum": [
+                "customer",
+                "internal"
+              ]
+            },
+            "sender": {
+              "type": "string",
+              "enum": [
+                "customer",
+                "admin"
+              ]
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10000
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "OrderProposal": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "public_id",
+            "is_current",
+            "created_at",
+            "currency",
+            "subtotal_minor",
+            "tax_minor",
+            "total_minor",
+            "policy",
+            "lines"
+          ],
+          "properties": {
+            "public_id": {
+              "type": "string",
+              "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+            },
+            "is_current": {
+              "type": "boolean"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "currency": {
+              "type": "string",
+              "const": "PHP"
+            },
+            "subtotal_minor": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "tax_minor": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "total_minor": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "policy": {
+              "$ref": "#/components/schemas/CommercePolicy"
+            },
+            "lines": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/components/schemas/AcceptedOrderLine"
+              }
+            }
+          }
+        },
+        "OrderReview": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "order",
+            "proposal",
+            "messages",
+            "pagination"
+          ],
+          "properties": {
+            "order": {
+              "$ref": "#/components/schemas/Order"
+            },
+            "proposal": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/OrderProposal"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "messages": {
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "$ref": "#/components/schemas/ReviewMessage"
+              }
+            },
+            "pagination": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "page",
+                "per_page",
+                "total",
+                "last_page"
+              ],
+              "properties": {
+                "page": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "per_page": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 50
+                },
+                "total": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "last_page": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        },
+        "OrderReviewResponse": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "data",
+            "meta"
+          ],
+          "properties": {
+            "data": {
+              "$ref": "#/components/schemas/OrderReview"
+            },
+            "meta": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "api_version",
+                "csrf_token"
+              ],
+              "properties": {
+                "api_version": {
+                  "type": "string",
+                  "const": "v1"
+                },
+                "csrf_token": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "ReviewApproval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expected_revision"
+          ],
+          "properties": {
+            "expected_revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "ReviewMessageCommand": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expected_revision",
+            "message"
+          ],
+          "properties": {
+            "expected_revision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "message": {
+              "type": "string",
+              "maxLength": 10000,
+              "minLength": 1
+            }
+          }
+        },
+        "ReviewCorrection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expected_revision",
+            "brief",
+            "billing",
+            "accept_terms"
+          ],
+          "properties": {
+            "expected_revision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "brief": {
+              "$ref": "#/components/schemas/OrderBrief"
+            },
+            "billing": {
+              "$ref": "#/components/schemas/OrderBilling"
+            },
+            "accept_terms": {
+              "type": "boolean",
+              "const": true
+            }
+          }
+        },
+        "ReviewProposalAcceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expected_revision",
+            "brief",
+            "billing",
+            "accept_terms",
+            "proposal"
+          ],
+          "properties": {
+            "expected_revision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "brief": {
+              "$ref": "#/components/schemas/OrderBrief"
+            },
+            "billing": {
+              "$ref": "#/components/schemas/OrderBilling"
+            },
+            "accept_terms": {
+              "type": "boolean",
+              "const": true
+            },
+            "proposal": {
+              "type": "string",
+              "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+            }
+          }
+        },
+        "CommerceSettingsContent": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tax_mode",
+            "tax_basis_points",
+            "document_kind",
+            "required_brief",
+            "required_billing",
+            "approval_days",
+            "terms",
+            "privacy",
+            "retention"
+          ],
+          "properties": {
+            "tax_mode": {
+              "type": "string",
+              "enum": [
+                "unconfigured",
+                "exclusive",
+                "inclusive"
+              ]
+            },
+            "tax_basis_points": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000
+            },
+            "document_kind": {
+              "type": "string",
+              "enum": [
+                "order_summary"
+              ]
+            },
+            "required_brief": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "goal",
+                  "scope",
+                  "website"
+                ]
+              }
+            },
+            "required_billing": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "name",
+                  "email",
+                  "country",
+                  "address",
+                  "company",
+                  "phone"
+                ]
+              }
+            },
+            "approval_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            },
+            "terms": {
+              "type": "string"
+            },
+            "privacy": {
+              "type": "string"
+            },
+            "retention": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "draft_days",
+                "closed_request_days",
+                "financial_years",
+                "audit_days"
+              ],
+              "properties": {
+                "draft_days": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "closed_request_days": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "financial_years": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "audit_days": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        },
+        "CommerceSettingsUpdate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expected_version",
+            "content"
+          ],
+          "properties": {
+            "expected_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "content": {
+              "$ref": "#/components/schemas/CommerceSettingsContent"
+            }
+          }
+        },
+        "CommerceSettingsResponse": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "data",
+            "meta"
+          ],
+          "properties": {
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "public_id",
+                "version",
+                "content"
+              ],
+              "properties": {
+                "public_id": {
+                  "type": "string",
+                  "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "content": {
+                  "$ref": "#/components/schemas/CommerceSettingsContent"
+                }
+              }
+            },
+            "meta": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "api_version",
+                "csrf_token"
+              ],
+              "properties": {
+                "api_version": {
+                  "type": "string",
+                  "const": "v1"
+                },
+                "csrf_token": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "ManagementOrderListResponse": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "data",
+            "meta"
+          ],
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "public_id",
+                  "revision",
+                  "status",
+                  "approval_status",
+                  "payment_status",
+                  "fulfillment_status"
+                ],
+                "properties": {
+                  "public_id": {
+                    "type": "string",
+                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "open",
+                      "cancelled",
+                      "completed"
+                    ]
+                  },
+                  "approval_status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "clarification",
+                      "approved",
+                      "rejected",
+                      "expired"
+                    ]
+                  },
+                  "payment_status": {
+                    "type": "string",
+                    "enum": [
+                      "unpaid",
+                      "pending",
+                      "paid",
+                      "partially_refunded",
+                      "refunded",
+                      "disputed"
+                    ]
+                  },
+                  "fulfillment_status": {
+                    "type": "string",
+                    "enum": [
+                      "not_started",
+                      "in_progress",
+                      "waiting_customer",
+                      "completed",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            },
+            "meta": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "api_version",
+                "csrf_token",
+                "pagination"
+              ],
+              "properties": {
+                "api_version": {
+                  "type": "string",
+                  "const": "v1"
+                },
+                "csrf_token": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pagination": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "page",
+                    "per_page",
+                    "total",
+                    "last_page"
+                  ],
+                  "properties": {
+                    "page": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "per_page": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 50
+                    },
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "last_page": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
             "CurrentUser": {
                 "type": "object",
                 "additionalProperties": false,

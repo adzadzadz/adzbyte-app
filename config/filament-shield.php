@@ -1,6 +1,8 @@
 <?php
 
 declare(strict_types=1);
+use App\Filament\Pages\CommerceSettings;
+use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\ProductCategories\ProductCategoryResource;
 use App\Filament\Resources\Products\ProductResource;
 use App\Filament\Resources\Users\UserResource;
@@ -30,7 +32,7 @@ return [
             'pages' => true,
             'widgets' => true,
             'resources' => true,
-            'custom_permissions' => false,
+            'custom_permissions' => true,
         ],
     ],
 
@@ -123,7 +125,7 @@ return [
         'separator' => ':',
         'case' => 'pascal',
         'generate' => true,
-        'format_custom_permission_keys' => true,
+        'format_custom_permission_keys' => false,
     ],
 
     /*
@@ -189,6 +191,7 @@ return [
     'resources' => [
         'subject' => 'model',
         'manage' => [
+            OrderResource::class => ['viewAny', 'view', 'approve', 'reject', 'clarify', 'message', 'note', 'propose'],
             ProductCategoryResource::class => ['viewAny', 'view', 'create', 'update'],
             ProductResource::class => [
                 'viewAny', 'view', 'create', 'update', 'publish', 'unpublish',
@@ -228,6 +231,7 @@ return [
         'prefix' => 'view',
         'exclude' => [
             Dashboard::class,
+            CommerceSettings::class,
         ],
     ],
 
@@ -265,7 +269,7 @@ return [
     |
     */
 
-    'custom_permissions' => [],
+    'custom_permissions' => ['Manage:CommerceSettings' => 'Manage commerce settings'],
 
     /*
     |--------------------------------------------------------------------------

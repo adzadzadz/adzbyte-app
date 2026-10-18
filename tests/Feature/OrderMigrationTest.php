@@ -5,12 +5,14 @@ namespace Tests\Feature;
 use App\Actions\Carts\CartActions;
 use App\Actions\Orders\CommercePolicyActions;
 use App\Actions\Orders\OrderActions;
+use App\Models\OrderEvent;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\Carts\CartPrincipal;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Tests\Support\UsesIsolatedCatalogDatabase;
@@ -74,7 +76,7 @@ class OrderMigrationTest extends TestCase
         $carts->attach($customer, $guest, $cart['public_id'], (string) Str::uuid(), $preview['fingerprint']);
         $actions = app(OrderActions::class);
         $input = ['brief' => ['goal' => 'Synthetic goal', 'scope' => 'Synthetic scope'], 'billing' => ['name' => 'Synthetic buyer', 'email' => 'buyer@example.test', 'country' => 'PH'], 'accept_terms' => true, 'fingerprint' => $actions->review($customer)['fingerprint']];
-        $order = $actions->submit($customer, $input, (string) Str::uuid());
+        $order = Event::fakeFor(fn () => $actions->submit($customer, $input, (string) Str::uuid()), ['eloquent.created: '.OrderEvent::class]);
         $before = $actions->read($customer, $order->public_id)->toArray();
         try {
             $migration->down();

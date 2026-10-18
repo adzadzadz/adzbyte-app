@@ -110,6 +110,7 @@ class OrderReviewConcurrencyTest extends TestCase
                 if ($order->approval_status === 'pending') {
                     $this->assertNull($order->pending_proposal_id);
                     $this->assertDatabaseCount('order_revisions', 2);
+                    $this->assertDatabaseCount('order_proposals', 1);
                     $this->assertSame('12500', app(OrderActions::class)->read($customer, $order->public_id)->currentRevision->total_minor);
                 } else {
                     $this->assertSame('clarification', $order->approval_status);

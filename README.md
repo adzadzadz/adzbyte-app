@@ -12,10 +12,13 @@ allocation, retry safety, and actor/time audit history, verified in isolated
 tests. C1.3 adds administrator catalog management through those actions, including
 read-only history and capability controls. Its local/browser checks and both
 PHP 8.3 SQLite/MySQL CI jobs pass. C1.4 adds safe public catalog endpoints and a
-real Next consumer. Categories, C2.1 persistent carts and C2.2 proof-scoped server
-APIs are verified (266 tests on each database/PHP 8.3 CI). Actual cart controls,
-replacement notification and handoff/full-cart UI are C2.3; checkout, orders,
-payments, subscriptions, purchased products, requests and reports remain planned.
+real Next consumer. Categories, persistent carts, replacement notices, handoff,
+registration and verified ownership/merge are qualified through C3/B2. O1.1/O1.2
+add immutable accepted order snapshots, native checkout, owned request summaries
+and versioned REST operations, qualified at 538e3ca / CI 39098787766. Admin review
+is in progress; provider payments, subscriptions, purchased services and support
+cases remain planned. See [current status](docs/STATUS.md) and the
+[handoff](docs/DEVELOPMENT-HANDOFF.md) for the active increment and evidence.
 No real packages are seeded.
 
 ## Responsibility Boundary

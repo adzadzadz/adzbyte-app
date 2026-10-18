@@ -24,12 +24,27 @@ use App\Services\Orders\OrderTransaction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class OrderReviewActions
 {
     public const STAFF = ['approve' => OrderCapability::Approve, 'reject' => OrderCapability::Reject,
         'clarify' => OrderCapability::Clarify, 'message' => OrderCapability::Message,
         'note' => OrderCapability::Note, 'propose' => OrderCapability::Propose];
+
+    /** Caller holds the shared policy/order aggregate locks. */
+    public function proposalCurrent(Order $order, OrderProposal $proposal): bool
+    {
+        try {
+            return hash_equals($proposal->content_hash, CanonicalValue::hash($this->quote($order)));
+        } catch (HttpException $exception) {
+            if ($exception->getStatusCode() !== 409) {
+                throw $exception;
+            }
+
+            return false;
+        }
+    }
 
     public function staff(User $actor, string $reference, string $action, array $input, string $operationId): Order
     {
@@ -178,7 +193,7 @@ final class OrderReviewActions
         if ($capability === null) {
             abort_unless($fresh->hasRole(UserRole::Customer->value), 403);
         } else {
-            abort_unless($fresh->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value]) && $fresh->hasPermissionTo($capability->value), 403);
+            abort_unless($fresh->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value]) && $fresh->checkPermissionTo($capability->value), 403);
         }
 
         return $fresh;

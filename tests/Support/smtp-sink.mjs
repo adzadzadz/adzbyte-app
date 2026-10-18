@@ -16,7 +16,8 @@ const server = net.createServer(socket => {
       buffer = buffer.slice(split + 2);
       if (data) {
         if (line === ".") {
-          fs.writeFileSync(messageFile, body, {mode: 0o600});
+          if (process.argv[4] === 'append') fs.appendFileSync(messageFile, body + '\n--MESSAGE--\n', {mode: 0o600});
+          else fs.writeFileSync(messageFile, body, {mode: 0o600});
           data = false;
           socket.write("250 Message received\r\n");
         } else body += (line.startsWith("..") ? line.slice(1) : line) + "\r\n";

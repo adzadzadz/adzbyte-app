@@ -29,15 +29,23 @@ final class CommercePolicyActions
         });
     }
 
-    public function publish(User $actor, array $content, string $operationId): CommercePolicyVersion
+    public function read(User $actor): CommercePolicyVersion
+    {
+        return OrderTransaction::run(function () use ($actor): CommercePolicyVersion {
+            $this->administrator($actor);
+
+            return $this->current();
+        });
+    }
+
+    public function publish(User $actor, array $content, string $operationId, ?int $expectedVersion = null): CommercePolicyVersion
     {
         Validator::make(['operation_id' => $operationId], ['operation_id' => ['required', 'uuid']])->validate();
         $operationId = strtolower($operationId);
         CommerceRules::validate($content);
 
-        return OrderTransaction::run(function () use ($actor, $content, $operationId): CommercePolicyVersion {
-            $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
-            abort_unless($fresh->hasVerifiedEmail() && $fresh->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value]) && $fresh->hasPermissionTo('Manage:CommerceSettings'), 403);
+        return OrderTransaction::run(function () use ($actor, $content, $operationId, $expectedVersion): CommercePolicyVersion {
+            $fresh = $this->administrator($actor);
             $current = $this->current();
             $receipt = CommercePolicyVersion::where('operation_id', $operationId)->lockForUpdate()->first();
             if ($receipt !== null) {
@@ -45,11 +53,20 @@ final class CommercePolicyActions
 
                 return $receipt;
             }
+            abort_if($expectedVersion !== null && $expectedVersion !== $current->version, 409);
             $version = (new CommercePolicyVersion)->forceFill(['version' => $current->version + 1, 'content' => $content, 'actor_id' => $fresh->id, 'operation_id' => $operationId]);
             $version->save();
             DB::table('commerce_settings')->where('id', 1)->update(['current_version_id' => $version->id]);
 
             return $version;
         });
+    }
+
+    private function administrator(User $actor): User
+    {
+        $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+        abort_unless($fresh->hasVerifiedEmail() && $fresh->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value]) && $fresh->checkPermissionTo('Manage:CommerceSettings'), 403);
+
+        return $fresh;
     }
 }

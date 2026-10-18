@@ -52,7 +52,7 @@ final class OrderPolicy
 
     private function allows(User $actor, OrderCapability $capability): bool
     {
-        return $actor->hasVerifiedEmail() && $actor->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value]) && $actor->hasPermissionTo($capability->value);
+        return $actor->hasVerifiedEmail() && $actor->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value]) && $actor->checkPermissionTo($capability->value);
     }
 
     public function create(User $actor): bool
