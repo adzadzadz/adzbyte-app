@@ -6045,6 +6045,412 @@
                     }
                 ]
             }
+        },
+        "/api/v1/management/payments/{payment}": {
+            "get": {
+                "tags": [
+                    "Payment operations"
+                ],
+                "operationId": "getManagedPayment",
+                "summary": "Read captured payment, provider receipts and Admin resolutions",
+                "description": "Verified Admin web session and exact View:PaymentAttempt required. Reconcile also requires Reconcile:PaymentAttempt. Native policy checks are refreshed before and after a bounded provider GET outside locks. Only matching original signed receipt and current provider test payment with disputed=false and refunds=[] can settle. Original receipt remains unchanged; an immutable actor/UUID resolution records recovery. No provider creation or manual paid override. Commands require exact Origin, real CSRF, actor-scoped UUID and expected order revision; key conflicts return409 before provider access. Bodyless GET accepts only event_page (20 receipts/page); resolutions list the latest20. Reads and writes are private no-store. JSON object only, no query on POST; encoded body<=16KiB.",
+                "security": [
+                    {
+                        "appCartSession": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Authorized payment operations projection without secrets or raw evidence.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentOperationsResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Customer session required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Verified Admin role, exact capability or trusted Origin missing.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Payment or signed receipt not found in this attempt.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Stale revision, conflicting UUID, already resolved receipt or incompatible provider/signed evidence.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Malformed or undocumented input.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded; retry after the response header.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "payment",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "name": "event_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/management/payments/{payment}/reconcile": {
+            "post": {
+                "tags": [
+                    "Payment operations"
+                ],
+                "operationId": "reconcileManagedPayment",
+                "summary": "Reconcile a preserved signed payment receipt",
+                "description": "Verified Admin web session and exact View:PaymentAttempt required. Reconcile also requires Reconcile:PaymentAttempt. Native policy checks are refreshed before and after a bounded provider GET outside locks. Only matching original signed receipt and current provider test payment with disputed=false and refunds=[] can settle. Original receipt remains unchanged; an immutable actor/UUID resolution records recovery. No provider creation or manual paid override. Commands require exact Origin, real CSRF, actor-scoped UUID and expected order revision; key conflicts return409 before provider access. Bodyless GET accepts only event_page (20 receipts/page); resolutions list the latest20. Reads and writes are private no-store. JSON object only, no query on POST; encoded body<=16KiB.",
+                "security": [
+                    {
+                        "appCartSession": [],
+                        "appCsrf": []
+                    }
+                ],
+                "responses": {
+                    "401": {
+                        "description": "Customer session required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Verified Admin role, exact capability or trusted Origin missing.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Payment or signed receipt not found in this attempt.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Stale revision, conflicting UUID, already resolved receipt or incompatible provider/signed evidence.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Malformed or undocumented input.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded; retry after the response header.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Encoded body exceeds16KiB.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Authorized payment operations projection without secrets or raw evidence.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentOperationsResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Provider verification unavailable; no reconciliation applied.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "Origin",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        },
+                        "description": "Actor-scoped command UUID, reusable only for identical action, target and input."
+                    },
+                    {
+                        "name": "payment",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "name": "X-CSRF-TOKEN",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "description": "Session CSRF token returned by the private read response."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentReconciliationCommand"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -8513,6 +8919,290 @@
                         }
                     }
                 }
+            },
+            "PaymentOperations": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "attempt": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "public_id": {
+                                "type": "string",
+                                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                            },
+                            "state": {
+                                "type": "string"
+                            },
+                            "amount_minor": {
+                                "type": "string"
+                            },
+                            "currency": {
+                                "type": "string"
+                            },
+                            "livemode": {
+                                "type": "boolean"
+                            },
+                            "provider_session_id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "failure_code": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "created_at": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "public_id",
+                            "state",
+                            "amount_minor",
+                            "currency",
+                            "livemode",
+                            "provider_session_id",
+                            "failure_code",
+                            "created_at"
+                        ]
+                    },
+                    "order": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "public_id": {
+                                "type": "string",
+                                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                            },
+                            "revision": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "payment_status": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "public_id",
+                            "revision",
+                            "payment_status"
+                        ]
+                    },
+                    "settlement": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "public_id": {
+                                "type": "string",
+                                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                            },
+                            "provider_payment_id": {
+                                "type": "string"
+                            },
+                            "amount_minor": {
+                                "type": "string"
+                            },
+                            "currency": {
+                                "const": "PHP"
+                            },
+                            "paid_at": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "public_id",
+                            "provider_payment_id",
+                            "amount_minor",
+                            "currency",
+                            "paid_at"
+                        ]
+                    },
+                    "can_reconcile": {
+                        "type": "boolean"
+                    },
+                    "events": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "provider_event_id": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "state": {
+                                    "enum": [
+                                        "received",
+                                        "needs_review",
+                                        "applied",
+                                        "rejected",
+                                        "ignored"
+                                    ],
+                                    "type": "string"
+                                },
+                                "reason": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "processed_at": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "provider_event_id",
+                                "type",
+                                "state",
+                                "reason",
+                                "processed_at"
+                            ]
+                        }
+                    },
+                    "resolutions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "public_id": {
+                                    "type": "string",
+                                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                                },
+                                "original_state": {
+                                    "type": "string"
+                                },
+                                "original_reason": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "note": {
+                                    "type": "string"
+                                },
+                                "actor_id": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "created_at": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "public_id",
+                                "original_state",
+                                "original_reason",
+                                "note",
+                                "actor_id",
+                                "created_at"
+                            ]
+                        }
+                    },
+                    "pagination": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "page": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "per_page": {
+                                "const": 20
+                            },
+                            "total": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "last_page": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        },
+                        "required": [
+                            "page",
+                            "per_page",
+                            "total",
+                            "last_page"
+                        ]
+                    }
+                },
+                "required": [
+                    "attempt",
+                    "order",
+                    "settlement",
+                    "can_reconcile",
+                    "events",
+                    "resolutions",
+                    "pagination"
+                ]
+            },
+            "PaymentOperationsResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/PaymentOperations"
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "api_version": {
+                                "const": "v1"
+                            },
+                            "csrf_token": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "api_version",
+                            "csrf_token"
+                        ]
+                    }
+                },
+                "required": [
+                    "data",
+                    "meta"
+                ]
+            },
+            "PaymentReconciliationCommand": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "event": {
+                        "type": "string",
+                        "pattern": "^evt_[A-Za-z0-9_]{1,96}$"
+                    },
+                    "expected_revision": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "note": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000,
+                        "pattern": "\\S"
+                    }
+                },
+                "required": [
+                    "event",
+                    "expected_revision",
+                    "note"
+                ]
             }
         },
         "responses": {

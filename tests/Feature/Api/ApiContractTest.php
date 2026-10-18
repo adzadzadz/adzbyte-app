@@ -152,6 +152,7 @@ class ApiContractTest extends TestCase
             'api.v1.checkout.show', 'api.v1.orders.store', 'api.v1.orders.index', 'api.v1.orders.show',
             'api.v1.orders.payment.show', 'api.v1.orders.payment.store',
             'api.v1.orders.review', 'api.v1.orders.reply', 'api.v1.orders.resubmit', 'api.v1.orders.accept_proposal',
+            'api.v1.management.payments.show', 'api.v1.management.payments.reconcile',
             'api.v1.management.settings.show', 'api.v1.management.settings.update', 'api.v1.management.orders.index', 'api.v1.management.orders.show',
             ...array_map(fn ($action) => 'api.v1.management.orders.'.$action, array_keys(OrderReviewActions::STAFF)),
             'api.v1.registration.bootstrap', 'api.v1.registration.store',

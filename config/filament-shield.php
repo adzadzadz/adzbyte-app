@@ -3,6 +3,7 @@
 declare(strict_types=1);
 use App\Filament\Pages\CommerceSettings;
 use App\Filament\Resources\Orders\OrderResource;
+use App\Filament\Resources\Payments\PaymentResource;
 use App\Filament\Resources\ProductCategories\ProductCategoryResource;
 use App\Filament\Resources\Products\ProductResource;
 use App\Filament\Resources\Users\UserResource;
@@ -191,6 +192,7 @@ return [
     'resources' => [
         'subject' => 'model',
         'manage' => [
+            PaymentResource::class => ['viewAny', 'view', 'reconcile'],
             OrderResource::class => ['viewAny', 'view', 'approve', 'reject', 'clarify', 'message', 'note', 'propose'],
             ProductCategoryResource::class => ['viewAny', 'view', 'create', 'update'],
             ProductResource::class => [

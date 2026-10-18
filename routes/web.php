@@ -12,6 +12,7 @@ use App\Http\Controllers\Orders\CheckoutController;
 use App\Http\Controllers\Orders\OrderManagementController;
 use App\Http\Controllers\Orders\OrderReviewController;
 use App\Http\Controllers\Orders\PaymentAttemptController;
+use App\Http\Controllers\Orders\PaymentOperationsController;
 use App\Http\Middleware\EnsureAppCartOrigin;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +63,8 @@ Route::middleware(['auth:web', 'verified', 'customer.api', 'throttle:checkout', 
 });
 
 Route::prefix('api/v1/management')->as('api.v1.management.')->middleware(['auth:web', 'verified', 'throttle:checkout', EnsureAppCartOrigin::class])->group(function (): void {
+    Route::get('/payments/{payment}', [PaymentOperationsController::class, 'show'])->whereUlid('payment')->name('payments.show');
+    Route::post('/payments/{payment}/reconcile', [PaymentOperationsController::class, 'reconcile'])->whereUlid('payment')->name('payments.reconcile');
     Route::get('/commerce-settings', [OrderManagementController::class, 'settings'])->name('settings.show');
     Route::put('/commerce-settings', [OrderManagementController::class, 'settings'])->name('settings.update');
     Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');

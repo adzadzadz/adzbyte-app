@@ -1,12 +1,15 @@
 <?php
 
 use App\Actions\Payments\PaymentEventActions;
+use App\Actions\Payments\PaymentOperations;
+use App\Models\User;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\Support\PaymentEventFixture;
 
 [$script, $database, $body, $barrier] = $argv;
+$paymentWorkerCommand = $argv[4] ?? 'receive';
 if (getenv('CATALOG_TEST_DRIVER') === 'mysql') {
     require __DIR__.'/mysql-bootstrap.php';
     if ($database !== getenv('TEST_MYSQL_DATABASE')) {
@@ -33,6 +36,13 @@ $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 config(['services.paymongo.enabled' => true, 'services.paymongo.mode' => 'test', 'services.paymongo.secret_key' => 'sk_test_synthetic_only', 'services.paymongo.webhook_secret' => PaymentEventFixture::SECRET]);
 Http::preventStrayRequests();
+if (! in_array($paymentWorkerCommand, ['receive', 'reconcile'], true)) {
+    throw new RuntimeException('Unknown payment worker command.');
+}
+if ($paymentWorkerCommand === 'reconcile') {
+    $input = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+    Http::fake(fn () => Http::response($input['provider']));
+}
 touch($barrier.'.'.getmypid().'.ready');
 $deadline = microtime(true) + 15;
 while (! is_file($barrier)) {
@@ -42,6 +52,12 @@ while (! is_file($barrier)) {
     usleep(1000);
 }
 try {
+    if ($paymentWorkerCommand === 'reconcile') {
+        $resolution = app(PaymentOperations::class)->reconcile(User::findOrFail($input['actor']), $input['attempt'], $input['event'],
+            ['expected_revision' => 3, 'note' => 'Synthetic concurrent reconciliation'], $input['operation']);
+        echo json_encode(['status' => 'passed', 'resolution' => $resolution->public_id], JSON_THROW_ON_ERROR);
+        exit;
+    }
     $event = app(PaymentEventActions::class)->receive($body, PaymentEventFixture::signature($body));
     echo json_encode(['status' => 'passed', 'state' => $event->state], JSON_THROW_ON_ERROR);
 } catch (HttpException $exception) {

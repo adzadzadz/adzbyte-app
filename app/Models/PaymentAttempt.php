@@ -13,6 +13,11 @@ final class PaymentAttempt extends Model
 
     protected $hidden = ['provider_payload', 'checkout_url'];
 
+    public function getRouteKeyName(): string
+    {
+        return 'public_id';
+    }
+
     protected static function booted(): void
     {
         self::saving(function (self $attempt): void {

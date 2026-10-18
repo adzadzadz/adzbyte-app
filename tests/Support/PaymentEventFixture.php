@@ -19,7 +19,7 @@ final class PaymentEventFixture
                 'payment_intent' => ['id' => 'pi_signed', 'type' => 'payment_intent', 'attributes' => ['amount' => (int) $attempt->amount_minor, 'currency' => 'PHP', 'livemode' => false, 'status' => 'succeeded']],
                 'payments' => [['id' => 'pay_signed', 'type' => 'payment', 'attributes' => ['amount' => (int) $attempt->amount_minor, 'currency' => 'PHP', 'livemode' => false,
                     'status' => 'paid', 'payment_intent_id' => 'pi_signed', 'paid_at' => now()->timestamp, 'source' => ['type' => 'qrph'],
-                    'billing' => ['email' => 'private-buyer@example.test'], 'refunds' => []]]],
+                    'billing' => ['email' => 'private-buyer@example.test'], 'refunds' => [], 'disputed' => false]]],
             ]],
         ]]];
     }

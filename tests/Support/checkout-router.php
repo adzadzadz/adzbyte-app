@@ -37,7 +37,7 @@ foreach (['APP_ENV' => 'local', 'CACHE_STORE' => 'database', 'SESSION_DRIVER' =>
 }
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $browser = getenv('CHECKOUT_HTTP_BROWSER') === '1';
-if (! $browser && $path !== '/api/v1/webhooks/paymongo' && $path !== '/api/v1/checkout' && $path !== '/api/v1/orders' && $path !== '/api/v1/management/orders' && $path !== '/api/v1/management/commerce-settings' && ! preg_match('~^/api/v1/(?:management/)?orders/[0-9A-HJKMNP-TV-Z]{26}(?:/(?:payment|review|reply|resubmit|accept-proposal|approve|reject|clarify|message|note|propose))?$~D', $path)) {
+if (! $browser && $path !== '/api/v1/webhooks/paymongo' && $path !== '/api/v1/checkout' && $path !== '/api/v1/orders' && $path !== '/api/v1/management/orders' && $path !== '/api/v1/management/commerce-settings' && ! preg_match('~^/api/v1/management/payments/[0-9A-HJKMNP-TV-Z]{26}(?:/reconcile)?$~D', $path) && ! preg_match('~^/api/v1/(?:management/)?orders/[0-9A-HJKMNP-TV-Z]{26}(?:/(?:payment|review|reply|resubmit|accept-proposal|approve|reject|clarify|message|note|propose))?$~D', $path)) {
     http_response_code(404);
     exit;
 }
@@ -61,7 +61,17 @@ $app->booted(function () use ($database): void {
     if (DB::connection()->getDatabaseName() !== $database || app()->environment('testing')) {
         throw new RuntimeException('Checkout HTTP isolation or real CSRF guard mismatch.');
     }
-    if (getenv('CHECKOUT_HTTP_PAYMENT_FAKE') === '1') {
+    if (getenv('CHECKOUT_HTTP_PAYMENT_RECONCILE') === '1') {
+        config(['services.paymongo.enabled' => true, 'services.paymongo.mode' => 'test', 'services.paymongo.secret_key' => 'sk_test_synthetic_only']);
+        Http::preventStrayRequests();
+        Http::fake(function ($request) {
+            if ($request->method() !== 'GET' || $request->url() !== 'https://api.paymongo.com/v1/checkout_sessions/cs_signed') {
+                throw new RuntimeException('Unexpected reconciliation provider request.');
+            }
+
+            return Http::response(['data' => PaymentEventFixture::payload(PaymentAttempt::sole())['data']['attributes']['data']]);
+        });
+    } elseif (getenv('CHECKOUT_HTTP_PAYMENT_FAKE') === '1') {
         config(['services.paymongo.enabled' => true, 'services.paymongo.mode' => 'test', 'services.paymongo.secret_key' => 'sk_test_synthetic_only', 'services.paymongo.methods' => ['qrph'], 'services.paymongo.webhook_secret' => PaymentEventFixture::SECRET]);
         Http::preventStrayRequests();
         Http::fake(function ($request) {
