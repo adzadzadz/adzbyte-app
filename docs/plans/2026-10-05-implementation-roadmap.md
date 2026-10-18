@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1/C2/C3 and O1.1/O1.2 qualified; O1.3 in progress |
+| Status | C1/C2/C3/O1 qualified; O2 blocked on deferred test credentials |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -155,13 +155,13 @@ never choose privileges or attach a cart/order to an unverified identity.
 
 ### O1. Order domain
 
-- [ ] Add customers' orders, immutable order-item snapshots, public references,
+- [x] Add customers' orders, immutable order-item snapshots, public references,
   addresses where required, totals, and separate order/payment/fulfillment
   states.
-- [ ] Add append-only order events and authorized transition services.
-- [ ] Add customer ownership and administrator capability policies.
+- [x] Add append-only order events and authorized transition services.
+- [x] Add customer ownership and administrator capability policies.
 - [x] Add the checkout review and terms snapshot (O1.2 verified).
-- [ ] Add the project brief and administrator fit approval, rejection, and
+- [x] Add the project brief and administrator fit approval, rejection, and
   correction boundary before an order becomes payable.
 - [x] Add idempotent cart-to-pending-order conversion (O1.1/O1.2 verified).
 
@@ -292,3 +292,14 @@ is denied in panels and APIs.
 
 C3 identity/B2 qualification: [current evidence](../evidence/2026-10-18-ownership/qualification.md).
 The downstream payable-order guard remains an O1 acceptance requirement.
+
+## O1 qualified checkpoint — 2026-10-18
+
+Source e27fefa / [CI 39101761212](https://github.com/adzadzadz/adzbyte-app/actions/runs/39101761212)
+passes 397 / 6,374 each on PHP 8.3.35 SQLite/MySQL, audits/build/caches.
+Fifteen built cross-app browser checks, real HTTP/OpenAPI/native form and
+database-queue/SMTP success/three-attempt failure/recovery pass. See
+[qualification](../evidence/2026-10-18-order-review/qualification.md).
+O1 is complete. O2 remains blocked on owner-deferred test credentials and actual
+provider sandbox qualification. Downstream phases remain incomplete. This
+supersedes earlier continuation checkpoints; no production/existing DB changed.

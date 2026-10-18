@@ -111,7 +111,7 @@ are needed for O1, and no notification is sent to real recipients in QA.
 
 ## O1.3b implementation checkpoint
 
-Local full suite **397 / 6,373** on PHP 8.5.11, real HTTP/OpenAPI/native form
+Local full suite **397 / 6,374** on PHP 8.5.11, real HTTP/OpenAPI/native form
 consumer, actual queue/SMTP success and three-attempt refusal/exhaustion/recovery,
 and fifteen Chrome checks pass. Exact role/settings permissions are manageable
 and do not gain default grants. Stale settings writes are rejected. Native form
@@ -121,5 +121,8 @@ HEAD behaves as a read. Final verification found and corrected a nested-field
 retention regression and a duplicate documentation operation ID before delivery.
 See [qualification](../evidence/2026-10-18-order-review/qualification.md).
 Pint/metadata/build/links/operation identifiers/whitespace pass. Existing DBs and
-production are unchanged; all private QA state and listeners are removed. Current
-source PHP 8.3 SQLite/MySQL CI must pass before aggregate O1 completion.
+production are unchanged; all private QA state and listeners are removed. Final source e27fefa passes PHP 8.3.35 SQLite/MySQL 8.0.46 CI 39101761212:
+397 / 6,374 each, audits/build/caches passed. O1.3 and aggregate O1 are complete.
+The initial native HTTP CI failure was a missing pre-test asset build; both jobs
+now build assets before tests, with a manifest preflight and no waived gates.
+O2 implementation is blocked on owner-deferred credentials; completion also requires actual sandbox proof.

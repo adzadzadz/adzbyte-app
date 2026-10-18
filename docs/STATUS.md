@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (O1.2 verified; O1.3 review in progress)
+**Last updated:** 2026-10-18 (O1 verified; O2 blocked on deferred test credentials)
 
 ## Current Stage
 
@@ -35,8 +35,9 @@ catalog list/create/view/edit pages and explicit revision/lifecycle actions.
 C1 public catalog, C2 carts/category replacement/handoff, and C3 verified ownership
 are qualified with the real Next consumer in draft PR #6. O1.1/O1.2 immutable
 order snapshots and owned checkout are qualified. O1.3 review, communication,
-settings and recoverable notifications are implemented at `5c74a84`, awaiting
-final supported-engine CI 39101521962. Payment, subscription, purchased-service
+settings and recoverable notifications are qualified at `e27fefa` / CI
+39101761212, 397 / 6,374 independently on PHP 8.3.35 SQLite/MySQL. Aggregate O1
+is verified; the corrected CI builds assets before both full suites. Payment, subscription, purchased-service
 and support-case processing remain pending. Commerce migrations have only run
 in disposable test databases, never the existing development or production DB.
 
@@ -88,21 +89,29 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**O1.3 — implemented; final supported-engine CI pending.**
-O1.3a domain is qualified at 770606b / CI 39099527223 (381 / 6,166 each).
-O1.3b adds native/customer/management API review, Admin action dialogs, versioned
-settings, conversation/private notes and recoverable queued notifications.
-Fifteen actual Chrome checks pass at desktop/320px; real HTTP/OpenAPI/native form
-and database-queue/SMTP success/failure/recovery pass. See
-[review qualification](evidence/2026-10-18-order-review/qualification.md).
-O2 must wait for final O1 qualification and owner-configured PayMongo test credentials.
+**O2 — blocked on PayMongo test configuration deferred by the owner.**
+D06/D07 configurable defaults are recorded. O1 is verified complete at
+`e27fefaa520e3e9407b3046f285fefe551b8dcb3` /
+[CI 39101761212](https://github.com/adzadzadz/adzbyte-app/actions/runs/39101761212):
+**397 tests / 6,374 assertions on each PHP 8.3.35 SQLite/MySQL 8.0.46 job**,
+zero audit findings, builds/formatting/metadata/production caches passed.
+Fifteen actual built Next-to-checkout/Admin/customer browser checks pass at
+1440/320px. Actual HTTP/OpenAPI/native form and database-queue/SMTP
+success/three-attempt failure/recovery pass. See
+[qualification](evidence/2026-10-18-order-review/qualification.md).
+The initial native HTTP CI failure was fixed by building Vite assets before
+both suites; no gates were bypassed. Private fixtures/processes are removed.
+O2 implementation is gated by test credentials. Completion additionally requires
+actual sandbox transport/callback/payment proof. O3/S2 precise
+entitlement/refund access and actual launch merchant/legal settings remain later
+qualification inputs. No production or existing database change occurred.
 
 O1.2 is verified at `538e3ca` / [CI 39098787766](https://github.com/adzadzadz/adzbyte-app/actions/runs/39098787766):
 364 tests / 6,019 assertions independently on PHP 8.3.35 SQLite/MySQL;
 audits, formatting, metadata, build and caches pass. Actual HTTP/OpenAPI and
 nine built Next-to-checkout desktop/320px checks pass. See
 [qualification](evidence/2026-10-18-checkout/qualification.md).
-O1.1 remains verified at `55cbb94` / CI 39097303894. Aggregate O1 remains incomplete. C3 identity/B2 are verified complete at backend
+O1.1 remains verified at `55cbb94` / CI 39097303894. Aggregate O1 is now qualified by the review evidence above. C3 identity/B2 are verified complete at backend
 `40ae2b7` / [CI 39095546942](https://github.com/adzadzadz/adzbyte-app/actions/runs/39095546942):
 331 tests / 5,680 assertions each on PHP 8.3.35 SQLite/MySQL 8.0.46; all source
 checks pass. Next `52148d3` / [CI 39096289880](https://github.com/adzadzadz/adzbyte-next/actions/runs/39096289880)

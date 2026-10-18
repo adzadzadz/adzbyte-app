@@ -15,8 +15,9 @@ PHP 8.3 SQLite/MySQL CI jobs pass. C1.4 adds safe public catalog endpoints and a
 real Next consumer. Categories, persistent carts, replacement notices, handoff,
 registration and verified ownership/merge are qualified through C3/B2. O1.1/O1.2
 add immutable accepted order snapshots, native checkout, owned request summaries
-and versioned REST operations, qualified at 538e3ca / CI 39098787766. Admin review
-is in progress; provider payments, subscriptions, purchased services and support
+and versioned REST operations, qualified at 538e3ca / CI 39098787766. Admin review, customer communication, versioned settings and recoverable
+notifications complete O1 at e27fefa / CI 39101761212 (397 / 6,374 each on
+PHP 8.3 SQLite/MySQL); provider payments, subscriptions, purchased services and support
 cases remain planned. See [current status](docs/STATUS.md) and the
 [handoff](docs/DEVELOPMENT-HANDOFF.md) for the active increment and evidence.
 No real packages are seeded.

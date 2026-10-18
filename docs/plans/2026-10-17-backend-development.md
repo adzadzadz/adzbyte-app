@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1/C2/C3 and O1.1/O1.2 verified; O1.3 in progress |
+| Status | C1/C2/C3/O1 verified; O2 blocked on deferred test credentials |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -380,3 +380,14 @@ Verified at backend 40ae2b7 / Next 52148d3, current CI and actual 15-check brows
 See [qualification](../evidence/2026-10-18-ownership/qualification.md). D02/D05/D08
 configurable defaults are authorized; O1.1 is next. Earlier partial checkpoints
 are historical.
+
+## O1 qualified checkpoint — 2026-10-18
+
+Source e27fefa / [CI 39101761212](https://github.com/adzadzadz/adzbyte-app/actions/runs/39101761212)
+passes 397 / 6,374 each on PHP 8.3.35 SQLite/MySQL, audits/build/caches.
+Fifteen built cross-app browser checks, real HTTP/OpenAPI/native form and
+database-queue/SMTP success/three-attempt failure/recovery pass. See
+[qualification](../evidence/2026-10-18-order-review/qualification.md).
+O1 is complete. O2 remains blocked on owner-deferred test credentials and actual
+provider sandbox qualification. Downstream phases remain incomplete. This
+supersedes earlier continuation checkpoints; no production/existing DB changed.
