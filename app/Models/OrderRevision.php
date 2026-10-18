@@ -19,7 +19,7 @@ final class OrderRevision extends Model
     protected static function booted(): void
     {
         self::creating(function (self $revision): void {
-            $policy = CommercePolicyVersion::findOrFail($revision->policy_version_id);
+            $policy = CommercePolicyVersion::whereKey($revision->policy_version_id)->lockForUpdate()->firstOrFail();
             if ($revision->policy_snapshot != $policy->content || $revision->currency !== 'PHP'
                 || $revision->tax_minor !== OrderTotals::calculate($revision->subtotal_minor, $policy->content['tax_mode'], $policy->content['tax_basis_points'])['tax_minor']
                 || $revision->total_minor !== OrderTotals::calculate($revision->subtotal_minor, $policy->content['tax_mode'], $policy->content['tax_basis_points'])['total_minor']) {

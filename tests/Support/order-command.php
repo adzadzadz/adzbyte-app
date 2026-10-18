@@ -37,6 +37,11 @@ while (! is_file($barrier)) {
     usleep(1000);
 }
 try {
+    if ($inputJson === 'review') {
+        $review = app(OrderActions::class)->review(User::findOrFail((int) $actorId));
+        echo json_encode(['status' => 'passed', 'policy' => $review['policy']->public_id], JSON_THROW_ON_ERROR);
+        exit;
+    }
     $order = app(OrderActions::class)->submit(User::findOrFail((int) $actorId), json_decode($inputJson, true, flags: JSON_THROW_ON_ERROR), $operationId);
     echo json_encode(['status' => 'passed', 'reference' => $order->public_id, 'lines' => $order->currentRevision->lines->count(), 'total' => $order->currentRevision->total_minor], JSON_THROW_ON_ERROR);
 } catch (HttpException $exception) {

@@ -25,7 +25,7 @@ final class CommercePolicyActions
                 return $version;
             }
 
-            return CommercePolicyVersion::findOrFail($settings->current_version_id);
+            return CommercePolicyVersion::whereKey($settings->current_version_id)->lockForUpdate()->firstOrFail();
         });
     }
 
@@ -39,7 +39,7 @@ final class CommercePolicyActions
             $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
             abort_unless($fresh->hasVerifiedEmail() && $fresh->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value]) && $fresh->can('Manage:CommerceSettings'), 403);
             $current = $this->current();
-            $receipt = CommercePolicyVersion::where('operation_id', $operationId)->first();
+            $receipt = CommercePolicyVersion::where('operation_id', $operationId)->lockForUpdate()->first();
             if ($receipt !== null) {
                 abort_unless($receipt->actor_id === $fresh->id && hash_equals($receipt->content_hash, CanonicalValue::hash($content)), 409);
 
