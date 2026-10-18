@@ -36,8 +36,11 @@ owned public references, state and an explicitly validated hosted checkout URL.
 Only a fresh verified customer can initiate their owned, open, approved,
 unexpired, unpaid request with no pending material proposal and a matching order
 revision. Current merchant methods must intersect configured methods. Exact
-decimal totals must fit native provider integer representation; never round or
-truncate. No surcharge; no automatic email receipt or customer brief/internal
+decimal totals must be within the provider Payment Intent limits of PHP 1.00
+to PHP 9,999,999.99 (100–999999999 centavos), also guaranteeing safe native
+integer conversion; never round or truncate. A request may contain at most
+999 provider lines, including an exclusive-tax line. Reject predictable provider
+limits before reserving or dispatching. No surcharge; no automatic email receipt or customer brief/internal
 terms sent to PayMongo. Return URLs are server-controlled and informational.
 
 Reserve the attempt under aggregate locks and change the order to pending before
@@ -94,3 +97,5 @@ remains explicitly deferred. Owner approved configurable partial-refund-retains/
 - [Merchant method capabilities](https://docs.paymongo.com/docs/account-settings-account-capabilities).
 - [Webhook setup/signatures](https://docs.paymongo.com/docs/developer-tools-webhook-setup-management).
 - [Laravel HTTP client](https://laravel.com/docs/13.x/http-client).
+
+Provider PHP amount limits are verified from the [Payment Acceptance introduction](https://docs.paymongo.com/docs/payment-acceptance-introduction). Hosted v2 defers its Payment Intent, so a session must not be created for a total the intent cannot accept.

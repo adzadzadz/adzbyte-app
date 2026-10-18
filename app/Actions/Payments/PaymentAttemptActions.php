@@ -60,8 +60,7 @@ final class PaymentAttemptActions
             }
             $this->eligible($order, $expectedRevision);
             $accepted = OrderAggregate::hydrate($order)->currentRevision;
-            abort_unless(strlen($accepted->total_minor) < strlen((string) PHP_INT_MAX)
-                || (strlen($accepted->total_minor) === strlen((string) PHP_INT_MAX) && strcmp($accepted->total_minor, (string) PHP_INT_MAX) <= 0), 422, 'The total exceeds the provider amount representation.');
+            CheckoutSession::validateRequest($accepted);
             $lines = $accepted->lines->map(fn ($line) => ['name' => $line->snapshot['name'], 'amount' => (int) $line->snapshot['amount_minor'], 'currency' => 'PHP', 'quantity' => 1])->all();
             if ($accepted->policy_snapshot['tax_mode'] === 'exclusive' && $accepted->tax_minor !== '0') {
                 $lines[] = ['name' => 'Tax on accepted service request', 'amount' => (int) $accepted->tax_minor, 'currency' => 'PHP', 'quantity' => 1];

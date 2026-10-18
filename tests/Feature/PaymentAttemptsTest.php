@@ -162,6 +162,27 @@ class PaymentAttemptsTest extends TestCase
         $this->assertDatabaseCount('payment_commands', 1);
     }
 
+    #[DataProvider('providerAmountBounds')]
+    public function test_payment_intent_amount_limits_are_enforced_before_creating_a_session(int $amount, bool $allowed): void
+    {
+        $this->fakeProvider();
+        $this->createPaymentOrder($amount);
+        if ($allowed) {
+            $this->assertSame('active', $this->start((string) Str::uuid())->state);
+            Http::assertSentCount(3);
+        } else {
+            $this->denied(422, fn () => $this->start((string) Str::uuid()));
+            $this->assertDatabaseCount('payment_attempts', 0);
+            $this->assertSame('unpaid', $this->order->fresh()->payment_status);
+            Http::assertSentCount(1);
+        }
+    }
+
+    public static function providerAmountBounds(): array
+    {
+        return [[99, false], [100, true], [999999999, true], [1000000000, false]];
+    }
+
     #[DataProvider('mismatches')]
     public function test_provider_mismatch_never_publishes_a_checkout_url_or_confirms_payment(string $mismatch): void
     {

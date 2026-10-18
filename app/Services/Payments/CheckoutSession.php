@@ -3,12 +3,23 @@
 namespace App\Services\Payments;
 
 use App\Exceptions\PayMongoFailure;
+use App\Models\OrderRevision;
 use App\Models\PaymentAttempt;
 use App\Services\Orders\CanonicalValue;
 use Illuminate\Support\Arr;
 
 final class CheckoutSession
 {
+    public static function validateRequest(OrderRevision $accepted): void
+    {
+        // Hosted v2 defers its Payment Intent. Reject predictable limits before
+        // reserving an attempt, including the separately itemized exclusive tax.
+        abort_unless(strlen($accepted->total_minor) <= 9 && (int) $accepted->total_minor >= 100, 422,
+            'PayMongo supports totals from PHP 1.00 to PHP 9,999,999.99.');
+        $lineCount = $accepted->lines->count() + ($accepted->policy_snapshot['tax_mode'] === 'exclusive' && $accepted->tax_minor !== '0' ? 1 : 0);
+        abort_unless($lineCount >= 1 && $lineCount <= 999, 422, 'PayMongo supports up to 999 checkout line items including itemized tax.');
+    }
+
     public static function verify(PaymentAttempt $attempt, array $response): array
     {
         $data = $response['data'] ?? [];

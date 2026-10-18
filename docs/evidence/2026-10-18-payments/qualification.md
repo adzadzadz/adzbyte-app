@@ -11,6 +11,9 @@ immutable captured payloads, command receipts and once-only after-commit
 dispatch. Native Laravel HTTP client, Eloquent encryption casts, FormRequest,
 Resource, policy and database primitives back thin web/REST adapters. No new
 dependency, custom authentication stack or live-payment activation is added.
+Provider PHP amount limits (100–999999999 centavos) and the 999-line maximum
+including exclusive tax are checked before reservation; eight boundary tests
+cover both. These deterministic rejections keep the order unpaid.
 
 One current attempt blocks duplicate creation. Same UUID/input returns its
 receipt; distinct commands conflict. Ambiguous transport or post-commit local
@@ -50,7 +53,7 @@ cover payment, checkout, order detail redirects and unchanged API 401 behavior.
 | API/consumer | `PaymentTransportTest` / independent Node consumer: real loopback HTTP, encrypted database sessions, actual CSRF/Origin/auth/ownership, strict OpenAPI commands/resources, replay/conflict/privacy and persistent throttling; 1 test / 12 assertions passes locally |
 | Native browser | Built assets; real synthetic-customer login, native preparation POST/redirect, refresh preserves one attempt/receipt, desktop and 320px layout without overflow, keyboard navigation, one h1, accessible status and no warning/error console entries; screenshots below |
 | Actual provider | Native action/client creates one real QRPh test session for PHP 125.00, verifies full resource, replays same command, denies distinct command409; order remains pending; session expired via provider HTTP200/statusexpired; [sanitized receipt](native-test-transport.json) |
-| Source checks | Full final local PHP 8.5.11 SQLite suite **428 tests / 6,664 assertions**, Pint, whitespace, Composer metadata and production build pass; Composer/npm audits both zero findings with network access. Initial sandbox DNS failures were environmental, not successful audits |
+| Source checks | Full final local PHP 8.5.11 SQLite suite **436 tests / 6,688 assertions**, Pint, whitespace, Composer metadata and production build pass; Composer/npm audits both zero findings with network access. Initial sandbox DNS failures were environmental, not successful audits |
 | Supported runtime/delivery | Pending scoped commit/push and current PHP 8.3 SQLite/MySQL CI; local PHP 8.5.11 is supplementary |
 | Payment callback/refund | Separate O2.2/O2.3 gates; no paid transition, callback or refund is claimed |
 | Deployment | Separate authorization gate; existing development/production DB, deployment and live provider settings untouched |
@@ -85,3 +88,9 @@ and was never added to application configuration.
 
 Next: close O2.1 supported-runtime/delivery gates, then dedicated test webhook
 and actual provider payment/callback verification in O2.2.
+
+## Provider-limit follow-up
+
+The current official [amount bounds](https://docs.paymongo.com/docs/payment-acceptance-introduction) and [999-line limit](https://docs.paymongo.com/reference/checkout-session-resource) are checked before persistence/POST. Independent reviewer approval received for this follow-up; 8 focused cases / 24 assertions pass. Initial source `1cadf969591837ccd973f9961dcbc6e2199f2a55` application CI passes PHP8.3.35 / 428 tests / 6,664 assertions. Current follow-up source delivery/CI supersedes that baseline qualification and remains pending.
+
+Final local full suite after provider-limit guards: **436 / 6,688**, PHP8.5.11 SQLite; Pint/whitespace pass. Initial source 1cadf96 now passes both PHP8.3 SQLite/MySQL CI39113969112 jobs. Final follow-up CI remains required.
