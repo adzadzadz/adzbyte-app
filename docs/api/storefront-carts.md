@@ -77,3 +77,21 @@ file. The future Next proxy keeps both server-side in an encrypted HttpOnly
 host-only cookie/secret configuration and enforces its own trusted Origin.
 Handoff transfer is a separate C2.3 one-use 60-second capability; its expiry
 does not expire the persistent cart.
+
+## C2.3 transfer and app-session adapters (partial qualification)
+
+A dedicated fourth `cart:handoff` ability permits
+`POST /api/v1/storefront/carts/{cart}/handoffs` with proof, UUID and empty JSON.
+It returns only `url` and `expires_at`: a fixed app `/cart/handoff#TOKEN` URL
+valid for 60 seconds and one use. Older three-ability tokens cannot mint it.
+No real token was issued or rotated during development.
+
+The landing page opens an anonymous app session and submits its CSRF token plus
+fragment token to `POST /api/v1/cart-handoffs/consume`. Consumption rotates the
+session ID/CSRF token and stores only server-side cart authority. Exact configured
+app Origin and CSRF are required. The response permits only `/cart`.
+Session-only `GET /api/v1/cart`, `DELETE /api/v1/cart/items/{product}` and
+`POST /api/v1/cart/confirm` expose the same private Cart Resource; mutations also
+require the UUID. Callers cannot choose a cart, owner, total or authority hash.
+Native `/cart` forms use these same actions. OpenAPI describes the full contract.
+The link/session lifetime never expires or deletes cart items.

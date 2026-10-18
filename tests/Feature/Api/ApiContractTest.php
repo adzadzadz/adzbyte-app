@@ -139,13 +139,18 @@ class ApiContractTest extends TestCase
             ->values()
             ->all();
 
-        $this->assertSame([
+        $expected = [
             'api.v1.products.index', 'api.v1.products.show',
             'api.v1.storefront.carts.store', 'api.v1.storefront.carts.resolve',
             'api.v1.storefront.carts.show', 'api.v1.storefront.carts.add',
             'api.v1.storefront.carts.remove', 'api.v1.storefront.carts.confirm',
+            'api.v1.storefront.carts.handoffs.store',
+            'api.v1.cart-handoffs.consume', 'api.v1.cart.show', 'api.v1.cart.remove', 'api.v1.cart.confirm',
             'api.v1.me.show',
-        ], $versionedApiRoutes);
+        ];
+        sort($expected);
+        sort($versionedApiRoutes);
+        $this->assertSame($expected, $versionedApiRoutes);
     }
 
     public function test_api_error_responses_preserve_validation_details_and_rate_limit_headers(): void

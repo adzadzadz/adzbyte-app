@@ -9,6 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('api:idempotency:prune')->daily();
+Schedule::command('commerce:prune-cart-handoffs')->daily();
 
 Schedule::command('queue:monitor', [
     config('queue.monitor.connection').':'.config('queue.monitor.queue'),

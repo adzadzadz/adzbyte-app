@@ -78,3 +78,15 @@ View Cart transfer and app remove/review controls at desktop/mobile widths.
 Audit browser bundles/network, console, keyboard/live status and document
 overflow. Full suites/builds/audits/current source CI in both repositories;
 production promotion remains separate. Registration/login merge belongs to C3.
+
+## Backend implementation checkpoint
+
+Local PHP 8.5 suite: 292 tests / 5,200 assertions, including real CSRF tests,
+four-process mint/consume contention, populated migration recovery and issuer
+revocation/key/authority rotation. Pint and production asset build pass.
+PHP 8.3 database CI and actual integrated desktop/mobile browser proof remain
+pending; this card is partial. No C3 implementation has begun.
+
+App sessions use the configured session lifetime; session/browser storage loss
+does not delete or expire persistent cart contents. Guest recovery depends on
+retained authority; authenticated account recovery is a separate C3 gate.

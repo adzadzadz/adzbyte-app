@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\Carts\StorefrontCredential;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -24,7 +25,7 @@ final class RevokeStorefrontToken extends Command
 
             return self::FAILURE;
         }
-        $token->delete();
+        DB::transaction(fn () => $token->delete(), 5);
         Log::notice('Storefront credential revoked by console operator.', ['user_id' => $token->tokenable_id, 'token_id' => $token->id]);
         $this->components->info('Storefront credential revoked.');
 

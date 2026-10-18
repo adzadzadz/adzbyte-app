@@ -13,10 +13,16 @@ final class AddSecurityHeaders
         $response = $next($request);
 
         $response->headers->set('X-Content-Type-Options', 'nosniff');
-        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        if (! $response->headers->has('X-Frame-Options')) {
+            $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+        }
+        if (! $response->headers->has('Referrer-Policy')) {
+            $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        }
         $response->headers->set('Permissions-Policy', 'camera=(), geolocation=(), microphone=()');
-        $response->headers->set('Content-Security-Policy', "frame-ancestors 'self'");
+        if (! $response->headers->has('Content-Security-Policy')) {
+            $response->headers->set('Content-Security-Policy', "frame-ancestors 'self'");
+        }
 
         if (app()->isProduction() && str_starts_with((string) config('app.url'), 'https://')) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000');

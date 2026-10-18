@@ -76,6 +76,28 @@ class StorefrontCartTest extends TestCase
         $this->assertNull(Cart::firstOrFail()->user_id);
     }
 
+    public function test_handoff_http_requires_scoped_issuer_and_proof_and_replays_only_live_links(): void
+    {
+        config(['app.url' => 'https://app.example.test']);
+        $cart = $this->api('POST', '/api/v1/storefront/carts', [], ['Idempotency-Key' => (string) Str::uuid()])->assertCreated()->json('data.public_id');
+        $path = "/api/v1/storefront/carts/$cart/handoffs";
+        $headers = ['Idempotency-Key' => (string) Str::uuid()];
+        $readOnly = $this->service->createToken('read-only', ['cart:read'])->plainTextToken;
+        $this->api('POST', $path, [], [...$headers, 'Authorization' => 'Bearer '.$readOnly])->assertForbidden();
+        $this->api('POST', $path, [], [...$headers, 'X-Cart-Proof' => bin2hex(random_bytes(32))])->assertNotFound();
+        $this->api('POST', $path, ['return_url' => 'https://untrusted.example'], $headers)->assertUnprocessable();
+        $created = $this->api('POST', $path, [], $headers)->assertCreated()->assertHeader('Cache-Control', 'no-store, private');
+        $this->assertMatchesRegularExpression('~^https://app\.example\.test/cart/handoff#[a-f0-9]{64}$~', $created->json('data.url'));
+        $this->assertSame(['url', 'expires_at'], array_keys($created->json('data')));
+        $this->assertStringNotContainsString($this->proof, $created->getContent());
+        $this->assertSame($created->getContent(), $this->api('POST', $path, [], $headers)->assertCreated()->getContent());
+        $this->travel(61)->seconds();
+        $this->api('POST', $path, [], $headers)->assertConflict();
+        $this->api('POST', $path, [], ['Idempotency-Key' => (string) Str::uuid()])->assertCreated();
+        $this->assertDatabaseCount('cart_handoffs', 2);
+        $this->assertDatabaseCount('carts', 1);
+    }
+
     #[DataProvider('badAbilities')]
     public function test_absent_wildcard_unrelated_or_excessive_token_abilities_are_rejected(array $abilities): void
     {

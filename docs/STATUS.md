@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C2.1/C2.2 verified; C2.3 handoff/UI next)
+**Last updated:** 2026-10-18 (C2.1/C2.2 verified; C2.3 partial, backend local gates passed)
 
 ## Current Stage
 
@@ -85,7 +85,7 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**C2.3 — implement [handoff and actual storefront/app controls](plans/2026-10-18-cart-handoff.md).** [Restricted cart REST](plans/2026-10-18-storefront-cart-api.md) is verified at `8656e31`: 266 / 4,929 independently on SQLite/MySQL 8.0.46/PHP 8.3.35 CI, including real HTTP/Node consumer, authority/proof/error/rate/privacy boundaries, audits/build/caches. The [cart domain](plans/2026-10-18-cart-service.md) is verified at `31274f3`, and category/real catalog consumer remain qualified at backend `4859e4e` / frontend `f202534`. Later checkout/payment/support/privacy/subscription inputs remain pending. Actual Next controls, customer notice rendering and handoff/full-cart UI remain unimplemented; C2 aggregate is incomplete.
+**C2.3 — implement [handoff and actual storefront/app controls](plans/2026-10-18-cart-handoff.md).** [Restricted cart REST](plans/2026-10-18-storefront-cart-api.md) is verified at `8656e31`: 266 / 4,929 independently on SQLite/MySQL 8.0.46/PHP 8.3.35 CI, including real HTTP/Node consumer, authority/proof/error/rate/privacy boundaries, audits/build/caches. The [cart domain](plans/2026-10-18-cart-service.md) is verified at `31274f3`, and category/real catalog consumer remain qualified at backend `4859e4e` / frontend `f202534`. Later checkout/payment/support/privacy/subscription inputs remain pending. C2.3 backend handoff/session/full-cart adapters are implemented with 292 tests / 5,200 assertions passing locally, plus Pint/build. PHP 8.3 SQLite/MySQL source CI and actual Next controls/customer notice/browser integration remain pending; C2 aggregate is incomplete.
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
 passed PHP 8.3 CI, including both audits, all 109 tests, production build, and

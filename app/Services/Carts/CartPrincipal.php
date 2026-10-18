@@ -30,6 +30,14 @@ final readonly class CartPrincipal
         return $principal;
     }
 
+    /** Only for an existing trusted server session; HTTP proof always uses guest(). */
+    public static function fromTrustedSessionHash(#[\SensitiveParameter] string $hash): self
+    {
+        abort_unless(preg_match('/^[a-f0-9]{64}$/D', $hash), 404);
+
+        return new self(null, $hash);
+    }
+
     public function actor(): ?User
     {
         return $this->user;

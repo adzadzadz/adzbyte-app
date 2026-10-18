@@ -1014,6 +1014,545 @@
                     }
                 }
             }
+        },
+        "/api/v1/storefront/carts/{cart}/handoffs": {
+            "post": {
+                "operationId": "mintStorefrontCartHandoff",
+                "summary": "Mint a one-use 60-second View Cart transfer",
+                "description": "Requires cart:handoff and independent cart proof. The fixed destination is the app cart landing page. Mint retries recover the same active unused capability; expired/consumed/pruned/rotated issuance requires a new UUID and never revives the old token. No customer is attached and cart items do not expire.",
+                "security": [
+                    {
+                        "storefrontBearer": [],
+                        "cartProof": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "cart",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        },
+                        "description": "Same durable per-cart UUID only for an identical command. Never reuse an issuance UUID for another operation."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmptyObject"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Private transfer URL and expiry; do not log or cache.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartHandoffResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "url": "https://app.example.test/cart/handoff#0000000000000000000000000000000000000000000000000000000000000000",
+                                        "expires_at": "2026-10-18T03:00:00+00:00"
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Invalid service identity/ability.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cart not in proof scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Previous issuance expired, was consumed/pruned or its binding changed; request a new operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid body, proof or UUID reuse.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/api/v1/cart-handoffs/consume": {
+            "post": {
+                "operationId": "consumeAppCartHandoff",
+                "summary": "Atomically consume a transfer into the app guest session",
+                "description": "Uses web/session/CSRF middleware. The nonce-CSP landing page clears the token fragment, then posts same-origin JSON. Success rotates the app session/CSRF and grants only this cart. Replay/expiry/revoked issuer/changed cart authority/key rotation fail closed. On a lost consume response, a fresh View Cart link can recover the unchanged persistent cart. No supplied owner/reference/hash/redirect is accepted.",
+                "security": [
+                    {
+                        "appCartSession": [],
+                        "appCsrf": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Origin",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConsumeCartHandoffRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "App session cookie is rotated; response contains only the fixed next path.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsumeCartHandoffResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "redirect": "/cart"
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Origin does not match APP_URL.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No app cart exists in this trusted session scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "The app CSRF/session token is missing or invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unknown/invalid input or stale offer/operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    },
+                    "410": {
+                        "description": "Transfer is unknown, expired, used or no longer authorized. Obtain a fresh website link.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cart": {
+            "get": {
+                "operationId": "readAppSessionCart",
+                "summary": "Read the current app session cart",
+                "description": "Authority comes only from the trusted server session established by a consumed transfer. No owner/cart selector/proof header is accepted as replacement authority. GET/HEAD are bodyless; mutations require JSON, exact configured Origin and CSRF. 120 requests/minute per app IP.",
+                "security": [
+                    {
+                        "appCartSession": []
+                    }
+                ],
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Private safe fresh cart, same projection as storefront REST.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Origin does not match APP_URL.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No app cart exists in this trusted session scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "The app CSRF/session token is missing or invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unknown/invalid input or stale offer/operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/api/v1/cart/items/{product}": {
+            "delete": {
+                "operationId": "removeAppSessionCartItem",
+                "summary": "Remove an item from the app session cart",
+                "description": "Authority comes only from the trusted server session established by a consumed transfer. No owner/cart selector/proof header is accepted as replacement authority. GET/HEAD are bodyless; mutations require JSON, exact configured Origin and CSRF. 120 requests/minute per app IP.",
+                "security": [
+                    {
+                        "appCartSession": [],
+                        "appCsrf": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "name": "Origin",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        },
+                        "description": "Same durable per-cart UUID only for an identical command. Never reuse an issuance UUID for another operation."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Private safe fresh cart, same projection as storefront REST.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Origin does not match APP_URL.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No app cart exists in this trusted session scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "The app CSRF/session token is missing or invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unknown/invalid input or stale offer/operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmptyObject"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cart/confirm": {
+            "post": {
+                "operationId": "confirmAppSessionCartOffer",
+                "summary": "Confirm current reviewed offers in the app session",
+                "description": "Authority comes only from the trusted server session established by a consumed transfer. No owner/cart selector/proof header is accepted as replacement authority. GET/HEAD are bodyless; mutations require JSON, exact configured Origin and CSRF. 120 requests/minute per app IP.",
+                "security": [
+                    {
+                        "appCartSession": [],
+                        "appCsrf": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Origin",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        },
+                        "description": "Same durable per-cart UUID only for an identical command. Never reuse an issuance UUID for another operation."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Private safe fresh cart, same projection as storefront REST.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Origin does not match APP_URL.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No app cart exists in this trusted session scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "The app CSRF/session token is missing or invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unknown/invalid input or stale offer/operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CartConfirmRequest"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1032,13 +1571,25 @@
             "storefrontBearer": {
                 "type": "http",
                 "scheme": "bearer",
-                "description": "Actual revocable Sanctum personal token for a verified service identity with no roles or direct permissions. Only cart:create, cart:read and cart:write abilities are permitted; wildcard/excessive scopes and session fallback are forbidden."
+                "description": "Actual revocable Sanctum personal token for a verified service identity with no roles/direct permissions. Only cart:create, cart:read, cart:write and cart:handoff abilities are permitted; wildcard/excessive scopes and session fallback are forbidden. Each operation requires its named ability."
             },
             "cartProof": {
                 "type": "apiKey",
                 "in": "header",
                 "name": "X-Cart-Proof",
                 "description": "Server-generated 32-byte guest proof encoded as 64 lowercase hex characters. Required independently of the service token. Never place this proof in URLs or browser JavaScript."
+            },
+            "appCartSession": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "adzbyte-session",
+                "description": "App guest session opened by a valid consumed cart transfer. Cookie name follows SESSION_COOKIE (template default APP_NAME=Adzbyte gives adzbyte-session). This session alone is not customer authentication or ownership attachment."
+            },
+            "appCsrf": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-CSRF-TOKEN",
+                "description": "CSRF value from the app landing page meta tag/current app session. Required for app-session mutations; a Bearer token/cart proof is not a substitute."
             }
         },
         "schemas": {
@@ -1768,6 +2319,101 @@
                 "type": "object",
                 "additionalProperties": false,
                 "maxProperties": 0
+            },
+            "CartHandoff": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "url",
+                    "expires_at"
+                ],
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "pattern": "^https?://[^/?#@]+/cart/handoff#[a-f0-9]{64}$",
+                        "description": "Opaque one-use transfer capability in the fragment, never a guest proof or API credential. Use only the configured app origin. Valid for 60 seconds; cart/items do not expire."
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "CartHandoffResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/CartHandoff"
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "type": "string",
+                                "const": "v1"
+                            }
+                        }
+                    }
+                }
+            },
+            "ConsumeCartHandoffRequest": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "token"
+                ],
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    }
+                }
+            },
+            "ConsumeCartHandoffResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "redirect"
+                        ],
+                        "properties": {
+                            "redirect": {
+                                "type": "string",
+                                "const": "/cart"
+                            }
+                        }
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "type": "string",
+                                "const": "v1"
+                            }
+                        }
+                    }
+                }
             }
         },
         "responses": {

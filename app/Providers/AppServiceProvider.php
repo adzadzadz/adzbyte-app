@@ -82,5 +82,8 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(600)->by('storefront-service:'.$request->user()?->getKey()),
             Limit::perMinute(120)->by('storefront-cart:'.$request->user()?->getKey().'|'.hash('sha256', (string) $request->header('X-Cart-Proof'))),
         ]);
+
+        RateLimiter::for('app-cart', fn (Request $request): Limit => Limit::perMinute(120)
+            ->by('app-cart:'.$request->ip()));
     }
 }

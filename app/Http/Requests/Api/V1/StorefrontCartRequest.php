@@ -8,6 +8,8 @@ use Illuminate\Validation\Validator;
 
 class StorefrontCartRequest extends FormRequest
 {
+    protected bool $requiresProof = true;
+
     public function authorize(): bool
     {
         return true;
@@ -18,7 +20,7 @@ class StorefrontCartRequest extends FormRequest
         return [
             'body' => $this->isRead() ? [] : $this->json()->all(),
             'query' => $this->query(),
-            'proof' => $this->header('X-Cart-Proof'),
+            ...$this->requiresProof ? ['proof' => $this->header('X-Cart-Proof')] : [],
             ...! $this->isRead() ? ['operation_id' => $this->header('Idempotency-Key')] : [],
         ];
     }
@@ -33,7 +35,7 @@ class StorefrontCartRequest extends FormRequest
         return [
             'body' => ['present', $bodyFields === [] ? 'array' : 'array:'.implode(',', $bodyFields), ...$bodyFields === [] ? ['size:0'] : []],
             'query' => ['present', $method === 'resolve' ? 'array:creation_operation_id' : 'array', ...$method !== 'resolve' ? ['size:0'] : []],
-            'proof' => ['required', 'string', 'regex:/^[a-f0-9]{64}$/D'],
+            ...$this->requiresProof ? ['proof' => ['required', 'string', 'regex:/^[a-f0-9]{64}$/D']] : [],
             ...! $this->isRead() ? ['operation_id' => ['required', 'uuid']] : [],
             ...$method === 'add' ? ['body.product' => ['required', 'ulid']] : [],
             ...$method === 'confirm' ? ['body.versions' => ['required', 'array']] : [],

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\StorefrontCartController;
+use App\Http\Controllers\Api\V1\StorefrontHandoffController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
@@ -20,6 +21,7 @@ Route::prefix('v1')->as('api.v1.')->group(function (): void {
             Route::post('carts/{cart}/items', [StorefrontCartController::class, 'add'])->whereUlid('cart')->middleware('storefront.token:cart:write')->name('carts.add');
             Route::delete('carts/{cart}/items/{product}', [StorefrontCartController::class, 'remove'])->whereUlid('cart')->whereUlid('product')->middleware('storefront.token:cart:write')->name('carts.remove');
             Route::post('carts/{cart}/confirm', [StorefrontCartController::class, 'confirm'])->whereUlid('cart')->middleware('storefront.token:cart:write')->name('carts.confirm');
+            Route::post('carts/{cart}/handoffs', [StorefrontHandoffController::class, 'store'])->whereUlid('cart')->middleware('storefront.token:cart:handoff')->name('carts.handoffs.store');
         });
 
     Route::middleware([

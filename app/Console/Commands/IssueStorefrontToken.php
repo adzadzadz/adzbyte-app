@@ -14,7 +14,7 @@ use Illuminate\Validation\ValidationException;
 
 final class IssueStorefrontToken extends Command
 {
-    protected $signature = 'commerce:storefront-token {email} {--create : Create a new dedicated service identity} {--name=storefront} {--days=90} {--abilities=cart:create,cart:read,cart:write}';
+    protected $signature = 'commerce:storefront-token {email} {--create : Create a new dedicated service identity} {--name=storefront} {--days=90} {--abilities=cart:create,cart:read,cart:write,cart:handoff}';
 
     protected $description = 'Issue a narrow server-only cart credential for an unprivileged service identity';
 

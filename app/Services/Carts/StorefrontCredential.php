@@ -17,6 +17,7 @@ final class StorefrontCredential
     {
         return $token instanceof PersonalAccessToken
             && $token->tokenable_id === $user->id
+            && $token->tokenable_type === $user->getMorphClass()
             && $user->hasVerifiedEmail()
             && ! $user->roles()->exists() && ! $user->permissions()->exists()
             && is_array($token->abilities) && $token->abilities !== []

@@ -39,7 +39,7 @@ class CartMigrationTest extends TestCase
         $terms = $product->termsVersions()->create(['version' => 1, 'content' => ['scope' => 'Synthetic scope']]);
         $product->is_available = true;
         $product->save();
-        $this->artisan('migrate', ['--force' => true])->assertSuccessful();
+        $this->artisan('migrate', ['--path' => ['database/migrations/2026_10_18_030000_create_carts.php'], '--force' => true])->assertSuccessful();
         $this->assertDatabaseCount('carts', 0);
         $principal = CartPrincipal::guest(bin2hex(random_bytes(32)));
         $cart = app(CartActions::class)->create($principal, (string) Str::uuid());
@@ -58,7 +58,7 @@ class CartMigrationTest extends TestCase
         foreach (['product_changes', 'product_category_changes', 'api_idempotency_keys'] as $table) {
             $this->assertTrue(Schema::hasTable($table));
         }
-        $this->artisan('migrate', ['--force' => true])->assertSuccessful();
+        $this->artisan('migrate', ['--path' => ['database/migrations/2026_10_18_030000_create_carts.php'], '--force' => true])->assertSuccessful();
         $this->assertDatabaseCount('carts', 0);
         $this->assertDatabaseCount('cart_items', 0);
         $this->assertDatabaseCount('cart_changes', 0);
