@@ -45,7 +45,7 @@
 - [x] Customer, administrator, and super-administrator roles with panel access
   boundaries.
 - [x] Policy-backed administrator user and role management.
-- [ ] Enable safe public customer registration without accepting public roles or
+- [x] Enable safe public customer registration without accepting public roles or
   weakening verification and throttling.
 
 ### F2. API and operational baseline
@@ -140,7 +140,7 @@ CI gates and real integrated desktop/mobile browser proof pass. See
 
 ### C3. Registration and checkout identity
 
-- [ ] Enable public customer registration in `adzbyte-app`.
+- [x] Enable public customer registration in `adzbyte-app` (C3.1 f32bc36, CI 39093386908).
 - [ ] Preserve the cart across registration, verification, login, password
   reset, and session rotation.
 - [ ] Attach or merge the cart only after authentication using documented rules.

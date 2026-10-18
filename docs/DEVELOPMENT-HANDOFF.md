@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | C2 verified; C3.1 partial, local/browser gates passed |
+| Active card | C2/C3.1 verified; C3.2 ownership/merge next |
 | Implementation | API source 8656e31 passes both PHP 8.3.35 database CI jobs: 266 / 4,929 each, audits/build/caches, actual HTTP/Node consumer, narrow credentials and privacy/rate/proof boundaries. Domain/category/Next source gates remain qualified. C2.3 backend now implements atomic 60-second single-use transfer, trusted app session, CSRF/Origin-protected APIs, full-cart page and review/remove forms; 292 tests / 5,200 assertions pass on each PHP 8.3.35 SQLite/MySQL CI job. Next 5467e0d has 141 local tests/type/lint/build/audit passed; actual integrated Chrome desktop/320px passes 16 checks. Frontend CI 39092597589 passed. All C2 development gates qualified in [evidence](evidence/2026-10-18-cart/qualification.md). |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
-| Next action | Read the new C3.1 source CI on both PHP 8.3 database jobs. Local 302 / 5,331 and actual queue/SMTP/activation plus ten desktop/mobile checks pass; resolve any CI failure before C3.2 ownership/merge. Later commercial/privacy decisions remain open. |
+| Next action | Implement [C3.2 ownership/merge](plans/2026-10-18-cart-ownership.md): verified actor + trusted guest authority, canonical active cart, durable duplicate-safe merge and explicit restricted-category conflict choices. C3.1 f32bc36 passed CI 39093386908 on both engines. Later commercial/privacy decisions remain open. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | C3.1 local 302 / 5,331, Pint/metadata/build and actual ten-check browser/SMTP proof; source CI pending. C2.3 292 / 5,200 on each database/PHP 8.3.35 CI; Next 5467e0d: 141 tests/31 files, type/lint/build/audit and actual cart browser proof passed; frontend source CI green |
+| Last recorded runtime tests | C3.1 f32bc36: 302 / 5,331 each on PHP 8.3.35 SQLite/MySQL CI 39093386908, audits/build/caches plus actual ten-check browser/SMTP proof. C2.3 292 / 5,200 on each database/PHP 8.3.35 CI; Next 5467e0d: 141 tests/31 files, type/lint/build/audit and actual cart browser proof passed; frontend source CI green |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure

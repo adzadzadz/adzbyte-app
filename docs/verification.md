@@ -184,3 +184,15 @@ The [evidence record](evidence/2026-10-18-cart/qualification.md) contains PHP 8.
 SQLite/MySQL 292 / 5,200 each, frontend 141 tests/31 files and both CI links,
 16 actual built Next/Laravel desktop/320px checks, migration/concurrency/CSRF/
 privacy/retry proof and cleanup. C3 remains next; deployment is separate.
+
+## C3.1 public registration qualification
+
+Source `f32bc36`, [CI 39093386908](https://github.com/adzadzadz/adzbyte-app/actions/runs/39093386908),
+PHP 8.3.35: **302 tests / 5,331 assertions independently on SQLite/MySQL**,
+audits/format/metadata/build/caches passed. [Contract/evidence](plans/2026-10-18-public-registration.md):
+shared identity/abuse/real-CSRF/Origin/privilege/duplicate tests, four-process
+normalized identity race, actual database worker -> credential-free loopback
+SMTP receipt -> signed activation -> verified session, ten actual desktop/320px
+browser checks with no errors/overflow. Existing activation/panel routes remain
+qualified; no new schema or real mail/provider configuration. All private
+fixtures/servers removed/stopped. C3.1 complete; C3.2/aggregate C3/B2 pending.

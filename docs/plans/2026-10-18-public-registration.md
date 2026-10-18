@@ -1,6 +1,6 @@
 # C3.1 public customer registration
 
-Status: in progress after C2 qualification at backend 0c3d606 / Next 5467e0d.
+Status: verified complete at f32bc36 after C2 qualification at backend 0c3d606 / Next 5467e0d.
 
 Direct app registration accepts name and email only. A queued shared identity
 action reuses trusted provisional customer creation and email activation. The
@@ -55,6 +55,5 @@ public registration without cart, keyboard/generic accepted feedback, actual
 email transport and activation, CSRF and role-injection denial, generic existing
 identity response and used-link protection. No overflow/page/console errors.
 Screenshots/results: `docs/evidence/2026-10-18-registration`. All private fixture
-DB/key/mail/scripts are removed and HTTP/SMTP servers stopped. PHP 8.3 SQLite/
-MySQL CI remains pending; C3.1 is partial and C3.2 must wait. Existing privacy/
+DB/key/mail/scripts are removed and HTTP/SMTP servers stopped. [PHP 8.3.35 CI 39093386908](https://github.com/adzadzadz/adzbyte-app/actions/runs/39093386908) passes **302 / 5,331 independently on SQLite and MySQL**, both audits, metadata, formatting, build and caches. C3.1 is verified; C3.2 is next. Existing privacy/
 terms links do not resolve the remaining D08 production policy decisions.
