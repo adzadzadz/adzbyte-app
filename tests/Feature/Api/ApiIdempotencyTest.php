@@ -126,6 +126,27 @@ class ApiIdempotencyTest extends TestCase
         $this->assertDatabaseCount('api_idempotency_keys', 2);
     }
 
+    public function test_a_key_cannot_replay_a_different_resource_on_the_same_parameterized_route(): void
+    {
+        Route::middleware('idempotent')->post('/api/v1/testing/idempotency/{resource}', function (string $resource) {
+            self::$executions++;
+
+            return response()->json(['data' => ['resource' => $resource]], Response::HTTP_CREATED);
+        })->name('testing.api.resource-idempotency');
+        $this->actingAs(User::factory()->create());
+        $headers = ['Idempotency-Key' => 'parameterized-resource-key'];
+        $this->postJson('/api/v1/testing/idempotency/first', ['payload' => 'same'], $headers)
+            ->assertCreated()->assertJsonPath('data.resource', 'first')->assertHeader('Idempotency-Replayed', 'false');
+        $this->postJson('/api/v1/testing/idempotency/first', ['payload' => 'same'], $headers)
+            ->assertCreated()->assertJsonPath('data.resource', 'first')->assertHeader('Idempotency-Replayed', 'true');
+        $this->postJson('/api/v1/testing/idempotency/second', ['payload' => 'same'], $headers)
+            ->assertConflict()->assertJsonPath('error.code', 'idempotency_key_reused');
+        $this->assertSame(1, self::$executions);
+        $this->postJson('/api/v1/testing/idempotency/second', ['payload' => 'same'], ['Idempotency-Key' => 'different-resource-key'])
+            ->assertCreated()->assertJsonPath('data.resource', 'second');
+        $this->assertSame(2, self::$executions);
+    }
+
     public function test_an_active_pending_request_returns_a_retryable_conflict(): void
     {
         $this->actingAs(User::factory()->create());

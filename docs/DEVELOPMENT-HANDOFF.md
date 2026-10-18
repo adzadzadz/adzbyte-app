@@ -6,10 +6,10 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | O1 verified complete; O2 blocked on owner-deferred PayMongo test configuration |
+| Active card | Independent Laravel review fixes locally verified and approved; current-source CI pending; O2 still blocked on owner-deferred PayMongo test configuration |
 | Implementation | e27fefaa520e3e9407b3046f285fefe551b8dcb3 / CI 39101761212 passes PHP 8.3.35 SQLite/MySQL 8.0.46, 397 / 6,374 each, both audits/builds/cache gates. Fifteen actual browser checks and HTTP/OpenAPI/native form/database-queue/SMTP success/failure/recovery pass. See [qualification](evidence/2026-10-18-order-review/qualification.md). |
 | Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. PayMongo configuration remains absent; owner said they will configure it later. O2 requires test credentials and actual sandbox proof. O3/S2 precise entitlements/refund access and Q launch merchant/legal settings remain later inputs. |
-| Next action | Once owner configures local PayMongo test credentials through normal secret setup (never chat), recheck presence without exposing values, verify current official provider contract, then scope O2.1. Do not treat mocks as provider qualification or advance dependent phases. All private QA fixtures/processes removed; no provider/production or existing DB changes. |
+| Next action | Verify current-source PHP 8.3 SQLite/MySQL CI for the Laravel review corrections, then retain the O2 prerequisite. Once owner configures local PayMongo test credentials through normal secret setup (never chat), recheck presence without exposing values, verify current official provider contract, then scope O2.1. Do not treat mocks as provider qualification or advance dependent phases. See [review evidence](evidence/2026-10-18-laravel-review/qualification.md). |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | Source e27fefa, CI 39101761212: 397 / 6,374 separately on SQLite/MySQL, PHP 8.3.35. Local same counts on PHP 8.5.11. Next unchanged 52148d3 was used in the fifteen-check O1 journey; its CI 39096289880 passes 144 tests/31 files/type/lint/build/audit on Node 22. All private fixtures/processes removed. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |

@@ -7,7 +7,7 @@ use App\Models\CommercePolicyVersion;
 use App\Models\User;
 use App\Services\Orders\CanonicalValue;
 use App\Services\Orders\CommerceRules;
-use App\Services\Orders\OrderTransaction;
+use App\Support\Database\RetryingTransaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,7 +15,7 @@ final class CommercePolicyActions
 {
     public function current(): CommercePolicyVersion
     {
-        return OrderTransaction::run(function (): CommercePolicyVersion {
+        return RetryingTransaction::run(function (): CommercePolicyVersion {
             $settings = DB::table('commerce_settings')->where('id', 1)->lockForUpdate()->firstOrFail();
             if ($settings->current_version_id === null) {
                 $version = (new CommercePolicyVersion)->forceFill(['version' => 1, 'content' => CommerceRules::defaults(), 'operation_id' => '53cde8b0-4bb6-4e11-9bd4-e1ac016ca607']);
@@ -31,7 +31,7 @@ final class CommercePolicyActions
 
     public function read(User $actor): CommercePolicyVersion
     {
-        return OrderTransaction::run(function () use ($actor): CommercePolicyVersion {
+        return RetryingTransaction::run(function () use ($actor): CommercePolicyVersion {
             $this->administrator($actor);
 
             return $this->current();
@@ -44,7 +44,7 @@ final class CommercePolicyActions
         $operationId = strtolower($operationId);
         CommerceRules::validate($content);
 
-        return OrderTransaction::run(function () use ($actor, $content, $operationId, $expectedVersion): CommercePolicyVersion {
+        return RetryingTransaction::run(function () use ($actor, $content, $operationId, $expectedVersion): CommercePolicyVersion {
             $fresh = $this->administrator($actor);
             $current = $this->current();
             $receipt = CommercePolicyVersion::where('operation_id', $operationId)->lockForUpdate()->first();

@@ -9,7 +9,7 @@ use App\Models\OrderMessage;
 use App\Models\OrderProposal;
 use App\Models\User;
 use App\Services\Orders\OrderAggregate;
-use App\Services\Orders\OrderTransaction;
+use App\Support\Database\RetryingTransaction;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 final class OrderReviewRead
@@ -18,7 +18,7 @@ final class OrderReviewRead
     {
         abort_unless($page >= 1 && $page <= 10000, 422);
 
-        return OrderTransaction::run(function () use ($actor, $reference, $staff, $page): array {
+        return RetryingTransaction::run(function () use ($actor, $reference, $staff, $page): array {
             $fresh = $this->actor($actor, $staff ? OrderCapability::View : null);
             app(CommercePolicyActions::class)->current();
             $query = Order::where('public_id', $reference);
@@ -43,7 +43,7 @@ final class OrderReviewRead
     {
         abort_unless($page >= 1 && $page <= 10000, 422);
 
-        return OrderTransaction::run(function () use ($actor, $page) {
+        return RetryingTransaction::run(function () use ($actor, $page) {
             $this->actor($actor, OrderCapability::ViewAny);
 
             return Order::with('currentRevision')->orderByDesc('id')->paginate(20, ['*'], 'page', $page);

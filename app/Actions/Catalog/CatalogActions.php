@@ -10,15 +10,13 @@ use App\Models\ProductChange;
 use App\Models\ProductPrice;
 use App\Models\ProductTerms;
 use App\Models\User;
+use App\Support\Database\RetryingTransaction;
 use Closure;
-use Illuminate\Database\ConcurrencyErrorDetector;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Throwable;
 
 final class CatalogActions
 {
@@ -141,7 +139,7 @@ final class CatalogActions
         ]), JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION));
 
         try {
-            return $this->transaction(function () use ($actor, $product, $action, $operationId, $hash, $write): Model {
+            return RetryingTransaction::run(function () use ($actor, $product, $action, $operationId, $hash, $write): Model {
                 $locked = $product === null ? null : Product::query()->lockForUpdate()->findOrFail($product->getKey());
                 Gate::forUser($actor)->authorize($action, $locked ?? Product::class);
                 // A locking read sees the latest receipt even on MySQL repeatable-read.
@@ -177,24 +175,6 @@ final class CatalogActions
             Gate::forUser($actor)->authorize($action, $product ?? Product::class);
 
             return $this->replay($receipt, $hash);
-        }
-    }
-
-    private function transaction(Closure $write): Model
-    {
-        for ($attempt = 0; ; $attempt++) {
-            try {
-                return DB::transaction($write);
-            } catch (Throwable $exception) {
-                // Retry only after rollback. Brief backoff lets SQLite's other
-                // writer finish rather than exhausting immediate lock retries.
-                // Nested transactions must leave recovery to their outer owner.
-                if ($attempt >= 4 || DB::transactionLevel() > 0
-                    || ! app(ConcurrencyErrorDetector::class)->causedByConcurrencyError($exception)) {
-                    throw $exception;
-                }
-                usleep(10000 * (2 ** $attempt));
-            }
         }
     }
 

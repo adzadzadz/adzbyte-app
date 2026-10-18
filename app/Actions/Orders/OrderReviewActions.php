@@ -20,7 +20,7 @@ use App\Services\Orders\CommerceRules;
 use App\Services\Orders\OrderAggregate;
 use App\Services\Orders\OrderLifecycle;
 use App\Services\Orders\OrderTotals;
-use App\Services\Orders\OrderTransaction;
+use App\Support\Database\RetryingTransaction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use Ramsey\Uuid\Uuid;
@@ -62,7 +62,7 @@ final class OrderReviewActions
 
     public function conversation(User $actor, string $reference): Collection
     {
-        return OrderTransaction::run(function () use ($actor, $reference): Collection {
+        return RetryingTransaction::run(function () use ($actor, $reference): Collection {
             $fresh = $this->actor($actor, null);
             $order = Order::where('user_id', $fresh->id)->where('public_id', $reference)->lockForUpdate()->firstOrFail();
 
@@ -72,7 +72,7 @@ final class OrderReviewActions
 
     public function staffConversation(User $actor, string $reference): Collection
     {
-        return OrderTransaction::run(function () use ($actor, $reference): Collection {
+        return RetryingTransaction::run(function () use ($actor, $reference): Collection {
             $this->actor($actor, OrderCapability::View);
             $order = Order::where('public_id', $reference)->lockForUpdate()->firstOrFail();
 
@@ -83,7 +83,7 @@ final class OrderReviewActions
     /** Scheduled/system operation; no generic status setter or payment transition. */
     public function expire(string $reference): bool
     {
-        return OrderTransaction::run(function () use ($reference): bool {
+        return RetryingTransaction::run(function () use ($reference): bool {
             $order = Order::where('public_id', $reference)->lockForUpdate()->firstOrFail();
             if ($order->status !== 'open' || $order->payment_status !== 'unpaid' || $order->approval_status !== 'approved'
                 || $order->approval_expires_at->isFuture()) {
@@ -105,7 +105,7 @@ final class OrderReviewActions
         $operationId = strtolower($operationId);
         $this->validateInput($action, $input);
 
-        return OrderTransaction::run(function () use ($actor, $reference, $action, $input, $operationId, $staff): Order {
+        return RetryingTransaction::run(function () use ($actor, $reference, $action, $input, $operationId, $staff): Order {
             $fresh = $this->actor($actor, $staff ? self::STAFF[$action] : null);
             // Global policy lock precedes the order, matching checkout's lock order.
             app(CommercePolicyActions::class)->current();

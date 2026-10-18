@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 /** @mixin Product */
 class ProductResource extends ApiResource
 {
-    private const PUBLIC_TERMS = ['scope', 'deliverables', 'exclusions', 'customer_obligations', 'fulfillment', 'entitlements'];
-
     private bool $includeCategory = false;
 
     public function withCategory(): static
@@ -30,7 +28,7 @@ class ProductResource extends ApiResource
                 $media[$key] = $reference;
             }
         }
-        $content = array_filter(array_intersect_key($terms?->content ?? [], array_flip(self::PUBLIC_TERMS)), is_string(...));
+        $content = (new ProductTermsResource($terms?->content ?? []))->resolve($request);
 
         return [
             'public_id' => $this->public_id,

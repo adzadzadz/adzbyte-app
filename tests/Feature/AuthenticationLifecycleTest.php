@@ -19,6 +19,7 @@ use Filament\Facades\Filament;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -174,6 +175,7 @@ class AuthenticationLifecycleTest extends TestCase
         $this->assertFalse(app(ActivateCustomerAccount::class)->handle(
             $staleCustomer,
             'ReplacementPassword123!',
+            sha1($staleCustomer->getEmailForVerification()),
         ));
 
         $this->assertTrue(Hash::check('password', $staleCustomer->refresh()->password));
@@ -196,6 +198,34 @@ class AuthenticationLifecycleTest extends TestCase
         );
 
         $this->get($signedUrl)->assertForbidden();
+    }
+
+    public function test_activation_rejects_an_email_changed_after_the_link_was_authorized(): void
+    {
+        Event::fake([CustomerAccountActivated::class, Verified::class]);
+        $customer = User::factory()->unverified()->create();
+        $customer->assignRole(UserRole::Customer->value);
+        $activationUrl = (new CustomerAccountActivation)->activationUrl($customer);
+        $raced = false;
+        DB::connection()->beforeStartingTransaction(function () use ($customer, &$raced): void {
+            if (! $raced) {
+                $raced = true;
+                User::whereKey($customer->id)->update(['email' => 'changed@example.test']);
+            }
+        });
+
+        $this->post($activationUrl, [
+            'password' => 'ReplacementPassword123!',
+            'password_confirmation' => 'ReplacementPassword123!',
+        ])->assertRedirect('/login');
+
+        $this->assertTrue($raced);
+        $this->assertSame('changed@example.test', $customer->refresh()->email);
+        $this->assertFalse($customer->hasVerifiedEmail());
+        $this->assertTrue(Hash::check('password', $customer->password));
+        $this->assertGuest();
+        Event::assertNotDispatched(Verified::class);
+        Event::assertNotDispatched(CustomerAccountActivated::class);
     }
 
     public function test_activation_submissions_are_rate_limited(): void

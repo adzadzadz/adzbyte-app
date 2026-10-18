@@ -12,15 +12,12 @@ use App\Services\Carts\CartGrant;
 use App\Services\Carts\CartPrincipal;
 use App\Services\Carts\CommerceOrigins;
 use App\Services\Carts\StorefrontCredential;
-use Closure;
-use Illuminate\Database\ConcurrencyErrorDetector;
-use Illuminate\Support\Facades\DB;
+use App\Support\Database\RetryingTransaction;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
-use Throwable;
 
 final class CartHandoffActions
 {
@@ -30,7 +27,7 @@ final class CartHandoffActions
         $operationId = strtolower($operationId);
         abort_unless($principal->actor() === null, 403);
 
-        return $this->transaction(function () use ($principal, $reference, $issuer, $operationId): array {
+        return RetryingTransaction::run(function () use ($principal, $reference, $issuer, $operationId): array {
             $cart = $principal->scope(Cart::query())->where('public_id', $reference)->lockForUpdate()->firstOrFail();
             Gate::forUser(null)->authorize('view', [$cart, $principal]);
             $token = $this->issuer($issuer->id, 403);
@@ -69,7 +66,7 @@ final class CartHandoffActions
     {
         abort_unless(preg_match('/^[a-f0-9]{64}$/D', $secret), 410);
 
-        return $this->transaction(function () use ($secret): CartGrant {
+        return RetryingTransaction::run(function () use ($secret): CartGrant {
             $handoff = CartHandoff::where('token_hash', hash('sha256', $secret))->lockForUpdate()->first();
             abort_unless($handoff !== null && $handoff->consumed_at === null && $handoff->expires_at->isFuture()
                 && hash_equals($secret, $this->token($handoff)), 410);
@@ -113,19 +110,5 @@ final class CartHandoffActions
         }
 
         return hash_hmac('sha256', implode('|', ['cart-handoff:v1', $handoff->public_id, $handoff->cart_id, $handoff->issuer_token_id, $handoff->operation_id]), $key);
-    }
-
-    private function transaction(Closure $callback): mixed
-    {
-        for ($attempt = 0; ; $attempt++) {
-            try {
-                return DB::transaction($callback);
-            } catch (Throwable $exception) {
-                if ($attempt >= 4 || DB::transactionLevel() > 0 || ! app(ConcurrencyErrorDetector::class)->causedByConcurrencyError($exception)) {
-                    throw $exception;
-                }
-                usleep(10000 * (2 ** $attempt));
-            }
-        }
     }
 }

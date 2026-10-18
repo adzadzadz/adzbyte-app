@@ -221,6 +221,7 @@ final class EnsureIdempotentApiRequest
     {
         $contentType = strtolower(trim(strtok((string) $request->header('Content-Type'), ';')));
         $input = [
+            'path' => $request->getPathInfo(),
             'query' => $request->query->all(),
             'body' => $request->request->all(),
             'files' => $this->fingerprintFiles($request->allFiles()),

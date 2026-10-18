@@ -68,6 +68,8 @@ final class UpdateManagedUser
 
         return DB::transaction(function () use ($actor, $target, $data, $roleNames): User {
             $managedUser = User::query()->lockForUpdate()->findOrFail($target->getKey());
+            $actor = User::query()->findOrFail($actor->getKey());
+            Gate::forUser($actor)->authorize('update', $managedUser);
             $currentRoles = $managedUser->getRoleNames()->sort()->values()->all();
             $sortedRoles = collect($roleNames)->sort()->values()->all();
             $rolesChanged = $currentRoles !== $sortedRoles;

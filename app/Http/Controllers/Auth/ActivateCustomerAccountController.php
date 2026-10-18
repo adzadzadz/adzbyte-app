@@ -34,7 +34,7 @@ class ActivateCustomerAccountController extends Controller
         User $user,
         ActivateCustomerAccount $activateCustomerAccount,
     ): RedirectResponse {
-        if (! $activateCustomerAccount->handle($user, $request->validated('password'))) {
+        if (! $activateCustomerAccount->handle($user, $request->validated('password'), (string) $request->route('hash'))) {
             return redirect()->route('filament.account.auth.login');
         }
 

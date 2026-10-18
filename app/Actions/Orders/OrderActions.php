@@ -18,7 +18,7 @@ use App\Services\Orders\CommerceRules;
 use App\Services\Orders\OrderAggregate;
 use App\Services\Orders\OrderLifecycle;
 use App\Services\Orders\OrderTotals;
-use App\Services\Orders\OrderTransaction;
+use App\Support\Database\RetryingTransaction;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -28,7 +28,7 @@ final class OrderActions
     /** Internal review; adapters must explicitly serialize safe fields. */
     public function review(User $actor): array
     {
-        return OrderTransaction::run(function () use ($actor): array {
+        return RetryingTransaction::run(function () use ($actor): array {
             $customer = $this->customer($actor);
             $policy = app(CommercePolicyActions::class)->current();
             $cart = $this->cart($customer);
@@ -42,7 +42,7 @@ final class OrderActions
         Validator::make(['operation_id' => $operationId], ['operation_id' => ['required', 'uuid']])->validate();
         $operationId = strtolower($operationId);
 
-        return OrderTransaction::run(function () use ($actor, $input, $operationId): Order {
+        return RetryingTransaction::run(function () use ($actor, $input, $operationId): Order {
             $customer = $this->customer($actor);
             Gate::forUser($customer)->authorize('create', Order::class);
             $policy = app(CommercePolicyActions::class)->current();
@@ -97,7 +97,7 @@ final class OrderActions
 
     public function read(User $actor, string $reference): Order
     {
-        return OrderTransaction::run(function () use ($actor, $reference): Order {
+        return RetryingTransaction::run(function () use ($actor, $reference): Order {
             $customer = $this->customer($actor);
             // Match review commands: policy before order/revision locks.
             app(CommercePolicyActions::class)->current();
@@ -112,7 +112,7 @@ final class OrderActions
     {
         abort_unless($perPage >= 1 && $perPage <= 50 && $page >= 1 && $page <= 10000, 422);
 
-        return OrderTransaction::run(function () use ($actor, $perPage, $page) {
+        return RetryingTransaction::run(function () use ($actor, $perPage, $page) {
             $customer = $this->customer($actor);
 
             return Order::where('user_id', $customer->id)->with('currentRevision')->orderByDesc('id')->paginate($perPage, ['*'], 'page', $page);

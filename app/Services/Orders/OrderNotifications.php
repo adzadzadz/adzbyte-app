@@ -10,6 +10,7 @@ use App\Models\OrderEvent;
 use App\Models\OrderNotificationDelivery;
 use App\Models\User;
 use App\Notifications\OrderReviewUpdated;
+use App\Support\Database\RetryingTransaction;
 
 final class OrderNotifications
 {
@@ -47,7 +48,7 @@ final class OrderNotifications
 
     public function deliver(int $id): void
     {
-        OrderTransaction::run(function () use ($id): void {
+        RetryingTransaction::run(function () use ($id): void {
             $delivery = OrderNotificationDelivery::whereKey($id)->lockForUpdate()->firstOrFail();
             if ($delivery->sent_at !== null || $delivery->failed_at !== null || $delivery->suppressed_at !== null) {
                 return;
@@ -78,7 +79,7 @@ final class OrderNotifications
             ->where(fn ($q) => $q->whereNull('queued_at')->orWhere('queued_at', '<=', now()->subMinutes(5)))
             ->select('id')->chunkById(100, function ($rows) use (&$count): void {
                 foreach ($rows as $row) {
-                    OrderTransaction::run(function () use ($row, &$count): void {
+                    RetryingTransaction::run(function () use ($row, &$count): void {
                         $delivery = OrderNotificationDelivery::whereKey($row->id)->lockForUpdate()->firstOrFail();
                         if ($delivery->sent_at !== null || $delivery->failed_at !== null || $delivery->suppressed_at !== null || $delivery->queued_at?->greaterThan(now()->subMinutes(5))) {
                             return;

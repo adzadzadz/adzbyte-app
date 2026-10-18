@@ -46,7 +46,7 @@ class OrderReviewTransportTest extends TestCase
         $other->assignRole('customer');
         $product = Product::factory()->published()->create();
         $product->prices()->create(['version' => 1, 'amount_minor' => 12500, 'currency' => 'PHP']);
-        $product->termsVersions()->create(['version' => 1, 'content' => ['scope' => 'Synthetic HTTP scope']]);
+        $product->termsVersions()->create(['version' => 1, 'content' => ['scope' => 'Synthetic HTTP scope', 'internal_note' => 'PRIVATE TRANSPORT METADATA', 'entitlements' => ['internal' => 'PRIVATE TRANSPORT NESTED']]]);
         $product->is_available = true;
         $product->save();
         $carts = app(CartActions::class);

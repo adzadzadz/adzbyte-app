@@ -55,7 +55,7 @@ class OrderReviewAdaptersTest extends TestCase
         $this->customer->assignRole('customer');
         $this->product = Product::factory()->published()->create(['name' => 'Synthetic accepted service']);
         $this->product->prices()->create(['version' => 1, 'amount_minor' => 12500, 'currency' => 'PHP']);
-        $this->product->termsVersions()->create(['version' => 1, 'content' => ['scope' => 'Original synthetic scope']]);
+        $this->product->termsVersions()->create(['version' => 1, 'content' => ['scope' => 'Original synthetic scope', 'internal_note' => 'PRIVATE CATALOG METADATA', 'entitlements' => ['internal' => 'PRIVATE NESTED METADATA']]]);
         $this->product->is_available = true;
         $this->product->save();
         $guest = CartPrincipal::guest(bin2hex(random_bytes(32)));
@@ -92,6 +92,31 @@ class OrderReviewAdaptersTest extends TestCase
         $this->postCommand($path.'/approve', ['expected_revision' => 7])->assertOk()->assertJsonPath('data.order.approval_status', 'approved')->assertJsonPath('data.order.payment_status', 'unpaid');
         $this->assertDatabaseCount('order_revisions', 3);
         $this->assertDatabaseCount('orders', 1);
+    }
+
+    public function test_order_and_proposal_projections_hide_internal_terms_without_changing_snapshots(): void
+    {
+        $order = $this->order();
+        $this->assertSame('PRIVATE CATALOG METADATA', $order->currentRevision->lines->sole()->snapshot['terms']['internal_note']);
+        $this->actingAs($this->customer)->get('/api/v1/orders/'.$order->public_id, ['Accept' => 'application/json'])
+            ->assertOk()->assertJsonPath('data.accepted.lines.0.terms.scope', 'Original synthetic scope')
+            ->assertJsonMissingPath('data.accepted.lines.0.terms.internal_note')->assertJsonMissingPath('data.accepted.lines.0.terms.entitlements')
+            ->assertDontSee('PRIVATE CATALOG METADATA')->assertDontSee('PRIVATE NESTED METADATA');
+        $this->get('/orders/'.$order->public_id)->assertOk()->assertDontSee('PRIVATE CATALOG METADATA')->assertDontSee('PRIVATE NESTED METADATA');
+
+        $this->product->termsVersions()->create(['version' => 2, 'content' => ['scope' => 'Updated public scope', 'internal_note' => 'PRIVATE PROPOSAL METADATA', 'entitlements' => ['internal' => 'PRIVATE PROPOSAL NESTED']]]);
+        $this->actingAs($this->admin);
+        $this->postCommand('/api/v1/management/orders/'.$order->public_id.'/propose', ['expected_revision' => 1, 'message' => 'Updated offer.'])->assertOk();
+        $proposal = OrderProposal::sole();
+        $this->assertSame('PRIVATE PROPOSAL METADATA', $proposal->content['lines'][0]['snapshot']['terms']['internal_note']);
+        $this->actingAs($this->customer)->get('/api/v1/orders/'.$order->public_id.'/review', ['Accept' => 'application/json'])
+            ->assertOk()->assertJsonPath('data.proposal.lines.0.terms.scope', 'Updated public scope')
+            ->assertJsonMissingPath('data.proposal.lines.0.terms.internal_note')->assertJsonMissingPath('data.proposal.lines.0.terms.entitlements')
+            ->assertDontSee('PRIVATE CATALOG METADATA')->assertDontSee('PRIVATE PROPOSAL METADATA')->assertDontSee('PRIVATE PROPOSAL NESTED');
+        $this->get('/orders/'.$order->public_id)->assertOk()->assertSee('Updated public scope')->assertDontSee('PRIVATE PROPOSAL METADATA')->assertDontSee('PRIVATE PROPOSAL NESTED');
+        $this->postCommand('/api/v1/orders/'.$order->public_id.'/accept-proposal', [...$this->correction(2), 'proposal' => $proposal->public_id])
+            ->assertOk()->assertJsonPath('data.order.accepted.lines.0.terms.scope', 'Updated public scope')->assertDontSee('PRIVATE PROPOSAL METADATA')->assertDontSee('PRIVATE PROPOSAL NESTED');
+        $this->assertSame('PRIVATE PROPOSAL METADATA', $order->fresh()->currentRevision->lines->sole()->snapshot['terms']['internal_note']);
     }
 
     public function test_real_csrf_origin_strict_payload_owner_and_capability_denials(): void

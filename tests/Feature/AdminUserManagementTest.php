@@ -155,6 +155,29 @@ class AdminUserManagementTest extends TestCase
         $this->assertTrue($superAdministrator->refresh()->hasExactRoles(UserRole::SuperAdmin->value));
     }
 
+    public function test_identity_updates_reauthorize_a_target_promoted_after_it_was_loaded(): void
+    {
+        $administrator = $this->userWithRole(UserRole::Administrator);
+        $administrator->givePermissionTo(Permission::findOrCreate('Update:User', 'web'));
+        $target = $this->userWithRole(UserRole::Customer);
+        $target->load('roles');
+        $originalName = $target->name;
+        User::findOrFail($target->id)->syncRoles([UserRole::SuperAdmin->value]);
+
+        try {
+            app(UpdateManagedUser::class)->handle(
+                $administrator,
+                $target,
+                ['name' => 'Unauthorized change', 'email' => $target->email],
+                [UserRole::SuperAdmin->value],
+            );
+            $this->fail('A stale customer model bypassed the protected-user policy.');
+        } catch (AuthorizationException) {
+            $this->assertSame($originalName, $target->refresh()->name);
+            $this->assertTrue($target->hasExactRoles(UserRole::SuperAdmin->value));
+        }
+    }
+
     public function test_managed_users_require_a_valid_identity_and_application_access_role(): void
     {
         $superAdministrator = $this->userWithRole(UserRole::SuperAdmin);

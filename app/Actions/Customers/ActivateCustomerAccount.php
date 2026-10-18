@@ -13,17 +13,18 @@ use Illuminate\Validation\Rules\Password;
 
 final class ActivateCustomerAccount
 {
-    public function handle(User $user, string $password): bool
+    public function handle(User $user, string $password, string $verificationHash): bool
     {
         $validated = Validator::make(['password' => $password], [
             'password' => ['required', Password::defaults()],
         ])->validate();
 
-        $activatedUser = DB::transaction(function () use ($user, $validated): ?User {
+        $activatedUser = DB::transaction(function () use ($user, $validated, $verificationHash): ?User {
             $lockedUser = User::query()->lockForUpdate()->findOrFail($user->getKey());
 
             if (! $lockedUser->hasRole(UserRole::Customer->value)
-                || $lockedUser->hasVerifiedEmail()) {
+                || $lockedUser->hasVerifiedEmail()
+                || ! hash_equals(sha1($lockedUser->getEmailForVerification()), $verificationHash)) {
                 return null;
             }
 

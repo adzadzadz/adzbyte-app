@@ -18,7 +18,10 @@ final class OrderReviewResource extends ApiResource
             $offer = ['public_id' => $proposal->public_id, 'is_current' => $review['proposal_current'], 'created_at' => $proposal->created_at->toIso8601String(),
                 ...Arr::only($proposal->content, ['currency', 'subtotal_minor', 'tax_minor', 'total_minor']),
                 'policy' => ['public_id' => $policy->public_id, 'version' => $policy->version, ...$policy->content],
-                'lines' => array_map(fn ($line) => Arr::only($line['snapshot'], ['public_id', 'name', 'quantity', 'amount_minor', 'currency', 'price_version', 'terms_version', 'terms']), $proposal->content['lines'])];
+                'lines' => array_map(fn ($line) => [
+                    ...Arr::only($line['snapshot'], ['public_id', 'name', 'quantity', 'amount_minor', 'currency', 'price_version', 'terms_version']),
+                    'terms' => (object) (new ProductTermsResource($line['snapshot']['terms']))->resolve($request),
+                ], $proposal->content['lines'])];
         }
         $messages = $review['messages'];
 

@@ -17,15 +17,14 @@ use App\Models\ProductTerms;
 use App\Models\User;
 use App\Services\Carts\CartPrincipal;
 use App\Services\Carts\CartSnapshot;
+use App\Support\Database\RetryingTransaction;
 use Closure;
-use Illuminate\Database\ConcurrencyErrorDetector;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Throwable;
 
 final class CartActions
 {
@@ -36,7 +35,7 @@ final class CartActions
         $attributes = ['user_id' => $principal->actor()?->id, 'credential_hash' => $principal->credentialHash()];
         $hash = $this->hash(['create', $attributes]);
         try {
-            return $this->transaction(function () use ($principal, $operationId, $attributes, $hash): array {
+            return RetryingTransaction::run(function () use ($principal, $operationId, $attributes, $hash): array {
                 $principal->assertValid();
                 $cart = Cart::where('creation_operation_id', $operationId)->lockForUpdate()->first();
                 if ($cart !== null) {
@@ -64,14 +63,14 @@ final class CartActions
 
     public function read(CartPrincipal $principal, string $reference): array
     {
-        return $this->transaction(fn (): array => $this->snapshot($this->resolve($principal, $reference, 'view')));
+        return RetryingTransaction::run(fn (): array => $this->snapshot($this->resolve($principal, $reference, 'view')));
     }
 
     public function resolveCreation(CartPrincipal $principal, string $operationId): array
     {
         $operationId = $this->operation($operationId);
 
-        return $this->transaction(function () use ($principal, $operationId): array {
+        return RetryingTransaction::run(function () use ($principal, $operationId): array {
             $cart = $principal->scope(Cart::query())->where('creation_operation_id', $operationId)->lockForUpdate()->firstOrFail();
             Gate::forUser($principal->actor())->authorize('view', [$cart, $principal]);
 
@@ -157,7 +156,7 @@ final class CartActions
         $operationId = $this->operation($operationId);
         $hash = $this->hash([$action, $input]);
 
-        return $this->transaction(function () use ($principal, $reference, $action, $operationId, $hash, $command): array {
+        return RetryingTransaction::run(function () use ($principal, $reference, $action, $operationId, $hash, $command): array {
             $cart = $this->resolve($principal, $reference, 'update');
             $receipt = $cart->changes()->where('operation_id', $operationId)->lockForUpdate()->first();
             if ($receipt !== null) {
@@ -186,7 +185,7 @@ final class CartActions
 
     public function owned(User $actor): ?array
     {
-        return $this->transaction(function () use ($actor): ?array {
+        return RetryingTransaction::run(function () use ($actor): ?array {
             $actor = $this->verifiedCustomer($actor);
             $link = CustomerCart::where('user_id', $actor->id)->lockForUpdate()->first();
 
@@ -203,7 +202,7 @@ final class CartActions
 
     public function mergePreview(User $actor, CartPrincipal $guest, string $sourceReference): array
     {
-        return $this->transaction(function () use ($actor, $guest, $sourceReference): array {
+        return RetryingTransaction::run(function () use ($actor, $guest, $sourceReference): array {
             $actor = $this->verifiedCustomer($actor);
             abort_unless($guest->actor() === null && $guest->credentialHash() !== null, 403);
             $source = $guest->scope(Cart::query())->where('public_id', $sourceReference)->firstOrFail();
@@ -234,7 +233,7 @@ final class CartActions
         $authority = hash('sha256', $guest->credentialHash());
         $hash = $this->hash(['attach', $actor->id, $sourceReference, $guest->credentialHash(), $fingerprint, $choices]);
 
-        return $this->transaction(function () use ($actor, $guest, $sourceReference, $operationId, $fingerprint, $choices, $authority, $hash): array {
+        return RetryingTransaction::run(function () use ($actor, $guest, $sourceReference, $operationId, $fingerprint, $choices, $authority, $hash): array {
             $actor = $this->verifiedCustomer($actor);
             $source = Cart::where('public_id', $sourceReference)->where(function ($query) use ($guest, $actor, $operationId, $authority): void {
                 $query->where(fn ($query) => $guest->scope($query)->whereNull('merged_into_cart_id'))
@@ -442,20 +441,6 @@ final class CartActions
     {
         if (! hash_equals($original, $incoming)) {
             throw ValidationException::withMessages(['operation_id' => 'This operation ID was already used for another cart command.']);
-        }
-    }
-
-    private function transaction(Closure $callback): mixed
-    {
-        for ($attempt = 0; ; $attempt++) {
-            try {
-                return DB::transaction($callback);
-            } catch (Throwable $exception) {
-                if ($attempt >= 4 || DB::transactionLevel() > 0 || ! app(ConcurrencyErrorDetector::class)->causedByConcurrencyError($exception)) {
-                    throw $exception;
-                }
-                usleep(10000 * (2 ** $attempt));
-            }
         }
     }
 }

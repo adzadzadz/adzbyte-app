@@ -8,7 +8,7 @@ const schemas=JSON.parse(await readFile(new URL('../../docs/api/openapi.json',im
 const tokens={};const checks=[];
 async function call(actor,method,path,body,status,schema,headers={}) {
  const response=await fetch(origin+path,{method,redirect:'error',headers:{Accept:'application/json',Cookie:cookies[actor],Origin:origin,...(tokens[actor]?{'X-CSRF-TOKEN':tokens[actor]}:{}),...(body===undefined?{}:{'Content-Type':'application/json','Idempotency-Key':randomUUID()}),...headers},body:body===undefined?undefined:JSON.stringify(body)});
- assert.equal(response.status,status,`${method} ${path} unexpected status`);assert.match(response.headers.get('cache-control'),/no-store/);assert.match(response.headers.get('cache-control'),/private/);const result=await response.json();checkSchema(result,schemas[schema],schemas);if(result.meta?.csrf_token)tokens[actor]=result.meta.csrf_token;return result;
+ assert.equal(response.status,status,`${method} ${path} unexpected status`);assert.match(response.headers.get('cache-control'),/no-store/);assert.match(response.headers.get('cache-control'),/private/);const result=await response.json();checkSchema(result,schemas[schema],schemas);assert(!JSON.stringify(result).includes('PRIVATE TRANSPORT'),`${path} exposed internal product terms`);if(result.meta?.csrf_token)tokens[actor]=result.meta.csrf_token;return result;
 }
 const review=await call('customer','GET','/api/v1/checkout',undefined,200,'CheckoutResponse');
 const submitted=await call('customer','POST','/api/v1/orders',{brief:{goal:'Synthetic HTTP goal',scope:'Synthetic scope'},billing:{name:'Synthetic buyer',email:'buyer@example.test',country:'PH'},accept_terms:true,fingerprint:review.data.fingerprint},201,'OrderResponse');
@@ -24,6 +24,7 @@ await call('admin','POST',staff+'/clarify',{expected_revision:2,message:'Please 
 await call('customer','POST',customer+'/reply',{expected_revision:3,message:'Additional context.'},200,'OrderReviewResponse');
 checks.push('real encrypted customer/Admin sessions, CSRF, exact Origin, UUID, roles and cross-owner denial; internal-note counts and text remain private');
 const proposal=await call('admin','POST',staff+'/propose',{expected_revision:4,message:'Review this current offer.'},200,'OrderReviewResponse');assert.equal(proposal.data.proposal.is_current,true);
+const proposalPage=await fetch(origin+'/orders/'+ref,{headers:{Cookie:cookies.customer}});assert.equal(proposalPage.status,200);const proposalHtml=await proposalPage.text();assert(proposalHtml.includes('Synthetic HTTP scope'));assert(!proposalHtml.includes('PRIVATE TRANSPORT'));
 const acceptance={expected_revision:5,proposal:proposal.data.proposal.public_id,brief:submitted.data.accepted.brief,billing:submitted.data.accepted.billing,accept_terms:true};const uuid=randomUUID();
 data=await call('customer','POST',customer+'/accept-proposal',acceptance,200,'OrderReviewResponse',{'Idempotency-Key':uuid});assert.equal(data.data.order.approval_status,'pending');assert.equal(data.data.order.accepted.version,2);
 await call('customer','POST',customer+'/accept-proposal',acceptance,200,'OrderReviewResponse',{'Idempotency-Key':uuid});

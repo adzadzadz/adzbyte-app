@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (O1 verified; O2 blocked on deferred test credentials)
+**Last updated:** 2026-10-18 (independent Laravel review corrections verified locally; current CI pending)
 
 ## Current Stage
 
@@ -88,6 +88,14 @@ specified; D02 configurable starter tax/receipt rules are implemented; merchant 
 resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
+
+**Independent Laravel checkup:** reviewer reproduced and approved corrections
+for private terms exposure, activation email and managed-user authorization races,
+and latent parameterized-route idempotency replay. Five transaction retry copies
+now share one native-backed helper. Full local PHP 8.5.11 SQLite **401 / 6,427**,
+focused actual HTTP metadata/privacy proof, formatting, metadata and build pass.
+Current PHP 8.3 SQLite/MySQL source CI must pass before advancing. See the
+[review and qualification record](evidence/2026-10-18-laravel-review/qualification.md).
 
 **O2 — blocked on PayMongo test configuration deferred by the owner.**
 D06/D07 configurable defaults are recorded. O1 is verified complete at
