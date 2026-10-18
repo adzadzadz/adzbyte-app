@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1/C2/C3 identity and B2 verified; O1.1 next |
+| Status | C1/C2/C3 and O1.1/O1.2 verified; O1.3 in progress |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |

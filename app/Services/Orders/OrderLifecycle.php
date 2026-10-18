@@ -10,7 +10,7 @@ final class OrderLifecycle
 
     public const TRANSITIONS = [
         'status' => ['open' => ['cancelled', 'completed'], 'cancelled' => [], 'completed' => []],
-        'approval_status' => ['pending' => ['clarification', 'approved', 'rejected'], 'clarification' => ['pending', 'rejected'], 'approved' => ['clarification', 'expired'], 'rejected' => [], 'expired' => ['pending']],
+        'approval_status' => ['pending' => ['clarification', 'approved', 'rejected'], 'clarification' => ['pending', 'rejected'], 'approved' => ['clarification', 'expired'], 'rejected' => [], 'expired' => ['pending', 'clarification']],
         // Reserved provider states; O2 must introduce verified provider transitions.
         'payment_status' => ['unpaid' => [], 'pending' => [], 'paid' => [], 'partially_refunded' => [], 'refunded' => [], 'disputed' => []],
         // O3 adds fulfillment commands after paid state is available.

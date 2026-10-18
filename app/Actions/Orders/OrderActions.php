@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Services\Carts\CartPrincipal;
 use App\Services\Orders\CanonicalValue;
 use App\Services\Orders\CommerceRules;
+use App\Services\Orders\OrderAggregate;
 use App\Services\Orders\OrderLifecycle;
 use App\Services\Orders\OrderTotals;
 use App\Services\Orders\OrderTransaction;
@@ -145,6 +146,6 @@ final class OrderActions
 
     private function hydrate(Order $order): Order
     {
-        return $order->load(['currentRevision.lines', 'currentRevision.policyVersion']);
+        return OrderAggregate::hydrate($order);
     }
 }

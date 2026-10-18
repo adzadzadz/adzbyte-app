@@ -37,7 +37,7 @@ final class CommercePolicyActions
 
         return OrderTransaction::run(function () use ($actor, $content, $operationId): CommercePolicyVersion {
             $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
-            abort_unless($fresh->hasVerifiedEmail() && $fresh->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value]) && $fresh->can('Manage:CommerceSettings'), 403);
+            abort_unless($fresh->hasVerifiedEmail() && $fresh->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value]) && $fresh->hasPermissionTo('Manage:CommerceSettings'), 403);
             $current = $this->current();
             $receipt = CommercePolicyVersion::where('operation_id', $operationId)->lockForUpdate()->first();
             if ($receipt !== null) {

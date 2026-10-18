@@ -6,10 +6,10 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | O1.3 Admin review; O1.2 verified complete |
+| Active card | O1.3a review domain implemented; local passed 381 / 6,167; source CI qualification pending. O1.3b adapters unstarted. |
 | Implementation | O1.2 source 538e3ca passes PHP 8.3 SQLite/MySQL CI 39098787766, 364 / 6,019 each, audits/build/cache gates. Actual HTTP/OpenAPI and nine built Next-to-checkout browser checks pass. See [qualification](evidence/2026-10-18-checkout/qualification.md). |
 | Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. PayMongo test credentials deferred by owner; O2 provider qualification blocked until configured. O3/S2 precise entitlements/refund access still requires definition. |
-| Next action | Implement O1.3 shared capability-backed review/conversation/settings, approval expiry and explicit acceptance of material changes. Preserve immutable revisions, owner queries, separate private notes and disabled payments. Qualify all applicable gates before O2. |
+| Next action | Qualify O1.3a domain on full PHP 8.3 SQLite/MySQL CI before O1.3b Admin/customer adapters and notifications. See [review contract](plans/2026-10-18-order-review.md). Local tests cover four independent-process races and populated migration recovery. No current database migrated; payment transitions disabled. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | Backend 331 / 5,680 each on PHP 8.3.35 SQLite/MySQL 8.0.46 CI 39095546942; Next Node 22.23.3 CI 39096289880, 144 tests/31 files/type/lint/build/audit. Desktop/320px actual browser checks pass. All private QA fixtures/processes removed. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
@@ -406,3 +406,19 @@ copying their full contents into the session log.
   Admin catalog management, public API/caching, B1, and storefront integration
   are still unimplemented. This evidence-only follow-up is intended as
   `Record successful dependency CI qualification`; inspect Git for final delivery.
+
+### 2026-10-18 — O1.2 qualified and O1.3a review domain
+
+- Checkout 538e3ca passes CI 39098787766 on PHP 8.3.35 SQLite/MySQL, 364 / 6,019
+  each. Nine actual built cross-app browser checks and independent HTTP consumer
+  qualify O1.2. Evidence checkpoint be64b3b pushed.
+- Recorded owner-authorized configurable D06/D07 defaults. PayMongo credentials
+  are deferred by owner; no provider operation or secret changes authorized.
+- O1.3a shared review domain implemented: exact fresh permissions, public/private
+  messages, clarification/resubmission, immutable material proposals/acceptance,
+  approval validity and scheduled idempotent expiry. No payment transitions.
+- Full local 381 / 6,167 passes on PHP 8.5.11; four process race cases and populated
+  migration recovery pass. Pint/metadata/build/schedule/whitespace pass. Current
+  PHP 8.3 SQLite/MySQL source CI required before O1.3b adapters/notifications.
+- No existing database migration, real data, credentials, release or production
+  change. No browser/server fixture started for this domain increment.

@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C3 identity/B2 verified; O1.1 next)
+**Last updated:** 2026-10-18 (O1.2 verified; O1.3 review in progress)
 
 ## Current Stage
 
@@ -33,8 +33,8 @@ capability-backed shared catalog actions, locked revision allocation, persistent
 retry receipts, and actor/time audit history. C1.3 adds protected administrator
 catalog list/create/view/edit pages and explicit revision/lifecycle actions.
 C1.4 public catalog list/detail routes are verified on both supported database engines: explicit safe fields, exact string money, pagination/filtering, named throttling and ETag revalidation. The real Next.js consumer is delivered separately in draft PR #6; its source CI passes. C2.1/C2.2 add persistent carts and proof-scoped server REST operations, including category replacement and durable notice effects. Actual storefront cart controls and app handoff/UI remain C2.3 (now verified); checkout, order,
-payment, subscription, purchased-product, request, and report records/routes
-remain unimplemented. Commerce migrations have only run in disposable test
+payment, subscription, purchased-service, support-request and report routes
+remain unimplemented; O1.1/O1.2 order snapshots and owned checkout routes are qualified. Commerce migrations have only run in disposable test
 databases, not the development or production database.
 
 The approved first commerce approach is a narrow native Laravel vertical slice

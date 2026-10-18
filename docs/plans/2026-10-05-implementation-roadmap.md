@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1/C2/C3 identity and B2 qualified; O1.1 next |
+| Status | C1/C2/C3 and O1.1/O1.2 qualified; O1.3 in progress |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |

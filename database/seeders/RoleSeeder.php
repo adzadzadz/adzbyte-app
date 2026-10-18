@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\OrderCapability;
 use App\Enums\ProductCapability;
 use App\Enums\ProductCategoryCapability;
 use App\Enums\UserRole;
@@ -17,7 +18,7 @@ class RoleSeeder extends Seeder
             Role::findOrCreate($role->value, 'web');
         }
 
-        foreach ([...ProductCapability::cases(), ...ProductCategoryCapability::cases()] as $capability) {
+        foreach ([...ProductCapability::cases(), ...ProductCategoryCapability::cases(), ...OrderCapability::cases()] as $capability) {
             Permission::findOrCreate($capability->value, 'web');
         }
     }
