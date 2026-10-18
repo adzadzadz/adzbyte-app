@@ -1,6 +1,7 @@
 # C2.2 restricted cart REST contract
 
-Status: planned; C2.1 must pass its current SQLite/MySQL PHP 8.3 gates first.
+Status: implemented, verification pending. C2.1 qualified at 31274f3 before this
+card began. The full supported-runtime/database CI gates remain pending here.
 
 ## Authority and operations
 
@@ -67,3 +68,42 @@ safe serialization and exact totals/effects; OpenAPI validation and a real HTTP
 Node consumer using only synthetic disposable credentials. Full regression and
 both database/PHP 8.3 CI gates. No provider or browser UI is introduced in C2.2;
 actual Next controls, notice and full-cart/handoff browser proof remain C2.3.
+
+## Evidence checkpoint
+
+Local PHP 8.5.11/SQLite full suite: **266 tests / 4,929 assertions**, passed.
+Includes 17 API cases (data-provider expansions included), five credential
+command cases and the independent actual HTTP/Node consumer. Tests exercise
+real Sanctum Bearer tokens, wildcard/excessive/read-only scopes, revoked/expired
+credentials, role/direct-permission and unverified identities, first-party
+session fallback, independent cart proof, ownership/quantity/total injection,
+UUID reuse, resolve recovery, no-store/ETag/cookie behavior, strict JSON objects,
+bodyless GET/HEAD, current-offer review/removal, JSON schema examples and safe
+projections. A configured first-party Origin with an actual Bearer token remains
+stateless and creates no session/cookie. Case-insensitive dedicated-identity
+creation refuses an existing customer rather than creating a roleless duplicate.
+
+The independent Node consumer uses the actual localhost Laravel HTTP kernel and
+database cache, not API mocks. It proves mixed-category replacement with stable
+notice effects, exact subtotal beyond native integer range, create retry and
+proof-scoped recovery, wrong proof denial, confirmation/removal/empty cart,
+OpenAPI schemas/examples and a 429/Retry-After persisting across real HTTP
+requests. The PHP suite also sends 600 distinct-proof requests to prove that
+changing proof cannot bypass the separate service-wide limiter. All credentials
+are synthetic environment-only fixtures and are destroyed with their isolated
+database/server; no existing database or real secret was changed.
+
+Resource review found a draft-data boundary: an item saved while published may
+later become a draft/archive. The explicit cart projection now withholds its
+current name/content/price/terms, uses an unavailable placeholder and marks the
+subtotal incomplete. Replacement notices likewise withhold a now-private name.
+The regression exercises unpublished content and revised draft prices. No new
+schema/dependency/provider/browser surface is introduced. Existing migration,
+content/API and independent-process cart/category/catalog regressions pass.
+
+Pint, Composer strict metadata, whitespace and actual route/middleware discovery
+pass. Current PHP 8.3 CI on both supported databases, audits/build/cache and
+pushed-source readback remain required before C2.2 completion or C2.3 work.
+See [caller/credential documentation](../api/storefront-carts.md). Actual Next
+controls, customer notice rendering and handoff are intentionally unimplemented
+until that gate passes; C2 aggregate is incomplete.

@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (C2.1 verified; C2.2 restricted REST next)
+**Last updated:** 2026-10-18 (C2.1 verified; C2.2 restricted REST CI pending)
 
 ## Current Stage
 
@@ -85,7 +85,7 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**C2.2 — implement [restricted cart REST access](plans/2026-10-18-storefront-cart-api.md).** The [persistent cart service](plans/2026-10-18-cart-service.md) is verified at `31274f3`: PHP 8.3.35 CI passes 243 / 1,671 on both SQLite and MySQL, audits/build/caches included. Scope covers no-expiry, exact subtotal, replacement plus durable notice effects, offer review, private authority, migration recovery and five real four-process race scenarios. The [category prerequisite](plans/2026-10-18-category-cart-controls.md) is also verified at backend `4859e4e` / frontend `f202534`. Owner rules are in the [decision register](decisions/commerce-development.md). Later checkout/payment/support/privacy/subscription inputs remain pending. Cart HTTP/UI adapters and the actual customer-facing notification remain unimplemented; C2 aggregate is incomplete.
+**C2.2 — qualify [restricted cart REST access](plans/2026-10-18-storefront-cart-api.md).** Protected create/resolve/read/add/replace/remove/confirm endpoints, narrow credential commands, safe Resources and OpenAPI are implemented. Full local suite passes 266 / 4,929, including real Bearer authority, ownership/proof/error/rate/privacy boundaries and an actual HTTP/Node consumer. Both supported-engine/PHP 8.3 CI gates remain pending; C2.3 has not begun. The [cart domain](plans/2026-10-18-cart-service.md) is verified at `31274f3` (243 / 1,671 per database), and category/real catalog consumer remain qualified at backend `4859e4e` / frontend `f202534`. Later checkout/payment/support/privacy/subscription inputs remain pending. Actual Next controls, customer notice rendering and handoff/full-cart UI remain unimplemented; C2 aggregate is incomplete.
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
 passed PHP 8.3 CI, including both audits, all 109 tests, production build, and

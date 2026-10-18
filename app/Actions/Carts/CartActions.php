@@ -64,6 +64,18 @@ final class CartActions
         return $this->transaction(fn (): array => $this->snapshot($this->resolve($principal, $reference, 'view')));
     }
 
+    public function resolveCreation(CartPrincipal $principal, string $operationId): array
+    {
+        $operationId = $this->operation($operationId);
+
+        return $this->transaction(function () use ($principal, $operationId): array {
+            $cart = $principal->scope(Cart::query())->where('creation_operation_id', $operationId)->lockForUpdate()->firstOrFail();
+            Gate::forUser($principal->actor())->authorize('view', [$cart, $principal]);
+
+            return $this->snapshot($cart);
+        });
+    }
+
     public function add(CartPrincipal $principal, string $reference, string $productReference, string $operationId): array
     {
         Validator::make(['product' => $productReference], ['product' => ['required', 'ulid']])->validate();
@@ -82,7 +94,7 @@ final class CartActions
                 : collect();
             $effects = ['replaced_products' => $replaced->map(fn (CartItem $item): array => [
                 'public_id' => $products->get($item->product_id)->public_id,
-                'name' => $products->get($item->product_id)->name,
+                'name' => $products->get($item->product_id)->status === ProductStatus::Published ? $products->get($item->product_id)->name : 'Unavailable service',
             ])->values()->all()];
             $cart->items()->whereIn('id', $replaced->pluck('id'))->delete();
             if (! $items->contains('product_id', $product->id)) {

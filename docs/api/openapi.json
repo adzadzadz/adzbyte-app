@@ -335,6 +335,685 @@
                     }
                 }
             }
+        },
+        "/api/v1/storefront/carts": {
+            "post": {
+                "operationId": "createStorefrontCart",
+                "summary": "Create or recover a guest cart",
+                "description": "Requires cart:create plus proof of the specific guest cart. No customer ownership is assigned. Unknown body/query fields are rejected. Mutations require JSON objects; reads have no body. Rate limits: 600 requests/minute per service identity and 120/minute per service/proof.",
+                "security": [
+                    {
+                        "storefrontBearer": [],
+                        "cartProof": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        },
+                        "description": "Durable command UUID. Reuse only with the same command/cart/input. Replays authorize current cart proof, retain original replacement effects and return fresh cart state."
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Private, fresh cart summary. Draft/archive items are unavailable placeholders; unpublished content/prices and private metadata are excluded. Replacement effects are empty on reads and retained for mutation retries.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "public_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+                                        "revision": 0,
+                                        "currency": "PHP",
+                                        "subtotal_minor": "0",
+                                        "subtotal_complete": true,
+                                        "selection_valid": false,
+                                        "requires_review": false,
+                                        "category_conflicts": [],
+                                        "items": [],
+                                        "effects": {
+                                            "replaced_products": []
+                                        }
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Service identity, token type or ability is forbidden.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cart/product/creation operation does not exist in this proof scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid request, proof, current offer or command reuse; no-store.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmptyObject"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/storefront/carts/resolve": {
+            "get": {
+                "operationId": "resolveStorefrontCart",
+                "summary": "Recover a cart after a lost creation response",
+                "description": "Requires cart:read plus proof of the specific guest cart. No customer ownership is assigned. Unknown body/query fields are rejected. Mutations require JSON objects; reads have no body. Rate limits: 600 requests/minute per service identity and 120/minute per service/proof.",
+                "security": [
+                    {
+                        "storefrontBearer": [],
+                        "cartProof": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "creation_operation_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Private, fresh cart summary. Draft/archive items are unavailable placeholders; unpublished content/prices and private metadata are excluded. Replacement effects are empty on reads and retained for mutation retries.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "public_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+                                        "revision": 0,
+                                        "currency": "PHP",
+                                        "subtotal_minor": "0",
+                                        "subtotal_complete": true,
+                                        "selection_valid": false,
+                                        "requires_review": false,
+                                        "category_conflicts": [],
+                                        "items": [],
+                                        "effects": {
+                                            "replaced_products": []
+                                        }
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Service identity, token type or ability is forbidden.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cart/product/creation operation does not exist in this proof scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid request, proof, current offer or command reuse; no-store.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/api/v1/storefront/carts/{cart}": {
+            "get": {
+                "operationId": "showStorefrontCart",
+                "summary": "Read a fresh private cart summary",
+                "description": "Requires cart:read plus proof of the specific guest cart. No customer ownership is assigned. Unknown body/query fields are rejected. Mutations require JSON objects; reads have no body. Rate limits: 600 requests/minute per service identity and 120/minute per service/proof.",
+                "security": [
+                    {
+                        "storefrontBearer": [],
+                        "cartProof": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "cart",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Private, fresh cart summary. Draft/archive items are unavailable placeholders; unpublished content/prices and private metadata are excluded. Replacement effects are empty on reads and retained for mutation retries.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "public_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+                                        "revision": 0,
+                                        "currency": "PHP",
+                                        "subtotal_minor": "0",
+                                        "subtotal_complete": true,
+                                        "selection_valid": false,
+                                        "requires_review": false,
+                                        "category_conflicts": [],
+                                        "items": [],
+                                        "effects": {
+                                            "replaced_products": []
+                                        }
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Service identity, token type or ability is forbidden.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cart/product/creation operation does not exist in this proof scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid request, proof, current offer or command reuse; no-store.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/api/v1/storefront/carts/{cart}/items": {
+            "post": {
+                "operationId": "addStorefrontCartItem",
+                "summary": "Add a service or replace a restricted-category selection",
+                "description": "Requires cart:write plus proof of the specific guest cart. No customer ownership is assigned. Unknown body/query fields are rejected. Mutations require JSON objects; reads have no body. Rate limits: 600 requests/minute per service identity and 120/minute per service/proof.",
+                "security": [
+                    {
+                        "storefrontBearer": [],
+                        "cartProof": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "cart",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        },
+                        "description": "Durable command UUID. Reuse only with the same command/cart/input. Replays authorize current cart proof, retain original replacement effects and return fresh cart state."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Private, fresh cart summary. Draft/archive items are unavailable placeholders; unpublished content/prices and private metadata are excluded. Replacement effects are empty on reads and retained for mutation retries.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "public_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+                                        "revision": 0,
+                                        "currency": "PHP",
+                                        "subtotal_minor": "0",
+                                        "subtotal_complete": true,
+                                        "selection_valid": false,
+                                        "requires_review": false,
+                                        "category_conflicts": [],
+                                        "items": [],
+                                        "effects": {
+                                            "replaced_products": []
+                                        }
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Service identity, token type or ability is forbidden.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cart/product/creation operation does not exist in this proof scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid request, proof, current offer or command reuse; no-store.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CartAddRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/storefront/carts/{cart}/items/{product}": {
+            "delete": {
+                "operationId": "removeStorefrontCartItem",
+                "summary": "Remove a service from the cart",
+                "description": "Requires cart:write plus proof of the specific guest cart. No customer ownership is assigned. Unknown body/query fields are rejected. Mutations require JSON objects; reads have no body. Rate limits: 600 requests/minute per service identity and 120/minute per service/proof.",
+                "security": [
+                    {
+                        "storefrontBearer": [],
+                        "cartProof": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "cart",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        },
+                        "description": "Durable command UUID. Reuse only with the same command/cart/input. Replays authorize current cart proof, retain original replacement effects and return fresh cart state."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Private, fresh cart summary. Draft/archive items are unavailable placeholders; unpublished content/prices and private metadata are excluded. Replacement effects are empty on reads and retained for mutation retries.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "public_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+                                        "revision": 0,
+                                        "currency": "PHP",
+                                        "subtotal_minor": "0",
+                                        "subtotal_complete": true,
+                                        "selection_valid": false,
+                                        "requires_review": false,
+                                        "category_conflicts": [],
+                                        "items": [],
+                                        "effects": {
+                                            "replaced_products": []
+                                        }
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Service identity, token type or ability is forbidden.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cart/product/creation operation does not exist in this proof scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid request, proof, current offer or command reuse; no-store.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmptyObject"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/storefront/carts/{cart}/confirm": {
+            "post": {
+                "operationId": "confirmStorefrontCartOffer",
+                "summary": "Confirm reviewed current price and terms versions",
+                "description": "Requires cart:write plus proof of the specific guest cart. No customer ownership is assigned. Unknown body/query fields are rejected. Mutations require JSON objects; reads have no body. Rate limits: 600 requests/minute per service identity and 120/minute per service/proof.",
+                "security": [
+                    {
+                        "storefrontBearer": [],
+                        "cartProof": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "cart",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        },
+                        "description": "Durable command UUID. Reuse only with the same command/cart/input. Replays authorize current cart proof, retain original replacement effects and return fresh cart state."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Private, fresh cart summary. Draft/archive items are unavailable placeholders; unpublished content/prices and private metadata are excluded. Replacement effects are empty on reads and retained for mutation retries.",
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "public_id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+                                        "revision": 0,
+                                        "currency": "PHP",
+                                        "subtotal_minor": "0",
+                                        "subtotal_complete": true,
+                                        "selection_valid": false,
+                                        "requires_review": false,
+                                        "category_conflicts": [],
+                                        "items": [],
+                                        "effects": {
+                                            "replaced_products": []
+                                        }
+                                    },
+                                    "meta": {
+                                        "api_version": "v1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Service identity, token type or ability is forbidden.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cart/product/creation operation does not exist in this proof scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid request, proof, current offer or command reuse; no-store.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CartConfirmRequest"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -349,6 +1028,17 @@
                 "in": "cookie",
                 "name": "laravel_session",
                 "description": "Stateful first-party Sanctum session cookie."
+            },
+            "storefrontBearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "Actual revocable Sanctum personal token for a verified service identity with no roles or direct permissions. Only cart:create, cart:read and cart:write abilities are permitted; wildcard/excessive scopes and session fallback are forbidden."
+            },
+            "cartProof": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-Cart-Proof",
+                "description": "Server-generated 32-byte guest proof encoded as 64 lowercase hex characters. Required independently of the service token. Never place this proof in URLs or browser JavaScript."
             }
         },
         "schemas": {
@@ -707,6 +1397,377 @@
                         }
                     }
                 }
+            },
+            "CartProduct": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "public_id",
+                    "slug",
+                    "name",
+                    "summary",
+                    "description",
+                    "media",
+                    "is_available",
+                    "price",
+                    "terms",
+                    "category"
+                ],
+                "properties": {
+                    "public_id": {
+                        "type": "string",
+                        "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    "slug": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Plain text. Never render as trusted HTML."
+                    },
+                    "media": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "image": {
+                                "type": "string",
+                                "description": "Safe HTTPS URL or /images/ reference; resolve local paths against the storefront origin."
+                            },
+                            "thumbnail": {
+                                "type": "string",
+                                "description": "Safe HTTPS URL or /images/ reference; resolve local paths against the storefront origin."
+                            },
+                            "hero": {
+                                "type": "string",
+                                "description": "Safe HTTPS URL or /images/ reference; resolve local paths against the storefront origin."
+                            }
+                        }
+                    },
+                    "is_available": {
+                        "type": "boolean",
+                        "description": "Advisory catalog configuration only; purchases must revalidate."
+                    },
+                    "price": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "additionalProperties": false,
+                        "required": [
+                            "version",
+                            "amount_minor",
+                            "currency"
+                        ],
+                        "properties": {
+                            "version": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "amount_minor": {
+                                "type": "string",
+                                "pattern": "^(0|[1-9][0-9]*)$",
+                                "description": "Exact PHP minor units; parse with BigInt, never Number. Null price is unset, not zero."
+                            },
+                            "currency": {
+                                "type": "string",
+                                "const": "PHP"
+                            }
+                        }
+                    },
+                    "terms": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "additionalProperties": false,
+                        "required": [
+                            "version",
+                            "content"
+                        ],
+                        "properties": {
+                            "version": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "content": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "scope": {
+                                        "type": "string"
+                                    },
+                                    "deliverables": {
+                                        "type": "string"
+                                    },
+                                    "exclusions": {
+                                        "type": "string"
+                                    },
+                                    "customer_obligations": {
+                                        "type": "string"
+                                    },
+                                    "fulfillment": {
+                                        "type": "string"
+                                    },
+                                    "entitlements": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "category": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "description": "Present only when include=category is explicitly requested. No default response shape change.",
+                        "additionalProperties": false,
+                        "required": [
+                            "public_id",
+                            "name",
+                            "limit_one_per_cart"
+                        ],
+                        "properties": {
+                            "public_id": {
+                                "type": "string",
+                                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "limit_one_per_cart": {
+                                "type": "boolean",
+                                "description": "At most one distinct service from this category per cart; other categories may coexist."
+                            }
+                        }
+                    }
+                }
+            },
+            "CartItem": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "product",
+                    "quantity",
+                    "available",
+                    "requires_review",
+                    "category_conflict",
+                    "quoted_price_version",
+                    "quoted_terms_version"
+                ],
+                "properties": {
+                    "product": {
+                        "$ref": "#/components/schemas/CartProduct"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "const": 1
+                    },
+                    "available": {
+                        "type": "boolean"
+                    },
+                    "requires_review": {
+                        "type": "boolean"
+                    },
+                    "category_conflict": {
+                        "type": "boolean"
+                    },
+                    "quoted_price_version": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4294967295
+                    },
+                    "quoted_terms_version": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4294967295
+                    }
+                }
+            },
+            "CartEffects": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "replaced_products"
+                ],
+                "properties": {
+                    "replaced_products": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "public_id",
+                                "name"
+                            ],
+                            "properties": {
+                                "public_id": {
+                                    "type": "string",
+                                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Cart": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "public_id",
+                    "revision",
+                    "currency",
+                    "subtotal_minor",
+                    "subtotal_complete",
+                    "selection_valid",
+                    "requires_review",
+                    "category_conflicts",
+                    "items",
+                    "effects"
+                ],
+                "properties": {
+                    "public_id": {
+                        "type": "string",
+                        "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    "revision": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "currency": {
+                        "type": "string",
+                        "const": "PHP"
+                    },
+                    "subtotal_minor": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9][0-9]*)$",
+                        "description": "Exact current published-line subtotal in minor units; not a final tax/order total."
+                    },
+                    "subtotal_complete": {
+                        "type": "boolean"
+                    },
+                    "selection_valid": {
+                        "type": "boolean"
+                    },
+                    "requires_review": {
+                        "type": "boolean"
+                    },
+                    "category_conflicts": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CartItem"
+                        }
+                    },
+                    "effects": {
+                        "$ref": "#/components/schemas/CartEffects"
+                    }
+                }
+            },
+            "CartResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Cart"
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "type": "string",
+                                "const": "v1"
+                            }
+                        }
+                    }
+                }
+            },
+            "CartAddRequest": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "product"
+                ],
+                "properties": {
+                    "product": {
+                        "type": "string",
+                        "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                    }
+                }
+            },
+            "CartConfirmRequest": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "versions"
+                ],
+                "properties": {
+                    "versions": {
+                        "type": "object",
+                        "minProperties": 1,
+                        "propertyNames": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        },
+                        "additionalProperties": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "price",
+                                "terms"
+                            ],
+                            "properties": {
+                                "price": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 4294967295
+                                },
+                                "terms": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 4294967295
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "EmptyObject": {
+                "type": "object",
+                "additionalProperties": false,
+                "maxProperties": 0
             }
         },
         "responses": {

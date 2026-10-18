@@ -77,5 +77,10 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('api-catalog', fn (Request $request): Limit => Limit::perMinute(120)
             ->by('catalog-api:'.$request->ip()));
+
+        RateLimiter::for('api-storefront', fn (Request $request): array => [
+            Limit::perMinute(600)->by('storefront-service:'.$request->user()?->getKey()),
+            Limit::perMinute(120)->by('storefront-cart:'.$request->user()?->getKey().'|'.hash('sha256', (string) $request->header('X-Cart-Proof'))),
+        ]);
     }
 }

@@ -1,33 +1,14 @@
 // Independent HTTP consumer; intentionally has no Laravel or application imports.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { checkSchema } from './contract-schema.mjs';
 
 const origin = new URL(process.argv[2] ?? 'http://127.0.0.1:8814');
 assert(['127.0.0.1', 'localhost', '[::1]'].includes(origin.hostname), 'Use a disposable localhost test server.');
 const contract = JSON.parse(await readFile(new URL('../../docs/api/openapi.json', import.meta.url)));
 const schemas = contract.components.schemas;
 
-// Check the JSON Schema keywords used by this contract, including exact keys,
-// nullable unions and bigint strings. This is not a general OpenAPI validator.
-function check(value, schema) {
-    if (schema.$ref) return check(value, schemas[schema.$ref.split('/').at(-1)]);
-    const types = [].concat(schema.type);
-    const type = value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value === 'number' && Number.isInteger(value) ? 'integer' : typeof value;
-    assert(types.includes(type), `Expected ${types}, received ${type}`);
-    if (value === null) return;
-    if (schema.const !== undefined) assert.equal(value, schema.const);
-    if (schema.pattern) assert(new RegExp(schema.pattern).test(value));
-    if (schema.minimum !== undefined) assert(value >= schema.minimum);
-    if (schema.maximum !== undefined) assert(value <= schema.maximum);
-    if (type === 'object') {
-        for (const key of schema.required ?? []) assert(Object.hasOwn(value, key), `Missing ${key}`);
-        for (const [key, item] of Object.entries(value)) {
-            assert(schema.properties?.[key] || schema.additionalProperties !== false, `Unexpected ${key}`);
-            if (schema.properties?.[key]) check(item, schema.properties[key]);
-        }
-    }
-    if (type === 'array') for (const item of value) check(item, schema.items);
-}
+const check = (value, schema) => checkSchema(value, schema, schemas);
 
 for (const path of ['/api/v1/products', '/api/v1/products/{public_id}']) {
     const documented = contract.paths[path].get.responses['200'].content['application/json'];

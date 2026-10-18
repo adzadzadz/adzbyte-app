@@ -3,6 +3,7 @@
 use App\Http\Middleware\AddSecurityHeaders;
 use App\Http\Middleware\EnsureCustomerApiAccess;
 use App\Http\Middleware\EnsureIdempotentApiRequest;
+use App\Http\Middleware\EnsureStorefrontToken;
 use App\Http\Responses\ApiErrorResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'customer.api' => EnsureCustomerApiAccess::class,
             'idempotent' => EnsureIdempotentApiRequest::class,
+            'storefront.token' => EnsureStorefrontToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
