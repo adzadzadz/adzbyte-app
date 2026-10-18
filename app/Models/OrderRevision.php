@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\ImmutableCommerceRecord;
 use App\Services\Orders\OrderTotals;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\ValidationException;
 
@@ -26,6 +27,11 @@ final class OrderRevision extends Model
                 throw ValidationException::withMessages(['order' => 'Accepted totals must match the captured commerce policy.']);
             }
         });
+    }
+
+    public function policyVersion(): BelongsTo
+    {
+        return $this->belongsTo(CommercePolicyVersion::class);
     }
 
     public function lines(): HasMany

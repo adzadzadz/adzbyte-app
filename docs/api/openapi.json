@@ -1969,6 +1969,671 @@
                     }
                 }
             }
+        },
+        "/api/v1/checkout": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "operationId": "reviewCheckout",
+                "summary": "Review the owned cart, configurable fields, terms and exact totals",
+                "description": "Verified customer web session only, fresh canonical ownership, private no-store response. Reads are bodyless and accept only documented query fields. No staff/service bearer fallback. No payment action exists in this slice.",
+                "security": [
+                    {
+                        "appCartSession": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Current safe customer projection.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckoutResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Customer session required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Verified customer role and exact write Origin required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No record in the current customer scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Malformed or undocumented input.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded; retry after the response header.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "operationId": "listCustomerOrders",
+                "summary": "List current customer request summaries",
+                "description": "Verified customer web session only, fresh canonical ownership, private no-store response. Reads are bodyless and accept only documented query fields. No staff/service bearer fallback. No payment action exists in this slice.",
+                "security": [
+                    {
+                        "appCartSession": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Current safe customer projection.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderListResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Customer session required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Verified customer role and exact write Origin required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No record in the current customer scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Malformed or undocumented input.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded; retry after the response header.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000
+                        },
+                        "required": false
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 50
+                        },
+                        "required": false
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "operationId": "submitCustomerOrder",
+                "summary": "Accept the displayed review and create one pending Admin request",
+                "description": "Verified customer web session only, fresh canonical ownership, private no-store response. Reads are bodyless and accept only documented query fields. No staff/service bearer fallback. No payment action exists in this slice. Maximum encoded body: 256 KiB. Required brief/billing names are supplied by the current review policy; acceptance must be the JSON boolean true.",
+                "security": [
+                    {
+                        "appCartSession": [],
+                        "appCsrf": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Current safe customer projection.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Customer session required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Verified customer role and exact write Origin required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No record in the current customer scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Malformed or undocumented input.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded; retry after the response header.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "Missing or invalid session CSRF token. Obtain the current token from GET /api/v1/checkout meta.csrf_token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Encoded body exceeds 256 KiB.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "Origin",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "description": "Exact canonical app origin configured by APP_URL. Caller Host/forwarded headers do not select the trusted origin."
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                        },
+                        "description": "Durable customer command UUID. Reuse only for the identical accepted submission; aliases for an unchanged cart are also bound."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrderSubmission"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders/{order}": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "operationId": "getCustomerOrder",
+                "summary": "Read the immutable accepted order summary in the current owner scope",
+                "description": "Verified customer web session only, fresh canonical ownership, private no-store response. Reads are bodyless and accept only documented query fields. No staff/service bearer fallback. No payment action exists in this slice.",
+                "security": [
+                    {
+                        "appCartSession": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Current safe customer projection.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Customer session required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Verified customer role and exact write Origin required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No record in the current customer scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Pending guest merge, changed review, invalid selection or UUID request mismatch.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Malformed or undocumented input.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded; retry after the response header.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "order",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -3094,6 +3759,622 @@
                             "api_version": {
                                 "type": "string",
                                 "const": "v1"
+                            }
+                        }
+                    }
+                }
+            },
+            "CommercePolicy": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "public_id",
+                    "version",
+                    "tax_mode",
+                    "tax_basis_points",
+                    "document_kind",
+                    "required_brief",
+                    "required_billing",
+                    "approval_days",
+                    "terms",
+                    "privacy",
+                    "retention"
+                ],
+                "properties": {
+                    "public_id": {
+                        "type": "string",
+                        "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    "version": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "tax_mode": {
+                        "type": "string",
+                        "enum": [
+                            "unconfigured",
+                            "exclusive",
+                            "inclusive"
+                        ]
+                    },
+                    "tax_basis_points": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "document_kind": {
+                        "type": "string",
+                        "enum": [
+                            "order_summary"
+                        ]
+                    },
+                    "required_brief": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "goal",
+                                "scope",
+                                "website"
+                            ]
+                        }
+                    },
+                    "required_billing": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "name",
+                                "email",
+                                "country",
+                                "address",
+                                "company",
+                                "phone"
+                            ]
+                        }
+                    },
+                    "approval_days": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 365
+                    },
+                    "terms": {
+                        "type": "string"
+                    },
+                    "privacy": {
+                        "type": "string"
+                    },
+                    "retention": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "draft_days",
+                            "closed_request_days",
+                            "financial_years",
+                            "audit_days"
+                        ],
+                        "properties": {
+                            "draft_days": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "closed_request_days": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "financial_years": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "audit_days": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "OrderTotals": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "currency",
+                    "subtotal_minor",
+                    "tax_minor",
+                    "total_minor"
+                ],
+                "properties": {
+                    "currency": {
+                        "type": "string",
+                        "const": "PHP"
+                    },
+                    "subtotal_minor": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "tax_minor": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "total_minor": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9][0-9]*)$"
+                    }
+                }
+            },
+            "CheckoutReview": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "fingerprint",
+                    "cart",
+                    "totals",
+                    "existing_order",
+                    "policy"
+                ],
+                "properties": {
+                    "fingerprint": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "cart": {
+                        "$ref": "#/components/schemas/Cart"
+                    },
+                    "totals": {
+                        "$ref": "#/components/schemas/OrderTotals"
+                    },
+                    "existing_order": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    "policy": {
+                        "$ref": "#/components/schemas/CommercePolicy"
+                    }
+                }
+            },
+            "CheckoutResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/CheckoutReview"
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version",
+                            "csrf_token"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "type": "string",
+                                "const": "v1"
+                            },
+                            "csrf_token": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "OrderBrief": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {
+                    "goal": {
+                        "type": "string",
+                        "maxLength": 2000
+                    },
+                    "scope": {
+                        "type": "string",
+                        "maxLength": 10000
+                    },
+                    "website": {
+                        "type": "string",
+                        "maxLength": 2048,
+                        "format": "uri"
+                    }
+                }
+            },
+            "OrderBilling": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "format": "email"
+                    },
+                    "country": {
+                        "type": "string",
+                        "pattern": "^[A-Z]{2}$"
+                    },
+                    "address": {
+                        "type": "string",
+                        "maxLength": 2000
+                    },
+                    "company": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "phone": {
+                        "type": "string",
+                        "maxLength": 50
+                    }
+                }
+            },
+            "OrderSubmission": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "brief",
+                    "billing",
+                    "accept_terms",
+                    "fingerprint"
+                ],
+                "properties": {
+                    "brief": {
+                        "$ref": "#/components/schemas/OrderBrief"
+                    },
+                    "billing": {
+                        "$ref": "#/components/schemas/OrderBilling"
+                    },
+                    "accept_terms": {
+                        "type": "boolean",
+                        "const": true
+                    },
+                    "fingerprint": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    }
+                }
+            },
+            "AcceptedOrderLine": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "public_id",
+                    "name",
+                    "quantity",
+                    "amount_minor",
+                    "currency",
+                    "price_version",
+                    "terms_version",
+                    "terms"
+                ],
+                "properties": {
+                    "public_id": {
+                        "type": "string",
+                        "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "const": 1
+                    },
+                    "amount_minor": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "const": "PHP"
+                    },
+                    "price_version": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "terms_version": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "terms": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            },
+            "AcceptedOrder": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "version",
+                    "accepted_at",
+                    "currency",
+                    "subtotal_minor",
+                    "tax_minor",
+                    "total_minor",
+                    "brief",
+                    "billing",
+                    "policy",
+                    "lines"
+                ],
+                "properties": {
+                    "version": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "accepted_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "const": "PHP"
+                    },
+                    "subtotal_minor": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "tax_minor": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "total_minor": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "brief": {
+                        "$ref": "#/components/schemas/OrderBrief"
+                    },
+                    "billing": {
+                        "$ref": "#/components/schemas/OrderBilling"
+                    },
+                    "policy": {
+                        "$ref": "#/components/schemas/CommercePolicy"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/components/schemas/AcceptedOrderLine"
+                        }
+                    }
+                }
+            },
+            "Order": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "public_id",
+                    "revision",
+                    "status",
+                    "approval_status",
+                    "payment_status",
+                    "fulfillment_status",
+                    "created_at",
+                    "approval_expires_at",
+                    "accepted"
+                ],
+                "properties": {
+                    "public_id": {
+                        "type": "string",
+                        "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    "revision": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "open",
+                            "cancelled",
+                            "completed"
+                        ]
+                    },
+                    "approval_status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "clarification",
+                            "approved",
+                            "rejected",
+                            "expired"
+                        ]
+                    },
+                    "payment_status": {
+                        "type": "string",
+                        "enum": [
+                            "unpaid",
+                            "pending",
+                            "paid",
+                            "partially_refunded",
+                            "refunded",
+                            "disputed"
+                        ]
+                    },
+                    "fulfillment_status": {
+                        "type": "string",
+                        "enum": [
+                            "not_started",
+                            "in_progress",
+                            "waiting_customer",
+                            "completed",
+                            "cancelled"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "approval_expires_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "accepted": {
+                        "$ref": "#/components/schemas/AcceptedOrder"
+                    }
+                }
+            },
+            "OrderResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Order"
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "type": "string",
+                                "const": "v1"
+                            }
+                        }
+                    }
+                }
+            },
+            "OrderListResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "public_id",
+                                "created_at",
+                                "status",
+                                "approval_status",
+                                "payment_status",
+                                "fulfillment_status",
+                                "currency",
+                                "total_minor"
+                            ],
+                            "properties": {
+                                "public_id": {
+                                    "type": "string",
+                                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                                },
+                                "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "enum": [
+                                        "open",
+                                        "cancelled",
+                                        "completed"
+                                    ]
+                                },
+                                "approval_status": {
+                                    "type": "string",
+                                    "enum": [
+                                        "pending",
+                                        "clarification",
+                                        "approved",
+                                        "rejected",
+                                        "expired"
+                                    ]
+                                },
+                                "payment_status": {
+                                    "type": "string",
+                                    "enum": [
+                                        "unpaid",
+                                        "pending",
+                                        "paid",
+                                        "partially_refunded",
+                                        "refunded",
+                                        "disputed"
+                                    ]
+                                },
+                                "fulfillment_status": {
+                                    "type": "string",
+                                    "enum": [
+                                        "not_started",
+                                        "in_progress",
+                                        "waiting_customer",
+                                        "completed",
+                                        "cancelled"
+                                    ]
+                                },
+                                "currency": {
+                                    "type": "string",
+                                    "const": "PHP"
+                                },
+                                "total_minor": {
+                                    "type": "string",
+                                    "pattern": "^(0|[1-9][0-9]*)$"
+                                }
+                            }
+                        }
+                    },
+                    "meta": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "api_version",
+                            "pagination"
+                        ],
+                        "properties": {
+                            "api_version": {
+                                "type": "string",
+                                "const": "v1"
+                            },
+                            "pagination": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                    "page",
+                                    "per_page",
+                                    "total",
+                                    "last_page"
+                                ],
+                                "properties": {
+                                    "page": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    },
+                                    "per_page": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 50
+                                    },
+                                    "total": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    },
+                                    "last_page": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                }
                             }
                         }
                     }

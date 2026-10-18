@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterCustomerController;
 use App\Http\Controllers\Cart\CartMergeController;
 use App\Http\Controllers\Cart\CartPageController;
 use App\Http\Controllers\Cart\HandoffLandingController;
+use App\Http\Controllers\Orders\CheckoutController;
 use App\Http\Middleware\EnsureAppCartOrigin;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,17 @@ Route::prefix('api/v1')->as('api.v1.')->middleware(['throttle:app-cart', EnsureA
     Route::post('cart/confirm', [AppCartController::class, 'confirm'])->name('cart.confirm');
     Route::get('cart/merge', [CartMergeController::class, 'show'])->middleware(['auth:web', 'verified', 'customer.api'])->name('cart.merge.show');
     Route::post('cart/attach', [CartMergeController::class, 'store'])->middleware(['auth:web', 'verified', 'customer.api'])->name('cart.attach');
+});
+
+Route::middleware(['auth:web', 'verified', 'customer.api', 'throttle:checkout', EnsureAppCartOrigin::class])->group(function (): void {
+    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/orders', [CheckoutController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [CheckoutController::class, 'order'])->whereUlid('order')->name('orders.show');
+    Route::get('/api/v1/checkout', [CheckoutController::class, 'show'])->name('api.v1.checkout.show');
+    Route::post('/api/v1/orders', [CheckoutController::class, 'store'])->name('api.v1.orders.store');
+    Route::get('/api/v1/orders', [CheckoutController::class, 'index'])->name('api.v1.orders.index');
+    Route::get('/api/v1/orders/{order}', [CheckoutController::class, 'order'])->whereUlid('order')->name('api.v1.orders.show');
 });
 
 Route::middleware('signed')->group(function (): void {

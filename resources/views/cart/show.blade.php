@@ -91,6 +91,7 @@
                     @elseif ($cart['selection_valid'])
                         @if ($owned)
                         <p class="mt-6 text-slate-300">Your selections are saved in your account.</p>
+                        <a href="{{ route('checkout.show') }}" class="mt-5 block rounded-lg bg-[#8139ff] px-4 py-3 text-center font-medium focus-visible:outline-2 focus-visible:outline-offset-4">Continue to review</a>
                         <a href="/" class="mt-5 block rounded-lg bg-[#8139ff] px-4 py-3 text-center font-medium focus-visible:outline-2 focus-visible:outline-offset-4">Back to account</a>
                         @else
                         <a href="{{ route('filament.account.auth.login') }}" class="mt-6 block rounded-lg bg-[#8139ff] px-4 py-3 text-center font-medium hover:bg-violet-600 focus-visible:outline-2 focus-visible:outline-offset-4">Sign in to continue</a>

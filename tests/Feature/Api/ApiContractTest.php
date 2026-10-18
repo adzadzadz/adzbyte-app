@@ -131,7 +131,7 @@ class ApiContractTest extends TestCase
         $this->assertIsCallable(RateLimiter::limiter('api-webhooks'));
     }
 
-    public function test_only_identity_public_catalog_and_restricted_cart_routes_are_exposed(): void
+    public function test_only_documented_identity_catalog_cart_and_checkout_routes_are_exposed(): void
     {
         $versionedApiRoutes = collect(Route::getRoutes()->getRoutes())
             ->filter(fn (\Illuminate\Routing\Route $route): bool => str_starts_with($route->uri(), 'api/v1'))
@@ -147,6 +147,7 @@ class ApiContractTest extends TestCase
             'api.v1.storefront.carts.handoffs.store',
             'api.v1.cart-handoffs.consume', 'api.v1.cart.show', 'api.v1.cart.remove', 'api.v1.cart.confirm',
             'api.v1.me.show',
+            'api.v1.checkout.show', 'api.v1.orders.store', 'api.v1.orders.index', 'api.v1.orders.show',
             'api.v1.registration.bootstrap', 'api.v1.registration.store',
             'api.v1.storefront.carts.retired', 'api.v1.cart.merge.show', 'api.v1.cart.attach',
         ];

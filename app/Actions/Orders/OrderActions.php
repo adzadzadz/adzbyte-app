@@ -18,6 +18,7 @@ use App\Services\Orders\CommerceRules;
 use App\Services\Orders\OrderLifecycle;
 use App\Services\Orders\OrderTotals;
 use App\Services\Orders\OrderTransaction;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 
@@ -104,6 +105,17 @@ final class OrderActions
         });
     }
 
+    public function listing(User $actor, int $perPage = 20, int $page = 1): LengthAwarePaginator
+    {
+        abort_unless($perPage >= 1 && $perPage <= 50 && $page >= 1 && $page <= 10000, 422);
+
+        return OrderTransaction::run(function () use ($actor, $perPage, $page) {
+            $customer = $this->customer($actor);
+
+            return Order::where('user_id', $customer->id)->with('currentRevision')->orderByDesc('id')->paginate($perPage, ['*'], 'page', $page);
+        });
+    }
+
     private function customer(User $actor): User
     {
         $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
@@ -127,11 +139,12 @@ final class OrderActions
             'lines' => array_map(fn ($line): array => ['product' => $line['product']->getAttributes(), 'price' => $line['product']->currentPrice?->id,
                 'terms' => $line['product']->currentTerms?->id, 'category' => $line['product']->category?->getAttributes()], $snapshot['lines'])];
 
-        return ['cart' => $snapshot, 'policy' => $policy, 'totals' => $totals, 'fingerprint' => CanonicalValue::hash($identity)];
+        return ['cart' => $snapshot, 'policy' => $policy, 'totals' => $totals, 'fingerprint' => CanonicalValue::hash($identity),
+            'existing_order' => Order::where('user_id', $customer->id)->where('cart_id', $cart->id)->where('cart_revision', $cart->revision)->lockForUpdate()->value('public_id')];
     }
 
     private function hydrate(Order $order): Order
     {
-        return $order->load(['currentRevision.lines']);
+        return $order->load(['currentRevision.lines', 'currentRevision.policyVersion']);
     }
 }

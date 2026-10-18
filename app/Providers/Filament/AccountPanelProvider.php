@@ -31,6 +31,7 @@ class AccountPanelProvider extends PanelProvider
             ->emailChangeVerification()
             ->profile()
             ->navigationItems([
+                NavigationItem::make('Requests')->url(fn () => route('orders.index'))->icon('heroicon-o-document-text')->sort(3),
                 NavigationItem::make('Cart')->url(fn () => route('cart.show'))->icon('heroicon-o-shopping-cart')->sort(2),
             ])
             ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => view('auth.registration-link'))

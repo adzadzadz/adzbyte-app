@@ -85,7 +85,13 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**O1.2 — checkout adapters.** O1.1 is verified at 55cbb94 /
+**O1.2 — checkout adapters (implemented; supported-engine CI pending).**
+Local 364 / 6,019, independent actual HTTP/Node OpenAPI consumer and nine real
+Next-to-checkout desktop/320px browser checks pass. Native typed fields survive
+stale-price/cart re-review; fresh acceptance is required and duplicate submission
+creates one pending request. Private fixture/process cleanup is complete. See
+[contract](plans/2026-10-18-checkout-contract.md). O1.3 must wait for current source
+PHP 8.3 SQLite/MySQL CI. O1.1 is verified at 55cbb94 /
 [CI 39097303894](https://github.com/adzadzadz/adzbyte-app/actions/runs/39097303894):
 353 / 5,899 each on PHP 8.3.35 SQLite/MySQL 8.0.46, audits/build/caches passed.
 See [qualification](evidence/2026-10-18-order-domain/qualification.md). Native

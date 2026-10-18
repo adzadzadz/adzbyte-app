@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "checks": [
+    "actual-next-handoff-login-owned-cart-checkout",
+    "native-required-fields-and-server-array-correction",
+    "checkout-review",
+    "stale-offer-recovery-retains-brief-through-cart-re-review",
+    "checkout-refreshed-quote",
+    "pending-owned-order",
+    "keyboard-submit-immutable-owned-summary-and-identical-uuid-retry",
+    "real-other-owner-native-order-denial",
+    "owned-request-list-and-existing-checkout-recovery"
+  ],
+  "viewports": [
+    1440,
+    320
+  ],
+  "runtime": "PHP 8.5.11 / Node 26.11.1 / built Next 16.4.2 / Chrome / disposable SQLite, database sessions and real CSRF",
+  "frontendSource": "52148d3eff3e92ea27696dd2aaebec711a8c287a",
+  "unexpectedErrors": [],
+  "proof": {
+    "orders": 1,
+    "revisions": 1,
+    "lines": 2,
+    "events": 1,
+    "carts": 1,
+    "order_states": [
+      {
+        "status": "open",
+        "approval_status": "pending",
+        "payment_status": "unpaid",
+        "fulfillment_status": "not_started"
+      }
+    ]
+  },
+  "captureNote": "Full workflow passed. Settled viewport captures replace oversized Chrome compositing artifacts; native DOM has one header and one h1. Layout captures show a subsequent one-service review after explicitly removing the regular synthetic cart item; accepted order snapshots remain unchanged."
+}
