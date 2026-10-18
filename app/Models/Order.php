@@ -36,6 +36,10 @@ final class Order extends Model
             if (($order->approval_status === 'approved') !== ($order->approval_expires_at !== null)) {
                 throw ValidationException::withMessages(['approval' => 'Approved orders require a captured approval validity.']);
             }
+            if ($order->payment_status === 'paid' && (! PaymentAttempt::whereKey($order->payment_attempt_id)->where('order_id', $order->id)->where('state', 'paid')->exists()
+                || ! PaymentSettlement::where('order_id', $order->id)->where('payment_attempt_id', $order->payment_attempt_id)->exists())) {
+                throw ValidationException::withMessages(['payment' => 'Paid status requires a verified settlement for the current attempt.']);
+            }
             if ($order->pending_proposal_id !== null && ($order->approval_status !== 'clarification'
                 || ! OrderProposal::whereKey($order->pending_proposal_id)->where('order_id', $order->id)->lockForUpdate()->exists())) {
                 throw ValidationException::withMessages(['proposal' => 'A pending proposal must belong to this request and require clarification.']);

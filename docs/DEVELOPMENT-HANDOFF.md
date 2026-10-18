@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | O2.2 in progress; O2.1 qualified at 8f13521 / CI39114275120, all applicable development gates pass |
+| Active card | O2.2 final delivery/CI pending: code independently approved; local477 /6,908 and actual signed test payment/callback/paid UI pass; O2.1 remains qualified at8f13521 |
 | Implementation | f128d5cdcd7f963fa60d5a29cf2f22d44c567286 / CI 39103121139 passes PHP 8.3.35 SQLite/MySQL 8.0.46, 401 / 6,427 each, both audits/build/cache gates. Four review findings fixed and five transaction retry copies consolidated; independent approval and actual HTTP/privacy proof recorded in [review qualification](evidence/2026-10-18-laravel-review/qualification.md). O1 integrated browser evidence remains at its recorded e27fefa revision. |
 | Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. Saved test credentials are authorized and actual QRPh test session creation/replay/expiry passes. D07 refund/access defaults approved; support attachments deferred for Drive links. Dedicated test webhook, actual payment/callback/refund outcomes and Q launch settings remain qualification inputs. |
-| Next action | Implement signed minimal event receipt and immutable settlement/paid transition, qualify signature/duplicate/concurrency/recovery/migration/API boundaries, then actual isolated test callback/payment; [contract](plans/2026-10-18-paymongo-payments.md) |
+| Next action | Commit/push O2.2 and qualify current PHP8.3 SQLite/MySQL CI; then O2.3 audited reconciliation of preserved first rejected test payment, expiry/cancellation/refunds and Admin operations |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | Source8f13521, [CI 39114275120](https://github.com/adzadzadz/adzbyte-app/actions/runs/39114275120): **436 / 6,688** each on PHP8.3.35 SQLite/MySQL8.0.46, both audits/build/format/metadata/caches. Actual provider and desktop/320px evidence recorded; private QA fixtures/processes removed. |
+| Last recorded runtime tests | Current O2.2 local PHP8.5.11 SQLite477 /6,908; Pint/metadata/build/whitespace pass. [Actual test callback and native paid UI](evidence/2026-10-18-payments/webhook-qualification.md) pass. O2.1 source8f13521 CI39114275120 remains436 /6,688 each PHP8.3.35 SQLite/MySQL8.0.46. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -51,7 +51,7 @@ Replace the current checkpoint with concrete values as work proceeds:
 | Runtime | Any local process started and whether stopped; temporary fixtures/accounts and cleanup state |
 | Git | Branch and commit(s), dirty state, push result, CI URL/result or not checked |
 | Deployment | Source/deploy commits if relevant; explicit statement whether release/production changed |
-| Next action | Implement signed minimal event receipt and immutable settlement/paid transition, qualify signature/duplicate/concurrency/recovery/migration/API boundaries, then actual isolated test callback/payment; [contract](plans/2026-10-18-paymongo-payments.md) |
+| Next action | Commit/push O2.2 and qualify current PHP8.3 SQLite/MySQL CI; then O2.3 audited reconciliation of preserved first rejected test payment, expiry/cancellation/refunds and Admin operations |
 
 Update after a completed card, before switching tasks, before a risky operation,
 and before stopping. For abrupt interruption, reconstruct missing evidence from
@@ -65,6 +65,16 @@ the product plan and implementation progress in the master roadmap; avoid
 copying their full contents into the session log.
 
 ## Session log
+
+### 2026-10-18 — O2.2 local and actual-provider verification
+
+- O2.1 source8f13521 qualified by both supported-runtime CI39114275120 jobs before webhook implementation.
+- Signed minimal event inbox/immutable settlement, exact commercial/intent/payment verification, raw HMAC, durable duplicates/conflicts, atomic paid transition and failure recovery added. No redirect/access/fulfillment grant.
+- Actual dedicated test eventevt_NqRXbWaYQsqHyyWEKQpck88x applies one settlement for providerpay_urY4hsSwbjmkDVW6FrKodS7V12500PHP false. Own signed HTTP replay200 keeps one settlement/rev4. Actual customer paid UI passes desktop/320px; no payment controls/overflow/console errors.
+- Provider callback omits fee flag; only signed event omission permitted with exact payment and intent total. Native GET stays strict. Reviewer size finding fixed to8MiB with full action maxASCII/Unicode and oversize denial; large cases use native fresh PHP subprocesses under unchanged128MiB.
+- Current full local477 /6,908, Pint/metadata/build/whitespace pass. Independent code approval received. Supported PHP8.3 SQLite/MySQL CI pending. [Evidence](evidence/2026-10-18-payments/webhook-qualification.md).
+- Test-only ingress on127.0.0.1:59860 (exec94883) and official tunnel (exec27148) remain for immediate O2.3; loopback UI59861 (exec12845) is being stopped. Private state /private/tmp/adzbyte-paymongo-webhook-state.json and private env /private/tmp/adzbyte-paymongo-webhook-qa.env.json; no keys in this document. Saved actual callbacks/QA scripts remain private and must be removed after sandbox closeout.
+- First rejected real test eventevt_q8HBA6ZmirecamrEGPmrPodm / paymentpay_PYHgGkTio373Bm8z9fYGVEcN preserved unchanged for audited O2.3 reconciliation. Do not re-create or re-pay either session. Existing/live hooks untouched.
 
 ### 2026-10-18 — O2.1 local and sandbox verification
 

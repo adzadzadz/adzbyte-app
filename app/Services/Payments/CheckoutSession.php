@@ -20,7 +20,7 @@ final class CheckoutSession
         abort_unless($lineCount >= 1 && $lineCount <= 999, 422, 'PayMongo supports up to 999 checkout line items including itemized tax.');
     }
 
-    public static function verify(PaymentAttempt $attempt, array $response): array
+    public static function verify(PaymentAttempt $attempt, array $response, bool $verifyHostedUrl = true): array
     {
         $data = $response['data'] ?? [];
         $attributes = $data['attributes'] ?? [];
@@ -32,15 +32,18 @@ final class CheckoutSession
             || ($attributes['livemode'] ?? null) !== $attempt->livemode
             || ! in_array($attributes['status'] ?? null, ['active', 'expired'], true)
             || ($attributes['reference_number'] ?? null) !== $attempt->public_id
-            || ($attributes['pass_on_fees'] ?? null) !== false
+            // Actual signed checkout events omit this flag. Their payment and
+            // intent amounts must separately equal the captured total. A full
+            // API retrieval still requires the explicit false flag.
+            || (array_key_exists('pass_on_fees', $attributes) ? $attributes['pass_on_fees'] !== false : $verifyHostedUrl)
             || ! is_array($lines) || ! array_is_list($lines)
             || ! is_array($attributes['metadata'] ?? null)
             || ! is_array($attributes['payment_method_types'] ?? null)
             || ! is_array($attributes['payments'] ?? null) || ! array_is_list($attributes['payments'])
-            || ! is_array($parts) || ($parts['scheme'] ?? null) !== 'https' || ($parts['host'] ?? null) !== 'checkout.paymongo.com'
+            || ($verifyHostedUrl && (! is_array($parts) || ($parts['scheme'] ?? null) !== 'https' || ($parts['host'] ?? null) !== 'checkout.paymongo.com'
             // The actual v2 hosted URL omits cs_; older documented URLs include it.
             || ! in_array($parts['path'] ?? null, ['/'.$attempt->provider_session_id, '/'.substr($attempt->provider_session_id, 3)], true)
-            || isset($parts['user']) || isset($parts['pass']) || isset($parts['port']) || ! filter_var($url, FILTER_VALIDATE_URL)) {
+            || isset($parts['user']) || isset($parts['pass']) || isset($parts['port']) || ! filter_var($url, FILTER_VALIDATE_URL)))) {
             throw new PayMongoFailure('session_mismatch');
         }
         foreach ($lines as $line) {

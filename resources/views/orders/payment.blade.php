@@ -2,7 +2,9 @@
     <p class="mt-4 break-words text-slate-300">Request {{ $order->public_id }}</p>
     <p class="mt-5 text-2xl font-semibold">{{ \App\Services\Carts\MinorUnits::formatPhp($order->currentRevision->total_minor) }}</p>
     @if ($payment !== null)
-        @if ($payment['checkout_url'] !== null)
+        @if ($payment['state'] === 'paid')
+            <p role="status" class="mt-5 text-slate-300">Payment confirmed. Admin will arrange fulfillment of your approved services.</p>
+        @elseif ($payment['checkout_url'] !== null)
             <p class="mt-5 text-slate-300">Continue to PayMongo to pay for your approved services. You can return here to check your payment status.</p>
             <a href="{{ $payment['checkout_url'] }}" rel="noreferrer" class="mt-6 inline-block rounded-xl bg-violet-600 px-5 py-3 font-medium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-400">Continue to PayMongo</a>
         @else

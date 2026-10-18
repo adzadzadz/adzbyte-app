@@ -16,6 +16,166 @@
         }
     ],
     "paths": {
+  "/api/v1/webhooks/paymongo": {
+    "post": {
+      "tags": [
+        "Payments"
+      ],
+      "operationId": "receivePayMongoEvent",
+      "summary": "Verify and durably process a PayMongo test webhook",
+      "description": "Stateless provider endpoint; raw-byte HMAC-SHA256 over timestamp.body. Paymongo-Signature must contain unique t, te and empty li; test mode only, maximum timestamp skew300seconds. No customer cookies, bearer tokens or CSRF input. JSON event envelope required, no query. Event identity and canonical payload are deduplicated; conflicting identity409. Only matching captured session, approved amounts/currency/reference/metadata, exact successful payment/intent and test mode can create one settlement/paid transition. Unknown/mismatched/unrelated signed events acknowledge into restricted internal states; no customer data or processing details are returned. Redirects never confirm payment. Maximum body8388608bytes. Live activation is separately gated.",
+      "security": [],
+      "parameters": [
+        {
+          "name": "Paymongo-Signature",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 512
+          }
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PayMongoEvent"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Receipt accepted.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayMongoAcknowledgement"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Invalid signature, input, identity, rate limit or unavailable test configuration.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "409": {
+          "description": "Invalid signature, input, identity, rate limit or unavailable test configuration.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "413": {
+          "description": "Invalid signature, input, identity, rate limit or unavailable test configuration.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "422": {
+          "description": "Invalid signature, input, identity, rate limit or unavailable test configuration.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "429": {
+          "description": "Invalid signature, input, identity, rate limit or unavailable test configuration.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "503": {
+          "description": "Invalid signature, input, identity, rate limit or unavailable test configuration.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "/api/v1/orders/{order}/payment": {
     "get": {
       "tags": [
@@ -5931,6 +6091,74 @@
             }
         },
         "schemas": {
+  "PayMongoAcknowledgement": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "received"
+    ],
+    "properties": {
+      "received": {
+        "type": "boolean",
+        "const": true
+      }
+    }
+  },
+  "PayMongoEvent": {
+    "type": "object",
+    "additionalProperties": true,
+    "required": [
+      "data"
+    ],
+    "properties": {
+      "data": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "id",
+          "type",
+          "attributes"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^evt_[A-Za-z0-9_]{1,96}$"
+          },
+          "type": {
+            "type": "string",
+            "const": "event"
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "type",
+              "livemode",
+              "created_at",
+              "data"
+            ],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "livemode": {
+                "type": "boolean",
+                "const": false
+              },
+              "created_at": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "PaymentAttempt": {
     "type": "object",
     "additionalProperties": false,
@@ -5949,7 +6177,7 @@
       },
       "state": {
         "type": "string",
-        "pattern": "^(creating|active|unknown|expired|rejected)$"
+        "pattern": "^(creating|active|unknown|expired|rejected|paid)$"
       },
       "amount_minor": {
         "type": "string",

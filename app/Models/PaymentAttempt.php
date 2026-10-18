@@ -17,7 +17,7 @@ final class PaymentAttempt extends Model
     {
         self::saving(function (self $attempt): void {
             $attempt->public_id ??= (string) Str::ulid();
-            $transitions = ['creating' => ['active', 'unknown', 'rejected'], 'unknown' => ['active', 'expired'], 'active' => ['expired'], 'expired' => [], 'rejected' => []];
+            $transitions = ['creating' => ['active', 'unknown', 'rejected', 'paid'], 'unknown' => ['active', 'expired', 'paid'], 'active' => ['expired', 'paid'], 'paid' => [], 'expired' => [], 'rejected' => []];
             if ((! $attempt->exists && $attempt->state !== 'creating')
                 || ! isset($transitions[$attempt->state])
                 || ($attempt->exists && $attempt->isDirty('state') && ! in_array($attempt->state, $transitions[$attempt->getRawOriginal('state')] ?? [], true))

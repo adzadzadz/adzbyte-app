@@ -195,7 +195,7 @@ class PaymentAttemptsTest extends TestCase
 
     public static function mismatches(): array
     {
-        return array_map(fn ($value) => [$value], ['amount', 'currency', 'reference', 'metadata', 'mode', 'fees', 'methods', 'url', 'foreign_session_url', 'missing_payments', 'missing_lines', 'bad_metadata']);
+        return array_map(fn ($value) => [$value], ['amount', 'currency', 'reference', 'metadata', 'mode', 'fees', 'missing_fees', 'methods', 'url', 'foreign_session_url', 'missing_payments', 'missing_lines', 'bad_metadata']);
     }
 
     public function test_owned_approval_freshness_and_test_configuration_are_required_before_provider_creation(): void
@@ -285,6 +285,9 @@ class PaymentAttemptsTest extends TestCase
                 'bad_metadata' => $attributes['metadata'] = 'invalid',
                 default => null,
             };
+            if ($mismatch === 'missing_fees') {
+                unset($attributes['pass_on_fees']);
+            }
 
             return Http::response(['data' => ['id' => 'cs_synthetic', 'type' => 'checkout_session', 'attributes' => $attributes]]);
         });

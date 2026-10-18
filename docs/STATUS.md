@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (O2.1 qualified; O2.2 webhook confirmation in progress)
+**Last updated:** 2026-10-18 (O2.1 qualified; O2.2 actual test callback passes, delivery CI pending)
 
 ## Current Stage
 
@@ -99,7 +99,7 @@ Source `f128d5c` passes [CI 39103121139](https://github.com/adzadzadz/adzbyte-ap
 formatting/metadata/build/production caches passed. The review gate is cleared. See the
 [review and qualification record](evidence/2026-10-18-laravel-review/qualification.md).
 
-**O2.1 — verified complete at `8f13521`.** [CI 39114275120](https://github.com/adzadzadz/adzbyte-app/actions/runs/39114275120) passes **436 / 6,688 per engine**, PHP8.3.35 SQLite/MySQL8.0.46, audits/metadata/format/build/caches. Independent review, actual QRPh test creation/retrieval/replay/expiry, real HTTP/OpenAPI, schema/concurrency and desktop/320px native UI pass. [Evidence](evidence/2026-10-18-payments/qualification.md). **O2.2 is next/in progress**; O2 aggregate remains incomplete until actual signed callback/payment and operations/refund gates pass.
+**O2.1 — verified complete at `8f13521`.** [CI 39114275120](https://github.com/adzadzadz/adzbyte-app/actions/runs/39114275120) passes **436 / 6,688 per engine**, PHP8.3.35 SQLite/MySQL8.0.46, audits/metadata/format/build/caches. Independent review, actual QRPh test creation/retrieval/replay/expiry, real HTTP/OpenAPI, schema/concurrency and desktop/320px native UI pass. [Evidence](evidence/2026-10-18-payments/qualification.md). **O2.2 implemented; final CI pending.** Actual QRPh test simulator payment and signed callback produce one settlement/paid transition, own signed replay200 leaves count1. Local full suite477 /6,908, native actual-paid desktop/320px and independent review pass. See [webhook evidence](evidence/2026-10-18-payments/webhook-qualification.md). O2 aggregate remains incomplete until O2.2 supported-runtime delivery and O2.3 operations/refund gates pass.
 
 Historical O1 evidence:
 D06/D07 configurable defaults are recorded. O1 is verified complete at

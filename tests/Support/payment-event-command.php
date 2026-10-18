@@ -1,0 +1,49 @@
+<?php
+
+use App\Actions\Payments\PaymentEventActions;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Tests\Support\PaymentEventFixture;
+
+[$script, $database, $body, $barrier] = $argv;
+if (getenv('CATALOG_TEST_DRIVER') === 'mysql') {
+    require __DIR__.'/mysql-bootstrap.php';
+    if ($database !== getenv('TEST_MYSQL_DATABASE')) {
+        throw new RuntimeException('Payment worker database mismatch.');
+    }
+} else {
+    if (realpath(dirname($database)) !== realpath(sys_get_temp_dir()) || ! str_starts_with(basename($database), 'catalog-concurrency-') || ! is_file($database)) {
+        throw new RuntimeException('Expected an existing disposable payment database.');
+    }
+    require dirname(__DIR__, 2).'/vendor/autoload.php';
+    foreach (['DB_CONNECTION' => 'sqlite', 'DB_DATABASE' => $database, 'DB_URL' => ''] as $name => $value) {
+        putenv($name.'='.$value);
+        $_ENV[$name] = $_SERVER[$name] = $value;
+    }
+}
+if (! str_starts_with($barrier, $database === getenv('TEST_MYSQL_DATABASE') ? sys_get_temp_dir().'/catalog-concurrency-' : $database)) {
+    throw new RuntimeException('Expected a disposable barrier path.');
+}
+foreach (['CACHE_STORE' => 'array', 'SESSION_DRIVER' => 'array'] as $name => $value) {
+    putenv($name.'='.$value);
+    $_ENV[$name] = $_SERVER[$name] = $value;
+}
+$app = require dirname(__DIR__, 2).'/bootstrap/app.php';
+$app->make(Kernel::class)->bootstrap();
+config(['services.paymongo.enabled' => true, 'services.paymongo.mode' => 'test', 'services.paymongo.secret_key' => 'sk_test_synthetic_only', 'services.paymongo.webhook_secret' => PaymentEventFixture::SECRET]);
+Http::preventStrayRequests();
+touch($barrier.'.'.getmypid().'.ready');
+$deadline = microtime(true) + 15;
+while (! is_file($barrier)) {
+    if (microtime(true) > $deadline) {
+        throw new RuntimeException('Payment event barrier timed out.');
+    }
+    usleep(1000);
+}
+try {
+    $event = app(PaymentEventActions::class)->receive($body, PaymentEventFixture::signature($body));
+    echo json_encode(['status' => 'passed', 'state' => $event->state], JSON_THROW_ON_ERROR);
+} catch (HttpException $exception) {
+    echo json_encode(['status' => 'denied', 'code' => $exception->getStatusCode()], JSON_THROW_ON_ERROR);
+}

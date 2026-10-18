@@ -1,3 +1,7 @@
 <?php
 
-// Provider webhook endpoints are added only with signature verification and idempotent processing.
+use App\Http\Controllers\Api\V1\PayMongoWebhookController;
+use Illuminate\Support\Facades\Route;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+
+Route::post('paymongo', PayMongoWebhookController::class)->withoutMiddleware(EnsureFrontendRequestsAreStateful::class)->name('paymongo');
