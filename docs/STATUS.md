@@ -85,18 +85,13 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**O1.2 — checkout adapters (implemented; supported-engine CI pending).**
-Local 364 / 6,019, independent actual HTTP/Node OpenAPI consumer and nine real
-Next-to-checkout desktop/320px browser checks pass. Native typed fields survive
-stale-price/cart re-review; fresh acceptance is required and duplicate submission
-creates one pending request. Private fixture/process cleanup is complete. See
-[contract](plans/2026-10-18-checkout-contract.md). O1.3 must wait for current source
-PHP 8.3 SQLite/MySQL CI. O1.1 is verified at 55cbb94 /
-[CI 39097303894](https://github.com/adzadzadz/adzbyte-app/actions/runs/39097303894):
-353 / 5,899 each on PHP 8.3.35 SQLite/MySQL 8.0.46, audits/build/caches passed.
-See [qualification](evidence/2026-10-18-order-domain/qualification.md). Native
-checkout/order summary and v1 REST review/submission/owned reads are next, with
-actual browser and contract proof. Aggregate O1 remains incomplete. C3 identity/B2 are verified complete at backend
+**O1.3 — Admin review, clarification, settings, expiry and fresh acceptance.**
+O1.2 is verified at `538e3ca` / [CI 39098787766](https://github.com/adzadzadz/adzbyte-app/actions/runs/39098787766):
+364 tests / 6,019 assertions independently on PHP 8.3.35 SQLite/MySQL;
+audits, formatting, metadata, build and caches pass. Actual HTTP/OpenAPI and
+nine built Next-to-checkout desktop/320px checks pass. See
+[qualification](evidence/2026-10-18-checkout/qualification.md).
+O1.1 remains verified at `55cbb94` / CI 39097303894. Aggregate O1 remains incomplete. C3 identity/B2 are verified complete at backend
 `40ae2b7` / [CI 39095546942](https://github.com/adzadzadz/adzbyte-app/actions/runs/39095546942):
 331 tests / 5,680 assertions each on PHP 8.3.35 SQLite/MySQL 8.0.46; all source
 checks pass. Next `52148d3` / [CI 39096289880](https://github.com/adzadzadz/adzbyte-next/actions/runs/39096289880)
@@ -109,7 +104,7 @@ D02/D05/D08 now use owner-authorized configurable defaults; see the
 [decision register](decisions/commerce-development.md). Admin approval favors
 clarification/conversation; no time-based cart expiry. O1 must implement verified
 ownership before order creation. Payments, fulfillment/support and launch remain
-pending; D06/D07 questions are pending for their later slices. Frontend remains
+pending; D06/D07 configurable defaults are authorized; PayMongo test credentials are deferred by the owner. Frontend remains
 in draft PR #6, with original frontend changes preserved.
 
 The owner-authorized dependency remediation is complete. Source `a27f834`

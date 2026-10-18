@@ -6,10 +6,10 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | O1.2 checkout implemented; current supported-engine CI pending |
-| Implementation | Backend 40ae2b7 and Next 52148d3 pass current CI and actual 15-check registration/SMTP activation/login/merge/password reset/new-browser/browser privacy journey. See [qualification](evidence/2026-10-18-ownership/qualification.md). No order/payment routes yet. |
-| Decision gate | D02/D05/D08 configurable common defaults authorized by latest owner answers, recorded in [register](decisions/commerce-development.md). Admin approval/clarification, versioned settings, cart no-expiry preserved. D06/D07 questions pending for later phases; D09 deferred subscription scope. |
-| Next action | Qualify current O1.2 source on PHP 8.3 SQLite/MySQL CI before O1.3. Local 364 / 6,019; independent actual HTTP/OpenAPI encrypted-session/CSRF consumer and nine real Next -> checkout browser checks pass. Native form draft recovery survives price re-review with fresh acceptance; no hidden price/owner/private metadata leakage. See [contract](plans/2026-10-18-checkout-contract.md). Browser fixtures/processes removed. O1.3 Admin review/settings/conversation/expiry/material changes next; D06/D07 answers and local PayMongo test credentials remain pending for later phases. |
+| Active card | O1.3 Admin review; O1.2 verified complete |
+| Implementation | O1.2 source 538e3ca passes PHP 8.3 SQLite/MySQL CI 39098787766, 364 / 6,019 each, audits/build/cache gates. Actual HTTP/OpenAPI and nine built Next-to-checkout browser checks pass. See [qualification](evidence/2026-10-18-checkout/qualification.md). |
+| Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. PayMongo test credentials deferred by owner; O2 provider qualification blocked until configured. O3/S2 precise entitlements/refund access still requires definition. |
+| Next action | Implement O1.3 shared capability-backed review/conversation/settings, approval expiry and explicit acceptance of material changes. Preserve immutable revisions, owner queries, separate private notes and disabled payments. Qualify all applicable gates before O2. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
 | Last recorded runtime tests | Backend 331 / 5,680 each on PHP 8.3.35 SQLite/MySQL 8.0.46 CI 39095546942; Next Node 22.23.3 CI 39096289880, 144 tests/31 files/type/lint/build/audit. Desktop/320px actual browser checks pass. All private QA fixtures/processes removed. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |

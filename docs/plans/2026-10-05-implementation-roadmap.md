@@ -144,7 +144,7 @@ CI gates and real integrated desktop/mobile browser proof pass. See
 - [x] Preserve the cart across registration, verification, login, password
   reset, and session rotation.
 - [x] Attach or merge the cart only after authentication using documented rules.
-- [ ] Require authenticated ownership before payable order creation (enforce/test in O1; no order endpoint exists in C3).
+- [x] Require authenticated ownership before order creation (O1.1/O1.2 source 538e3ca, CI 39098787766; payment remains disabled).
 - [x] Add abuse throttles and tests for account enumeration, role injection,
   unverified accounts, and duplicate identities.
 
@@ -160,10 +160,10 @@ never choose privileges or attach a cart/order to an unverified identity.
   states.
 - [ ] Add append-only order events and authorized transition services.
 - [ ] Add customer ownership and administrator capability policies.
-- [ ] Add the checkout review and terms snapshot.
+- [x] Add the checkout review and terms snapshot (O1.2 verified).
 - [ ] Add the project brief and administrator fit approval, rejection, and
   correction boundary before an order becomes payable.
-- [ ] Add idempotent cart-to-pending-order conversion.
+- [x] Add idempotent cart-to-pending-order conversion (O1.1/O1.2 verified).
 
 ### O2. PayMongo one-time payments
 

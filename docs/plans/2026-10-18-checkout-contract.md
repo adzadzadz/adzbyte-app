@@ -71,6 +71,7 @@ was a test-server asset-map omission, corrected and the full journey rerun clean
 
 No new schema or dependencies. Existing DBs, ignored Vite hot file and production
 are unchanged. Disposable browser DB/key/token/password state and servers are
-removed. Required PHP 8.3 SQLite/MySQL current-source CI remains pending before
-O1.3. Aggregate O1 is incomplete; Admin communication/review/settings, expiry and
+removed. Source 538e3ca passes required PHP 8.3 SQLite/MySQL CI 39098787766,
+364 / 6,019 each; O1.2 is verified complete. See
+[qualification](../evidence/2026-10-18-checkout/qualification.md). Aggregate O1 is incomplete; Admin communication/review/settings, expiry and
 material-change acceptance remain O1.3. No payment provider action exists.

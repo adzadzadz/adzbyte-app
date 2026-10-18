@@ -17,8 +17,8 @@ these IDs to implementation cards.
 | D03 | Basic controls specified: new drafts, explicit publish/unpublish, independent availability, archive with referenced history retained. Category-based one-per-cart control approved on 2026-10-18; other per-customer/package sale constraints remain pending | No blocker to basic C1; resolve extra constraints before their enforcement/purchase flow |
 | D04 | Approved: multiple distinct services, quantity one each; category toggle limits a cart to one service from that category while regular categories coexist. No time-based cart/item expiry; revalidate availability. Show current changed prices for customer confirmation. Merge by product without duplicates; restricted-category conflicts require explicit customer resolution. Use recommended 60-second, single-use handoffs; expiry affects the transfer link only, with fresh links available. Owner clarified conflicting adds: automatically replace the previous selection and notify the customer; preserve other categories | Category prerequisite before C2/C3; no longer waiting for generic cart defaults |
 | D05 | Owner approves as Admin; clarification/conversation is the normal path and rejection remains supported. Configurable brief/billing, acceptance, expiry and notifications below | Resolved for O1 development with configurable defaults |
-| D06 | Enabled merchant payment methods, fee handling, failed/expired attempts, cancellation, full/partial refunds, disputes, and reconciliation responsibilities | O2 |
-| D07 | Manual fulfillment states/actions and customer visibility, purchased-service limits/access after refund, request/report categories, required fields, status/priority/assignment, escalation/reopening/service targets, and notification events | Fulfillment/access before O3/S2; case rules before R1 |
+| D06 | Owner approved configurable starter defaults: enable only available merchant methods; no customer surcharge; customer cancellation before payment; Admin review after payment; full/partial refunds only from verified provider outcomes; Admin owns disputes and reconciliation. Technical attempt failure/expiry behavior follows verified provider contract | Resolved for one-time payment development; actual PayMongo test credentials and sandbox qualification remain required |
+| D07 | Owner approved configurable Admin-managed Not started -> In progress -> Waiting for customer -> Completed, plus cancellation; customer-visible communication separate from internal notes; Admin-managed request/report categories, Normal priority, manual assignment/reopening and no promised response deadline. Purchased-service entitlements and access after refund still need their precise slice-specific rule | Fulfillment/support starter workflow resolved; purchased-service entitlement/refund access before O3/S2 |
 | D08 | Owner authorized common configurable Terms/Privacy and retention defaults for carts, briefs and orders. Cart no-expiry takes precedence. Attachment/security/operations details remain slice-specific | No generic content/retention blocker to O1 development; actual merchant identity, live policy accuracy and operational configuration still require final Q qualification |
 | D09 | Merchant subscription activation/methods; plans, intervals, trials, invoices, proration, plan changes, cancellation, retry/grace, suspension, and refunds | Deferred S1; does not block the one-time slice |
 
@@ -120,3 +120,29 @@ Reference checks for the starter design: [NPC Data Privacy Act, Section 11](http
 requires purpose-limited retention; [BIR RR 7-2024](https://bir-cdn.bir.gov.ph/BIR/pdf/RR%20No.%207-%202024.pdf)
 provides the five-year accounting-record basis and filing anchor. These sources
 do not establish this merchant's tax status or make every record a financial record.
+
+
+## Payment, fulfillment and support answers 2026-10-18
+
+The owner answered **"Use these configurable defaults"** to both proposals:
+
+- D06: enable only payment methods actually available on the PayMongo account;
+  add no customer surcharge; allow customers to cancel before payment; require
+  Admin review for cancellation/refunds after payment; support full/partial
+  refunds only through verified provider results; Admin owns disputes and
+  reconciliation. These rules must remain configurable and versioned/snapshotted
+  where they affect accepted orders. Failed/expired attempts never mark an order
+  paid; retry/callback behavior must follow the current official contract.
+- D07: Admin-managed **Not started -> In progress -> Waiting for customer ->
+  Completed**, plus cancellation; customer-visible messages separate from
+  internal notes; request/report categories managed by Admin; **Normal** default
+  priority; manual assignment and reopening; no promised response deadline.
+  Service-specific entitlements and refund access still require a precise rule
+  before that purchased-service slice; this answer does not invent them.
+- PayMongo test credentials are absent from the local checkout. Asked to configure
+  the test-mode API key and webhook signing secret through normal local secret
+  setup (never chat), the owner answered **"Ill do this later"**. Continue verified
+  independent work. Provider-connected qualification remains pending; do not
+  claim O2 complete or advance its dependent cards without required sandbox proof.
+  No real secret, vendor setting, charge, refund or production change is authorized
+  by this record.

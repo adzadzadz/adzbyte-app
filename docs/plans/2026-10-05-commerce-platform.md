@@ -487,3 +487,17 @@ development. Implement versioned settings and accepted snapshots, with no
 invented merchant tax registration or legal identity. The cart no-expiry rule
 continues to apply. Production legal/document qualification, merchant/payment
 configuration and operational readiness remain distinct from development.
+
+
+## Configurable payment and service defaults authorized 2026-10-18
+
+The owner approved the D06/D07 starter proposals in the [decision register](../decisions/commerce-development.md#payment-fulfillment-and-support-answers-2026-10-18):
+merchant-available methods only, no customer surcharge, cancellation before
+payment, Admin-reviewed post-payment refunds/cancellation, verified provider
+outcomes, and Admin reconciliation/disputes. Fulfillment uses Not started,
+In progress, Waiting for customer, Completed and cancellation; communication
+separates customer messages/internal notes; Admin manages case categories,
+Normal default priority, assignment and reopening without a promised response
+deadline. All remain configurable. Precise purchased-service entitlements and
+refund access remain slice-specific. The owner will configure PayMongo test
+credentials later; actual provider qualification cannot yet be completed.
