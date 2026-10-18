@@ -153,7 +153,8 @@ class CartServiceTest extends TestCase
         $replacement = $this->actions->add($guest, $cart['public_id'], $other->public_id, $operation);
         $this->assertCount(1, $replacement['lines']);
         $this->assertSame([['public_id' => $first->public_id, 'name' => $first->name]], $replacement['effects']['replaced_products']);
-        $this->assertSame($replacement['effects'], $this->actions->add($guest, $cart['public_id'], $other->public_id, $operation)['effects']);
+        // JSON object member order is not significant; MySQL canonicalizes it.
+        $this->assertEquals($replacement['effects'], $this->actions->add($guest, $cart['public_id'], $other->public_id, $operation)['effects']);
         $this->assertDatabaseCount('cart_changes', 3);
         $secondRestricted = ProductCategory::create(['name' => 'Another restricted category', 'limit_one_per_cart' => true]);
         foreach ([$this->offer($regular), $this->offer($regular), $this->offer(), $this->offer($secondRestricted)] as $product) {

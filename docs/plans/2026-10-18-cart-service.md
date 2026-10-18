@@ -84,3 +84,11 @@ in serialized order, retain one final line, and record exactly three replacement
 notices for four different adds. Identical operation retries replay the original
 notice effects without reapplying or duplicating the selection. Availability is
 validated before any removal. Notification rendering remains the C2.3 UI gate.
+
+Replacement source `de764cb` passed the application CI job, but MySQL CI
+39089021793 caught a test comparing JSON object key order with `assertSame`.
+MySQL returned the same public reference/name in canonical member order. The
+retry assertion now compares JSON object values with `assertEquals`; list
+contents and all notification values remain asserted, with no gate skipped or
+application behavior changed. Fresh supported-runtime CI is required after this
+test correction; no dependent implementation has started.
