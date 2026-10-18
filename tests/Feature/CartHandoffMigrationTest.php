@@ -46,7 +46,7 @@ class CartHandoffMigrationTest extends TestCase
         $principal = CartPrincipal::guest(bin2hex(random_bytes(32)));
         $cart = app(CartActions::class)->create($principal, (string) Str::uuid());
         app(CartActions::class)->add($principal, $cart['public_id'], $product->public_id, (string) Str::uuid());
-        $this->artisan('migrate', ['--force' => true])->assertSuccessful();
+        $this->artisan('migrate', ['--path' => database_path('migrations/2026_10_18_040000_create_cart_handoffs.php'), '--realpath' => true, '--force' => true])->assertSuccessful();
         $this->assertDatabaseCount('cart_handoffs', 0);
         $operation = (string) Str::uuid();
         $link = app(CartHandoffActions::class)->mint($principal, $cart['public_id'], $issuer, $operation);
@@ -62,7 +62,7 @@ class CartHandoffMigrationTest extends TestCase
         $this->assertSame($category->id, $product->fresh()->category_id);
         $this->assertSame($service->email, $service->fresh()->email);
         $this->assertSame($issuer->id, $issuer->fresh()->id);
-        $this->artisan('migrate', ['--force' => true])->assertSuccessful();
+        $this->artisan('migrate', ['--path' => database_path('migrations/2026_10_18_040000_create_cart_handoffs.php'), '--realpath' => true, '--force' => true])->assertSuccessful();
         $this->assertDatabaseCount('cart_handoffs', 0);
         try {
             app(CartHandoffActions::class)->mint($principal, $cart['public_id'], $issuer, $operation);

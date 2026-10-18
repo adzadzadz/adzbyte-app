@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Actions\Carts;
 
 use App\Enums\ProductStatus;
+use App\Enums\UserRole;
 use App\Models\Cart;
 use App\Models\CartChange;
 use App\Models\CartItem;
+use App\Models\CustomerCart;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductPrice;
 use App\Models\ProductTerms;
+use App\Models\User;
 use App\Services\Carts\CartPrincipal;
 use App\Services\Carts\CartSnapshot;
 use Closure;
@@ -175,9 +178,174 @@ final class CartActions
     private function resolve(CartPrincipal $principal, string $reference, string $ability): Cart
     {
         $cart = $principal->scope(Cart::query())->where('public_id', $reference)->lockForUpdate()->firstOrFail();
+        abort_if($cart->merged_into_cart_id !== null, 404);
         Gate::forUser($principal->actor())->authorize($ability, [$cart, $principal]);
 
         return $cart;
+    }
+
+    public function owned(User $actor): ?array
+    {
+        return $this->transaction(function () use ($actor): ?array {
+            $actor = $this->verifiedCustomer($actor);
+            $link = CustomerCart::where('user_id', $actor->id)->lockForUpdate()->first();
+
+            return $link === null ? null : $this->snapshot($this->resolve(CartPrincipal::customer($actor), Cart::whereKey($link->cart_id)->value('public_id'), 'view'));
+        });
+    }
+
+    public function mergePreview(User $actor, CartPrincipal $guest, string $sourceReference): array
+    {
+        return $this->transaction(function () use ($actor, $guest, $sourceReference): array {
+            $actor = $this->verifiedCustomer($actor);
+            abort_unless($guest->actor() === null && $guest->credentialHash() !== null, 403);
+            $source = $guest->scope(Cart::query())->where('public_id', $sourceReference)->firstOrFail();
+            $link = CustomerCart::where('user_id', $actor->id)->lockForUpdate()->first();
+            $carts = Cart::whereIn('id', [$source->id, $link?->cart_id])->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+            $source = $carts->get($source->id);
+            abort_unless($guest->allows($source), 404);
+            Gate::forUser($actor)->authorize('attach', [$source, $guest]);
+            $target = $link === null ? null : $carts->get($link->cart_id);
+            abort_unless($target === null || CartPrincipal::customer($actor)->allows($target), 404);
+
+            return $this->mergeState($source, $target);
+        });
+    }
+
+    /** Claim retries require the original trusted guest context and same verified actor. */
+    public function attach(User $actor, CartPrincipal $guest, string $sourceReference, string $operationId, string $fingerprint, array $choices = []): array
+    {
+        $operationId = $this->operation($operationId);
+        Validator::make(['fingerprint' => $fingerprint], ['fingerprint' => ['required', 'regex:/^[a-f0-9]{64}$/D']])->validate();
+        foreach ($choices as $group => $product) {
+            Validator::make(['group' => $group, 'product' => $product], ['group' => ['required', 'ulid'], 'product' => ['required', 'ulid']])->validate();
+        }
+        ksort($choices);
+        abort_unless($guest->actor() === null && $guest->credentialHash() !== null, 403);
+        $authority = hash('sha256', $guest->credentialHash());
+        $hash = $this->hash(['attach', $actor->id, $guest->credentialHash(), $fingerprint, $choices]);
+
+        return $this->transaction(function () use ($actor, $guest, $sourceReference, $operationId, $fingerprint, $choices, $authority, $hash): array {
+            $actor = $this->verifiedCustomer($actor);
+            $source = Cart::where('public_id', $sourceReference)->where(function ($query) use ($guest, $actor, $operationId, $authority): void {
+                $query->where(fn ($query) => $guest->scope($query)->whereNull('merged_into_cart_id'))
+                    ->orWhereHas('changes', fn ($query) => $query->where('actor_id', $actor->id)->where('operation_id', $operationId)->whereIn('action', ['attach', 'merge'])->where('effects->authority_fingerprint', $authority));
+            })->firstOrFail();
+            $link = CustomerCart::where('user_id', $actor->id)->lockForUpdate()->first();
+            $carts = Cart::whereIn('id', [$source->id, $link?->cart_id])->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+            $source = $carts->get($source->id);
+            $target = $link === null ? null : $carts->get($link->cart_id);
+            $receipt = $source->changes()->where('operation_id', $operationId)->lockForUpdate()->first();
+            if ($receipt !== null) {
+                abort_unless($receipt->actor_id === $actor->id && ($receipt->effects['authority_fingerprint'] ?? null) === $authority, 404);
+                $this->assertSameRequest($receipt->request_hash, $hash);
+                abort_unless($target !== null && $target->public_id === ($receipt->effects['target'] ?? null) && CartPrincipal::customer($actor)->allows($target), 404);
+
+                return $this->snapshot($target);
+            }
+            abort_unless($guest->allows($source), 404);
+            Gate::forUser($actor)->authorize('attach', [$source, $guest]);
+            abort_unless($target === null || CartPrincipal::customer($actor)->allows($target), 404);
+            if ($target !== null && $target->changes()->where('operation_id', $operationId)->exists()) {
+                throw ValidationException::withMessages(['operation_id' => 'This operation ID was already used for another cart command.']);
+            }
+            $state = $this->mergeState($source, $target);
+            abort_unless(hash_equals($state['fingerprint'], $fingerprint), 409, 'Review the changed carts again.');
+            $expected = array_column($state['groups'], 'key');
+            sort($expected);
+            $provided = array_keys($choices);
+            sort($provided);
+            if ($expected !== $provided) {
+                throw ValidationException::withMessages(['choices' => 'Choose one service from every conflicting category.']);
+            }
+            $kept = $state['union'];
+            foreach ($state['groups'] as $group) {
+                $selected = $choices[$group['key']];
+                if (! $group['products']->contains('public_id', $selected)) {
+                    throw ValidationException::withMessages(['choices' => 'Choose a service from the displayed category.']);
+                }
+                foreach ($group['products'] as $product) {
+                    if ($product->public_id !== $selected) {
+                        $kept->forget($product->id);
+                    }
+                }
+            }
+            $before = ['source' => $this->history($source), 'target' => $target === null ? null : $this->history($target)];
+            $action = $target === null ? 'attach' : 'merge';
+            if ($target === null) {
+                // The only authority transition is this locked, audited action.
+                DB::table('carts')->where('id', $source->id)->update(['user_id' => $actor->id, 'credential_hash' => null, 'revision' => $source->revision + 1, 'updated_at' => now()]);
+                $target = $source->refresh();
+                (new CustomerCart)->forceFill(['user_id' => $actor->id, 'cart_id' => $target->id])->save();
+            }
+            $target->items()->whereNotIn('product_id', $kept->keys())->delete();
+            foreach ($kept as $item) {
+                if (! $target->items()->where('product_id', $item->product_id)->exists()) {
+                    (new CartItem)->forceFill(['cart_id' => $target->id, 'product_id' => $item->product_id, 'quoted_price_id' => $item->quoted_price_id, 'quoted_terms_id' => $item->quoted_terms_id])->save();
+                }
+            }
+            if ($source->id !== $target->id) {
+                $source->items()->delete();
+                DB::table('carts')->where('id', $source->id)->update(['merged_into_cart_id' => $target->id, 'credential_hash' => bin2hex(random_bytes(32)), 'revision' => $source->revision + 1, 'updated_at' => now()]);
+                $source->refresh();
+                $target->revision++;
+                $target->save();
+            }
+            $effects = ['replaced_products' => [], 'target' => $target->public_id, 'authority_fingerprint' => $authority];
+            (new CartChange)->forceFill(['cart_id' => $source->id, 'actor_id' => $actor->id, 'operation_id' => $operationId, 'request_hash' => $hash, 'action' => $action, 'before' => $before, 'after' => ['source' => $this->history($source), 'target' => $this->history($target)], 'effects' => $effects])->save();
+            if ($source->id !== $target->id) {
+                (new CartChange)->forceFill(['cart_id' => $target->id, 'actor_id' => $actor->id, 'operation_id' => $operationId, 'request_hash' => $hash, 'action' => 'merge', 'before' => $before['target'], 'after' => $this->history($target), 'effects' => [...$effects, 'source' => $source->public_id]])->save();
+            }
+
+            return $this->snapshot($target);
+        });
+    }
+
+    /** Static acknowledgement only; never exposes an owner/target/future state. */
+    public function retired(CartPrincipal $guest, string $creationOperation): bool
+    {
+        abort_unless($guest->actor() === null && $guest->credentialHash() !== null, 403);
+        $creationOperation = $this->operation($creationOperation);
+        $exists = Cart::where('creation_operation_id', $creationOperation)
+            ->where(fn ($query) => $query->whereNotNull('user_id')->orWhereNotNull('merged_into_cart_id'))
+            ->whereHas('changes', fn ($query) => $query->whereIn('action', ['attach', 'merge'])->whereNotNull('actor_id')->where('effects->authority_fingerprint', hash('sha256', $guest->credentialHash())))->exists();
+        abort_unless($exists, 404);
+
+        return true;
+    }
+
+    private function verifiedCustomer(User $actor): User
+    {
+        $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+        abort_unless($fresh->hasVerifiedEmail() && $fresh->hasRole(UserRole::Customer->value), 403);
+
+        return $fresh;
+    }
+
+    private function mergeState(Cart $source, ?Cart $target): array
+    {
+        $sourceItems = $this->lockedItems($source);
+        $targetItems = $target === null ? collect() : $this->lockedItems($target);
+        $products = $this->lockedProducts([...$sourceItems->pluck('product_id')->all(), ...$targetItems->pluck('product_id')->all()]);
+        $union = $targetItems->keyBy('product_id');
+        foreach ($sourceItems as $item) {
+            if (! $union->has($item->product_id)) {
+                $union->put($item->product_id, $item);
+            }
+        }
+        $groups = [];
+        foreach ($products->groupBy('category_id') as $categoryProducts) {
+            if ($categoryProducts->count() > 1 && $categoryProducts->first()->category?->limit_one_per_cart) {
+                $group = $categoryProducts->sortBy('public_id')->values();
+                $groups[] = ['key' => $group->first()->public_id, 'products' => $group];
+            }
+        }
+        $fingerprint = hash_hmac('sha256', json_encode([
+            $source->public_id, $this->history($source), $target?->public_id, $target === null ? null : $this->history($target),
+            $products->map(fn (Product $product): array => [$product->getAttributes(), $product->category?->getAttributes(), $product->currentPrice?->id, $product->currentTerms?->id])->values()->all(),
+        ], JSON_THROW_ON_ERROR), (string) config('app.key'));
+
+        return ['source' => $this->snapshot($source), 'target' => $target === null ? null : $this->snapshot($target), 'groups' => $groups, 'union' => $union, 'fingerprint' => $fingerprint];
     }
 
     private function lockedItems(Cart $cart): Collection

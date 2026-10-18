@@ -1,6 +1,6 @@
 # C3.2 verified customer cart ownership and merge
 
-Status: planning after C3.1 f32bc36 passes PHP 8.3 SQLite/MySQL CI, 302 / 5,331
+Status: in progress, domain locally verified; interfaces/integration pending after C3.1 f32bc36 passes PHP 8.3 SQLite/MySQL CI, 302 / 5,331
 each, real SMTP activation and desktop/mobile proof. Aggregate C3/B2 are pending.
 
 Only a fresh verified customer identity plus the trusted guest session may
@@ -58,3 +58,23 @@ or login/password recovery -> owned cart, additional guest selection/merge,
 logout/relogin/new-browser recovery, duplicate/replay/error paths, keyboard and
 desktop/320px privacy/overflow/console checks. B2 completes only after this full
 journey passes. Business decisions D02/D05/D08 still gate O1 afterward.
+
+## Domain checkpoint (partial)
+
+Implemented active customer-cart links, audited authority transfer/merge, exact
+state fingerprints, explicit conflict choices, quote-preserving deduplication,
+proof-scoped retirement acknowledgement and revoked guest/old-handoff access.
+Migration guards ambiguous pre-existing owned carts before schema changes and
+reconstructs retired links from retained ledger history on reversal/reapply.
+The prior handoff migration test now stops at its historical 040000 boundary
+so future migrations do not change what its rollback is testing.
+
+Local PHP 8.5.11: full **316 tests / 5,483 assertions**, Pint and whitespace pass.
+Seven ownership cases, populated upgrade/reversal/reapply/ambiguity guards and
+five four-process scenarios (retry, competing actors, regular union, duplicate
+product, explicit restricted conflict) pass. New schema exists only in disposable
+test databases. Supported PHP 8.3 SQLite/MySQL source CI is pending.
+
+No ownership/session/login adapters, safe merge Resource/REST/UI, Next retirement
+continuation or integrated B2 journey have been implemented yet. C3.2 remains
+partial. Continue within this card; do not begin O1 or claim C3/B2 complete.

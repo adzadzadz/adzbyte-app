@@ -19,6 +19,6 @@ class CartChange extends Model
 
     protected function casts(): array
     {
-        return ['before' => 'array', 'after' => 'array', 'effects' => 'array'];
+        return ['cart_id' => 'integer', 'actor_id' => 'integer', 'before' => 'array', 'after' => 'array', 'effects' => 'array'];
     }
 }

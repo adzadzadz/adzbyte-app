@@ -22,7 +22,7 @@ class Cart extends Model
             if (! $cart->exists && ! $cart->public_id) {
                 $cart->public_id = (string) Str::ulid();
             }
-            if ($cart->exists && $cart->isDirty(['id', 'public_id', 'user_id', 'credential_hash', 'creation_operation_id', 'creation_request_hash'])) {
+            if ($cart->exists && $cart->isDirty(['id', 'public_id', 'user_id', 'credential_hash', 'creation_operation_id', 'creation_request_hash', 'merged_into_cart_id'])) {
                 throw ValidationException::withMessages(['cart' => 'Cart identity and authority cannot be edited.']);
             }
             Validator::make($cart->getAttributes(), [
@@ -50,6 +50,6 @@ class Cart extends Model
 
     protected function casts(): array
     {
-        return ['user_id' => 'integer', 'revision' => 'integer'];
+        return ['user_id' => 'integer', 'revision' => 'integer', 'merged_into_cart_id' => 'integer'];
     }
 }

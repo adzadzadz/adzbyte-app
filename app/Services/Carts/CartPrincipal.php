@@ -65,6 +65,9 @@ final readonly class CartPrincipal
     public function allows(Cart $cart): bool
     {
         $this->assertValid();
+        if ($cart->merged_into_cart_id !== null) {
+            return false;
+        }
 
         return $this->user === null
             ? $cart->user_id === null && is_string($cart->credential_hash) && hash_equals($cart->credential_hash, $this->hash)

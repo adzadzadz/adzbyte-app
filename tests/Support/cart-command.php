@@ -2,8 +2,10 @@
 
 use App\Actions\Carts\CartActions;
 use App\Actions\Carts\CartHandoffActions;
+use App\Models\User;
 use App\Services\Carts\CartPrincipal;
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -41,6 +43,31 @@ while (! is_file($barrier)) {
     usleep(1000);
 }
 try {
+    if (in_array($command, ['claim', 'claim_current'], true)) {
+        $payload = json_decode($productReference, true, flags: JSON_THROW_ON_ERROR);
+        $actor = User::findOrFail($payload['actor']);
+        $actions = app(CartActions::class);
+        for ($attempt = 0; ; $attempt++) {
+            $fingerprint = $payload['fingerprint'] ?? null;
+            if ($command === 'claim_current') {
+                $preview = $actions->mergePreview($actor, $principal, $cartReference);
+                if ($preview['groups'] !== []) {
+                    echo json_encode(['status' => 'choice_required'], JSON_THROW_ON_ERROR);
+                    exit;
+                }
+                $fingerprint = $preview['fingerprint'];
+            }
+            try {
+                $result = $actions->attach($actor, $principal, $cartReference, $operationId, $fingerprint);
+                echo json_encode(['status' => 'passed', 'reference' => $result['public_id'], 'lines' => count($result['lines'])], JSON_THROW_ON_ERROR);
+                exit;
+            } catch (HttpException $exception) {
+                if ($command !== 'claim_current' || $attempt >= 7 || $exception->getStatusCode() !== 409) {
+                    throw $exception;
+                }
+            }
+        }
+    }
     if ($command === 'mint') {
         $result = app(CartHandoffActions::class)->mint($principal, $cartReference, PersonalAccessToken::findOrFail($productReference), $operationId);
         echo json_encode(['status' => 'passed', 'transfer_hash' => hash('sha256', $result['url'])], JSON_THROW_ON_ERROR);
@@ -57,6 +84,8 @@ try {
         'add' => $actions->add($principal, $cartReference, $productReference, $operationId),
     };
     echo json_encode(['status' => 'passed', 'reference' => $result['public_id'], 'lines' => count($result['lines']), 'replaced' => count($result['effects']['replaced_products'])], JSON_THROW_ON_ERROR);
+} catch (ModelNotFoundException) {
+    echo json_encode(['status' => 'denied', 'code' => 404], JSON_THROW_ON_ERROR);
 } catch (ValidationException $exception) {
     echo json_encode(['status' => 'rejected', 'fields' => array_keys($exception->errors())], JSON_THROW_ON_ERROR);
 } catch (HttpException $exception) {
