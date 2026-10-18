@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | O2.1 in progress: owner authorized test integration; test API/capabilities/preflight verified; no payment implementation qualified yet |
+| Active card | O2.2 in progress; O2.1 qualified at 8f13521 / CI39114275120, all applicable development gates pass |
 | Implementation | f128d5cdcd7f963fa60d5a29cf2f22d44c567286 / CI 39103121139 passes PHP 8.3.35 SQLite/MySQL 8.0.46, 401 / 6,427 each, both audits/build/cache gates. Four review findings fixed and five transaction retry copies consolidated; independent approval and actual HTTP/privacy proof recorded in [review qualification](evidence/2026-10-18-laravel-review/qualification.md). O1 integrated browser evidence remains at its recorded e27fefa revision. |
 | Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. Saved test credentials are authorized and actual QRPh test session creation/replay/expiry passes. D07 refund/access defaults approved; support attachments deferred for Drive links. Dedicated test webhook, actual payment/callback/refund outcomes and Q launch settings remain qualification inputs. |
-| Next action | Independent code review approved; push O2.1 source and qualify PHP 8.3 SQLite/MySQL CI against [payment evidence](evidence/2026-10-18-payments/qualification.md), then implement O2.2. Qualify each card before proceeding. Dedicated test webhook and actual sandbox payment proof remain required for O2. |
+| Next action | Implement signed minimal event receipt and immutable settlement/paid transition, qualify signature/duplicate/concurrency/recovery/migration/API boundaries, then actual isolated test callback/payment; [contract](plans/2026-10-18-paymongo-payments.md) |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | Source f128d5c, CI 39103121139: 401 / 6,427 separately on SQLite/MySQL, PHP 8.3.35. Full local same counts on PHP 8.5.11 before final test-only HTTP expansion; final expanded HTTP consumer 1 / 10 passes locally and is included in CI. Next unchanged 52148d3 was used in the historical fifteen-check O1 journey; its CI 39096289880 passes 144 tests/31 files/type/lint/build/audit on Node 22. Test teardown removes private fixtures/processes; reviewer used only PHP stdin/in-memory SQLite. |
+| Last recorded runtime tests | Source8f13521, [CI 39114275120](https://github.com/adzadzadz/adzbyte-app/actions/runs/39114275120): **436 / 6,688** each on PHP8.3.35 SQLite/MySQL8.0.46, both audits/build/format/metadata/caches. Actual provider and desktop/320px evidence recorded; private QA fixtures/processes removed. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -51,7 +51,7 @@ Replace the current checkpoint with concrete values as work proceeds:
 | Runtime | Any local process started and whether stopped; temporary fixtures/accounts and cleanup state |
 | Git | Branch and commit(s), dirty state, push result, CI URL/result or not checked |
 | Deployment | Source/deploy commits if relevant; explicit statement whether release/production changed |
-| Next action | One executable command/edit or the exact unanswered decision that blocks it |
+| Next action | Implement signed minimal event receipt and immutable settlement/paid transition, qualify signature/duplicate/concurrency/recovery/migration/API boundaries, then actual isolated test callback/payment; [contract](plans/2026-10-18-paymongo-payments.md) |
 
 Update after a completed card, before switching tasks, before a risky operation,
 and before stopping. For abrupt interruption, reconstruct missing evidence from
@@ -71,7 +71,7 @@ copying their full contents into the session log.
 - Saved test key authorized; merchant API allows only QRPh. Actual native Laravel checkout creation/retrieval, same-command replay, distinct-command409 and verified provider expiry pass. No paid transition or live action.
 - Durable attempt/receipt reservation, once-only after-commit creation, encrypted captured payload/URL, strict provider matching, owned REST/native payment page and OpenAPI contract added. Independent review findings fixed and code approved conditional on current CI.
 - Local PHP8.5.11 SQLite full suite **428 / 6,664**, Pint/metadata/build/whitespace and both zero-finding audits pass. Four-process creation races, schema upgrade/reversal, actual HTTP consumer and built desktop/320px native interaction pass. Private QA DB/server/config/scripts removed.
-- [Evidence](evidence/2026-10-18-payments/qualification.md). Supported PHP8.3 SQLite/MySQL source delivery remains the O2.1 exit gate. O2.2/O2.3 and dependent phases remain incomplete.
+- [Evidence](evidence/2026-10-18-payments/qualification.md). Supported PHP8.3 SQLite/MySQL source delivery now passes at8f13521 / CI39114275120: **436 / 6,688 each**. O2.1 qualified. O2.2/O2.3 and dependent phases remain incomplete.
 - User approved configurable purchased-access refund defaults; support attachments deferred for customer-shared Google Drive links. No new business question is pending for those choices.
 
 ### 2026-10-18 — Independent Laravel checkup qualified

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1/C2/C3/O1 qualified; O2.1 implementation and test transport under qualification |
+| Status | C1/C2/C3/O1 qualified; O2.1 qualified; O2.2 webhook confirmation in progress |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -303,3 +303,7 @@ database-queue/SMTP success/three-attempt failure/recovery pass. See
 O1 is complete. O2 remains blocked on owner-deferred test credentials and actual
 provider sandbox qualification. Downstream phases remain incomplete. This
 supersedes earlier continuation checkpoints; no production/existing DB changed.
+
+## O2.1 qualified checkpoint — 2026-10-18
+
+Source8f13521 / [CI 39114275120](https://github.com/adzadzadz/adzbyte-app/actions/runs/39114275120), **436 / 6,688 per engine**, PHP8.3.35 SQLite/MySQL8.0.46, source checks/audits/caches and independent review pass. Actual test creation/retrieval/replay/expiry plus native UI/HTTP/OpenAPI/schema/races pass; [evidence](../evidence/2026-10-18-payments/qualification.md). O2.2/O2.3 and downstream phases remain pending.

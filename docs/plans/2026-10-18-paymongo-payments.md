@@ -66,6 +66,19 @@ entry points as applicable before the next card.
 
 ## O2.2 — Authoritative provider outcomes
 
+Implementation starts only after O2.1 delivered-source CI qualifies. Use the
+documented durable event envelope (`data.id`, type `event`, attributes containing
+type/mode/created_at/resource). The Hosted Checkout narrative example shows a
+different envelope without an event ID; do not invent IDs or weaken deduplication
+to accept that example. Capture an actual sandbox delivery to settle the contract.
+
+Verify strict timestamp/test HMAC against the raw body before decoding or
+persisting. Retain only the fields needed for identity, captured commercial
+comparison and audit; do not retain provider billing/contact/card details,
+client keys or hosted URLs in event payloads. A durable minimal inbox and
+immutable settlement reference must permit safe replay and local-failure
+recovery. No general payment CRUD or browser confirmation action is introduced.
+
 Register a dedicated **test** webhook to an isolated test-only HTTPS ingress;
 do not expose the existing app/admin/database or change production endpoints.
 Verify the raw body, timestamp, strict test signature and mode before persisting
@@ -79,6 +92,13 @@ Validate malformed/invalid/stale/wrong-mode signatures; duplicate/concurrent/
 out-of-order events; wrong amount/currency/session/order; unknown attempts;
 provider-success/local-failure recovery. Actual test checkout payment and actual
 provider delivery/receipt/downstream state are required; mocks cannot qualify it.
+
+Only the provider's **test_url simulator** may simulate QR Ph payment. Current
+official testing guidance says scanning a generated test QR can process a real
+transaction; do not scan or pay that QR. The isolated ingress must allow only
+the test webhook path/method and must not serve existing routes, files or Admin.
+Disable the dedicated test endpoint and stop/remove the tunnel and synthetic
+fixtures after qualification; preserve existing WordPress endpoints.
 
 ## O2.3 and later dependencies
 

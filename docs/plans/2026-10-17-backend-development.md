@@ -391,3 +391,7 @@ database-queue/SMTP success/three-attempt failure/recovery pass. See
 O1 is complete. O2 remains blocked on owner-deferred test credentials and actual
 provider sandbox qualification. Downstream phases remain incomplete. This
 supersedes earlier continuation checkpoints; no production/existing DB changed.
+
+## O2.1 qualified checkpoint — 2026-10-18
+
+Source8f13521 / [CI 39114275120](https://github.com/adzadzadz/adzbyte-app/actions/runs/39114275120), **436 / 6,688 per engine**, PHP8.3.35 SQLite/MySQL8.0.46, all O2.1 applicable gates pass; [evidence](../evidence/2026-10-18-payments/qualification.md). O2.2 signature/payment confirmation is next; O2 aggregate remains incomplete.

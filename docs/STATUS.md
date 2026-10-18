@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (O2.1 implemented; sandbox checkout verified; supported-runtime CI pending)
+**Last updated:** 2026-10-18 (O2.1 qualified; O2.2 webhook confirmation in progress)
 
 ## Current Stage
 
@@ -99,7 +99,7 @@ Source `f128d5c` passes [CI 39103121139](https://github.com/adzadzadz/adzbyte-ap
 formatting/metadata/build/production caches passed. The review gate is cleared. See the
 [review and qualification record](evidence/2026-10-18-laravel-review/qualification.md).
 
-**O2.1 — implemented; final qualification pending.** The owner authorized saved test credentials. Native Laravel HTTP transport creates and verifies one actual QRPh test session; replay/conflict and confirmed provider expiry pass. The new owned API/native page, independent-process races, migration recovery, failure cases and OpenAPI consumer are implemented. Supported-runtime CI and final independent approval are required before O2.2. See [payment evidence](evidence/2026-10-18-payments/qualification.md).
+**O2.1 — verified complete at `8f13521`.** [CI 39114275120](https://github.com/adzadzadz/adzbyte-app/actions/runs/39114275120) passes **436 / 6,688 per engine**, PHP8.3.35 SQLite/MySQL8.0.46, audits/metadata/format/build/caches. Independent review, actual QRPh test creation/retrieval/replay/expiry, real HTTP/OpenAPI, schema/concurrency and desktop/320px native UI pass. [Evidence](evidence/2026-10-18-payments/qualification.md). **O2.2 is next/in progress**; O2 aggregate remains incomplete until actual signed callback/payment and operations/refund gates pass.
 
 Historical O1 evidence:
 D06/D07 configurable defaults are recorded. O1 is verified complete at
@@ -132,7 +132,7 @@ fixtures and processes are removed; no deployment or existing DB migration.
 D02/D05/D08 now use owner-authorized configurable defaults; see the
 [decision register](decisions/commerce-development.md). Admin approval favors
 clarification/conversation; no time-based cart expiry. O1 enforces verified ownership before order creation. Payments, fulfillment/support and launch remain
-pending; D06/D07 configurable defaults are authorized; test integration is now authorized and O2.1 is under qualification. Frontend remains
+pending; D06/D07 configurable defaults are authorized; test integration is authorized and O2.1 is qualified. Frontend remains
 in draft PR #6, with original frontend changes preserved.
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
