@@ -2,8 +2,10 @@
 
 2026-10-18. Builds on qualified O2.1 source `8f13521` /
 [CI39114275120](https://github.com/adzadzadz/adzbyte-app/actions/runs/39114275120).
-Current O2.2 status: code independently approved; local and actual-provider
-verification pass; delivered PHP8.3 SQLite/MySQL CI pending. O2 aggregate,
+O2.2 is qualified at source `75605149c668a121ddd6c5677261a55f347a13c8` /
+[CI 39116369733](https://github.com/adzadzadz/adzbyte-app/actions/runs/39116369733):
+**477 tests / 6,908 assertions on each PHP8.3.35 SQLite/MySQL8.0.46 job**.
+Both dependency audits report zero findings; formatting, metadata, build and production caches pass. Remote main matches the qualified source. O2 aggregate,
 operations/refunds, purchased access and production remain unqualified.
 
 ## Implemented boundary
@@ -48,7 +50,7 @@ No QR was scanned or paid through a bank/wallet. Actual provider event
 `evt_NqRXbWaYQsqHyyWEKQpck88x` passes HMAC and commercial verification, records
 one settlement, and changes the captured order/attempt to paid at revision4.
 An own signed HTTP replay acknowledges200 without a second settlement or
-revision. This replay is deliberately distinguished from a provider resend.
+revision. The provider dashboard independently shows Success, zero retries, and the matching event/session ([delivery evidence](provider-delivery-success.png)). This replay is deliberately distinguished from a provider resend.
 
 The actual event uses the documented `evt_` envelope with integer created_at;
 the alternative narrative sample without event identity is not accepted.
@@ -70,17 +72,17 @@ and session; no financial operation or paid checkout was blindly repeated.
 | Full local regression | PHP8.5.11 SQLite **477 tests / 6,908 assertions** pass; Pint/whitespace, Composer metadata and production build pass |
 | Signatures/mismatches/history | `PaymentEventsTest`: raw-byte tamper/missing/stale/future/wrong-mode/duplicate header denial, strict envelope, amount/currency/reference/method/mode/intent mismatches, canonical duplicate/conflict, unrelated/delayed events, local failure rollback/retry, creation-ID crash recovery, dispatcher-vs-webhook race, immutable history and native confirmation |
 | Size boundary | Independent reviewer reproduced256KiB rejecting an O2.1-supported999-line order. Receiver now permits8MiB; actual-receiver999×255-character ASCII/Unicode cases pass, oversized body rejects413 before persistence. Native PHPUnit subprocesses test large requests under unchanged128MiB, avoiding retained full-suite framework state; no production limit or assertion weakened |
-| Persistence/concurrency | `PaymentEventConcurrencyTest`: four independent processes for same/different event IDs, one settlement/transition. `PaymentEventMigrationTest`: populated attempt upgrade, empty reversal/reapply and financial-history reversal protection. LocalSQLite pass; supported MySQLCI pending |
+| Persistence/concurrency | `PaymentEventConcurrencyTest`: four independent processes for same/different event IDs, one settlement/transition. `PaymentEventMigrationTest`: populated attempt upgrade, empty reversal/reapply and financial-history reversal protection. LocalSQLite and supported MySQLCI pass |
 | Real HTTP/OpenAPI | `PaymentWebhookTransportTest`, independent Node raw-byte/HMAC consumer: no customer cookie/CSRF, tamper/query/method denial, acknowledgement and duplicate with documented schema;1 /14 passes locally |
 | Actual provider | Captured real signed delivery and downstream paid state described above; old rejected receipt preserved; synthetic test-only, no live transaction |
 | Native browser | Real synthetic customer logs into same actual-payment QA database; paid message, accessible role=status, no duplicate payment actions, desktop/320px without overflow or warning/error console entries; [desktop](confirmed-actual-desktop.png), [mobile](confirmed-actual-mobile.png), [test simulator](qrph-test-simulator.png) |
-| Independent review | Reviewer approved corrected code and size test isolation; independently38 /199 plus isolated3 /10. Final source CI remains the qualification gate |
-| Delivery/runtime | Pending scoped push/current PHP8.3 SQLite/MySQL CI; no existing DB migration, dependency update, release or production change |
+| Independent review | Reviewer approved corrected code and size test isolation; independently38 /199 plus isolated3 /10. Final source CI passes |
+| Delivery/runtime | Source7560514 pushed; current PHP8.3 SQLite/MySQL CI39116369733 passes; no existing DB migration, dependency update, release or production change |
 | Temporary runtime | Guarded test ingress/tunnel and synthetic database retained for immediate O2.3 audited reconciliation/refund proof. Disable own hook and remove all temporary secrets/raw captures/processes before sandbox closeout; persistent credential archive remains private |
 
 Native customer UI uses a separate loopback server; the public tunnel is only a
 webhook ingress. The provider return URL is not evidence of payment and no full
 cross-application launch journey is claimed here. Q retains that integrated gate.
 
-Next: close O2.2 delivery/CI, then audited payment-event reconciliation, provider
+Next: audited payment-event reconciliation, provider
 expiry/cancellation/refund and operational recovery in O2.3.
