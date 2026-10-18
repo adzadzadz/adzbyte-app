@@ -16,6 +16,401 @@
         }
     ],
     "paths": {
+  "/api/v1/orders/{order}/payment": {
+    "get": {
+      "tags": [
+        "Payments"
+      ],
+      "operationId": "readPaymentAttempt",
+      "summary": "Read current owned payment attempt",
+      "description": "Verified customer web session and authenticated ownership. No bearer fallback. Bodyless/queryless GET; queryless JSON object POST limited to 4096 bytes requires exact Origin, real CSRF, actor-scoped Idempotency-Key UUID and current order revision. Only open approved unexpired unpaid requests may start. Same command replays current attempt without POSTing again; changed input or new command conflicts. Ambiguous provider results remain unknown and prohibit automatic recreation. Only test mode is enabled. Neither checkout creation nor return redirect confirms payment.",
+      "security": [
+        {
+          "appCartSession": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "order",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Owned payment attempt or no attempt.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentAttemptResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "413": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "422": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "429": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "Payments"
+      ],
+      "operationId": "startPaymentAttempt",
+      "summary": "Reserve and create a test checkout once",
+      "description": "Verified customer web session and authenticated ownership. No bearer fallback. Bodyless/queryless GET; queryless JSON object POST limited to 4096 bytes requires exact Origin, real CSRF, actor-scoped Idempotency-Key UUID and current order revision. Only open approved unexpired unpaid requests may start. Same command replays current attempt without POSTing again; changed input or new command conflicts. Ambiguous provider results remain unknown and prohibit automatic recreation. Only test mode is enabled. Neither checkout creation nor return redirect confirms payment.",
+      "security": [
+        {
+          "appCartSession": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "order",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "X-CSRF-TOKEN",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "Origin",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "Owned payment attempt or no attempt.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentAttemptResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "409": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "413": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "419": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "422": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "429": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "503": {
+          "description": "Request denied; no new provider creation.",
+          "headers": {
+            "Cache-Control": {
+              "schema": {
+                "type": "string",
+                "const": "no-store, private"
+              }
+            }
+          },
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        }
+      },
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PaymentAttemptCommand"
+            }
+          }
+        }
+      }
+    }
+  },
       "/api/v1/orders/{order}/review": {
         "get": {
           "tags": [
@@ -5536,6 +5931,97 @@
             }
         },
         "schemas": {
+  "PaymentAttempt": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "public_id",
+      "state",
+      "amount_minor",
+      "currency",
+      "checkout_url",
+      "created_at"
+    ],
+    "properties": {
+      "public_id": {
+        "type": "string",
+        "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+      },
+      "state": {
+        "type": "string",
+        "pattern": "^(creating|active|unknown|expired|rejected)$"
+      },
+      "amount_minor": {
+        "type": "string",
+        "pattern": "^[0-9]+$"
+      },
+      "currency": {
+        "type": "string",
+        "const": "PHP"
+      },
+      "checkout_url": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Only the exact validated current PayMongo session URL; null when unsafe or unavailable. A redirect does not confirm payment."
+      },
+      "created_at": {
+        "type": "string"
+      }
+    }
+  },
+  "PaymentAttemptCommand": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "expected_revision"
+    ],
+    "properties": {
+      "expected_revision": {
+        "type": "integer",
+        "minimum": 1
+      }
+    }
+  },
+  "PaymentAttemptResponse": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "meta"
+    ],
+    "properties": {
+      "data": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/PaymentAttempt"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "meta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "api_version",
+          "csrf_token"
+        ],
+        "properties": {
+          "api_version": {
+            "type": "string",
+            "const": "v1"
+          },
+          "csrf_token": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
         "ReviewMessage": {
           "type": "object",
           "additionalProperties": false,

@@ -501,3 +501,19 @@ Normal default priority, assignment and reopening without a promised response
 deadline. All remain configurable. Precise purchased-service entitlements and
 refund access remain slice-specific. The owner will configure PayMongo test
 credentials later; actual provider qualification cannot yet be completed.
+
+## Subsequent test integration, access and attachment decisions
+
+The owner subsequently authorized using the saved **test** credentials and
+continuing the remaining phases with all required verification gates. This
+supersedes the earlier test-credential deferral, while production operations and
+live credentials remain outside that authorization. Current actual provider
+proof is recorded in the [payment implementation contract](2026-10-18-paymongo-payments.md).
+
+Purchased-service defaults are configurable and captured with accepted rights:
+partial refunds retain access; full refunds or confirmed cancellation stop new
+service requests; history remains readable; Admin may make audited exceptions.
+First-release native support attachments and their scanning infrastructure are
+explicitly deferred. Customers instead share Google Drive file/folder links
+with appropriate case staff; no automatic import or public-sharing requirement.
+See the [exact answers](../decisions/commerce-development.md#test-integration-and-remaining-slice-answers-2026-10-18).

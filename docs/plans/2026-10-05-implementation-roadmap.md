@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1/C2/C3/O1 qualified; O2 blocked on deferred test credentials |
+| Status | C1/C2/C3/O1 qualified; O2.1 implementation and test transport under qualification |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |

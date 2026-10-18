@@ -24,11 +24,15 @@ final class Order extends Model
             }
             if ((! $order->exists && $order->revision !== 1)
                 || ($order->exists && $order->revision !== (int) $order->getRawOriginal('revision') && $order->revision !== (int) $order->getRawOriginal('revision') + 1)
-                || ($order->exists && $order->isDirty(['status', 'approval_status', 'payment_status', 'fulfillment_status', 'approval_expires_at', 'pending_proposal_id']) && $order->revision !== (int) $order->getRawOriginal('revision') + 1)) {
+                || ($order->exists && $order->isDirty(['status', 'approval_status', 'payment_status', 'fulfillment_status', 'approval_expires_at', 'pending_proposal_id', 'payment_attempt_id']) && $order->revision !== (int) $order->getRawOriginal('revision') + 1)) {
                 throw ValidationException::withMessages(['revision' => 'Order transitions require the next monotonic revision.']);
             }
             $state = $order->only(array_keys(OrderLifecycle::INITIAL));
             OrderLifecycle::validate($state, $order->exists ? array_intersect_key($order->getRawOriginal(), OrderLifecycle::INITIAL) : null);
+            if ($order->payment_status === 'pending' && ($order->payment_attempt_id === null
+                || ! PaymentAttempt::whereKey($order->payment_attempt_id)->where('order_id', $order->id)->lockForUpdate()->exists())) {
+                throw ValidationException::withMessages(['payment' => 'Pending payment requires its own reserved attempt.']);
+            }
             if (($order->approval_status === 'approved') !== ($order->approval_expires_at !== null)) {
                 throw ValidationException::withMessages(['approval' => 'Approved orders require a captured approval validity.']);
             }
@@ -57,6 +61,6 @@ final class Order extends Model
 
     protected function casts(): array
     {
-        return ['user_id' => 'integer', 'cart_id' => 'integer', 'cart_revision' => 'integer', 'revision' => 'integer', 'pending_proposal_id' => 'integer', 'approval_expires_at' => 'immutable_datetime'];
+        return ['user_id' => 'integer', 'cart_id' => 'integer', 'cart_revision' => 'integer', 'revision' => 'integer', 'pending_proposal_id' => 'integer', 'payment_attempt_id' => 'integer', 'approval_expires_at' => 'immutable_datetime'];
     }
 }

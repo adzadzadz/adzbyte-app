@@ -146,3 +146,25 @@ The owner answered **"Use these configurable defaults"** to both proposals:
   claim O2 complete or advance its dependent cards without required sandbox proof.
   No real secret, vendor setting, charge, refund or production change is authorized
   by this record.
+
+## Test integration and remaining-slice answers 2026-10-18
+
+The owner subsequently supplied test credentials through the authenticated
+PayMongo dashboard and requested: **"Proceed with the PayMongo integration using
+test credentials and continue the remaining phases. Fully verify each phase
+before moving on."** This supersedes the earlier credential deferral for test
+development. Private credential files remain ignored and owner-readable only;
+live credentials are an unused reference, not authorized for integration tests
+or real charges. Dedicated test-webhook/payment evidence remains required.
+Preserve existing vendor endpoints and production configuration.
+
+- D07: owner selected **"Use these configurable defaults"**: partial refunds
+  retain service access; full refunds or confirmed cancellation stop new service
+  requests; historical records remain readable; Admin may make audited exceptions.
+  Capture/version this rule rather than silently changing accepted rights.
+- D08/R1 attachments: owner selected **"Defer and ask them to share a google drive
+  file or folder instead."** Native attachment uploads/downloads and malware
+  scanning are explicitly deferred from the first release. Customers may supply
+  Google Drive file/folder references shared for their case; staff open authorized
+  links. Do not auto-fetch documents, request broad Drive access, expose links
+  across customer cases, or require public file sharing.

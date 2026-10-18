@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustHosts();
         $middleware->append(AddSecurityHeaders::class);
         $middleware->statefulApi();
+        $middleware->redirectGuestsTo(fn () => route('filament.account.auth.login'));
 
         $middleware->alias([
             'customer.api' => EnsureCustomerApiAccess::class,

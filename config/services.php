@@ -2,6 +2,13 @@
 
 return [
 
+    'paymongo' => [
+        'enabled' => env('PAYMONGO_ENABLED', false),
+        'mode' => env('PAYMONGO_MODE', 'test'),
+        'secret_key' => env('PAYMONGO_SECRET_KEY'),
+        'methods' => array_values(array_filter(explode(',', env('PAYMONGO_METHODS', 'qrph')))),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

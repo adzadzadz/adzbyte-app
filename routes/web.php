@@ -11,6 +11,7 @@ use App\Http\Controllers\Cart\HandoffLandingController;
 use App\Http\Controllers\Orders\CheckoutController;
 use App\Http\Controllers\Orders\OrderManagementController;
 use App\Http\Controllers\Orders\OrderReviewController;
+use App\Http\Controllers\Orders\PaymentAttemptController;
 use App\Http\Middleware\EnsureAppCartOrigin;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +41,10 @@ Route::prefix('api/v1')->as('api.v1.')->middleware(['throttle:app-cart', EnsureA
 });
 
 Route::middleware(['auth:web', 'verified', 'customer.api', 'throttle:checkout', EnsureAppCartOrigin::class])->group(function (): void {
+    Route::get('/orders/{order}/payment', [PaymentAttemptController::class, 'show'])->whereUlid('order')->name('orders.payment.show');
+    Route::post('/orders/{order}/payment', [PaymentAttemptController::class, 'store'])->whereUlid('order')->name('orders.payment.store');
+    Route::get('/api/v1/orders/{order}/payment', [PaymentAttemptController::class, 'show'])->whereUlid('order')->name('api.v1.orders.payment.show');
+    Route::post('/api/v1/orders/{order}/payment', [PaymentAttemptController::class, 'store'])->whereUlid('order')->name('api.v1.orders.payment.store');
     Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/orders', [CheckoutController::class, 'index'])->name('orders.index');

@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-10-18 (independent Laravel review approved and CI-qualified; O2 credentials deferred)
+**Last updated:** 2026-10-18 (O2.1 implemented; sandbox checkout verified; supported-runtime CI pending)
 
 ## Current Stage
 
@@ -99,7 +99,9 @@ Source `f128d5c` passes [CI 39103121139](https://github.com/adzadzadz/adzbyte-ap
 formatting/metadata/build/production caches passed. The review gate is cleared. See the
 [review and qualification record](evidence/2026-10-18-laravel-review/qualification.md).
 
-**O2 — blocked on PayMongo test configuration deferred by the owner.**
+**O2.1 — implemented; final qualification pending.** The owner authorized saved test credentials. Native Laravel HTTP transport creates and verifies one actual QRPh test session; replay/conflict and confirmed provider expiry pass. The new owned API/native page, independent-process races, migration recovery, failure cases and OpenAPI consumer are implemented. Supported-runtime CI and final independent approval are required before O2.2. See [payment evidence](evidence/2026-10-18-payments/qualification.md).
+
+Historical O1 evidence:
 D06/D07 configurable defaults are recorded. O1 is verified complete at
 `e27fefaa520e3e9407b3046f285fefe551b8dcb3` /
 [CI 39101761212](https://github.com/adzadzadz/adzbyte-app/actions/runs/39101761212):
@@ -111,10 +113,7 @@ success/three-attempt failure/recovery pass. See
 [qualification](evidence/2026-10-18-order-review/qualification.md).
 The initial native HTTP CI failure was fixed by building Vite assets before
 both suites; no gates were bypassed. Private fixtures/processes are removed.
-O2 implementation is gated by test credentials. Completion additionally requires
-actual sandbox transport/callback/payment proof. O3/S2 precise
-entitlement/refund access and actual launch merchant/legal settings remain later
-qualification inputs. No production or existing database change occurred.
+O2.2/O2.3 still require a dedicated test webhook, actual callback/payment and operational/refund proof. O3/S2 refund/access defaults are now authorized; support attachments are deferred in favor of customer-shared Google Drive links. Actual launch merchant/legal settings remain later qualification inputs. No production or existing database change occurred.
 
 O1.2 is verified at `538e3ca` / [CI 39098787766](https://github.com/adzadzadz/adzbyte-app/actions/runs/39098787766):
 364 tests / 6,019 assertions independently on PHP 8.3.35 SQLite/MySQL;
@@ -133,7 +132,7 @@ fixtures and processes are removed; no deployment or existing DB migration.
 D02/D05/D08 now use owner-authorized configurable defaults; see the
 [decision register](decisions/commerce-development.md). Admin approval favors
 clarification/conversation; no time-based cart expiry. O1 enforces verified ownership before order creation. Payments, fulfillment/support and launch remain
-pending; D06/D07 configurable defaults are authorized; PayMongo test credentials are deferred by the owner. Frontend remains
+pending; D06/D07 configurable defaults are authorized; test integration is now authorized and O2.1 is under qualification. Frontend remains
 in draft PR #6, with original frontend changes preserved.
 
 The owner-authorized dependency remediation is complete. Source `a27f834`
