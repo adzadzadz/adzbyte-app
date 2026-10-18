@@ -7,7 +7,7 @@
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
 | Active card | Category prerequisite verified; C2.1 persistent cart service implemented, CI pending |
-| Implementation | Cart schema/actions/principal/policy/snapshot and exact minor-unit arithmetic pass full local 242 / 1,659; five independent-process race scenarios and populated migration reversal pass. Category source 4859e4e / Next f202534 remain CI/browser-qualified. No new cart HTTP/UI adapter yet. |
+| Implementation | Cart schema/actions/principal/policy/snapshot and exact minor-unit arithmetic pass full local 243 / 1,671; five independent-process race scenarios and populated migration reversal pass. Category source 4859e4e / Next f202534 remain CI/browser-qualified. Owner clarified automatic replacement with customer notification; immutable command effects preserve retry notice metadata. No new cart HTTP/UI adapter yet. |
 | Decision gate | Fixed launch-catalog gate superseded; D01 resolved, D03 basic controls specified, D02 deferred to checkout/sales; see [register](decisions/commerce-development.md) |
 | Next action | Qualify C2.1 on both engines/PHP 8.3 CI and record source evidence; resolve any failure before C2.2 restricted REST access. Later commercial/privacy decisions remain open. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |

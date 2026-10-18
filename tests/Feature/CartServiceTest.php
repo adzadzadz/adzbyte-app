@@ -140,7 +140,7 @@ class CartServiceTest extends TestCase
         $this->actions->read($principal, $cart['public_id']);
     }
 
-    public function test_category_limit_preserves_existing_item_and_other_categories_can_coexist(): void
+    public function test_category_selection_replaces_previous_item_with_a_retry_safe_notification(): void
     {
         $category = ProductCategory::create(['name' => 'Restricted', 'limit_one_per_cart' => true]);
         $regular = ProductCategory::create(['name' => 'Regular']);
@@ -149,12 +149,12 @@ class CartServiceTest extends TestCase
         $guest = CartPrincipal::guest(bin2hex(random_bytes(32)));
         $cart = $this->actions->create($guest, (string) Str::uuid());
         $this->actions->add($guest, $cart['public_id'], $first->public_id, (string) Str::uuid());
-        try {
-            $this->actions->add($guest, $cart['public_id'], $other->public_id, (string) Str::uuid());
-            $this->fail('Restricted category accepted a second product.');
-        } catch (ValidationException $exception) {
-            $this->assertArrayHasKey('product', $exception->errors());
-        }
+        $operation = (string) Str::uuid();
+        $replacement = $this->actions->add($guest, $cart['public_id'], $other->public_id, $operation);
+        $this->assertCount(1, $replacement['lines']);
+        $this->assertSame([['public_id' => $first->public_id, 'name' => $first->name]], $replacement['effects']['replaced_products']);
+        $this->assertSame($replacement['effects'], $this->actions->add($guest, $cart['public_id'], $other->public_id, $operation)['effects']);
+        $this->assertDatabaseCount('cart_changes', 3);
         $secondRestricted = ProductCategory::create(['name' => 'Another restricted category', 'limit_one_per_cart' => true]);
         foreach ([$this->offer($regular), $this->offer($regular), $this->offer(), $this->offer($secondRestricted)] as $product) {
             $read = $this->actions->add($guest, $cart['public_id'], $product->public_id, (string) Str::uuid());
@@ -162,11 +162,12 @@ class CartServiceTest extends TestCase
         $this->assertCount(5, $read['lines']);
         $this->assertTrue($read['selection_valid']);
         $this->assertSame('62500', $read['subtotal_minor']);
-        $this->assertDatabaseHas('cart_items', ['product_id' => $first->id]);
-        $this->assertDatabaseMissing('cart_items', ['product_id' => $other->id]);
-        $this->actions->remove($guest, $cart['public_id'], $first->public_id, (string) Str::uuid());
-        $read = $this->actions->add($guest, $cart['public_id'], $other->public_id, (string) Str::uuid());
+        $this->assertDatabaseMissing('cart_items', ['product_id' => $first->id]);
+        $this->assertDatabaseHas('cart_items', ['product_id' => $other->id]);
+        $this->assertSame([], $this->actions->read($guest, $cart['public_id'])['effects']['replaced_products']);
+        $read = $this->actions->add($guest, $cart['public_id'], $first->public_id, (string) Str::uuid());
         $this->assertCount(5, $read['lines']);
+        $this->assertSame([['public_id' => $other->public_id, 'name' => $other->name]], $read['effects']['replaced_products']);
     }
 
     public function test_saved_cart_revalidates_later_category_changes_without_losing_items(): void
@@ -192,8 +193,29 @@ class CartServiceTest extends TestCase
         } catch (ValidationException) {
             $this->addToAssertionCount(1);
         }
-        $read = $this->actions->remove($guest, $cart['public_id'], $first->public_id, (string) Str::uuid());
+        $read = $this->actions->add($guest, $cart['public_id'], $second->public_id, (string) Str::uuid());
         $this->assertTrue($read['selection_valid']);
+        $this->assertCount(1, $read['lines']);
+        $this->assertSame($first->public_id, $read['effects']['replaced_products'][0]['public_id']);
+    }
+
+    public function test_unavailable_replacement_cannot_remove_the_current_selection(): void
+    {
+        $category = ProductCategory::create(['name' => 'Restricted', 'limit_one_per_cart' => true]);
+        $first = $this->offer($category);
+        $replacement = Product::factory()->published()->create(['category_id' => $category->id]);
+        $guest = CartPrincipal::guest(bin2hex(random_bytes(32)));
+        $cart = $this->actions->create($guest, (string) Str::uuid());
+        $this->actions->add($guest, $cart['public_id'], $first->public_id, (string) Str::uuid());
+        try {
+            $this->actions->add($guest, $cart['public_id'], $replacement->public_id, (string) Str::uuid());
+            $this->fail('Unavailable replacement committed.');
+        } catch (ValidationException) {
+            $this->addToAssertionCount(1);
+        }
+        $this->assertDatabaseHas('cart_items', ['product_id' => $first->id]);
+        $this->assertDatabaseMissing('cart_items', ['product_id' => $replacement->id]);
+        $this->assertDatabaseCount('cart_changes', 2);
     }
 
     public function test_price_and_terms_changes_require_explicit_current_version_confirmation(): void

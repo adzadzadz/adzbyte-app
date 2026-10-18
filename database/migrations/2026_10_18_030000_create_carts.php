@@ -36,6 +36,7 @@ return new class extends Migration
             $table->string('action', 16);
             $table->json('before')->nullable();
             $table->json('after');
+            $table->json('effects');
             $table->timestamp('created_at')->useCurrent();
             $table->unique(['cart_id', 'operation_id']);
         });

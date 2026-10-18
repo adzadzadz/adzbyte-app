@@ -48,6 +48,7 @@ final class CartSnapshot
             'public_id' => $cart->public_id, 'revision' => $cart->revision, 'lines' => $lines,
             'currency' => 'PHP', 'subtotal_minor' => $subtotal, 'subtotal_complete' => $complete,
             'requires_review' => $review, 'category_conflicts' => $restricted, 'selection_valid' => $valid,
+            'effects' => ['replaced_products' => []],
         ];
     }
 }

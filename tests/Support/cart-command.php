@@ -43,7 +43,7 @@ try {
         'create' => $actions->create($principal, $operationId),
         'add' => $actions->add($principal, $cartReference, $productReference, $operationId),
     };
-    echo json_encode(['status' => 'passed', 'reference' => $result['public_id'], 'lines' => count($result['lines'])], JSON_THROW_ON_ERROR);
+    echo json_encode(['status' => 'passed', 'reference' => $result['public_id'], 'lines' => count($result['lines']), 'replaced' => count($result['effects']['replaced_products'])], JSON_THROW_ON_ERROR);
 } catch (ValidationException $exception) {
     echo json_encode(['status' => 'rejected', 'fields' => array_keys($exception->errors())], JSON_THROW_ON_ERROR);
 }

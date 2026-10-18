@@ -56,6 +56,7 @@ class CartConcurrencyTest extends TestCase
         $this->assertDatabaseCount('cart_items', $lines);
         $this->assertDatabaseCount('cart_changes', $receipts);
         $this->assertSame($receipts - 1, Cart::firstOrFail()->revision);
+        $this->assertSame($restricted ? 3 : 0, array_sum(array_column($results, 'replaced')));
     }
 
     public static function addScenarios(): array
@@ -64,7 +65,7 @@ class CartConcurrencyTest extends TestCase
             'identical retry' => [true, true, false, 1, 4, 2],
             'different commands same product' => [true, false, false, 1, 4, 5],
             'distinct regular products' => [false, false, false, 4, 4, 5],
-            'restricted category contention' => [false, false, true, 1, 1, 2],
+            'restricted category replacement contention' => [false, false, true, 1, 4, 5],
         ];
     }
 

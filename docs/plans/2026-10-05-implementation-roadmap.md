@@ -108,7 +108,7 @@ C1.4/B1 backend qualification: source `9b4bf7b`, [CI 39055675151](https://github
 remain intact; accepted order snapshots belong to O1. Actual Next.js consumer
 source `805c003` is locally/browser verified in [draft PR #6](https://github.com/adzadzadz/adzbyte-next/pull/6),
 with [source CI passing](https://github.com/adzadzadz/adzbyte-next/actions/runs/39056186126). See the [public contract](2026-10-18-public-catalog.md).
-C2 follows the verified [category prerequisite](2026-10-18-category-cart-controls.md), backend 4859e4e / frontend f202534 with both source CI gates green. Owner-approved D04 rules are recorded; conflicting adds preserve the existing selection and require removal first.
+C2 follows the verified [category prerequisite](2026-10-18-category-cart-controls.md), backend 4859e4e / frontend f202534 with both source CI gates green. Owner-approved D04 rules are recorded; a new selection replaces the previous service in that restricted category and notifies the customer.
 
 **Gate:** Laravel can publish a product, `adzbyte-next` can render only its safe
 public representation, and an administrator can change future catalog state

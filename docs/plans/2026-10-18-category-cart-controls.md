@@ -15,9 +15,9 @@ products remain uncategorized. Product quantities remain one.
 Cart contents have no time-based expiry. Availability and publication are
 revalidated; unavailable services cannot be purchased. Current changed prices
 must be reviewed/confirmed. Login merges deduplicate products and require an
-explicit choice for conflicting restricted-category selections. Conflicting
-adds preserve the current item and prompt removal before another selection;
-no automatic replacement. Handoffs use the recommended 60-second
+explicit choice for conflicting restricted-category selections during login
+merging. Owner clarified direct selection: replace the previous item from that
+restricted category and notify the customer; preserve other categories. Handoffs use the recommended 60-second
 single-use transfer token; a fresh link can be requested without expiring a cart.
 Cart retention/deletion and security credential validity remain separate.
 

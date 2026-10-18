@@ -11,9 +11,12 @@ are C2.2/C2.3, followed by login attachment in C3.
   without any time-based expiry. Availability, current price/terms and category
   rules are revalidated. No real cart or catalog seed is introduced.
 - A restricted category permits one product; regular/uncategorized products
-  coexist. On a conflicting add, preserve the existing selection and return a
-  removal prompt. No implicit replacement. Later login conflicts require an
-  explicit choice. Administrative rule/product changes can invalidate a saved
+  coexist. Owner clarified that a different selection automatically replaces
+  the previous service in that category and notifies the customer. Record the
+  replaced product references/names in immutable command effects so retries
+  still explain what changed. Availability is checked before replacement; an
+  invalid replacement must leave the original cart intact. Later login conflicts
+  require an explicit choice. Administrative rule/product changes can invalidate a saved
   selection and must be surfaced on the next read.
 - Cart authority is distinct from a future Next service credential: guest
   authority is a cryptographically generated bearer secret stored only as a
@@ -46,15 +49,15 @@ remains incomplete until the actual Next-to-app journey passes.
 
 ## Current evidence
 
-Local PHP 8.5.11/SQLite: full suite **242 tests / 1,659 assertions** passes,
-including 15 cart-domain/authority cases, populated upgrade/reversal and five
+Local PHP 8.5.11/SQLite: full suite **243 tests / 1,671 assertions** passes,
+including 16 cart-domain/authority cases, populated upgrade/reversal and five
 four-process cart race scenarios. Older catalog/category migration tests now
 explicitly target their preceding migration boundary so they continue proving
 their original reversals after this later schema is added. No real DB migrated.
 
 Covered: two-year no-expiry time travel; native-max plus native-max exact
-subtotal; distinct restricted/regular category coexistence and conflict
-preservation; later rule changes; revoked customer roles; cross-guest/customer
+subtotal; distinct restricted/regular category coexistence and replacement
+with durable notification effects; later rule changes; revoked customer roles; cross-guest/customer
 denial including the SuperAdmin Gate override; immutable history and cart/offer
 identity; current-price/terms confirmation, intervening change atomic rollback,
 replays that cannot re-add removed products or silently confirm newer prices;
@@ -71,3 +74,13 @@ panel, browser or provider surface exists in this card; their integration gates
 remain required for C2.2/C2.3. CartPrincipal stores a hash only; C2.2 must generate
 the actual guest secret cryptographically and keep it out of browser bundles,
 public responses and logs. Audit snapshots contain no bearer credential.
+
+The initial service source `384406e` passed both database jobs in
+[CI 39088744430](https://github.com/adzadzadz/adzbyte-app/actions/runs/39088744430).
+The owner then clarified automatic replacement with notification; that updated
+source requires its own CI qualification. Local full 243 / 1,671 passes after
+that clarification. Simultaneous restricted-category selections now all commit
+in serialized order, retain one final line, and record exactly three replacement
+notices for four different adds. Identical operation retries replay the original
+notice effects without reapplying or duplicating the selection. Availability is
+validated before any removal. Notification rendering remains the C2.3 UI gate.

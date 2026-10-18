@@ -68,7 +68,7 @@ final class CartActions
     {
         Validator::make(['product' => $productReference], ['product' => ['required', 'ulid']])->validate();
 
-        return $this->mutate($principal, $reference, 'add', ['product' => $productReference], $operationId, function (Cart $cart) use ($productReference): void {
+        return $this->mutate($principal, $reference, 'add', ['product' => $productReference], $operationId, function (Cart $cart) use ($productReference): array {
             $productId = Product::where('public_id', $productReference)->value('id');
             abort_if($productId === null, 404);
             $items = $this->lockedItems($cart);
@@ -77,16 +77,22 @@ final class CartActions
             if (! $this->available($product)) {
                 throw ValidationException::withMessages(['product' => 'This service is no longer available.']);
             }
-            if ($items->contains('product_id', $product->id)) {
-                return; // Quantity stays one; never silently accept new offer versions.
-            }
-            if ($product->category?->limit_one_per_cart && $items->contains(fn (CartItem $item): bool => $products->get($item->product_id)->category_id === $product->category_id)) {
-                throw ValidationException::withMessages(['product' => 'Remove the existing service from this category before adding another.']);
-            }
-            (new CartItem)->forceFill([
-                'cart_id' => $cart->id, 'product_id' => $product->id,
-                'quoted_price_id' => $product->currentPrice->id, 'quoted_terms_id' => $product->currentTerms->id,
-            ])->save();
+            $replaced = $product->category?->limit_one_per_cart
+                ? $items->filter(fn (CartItem $item): bool => $item->product_id !== $product->id && $products->get($item->product_id)->category_id === $product->category_id)
+                : collect();
+            $effects = ['replaced_products' => $replaced->map(fn (CartItem $item): array => [
+                'public_id' => $products->get($item->product_id)->public_id,
+                'name' => $products->get($item->product_id)->name,
+            ])->values()->all()];
+            $cart->items()->whereIn('id', $replaced->pluck('id'))->delete();
+            if (! $items->contains('product_id', $product->id)) {
+                (new CartItem)->forceFill([
+                    'cart_id' => $cart->id, 'product_id' => $product->id,
+                    'quoted_price_id' => $product->currentPrice->id, 'quoted_terms_id' => $product->currentTerms->id,
+                ])->save();
+            } // Existing selections never silently accept new offer versions.
+
+            return $effects;
         });
     }
 
@@ -142,15 +148,15 @@ final class CartActions
             if ($receipt !== null) {
                 $this->assertSameRequest($receipt->request_hash, $hash);
 
-                return $this->snapshot($cart);
+                return [...$this->snapshot($cart), 'effects' => $receipt->effects];
             }
             $before = $this->history($cart);
-            $command($cart);
+            $effects = $command($cart) ?? ['replaced_products' => []];
             $cart->revision++;
             $cart->save();
-            $this->receipt($cart, $principal, $operationId, $hash, $action, $before);
+            $this->receipt($cart, $principal, $operationId, $hash, $action, $before, $effects);
 
-            return $this->snapshot($cart);
+            return [...$this->snapshot($cart), 'effects' => $effects];
         });
     }
 
@@ -207,11 +213,12 @@ final class CartActions
         return ['revision' => $cart->revision, 'lines' => $this->lockedItems($cart)->map(fn (CartItem $item): array => $item->only(['product_id', 'quoted_price_id', 'quoted_terms_id']))->all()];
     }
 
-    private function receipt(Cart $cart, CartPrincipal $principal, string $operationId, string $hash, string $action, ?array $before): void
+    private function receipt(Cart $cart, CartPrincipal $principal, string $operationId, string $hash, string $action, ?array $before, array $effects = ['replaced_products' => []]): void
     {
         (new CartChange)->forceFill([
             'cart_id' => $cart->id, 'actor_id' => $principal->actor()?->id, 'operation_id' => $operationId,
             'request_hash' => $hash, 'action' => $action, 'before' => $before, 'after' => $this->history($cart),
+            'effects' => $effects,
         ])->save();
     }
 
