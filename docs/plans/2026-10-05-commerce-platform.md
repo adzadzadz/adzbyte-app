@@ -83,6 +83,32 @@ Tax/receipt and other commercial decisions are resolved before the purchasing
 behavior that needs them. Catalog infrastructure and its empty/draft states
 can be implemented and verified now without inventing those decisions.
 
+### Category and cart behavior confirmed 2026-10-18
+
+- Categories are administrator-managed. A category toggle limits selection to
+  one distinct service from that category per cart; regular-category services
+  can coexist. Products without a category behave as regular services. Existing
+  catalog records remain uncategorized; no real category or offer is seeded.
+- A cart can contain multiple distinct services, quantity one each. Neither the
+  cart nor its lines expire because time passes. Revalidate current publication
+  and availability; unavailable items cannot contribute a payable offer.
+- A changed current price is displayed and must be confirmed before checkout;
+  accepted historical order snapshots remain unchanged.
+- Login merging combines distinct products and collapses duplicate products.
+  Conflicting services in a restricted category require an explicit customer
+  selection; never silently discard a selection or permit an invalid purchase.
+- Use the recommended opaque, single-use, 60-second server-created handoff.
+  This timer applies to the View Cart transfer link only. A fresh handoff can
+  be requested for the same saved cart when a link expires or was consumed.
+- Expiry/security of access credentials and retention/deletion of records are
+  separate from cart validity; D08 still gates relevant privacy/launch choices.
+
+Implementation first adds a category prerequisite to C1, then resumes C2/C3.
+Category assignment and toggling must revalidate existing carts, preserve order
+history, and use shared services/policies. The behavior for selecting a different
+service within an already-selected restricted category is being clarified;
+category persistence/management can proceed independently.
+
 ## Application Ownership
 
 ### `adzbyte-next`

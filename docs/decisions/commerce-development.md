@@ -1,6 +1,6 @@
 # Commerce Development Decision Register
 
-Last reviewed: 2026-10-17. D01 is **resolved** by the dynamic-catalog direction;
+Last reviewed: 2026-10-18. D01 is **resolved** by the dynamic-catalog direction;
 D03's basic controls are **specified**, with additional purchase constraints
 pending. Other items below remain pending for their dependent slices. This
 register indexes development gates; the [product plan](../plans/2026-10-05-commerce-platform.md)
@@ -14,8 +14,8 @@ these IDs to implementation cards.
 |---|---|---|
 | D01 | Resolved: packages are dynamic administrator-managed records; no launch names, scope, amounts, or entitlements are specified. Start empty; use synthetic tests. Prices/terms are configurable versions | No C1 commercial-content blocker; former P0 gate superseded |
 | D02 | Pending: tax included/excluded/other treatment and required invoice/receipt output, including snapshots and display. Do not infer policy from unset values | Before checkout/real sales and O1/O3 behavior that uses it; not empty/draft catalog development |
-| D03 | Basic controls specified: new drafts, explicit publish/unpublish, independent availability, archive with referenced history retained. Additional per-customer/package sale constraints remain pending | No blocker to basic C1; resolve extra constraints before their enforcement/purchase flow |
-| D04 | Single or multiple distinct services per cart; expiry; price-change behavior; authenticated merge/duplicate rules; handoff lifetime | C2 and C3 |
+| D03 | Basic controls specified: new drafts, explicit publish/unpublish, independent availability, archive with referenced history retained. Category-based one-per-cart control approved on 2026-10-18; other per-customer/package sale constraints remain pending | No blocker to basic C1; resolve extra constraints before their enforcement/purchase flow |
+| D04 | Approved: multiple distinct services, quantity one each; category toggle limits a cart to one service from that category while regular categories coexist. No time-based cart/item expiry; revalidate availability. Show current changed prices for customer confirmation. Merge by product without duplicates; restricted-category conflicts require explicit customer resolution. Use recommended 60-second, single-use handoffs; expiry affects the transfer link only, with fresh links available. Different-service selection behavior within a restricted category is being clarified | Category prerequisite before C2/C3; no longer waiting for generic cart defaults |
 | D05 | Required brief/billing fields, terms acceptance, approving capability, correction/rejection behavior, material-change acceptance, approval/payment-action expiry, and notifications | O1 |
 | D06 | Enabled merchant payment methods, fee handling, failed/expired attempts, cancellation, full/partial refunds, disputes, and reconciliation responsibilities | O2 |
 | D07 | Manual fulfillment states/actions and customer visibility, purchased-service limits/access after refund, request/report categories, required fields, status/priority/assignment, escalation/reopening/service targets, and notification events | Fulfillment/access before O3/S2; case rules before R1 |
@@ -64,3 +64,5 @@ services before changing implementation. Preserve historical accepted terms.
 |---|---|---|
 | 2026-10-17 | D01–D09 | Pending inputs indexed from existing product/first-release plans; no new commercial decision made |
 | 2026-10-17 | D01, D02, D03 | Owner clarified: "Treat the service packages as dynamic. There is no specifics at this point whatsoever so make sure we can add/modify & control it." Dynamic catalog/content management replaces the fixed launch-catalog gate; tax/receipt is deferred to dependent purchase behavior. See the product plan's dynamic service catalog section |
+
+| 2026-10-18 | D03, D04 | Owner requested a category toggle: one service from a restricted category may coexist with services from regular categories. Cart items must not expire by time; availability is rechecked. Owner said "go for recommended" and "Go" for the remaining proposed D04 defaults. Handoff clarified as a short-lived transfer link, independent of the persistent cart. Price review and duplicate-safe login merging approved; category conflict behavior must preserve customer choice |

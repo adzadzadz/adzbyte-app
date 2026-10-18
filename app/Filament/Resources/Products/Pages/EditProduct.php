@@ -33,7 +33,7 @@ final class EditProduct extends EditRecord
     {
         $data['media'] = array_filter($data['media'] ?? [], fn (mixed $value): bool => is_string($value));
 
-        return Arr::only($data, ['name', 'slug', 'summary', 'description', 'media']);
+        return Arr::only($data, ['name', 'slug', 'summary', 'description', 'media', 'category_id']);
     }
 
     protected function handleRecordUpdate(Model $record, array $data): Model

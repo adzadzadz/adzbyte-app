@@ -127,7 +127,7 @@ final class CatalogActions
     private function validateContentKeys(array $attributes): void
     {
         Validator::make(['attributes' => $attributes], [
-            'attributes' => ['array:name,slug,summary,description,media'],
+            'attributes' => ['array:name,slug,summary,description,media,category_id'],
         ])->validate();
     }
 

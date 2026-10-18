@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-#[Fillable(['name', 'slug', 'summary', 'description', 'media'])]
+#[Fillable(['name', 'slug', 'summary', 'description', 'media', 'category_id'])]
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
@@ -47,6 +48,7 @@ class Product extends Model
                 'summary' => ['nullable', 'string'],
                 'description' => ['nullable', 'string'],
                 'media' => ['nullable', 'array'],
+                'category_id' => ['nullable', 'integer:strict', 'min:1', 'exists:product_categories,id'],
                 'status' => ['required', Rule::enum(ProductStatus::class)],
                 'is_available' => ['required', 'boolean'],
             ])->validate();
@@ -79,6 +81,11 @@ class Product extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(ProductPrice::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
     public function termsVersions(): HasMany

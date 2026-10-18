@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\Api\V1\CatalogDetailRequest;
 use App\Http\Requests\Api\V1\CatalogIndexRequest;
 use App\Http\Resources\Api\V1\ProductResource;
 use App\Services\Catalog\PublicCatalog;
@@ -14,10 +15,12 @@ final class ProductController
     {
         $input = $request->validated();
         $page = $catalog->paginate((int) ($input['per_page'] ?? 20), (int) ($input['page'] ?? 1),
-            isset($input['available']) ? $input['available'] === '1' : null);
+            isset($input['available']) ? $input['available'] === '1' : null, $input['category'] ?? null);
         $link = fn (int $number): string => '/api/v1/products?'.http_build_query([
             'per_page' => $page->perPage(),
             ...isset($input['available']) ? ['available' => $input['available']] : [],
+            ...isset($input['include']) ? ['include' => $input['include']] : [],
+            ...isset($input['category']) ? ['category' => $input['category']] : [],
             'page' => $number,
         ]);
 
@@ -34,7 +37,7 @@ final class ProductController
         ]);
     }
 
-    public function show(Request $request, PublicCatalog $catalog, string $product): JsonResponse
+    public function show(CatalogDetailRequest $request, PublicCatalog $catalog, string $product): JsonResponse
     {
         return $this->respond($request, [
             'data' => (new ProductResource($catalog->find($product)))->resolve($request),

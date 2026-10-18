@@ -8,9 +8,12 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class PublicCatalog
 {
-    public function paginate(int $perPage, int $page, ?bool $available): LengthAwarePaginator
+    public function paginate(int $perPage, int $page, ?bool $available, ?string $category = null): LengthAwarePaginator
     {
         $query = $this->query();
+        if ($category !== null) {
+            $query->whereHas('category', fn (Builder $query) => $query->where('public_id', $category));
+        }
         if ($available !== null) {
             $query->where(function (Builder $query) use ($available): void {
                 if ($available) {
@@ -31,7 +34,7 @@ final class PublicCatalog
 
     private function query(): Builder
     {
-        return Product::query()->published()->with(['currentPrice', 'currentTerms']);
+        return Product::query()->published()->with(['currentPrice', 'currentTerms', 'category']);
     }
 
     private function available(Builder $query): void

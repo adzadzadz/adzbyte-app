@@ -38,6 +38,11 @@ class ProductResource extends ApiResource
                 'currency' => $price->currency,
             ],
             'terms' => $terms === null ? null : ['version' => $terms->version, 'content' => (object) $content],
+            ...$request->query('include') === 'category' ? ['category' => $this->category === null ? null : [
+                'public_id' => $this->category->public_id,
+                'name' => $this->category->name,
+                'limit_one_per_cart' => $this->category->limit_one_per_cart,
+            ]] : [],
         ];
     }
 

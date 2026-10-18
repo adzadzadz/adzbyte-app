@@ -23,6 +23,8 @@ class CatalogIndexRequest extends FormRequest
             'page' => ['sometimes', 'required', 'integer', 'min:1', 'max:10000'],
             'per_page' => ['sometimes', 'required', 'integer', 'min:1', 'max:100'],
             'available' => ['sometimes', 'required', 'in:0,1'],
+            'include' => ['sometimes', 'required', 'in:category'],
+            'category' => ['sometimes', 'required', 'ulid'],
         ];
     }
 

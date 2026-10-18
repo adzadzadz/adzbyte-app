@@ -36,6 +36,8 @@ class CatalogMigrationTest extends TestCase
         $price = ProductPrice::factory()->create(['product_id' => $product->id]);
         $terms = ProductTerms::factory()->create(['product_id' => $product->id]);
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
+        $this->assertFalse(Schema::hasTable('product_categories'));
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasTable('product_changes'));
         $this->assertTrue(Schema::hasTable('products'));
         $this->assertTrue($product->is(Product::findOrFail($product->id)));
@@ -45,6 +47,8 @@ class CatalogMigrationTest extends TestCase
         $this->artisan('migrate', ['--force' => true])->assertSuccessful();
         $this->assertTrue(Schema::hasTable('product_changes'));
         $this->assertTrue($product->is(Product::findOrFail($product->id)));
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
+        $this->assertFalse(Schema::hasTable('product_categories'));
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasTable('products'));

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use App\Filament\Resources\ProductCategories\ProductCategoryResource;
 use App\Filament\Resources\Products\ProductResource;
 use App\Filament\Resources\Users\UserResource;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
@@ -188,6 +189,7 @@ return [
     'resources' => [
         'subject' => 'model',
         'manage' => [
+            ProductCategoryResource::class => ['viewAny', 'view', 'create', 'update'],
             ProductResource::class => [
                 'viewAny', 'view', 'create', 'update', 'publish', 'unpublish',
                 'setAvailability', 'archive', 'restore', 'revisePrice', 'reviseTerms',

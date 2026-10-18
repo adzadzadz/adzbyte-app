@@ -102,6 +102,26 @@
                             ]
                         },
                         "description": "Optional advisory availability filter; unknown query fields are rejected."
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "category"
+                            ]
+                        },
+                        "description": "Opt into the category projection. Omit for the original v1 product representation."
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        },
+                        "description": "Filter published products by a category public reference. Unknown or private-only categories produce an empty list."
                     }
                 ],
                 "responses": {
@@ -216,6 +236,17 @@
                             "type": "string",
                             "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "category"
+                            ]
+                        },
+                        "description": "Opt into the category projection. Omit for the original v1 product representation."
                     }
                 ],
                 "responses": {
@@ -284,6 +315,16 @@
                     },
                     "404": {
                         "description": "Stable error envelope; Cache-Control: no-store, private.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid or unknown query field; no-store.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -536,6 +577,32 @@
                                         "type": "string"
                                     }
                                 }
+                            }
+                        }
+                    },
+                    "category": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "description": "Present only when include=category is explicitly requested. No default response shape change.",
+                        "additionalProperties": false,
+                        "required": [
+                            "public_id",
+                            "name",
+                            "limit_one_per_cart"
+                        ],
+                        "properties": {
+                            "public_id": {
+                                "type": "string",
+                                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "limit_one_per_cart": {
+                                "type": "boolean",
+                                "description": "At most one distinct service from this category per cart; other categories may coexist."
                             }
                         }
                     }

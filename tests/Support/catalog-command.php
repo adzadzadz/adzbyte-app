@@ -3,6 +3,7 @@
 // Standalone worker for independent-process catalog concurrency tests. It only
 // accepts an existing disposable test database supplied by the parent test.
 use App\Actions\Catalog\CatalogActions;
+use App\Actions\Catalog\CategoryActions;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Contracts\Console\Kernel;
@@ -34,7 +35,7 @@ if (getenv('CATALOG_TEST_DRIVER') !== 'mysql') {
 }
 config(['cache.default' => 'array']);
 $actor = User::findOrFail($actorId);
-$product = $command === 'create' ? null : Product::findOrFail($productId);
+$product = in_array($command, ['create', 'category_create'], true) ? null : Product::findOrFail($productId);
 touch($barrier.'.'.getmypid().'.ready');
 $deadline = microtime(true) + 15;
 while (! is_file($barrier)) {
@@ -45,6 +46,7 @@ while (! is_file($barrier)) {
 }
 $actions = app(CatalogActions::class);
 $result = match ($command) {
+    'category_create' => app(CategoryActions::class)->create($actor, ['name' => 'Synthetic concurrent category', 'limit_one_per_cart' => true], $operationId),
     'create' => $actions->create($actor, ['name' => 'Synthetic concurrent draft'], $operationId),
     'price' => $actions->revisePrice($actor, $product, ['amount_minor' => 12500, 'currency' => 'PHP'], $operationId),
     'terms' => $actions->reviseTerms($actor, $product, ['scope' => 'Synthetic concurrent terms'], $operationId),

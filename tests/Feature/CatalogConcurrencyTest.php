@@ -57,19 +57,19 @@ class CatalogConcurrencyTest extends TestCase
         $results = $this->race($command, true);
         $this->assertCount(1, array_unique(array_column($results, 'id')));
         $this->assertDatabaseCount($table, 1);
-        $this->assertDatabaseCount('product_changes', 1);
+        $this->assertDatabaseCount($command === 'category_create' ? 'product_category_changes' : 'product_changes', 1);
     }
 
     public static function retryCommands(): array
     {
-        return [['create', 'products'], ['price', 'product_prices'], ['terms', 'product_terms']];
+        return [['create', 'products'], ['price', 'product_prices'], ['terms', 'product_terms'], ['category_create', 'product_categories']];
     }
 
     private function race(string $command, bool $sameOperation): array
     {
         $actor = User::factory()->create();
         $actor->assignRole(UserRole::SuperAdmin->value);
-        $product = $command === 'create' ? null : Product::factory()->create();
+        $product = in_array($command, ['create', 'category_create'], true) ? null : Product::factory()->create();
         $operationId = (string) Str::uuid();
         $barrier = $this->temporary.'.go';
         for ($i = 0; $i < 4; $i++) {

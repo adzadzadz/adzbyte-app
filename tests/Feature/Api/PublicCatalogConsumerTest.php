@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 use Tests\Support\UsesIsolatedCatalogDatabase;
@@ -32,7 +33,8 @@ class PublicCatalogConsumerTest extends TestCase
         $fixture = json_decode(file_get_contents(base_path('tests/Fixtures/public-product.json')), true, flags: JSON_THROW_ON_ERROR);
         Product::factory()->create(['name' => 'Private draft']);
         Product::factory()->create(['name' => 'Private archive', 'status' => 'archived']);
-        $product = Product::factory()->published()->create(array_intersect_key($fixture, array_flip(['public_id', 'name', 'slug', 'summary', 'description', 'media'])));
+        $category = ProductCategory::create(['name' => 'Synthetic category', 'limit_one_per_cart' => true]);
+        $product = Product::factory()->published()->create(['category_id' => $category->id, ...array_intersect_key($fixture, array_flip(['public_id', 'name', 'slug', 'summary', 'description', 'media']))]);
         $product->prices()->create(['version' => 1, 'amount_minor' => PHP_INT_MAX, 'currency' => 'PHP']);
         $product->termsVersions()->create(['version' => 1, 'content' => ['scope' => 'Synthetic scope', 'internal_note' => 'PRIVATE']]);
         $product->is_available = true;

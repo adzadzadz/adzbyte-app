@@ -23,11 +23,15 @@ final class CatalogInput
     {
         $validated = Validator::make($data, [
             'name' => ['nullable', 'string', 'max:255'],
+            'category_id' => ['nullable', 'integer', 'min:1', 'exists:product_categories,id'],
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('products', 'slug')->ignore($record?->id)],
             'summary' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'media' => ['nullable', 'array', self::mediaRule()],
         ])->validate();
+        if (array_key_exists('category_id', $validated)) {
+            $validated['category_id'] = $validated['category_id'] === null ? null : (int) $validated['category_id'];
+        }
         if (array_key_exists('media', $validated)) {
             $structured = array_filter($record?->media ?? [], fn (mixed $value): bool => ! is_string($value));
             $validated['media'] = array_replace($structured, $validated['media'] ?? []);

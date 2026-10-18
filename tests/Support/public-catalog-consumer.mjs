@@ -55,6 +55,14 @@ while (path) {
         const result = await detail.json();
         check(result, schemas.ProductResponse);
         assert.deepEqual(result.data, product);
+        const enhanced = await fetch(new URL(`/api/v1/products/${product.public_id}?include=category`, origin));
+        assert.equal(enhanced.status, 200);
+        const included = await enhanced.json();
+        check(included, schemas.ProductResponse);
+        assert(Object.hasOwn(included.data, 'category'));
+        const { category, ...original } = included.data;
+        assert.deepEqual(original, product);
+        if (category !== null) assert.equal(typeof category.limit_one_per_cart, 'boolean');
         if (product.price !== null) assert(BigInt(product.price.amount_minor) >= 0n);
         products++;
     }
@@ -66,4 +74,4 @@ const invalid = await fetch(new URL('/api/v1/products?include=changes', origin))
 assert.equal(invalid.status, 422);
 check(await invalid.json(), schemas.ErrorResponse);
 assert.match(invalid.headers.get('cache-control'), /no-store/);
-console.log(JSON.stringify({ result: 'passed', products, pages: seen.size, checks: ['OpenAPI examples', 'response schemas', 'pagination', 'detail parity', 'exact BigInt money', 'ETag/304', 'validation/no-store'] }));
+console.log(JSON.stringify({ result: 'passed', products, pages: seen.size, checks: ['OpenAPI examples', 'response schemas', 'pagination', 'detail parity', 'opt-in category compatibility', 'exact BigInt money', 'ETag/304', 'validation/no-store'] }));
