@@ -6,7 +6,7 @@
 |---|---|
 | Updated | 2026-10-18 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | O2.3b expiry/cancellation starting; O2.3a qualified28a0f86 / CI39123794458, 505 /7,164 per PHP8.3.35 SQLite/MySQL8.0.46 engine; actual/native and independent gates pass |
+| Active card | O2.3b local/actual-provider/native/REST/schema/races and independent review pass; final source CI pending. Not qualified. O2.3a qualified28a0f86 / CI39123794458, 505 /7,164 per PHP8.3.35 SQLite/MySQL8.0.46 engine |
 | Implementation | f128d5cdcd7f963fa60d5a29cf2f22d44c567286 / CI 39103121139 passes PHP 8.3.35 SQLite/MySQL 8.0.46, 401 / 6,427 each, both audits/build/cache gates. Four review findings fixed and five transaction retry copies consolidated; independent approval and actual HTTP/privacy proof recorded in [review qualification](evidence/2026-10-18-laravel-review/qualification.md). O1 integrated browser evidence remains at its recorded e27fefa revision. |
 | Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. Saved test credentials are authorized and actual QRPh test session creation/replay/expiry passes. D07 refund/access defaults approved; support attachments deferred for Drive links. Dedicated test webhook, actual payment/callback/refund outcomes and Q launch settings remain qualification inputs. |
 | Next action | Implement/fully qualify O2.3b expiry/cancellation recovery, then O2.3c refunds/disputes, followed by O3/S2 and R1/Q |
@@ -65,6 +65,13 @@ the product plan and implementation progress in the master roadmap; avoid
 copying their full contents into the session log.
 
 ## Session log
+
+### 2026-10-18 — O2.3b source qualification pending
+
+- Shared durable PaymentControl actions, exact policies, verified expiry, unknown-ID recovery, GET-only uncertain-command recovery, captured cancellation settings and native/REST adapters implemented. Independent review approved34/368; final wording-only followup approved independently2/21. Existing development/production DB untouched.
+- Final local539/7,537 passes with process-scoped caffeinate -i after macOS Maintenance Sleep caused wall-clock child/barrier timeouts; no bounds or assertions changed. Domain/native/API29/285, independent real HTTP2/30, migration/four-process races3/53 pass. Final copy regression UnpaidCancellationTest2/21 passes. [Evidence](evidence/2026-10-18-payments/closure-qualification.md).
+- Actual single created test session cs_eb804ededdeeb4455e62f821 was deliberately lost before local identity commit, recovered through Admin browser, then customer-cancelled. Provider expired/livemodefalse/zero payments; order cancelled/unpaid/fulfillmentcancelled/rev7, zero new settlements. Prior two test settlements unchanged. Desktop1470/mobile320 no overflow/errors. Screenshots/proof saved; no blind repeat.
+- UI86214/59861 stopped after capture; browser tabclosed and viewportreset. Ingress94883/59860 and tunnel27148 retained for immediate C sandbox. Private QAstate nowincludes closure; never repeat closure-setup creation. Next finish final checks/push/PHP8.3 SQLite/MySQL CI before O2.3c.
 
 ### 2026-10-18 — O2.3a actual audited reconciliation
 

@@ -62,7 +62,7 @@ final class PaymentSettlementActions
             return;
         }
         if ($order->status !== 'open' || $order->payment_status !== 'pending' || $order->payment_attempt_id !== $attempt->id
-            || ! in_array($attempt->state, ['creating', 'unknown', 'active'], true)) {
+            || ! in_array($attempt->state, ['creating', 'unknown', 'active', 'closing'], true)) {
             throw new PayMongoFailure('order_requires_reconciliation');
         }
         $settlement = (new PaymentSettlement)->forceFill(['public_id' => (string) Str::ulid(), 'order_id' => $order->id, 'payment_attempt_id' => $attempt->id,

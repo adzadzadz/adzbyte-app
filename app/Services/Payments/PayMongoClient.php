@@ -48,6 +48,14 @@ final class PayMongoClient
         return $this->request('GET', '/v1/checkout_sessions/'.$id);
     }
 
+    public function expire(string $id): void
+    {
+        if (! preg_match('/^cs_[A-Za-z0-9]+$/D', $id)) {
+            throw new PayMongoFailure('invalid_reference');
+        }
+        $this->request('POST', '/v1/checkout_sessions/'.$id.'/expire');
+    }
+
     private function pending(): PendingRequest
     {
         $this->ready();

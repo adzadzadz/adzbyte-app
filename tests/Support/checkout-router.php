@@ -37,7 +37,7 @@ foreach (['APP_ENV' => 'local', 'CACHE_STORE' => 'database', 'SESSION_DRIVER' =>
 }
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $browser = getenv('CHECKOUT_HTTP_BROWSER') === '1';
-if (! $browser && $path !== '/api/v1/webhooks/paymongo' && $path !== '/api/v1/checkout' && $path !== '/api/v1/orders' && $path !== '/api/v1/management/orders' && $path !== '/api/v1/management/commerce-settings' && ! preg_match('~^/api/v1/management/payments/[0-9A-HJKMNP-TV-Z]{26}(?:/reconcile)?$~D', $path) && ! preg_match('~^/api/v1/(?:management/)?orders/[0-9A-HJKMNP-TV-Z]{26}(?:/(?:payment|review|reply|resubmit|accept-proposal|approve|reject|clarify|message|note|propose))?$~D', $path)) {
+if (! $browser && $path !== '/api/v1/webhooks/paymongo' && $path !== '/api/v1/checkout' && $path !== '/api/v1/orders' && $path !== '/api/v1/management/orders' && $path !== '/api/v1/management/commerce-settings' && ! preg_match('~^/api/v1/management/payments/[0-9A-HJKMNP-TV-Z]{26}(?:/(?:reconcile|expire|recover-session|verify-control))?$~D', $path) && ! preg_match('~^/api/v1/(?:management/)?orders/[0-9A-HJKMNP-TV-Z]{26}(?:/(?:payment|review|reply|resubmit|accept-proposal|approve|reject|clarify|message|note|propose|cancel))?$~D', $path)) {
     http_response_code(404);
     exit;
 }
@@ -61,7 +61,29 @@ $app->booted(function () use ($database): void {
     if (DB::connection()->getDatabaseName() !== $database || app()->environment('testing')) {
         throw new RuntimeException('Checkout HTTP isolation or real CSRF guard mismatch.');
     }
-    if (getenv('CHECKOUT_HTTP_PAYMENT_RECONCILE') === '1') {
+    if (getenv('CHECKOUT_HTTP_PAYMENT_CONTROL') === '1') {
+        $remote = getenv('CHECKOUT_HTTP_PAYMENT_REMOTE');
+        if (! is_string($remote) || realpath(dirname($remote)) !== realpath(sys_get_temp_dir()) || ! str_starts_with(basename($remote), 'catalog-concurrency-') || ! is_file($remote)) {
+            throw new RuntimeException('Expected disposable provider-state fixture.');
+        }
+        config(['services.paymongo.enabled' => true, 'services.paymongo.mode' => 'test', 'services.paymongo.secret_key' => 'sk_test_synthetic_only']);
+        Http::preventStrayRequests();
+        Http::fake(function ($request) use ($remote) {
+            $state = json_decode(file_get_contents($remote), true, flags: JSON_THROW_ON_ERROR);
+            if ($request->method() === 'POST' && $request->url() === 'https://api.paymongo.com/v1/checkout_sessions/cs_signed/expire') {
+                $state['status'] = 'expired';
+                file_put_contents($remote, json_encode($state, JSON_THROW_ON_ERROR));
+            } elseif ($request->method() !== 'GET' || $request->url() !== 'https://api.paymongo.com/v1/checkout_sessions/cs_signed') {
+                throw new RuntimeException('Unexpected control provider request.');
+            }
+            $attempt = PaymentAttempt::sole();
+
+            return Http::response(['data' => ['id' => 'cs_signed', 'type' => 'checkout_session', 'attributes' => [
+                ...$attempt->provider_payload['data']['attributes'], 'status' => $state['status'], 'livemode' => false,
+                'payments' => [], 'payment_intent' => null, 'checkout_url' => 'https://checkout.paymongo.com/signed#synthetic',
+            ]]]);
+        });
+    } elseif (getenv('CHECKOUT_HTTP_PAYMENT_RECONCILE') === '1') {
         config(['services.paymongo.enabled' => true, 'services.paymongo.mode' => 'test', 'services.paymongo.secret_key' => 'sk_test_synthetic_only']);
         Http::preventStrayRequests();
         Http::fake(function ($request) {

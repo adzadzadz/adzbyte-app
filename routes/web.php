@@ -12,6 +12,7 @@ use App\Http\Controllers\Orders\CheckoutController;
 use App\Http\Controllers\Orders\OrderManagementController;
 use App\Http\Controllers\Orders\OrderReviewController;
 use App\Http\Controllers\Orders\PaymentAttemptController;
+use App\Http\Controllers\Orders\PaymentControlController;
 use App\Http\Controllers\Orders\PaymentOperationsController;
 use App\Http\Middleware\EnsureAppCartOrigin;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,8 @@ Route::middleware(['auth:web', 'verified', 'customer.api', 'throttle:checkout', 
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/orders', [CheckoutController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderReviewController::class, 'show'])->whereUlid('order')->name('orders.show');
+    Route::post('/orders/{order}/cancel', [PaymentControlController::class, 'cancel'])->whereUlid('order')->name('orders.cancel');
+    Route::post('/api/v1/orders/{order}/cancel', [PaymentControlController::class, 'cancel'])->whereUlid('order')->name('api.v1.orders.cancel');
     Route::get('/api/v1/orders/{order}/review', [OrderReviewController::class, 'show'])->whereUlid('order')->name('api.v1.orders.review');
     foreach (['reply', 'resubmit', 'accept_proposal'] as $command) {
         $path = str_replace('_', '-', $command);
@@ -65,6 +68,9 @@ Route::middleware(['auth:web', 'verified', 'customer.api', 'throttle:checkout', 
 Route::prefix('api/v1/management')->as('api.v1.management.')->middleware(['auth:web', 'verified', 'throttle:checkout', EnsureAppCartOrigin::class])->group(function (): void {
     Route::get('/payments/{payment}', [PaymentOperationsController::class, 'show'])->whereUlid('payment')->name('payments.show');
     Route::post('/payments/{payment}/reconcile', [PaymentOperationsController::class, 'reconcile'])->whereUlid('payment')->name('payments.reconcile');
+    foreach (['expire' => 'expire', 'recover-session' => 'recover', 'verify-control' => 'verify'] as $path => $action) {
+        Route::post('/payments/{payment}/'.$path, [PaymentControlController::class, 'management'])->whereUlid('payment')->defaults('control_action', $action)->name('payments.'.$action);
+    }
     Route::get('/commerce-settings', [OrderManagementController::class, 'settings'])->name('settings.show');
     Route::put('/commerce-settings', [OrderManagementController::class, 'settings'])->name('settings.update');
     Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');

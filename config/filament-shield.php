@@ -192,7 +192,7 @@ return [
     'resources' => [
         'subject' => 'model',
         'manage' => [
-            PaymentResource::class => ['viewAny', 'view', 'reconcile'],
+            PaymentResource::class => ['viewAny', 'view', 'reconcile', 'expire', 'recover'],
             OrderResource::class => ['viewAny', 'view', 'approve', 'reject', 'clarify', 'message', 'note', 'propose'],
             ProductCategoryResource::class => ['viewAny', 'view', 'create', 'update'],
             ProductResource::class => [

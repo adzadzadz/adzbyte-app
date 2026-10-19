@@ -70,7 +70,7 @@ final class PaymentResource extends Resource
             TextColumn::make('amount_minor')->label('Amount')->formatStateUsing(fn (string $state): string => MinorUnits::formatPhp($state)),
             TextColumn::make('livemode')->label('Mode')->formatStateUsing(fn (bool $state): string => $state ? 'Live' : 'Test'),
             TextColumn::make('created_at')->dateTime()->sortable(),
-        ])->filters([SelectFilter::make('state')->options(['creating' => 'Creating', 'unknown' => 'Needs reconciliation', 'active' => 'Active', 'paid' => 'Paid', 'expired' => 'Expired', 'rejected' => 'Rejected'])])
+        ])->filters([SelectFilter::make('state')->options(['creating' => 'Creating', 'unknown' => 'Needs reconciliation', 'active' => 'Active', 'closing' => 'Closure pending', 'paid' => 'Paid', 'expired' => 'Expired', 'rejected' => 'Rejected'])])
             ->recordActions([ViewAction::make()])->recordUrl(fn (PaymentAttempt $record): ?string => self::canView($record) ? self::getUrl('view', ['record' => $record]) : null)
             ->defaultSort('id', 'desc')->emptyStateHeading('No payment attempts yet');
     }

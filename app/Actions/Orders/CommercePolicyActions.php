@@ -43,6 +43,7 @@ final class CommercePolicyActions
         Validator::make(['operation_id' => $operationId], ['operation_id' => ['required', 'uuid']])->validate();
         $operationId = strtolower($operationId);
         CommerceRules::validate($content);
+        $content['payment'] ??= CommerceRules::LEGACY_PAYMENT_RULES;
 
         return RetryingTransaction::run(function () use ($actor, $content, $operationId, $expectedVersion): CommercePolicyVersion {
             $fresh = $this->administrator($actor);

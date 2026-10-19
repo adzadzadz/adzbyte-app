@@ -29,6 +29,14 @@ final class Order extends Model
             }
             $state = $order->only(array_keys(OrderLifecycle::INITIAL));
             OrderLifecycle::validate($state, $order->exists ? array_intersect_key($order->getRawOriginal(), OrderLifecycle::INITIAL) : null);
+            if ($order->exists && $order->getRawOriginal('payment_status') === 'pending' && $order->payment_status === 'unpaid') {
+                $previous = $order->getRawOriginal('payment_attempt_id');
+                if ($order->payment_attempt_id !== null || ! PaymentAttempt::whereKey($previous)->where('order_id', $order->id)->where('state', 'expired')->exists()
+                    || ! PaymentControl::where('order_id', $order->id)->where('payment_attempt_id', $previous)->where('state', 'confirmed')->exists()
+                    || PaymentSettlement::where('payment_attempt_id', $previous)->exists()) {
+                    throw ValidationException::withMessages(['payment' => 'Retire payment only after verified provider expiry.']);
+                }
+            }
             if ($order->payment_status === 'pending' && ($order->payment_attempt_id === null
                 || ! PaymentAttempt::whereKey($order->payment_attempt_id)->where('order_id', $order->id)->lockForUpdate()->exists())) {
                 throw ValidationException::withMessages(['payment' => 'Pending payment requires its own reserved attempt.']);

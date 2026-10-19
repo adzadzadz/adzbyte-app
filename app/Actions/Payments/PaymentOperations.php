@@ -6,6 +6,7 @@ use App\Exceptions\PayMongoFailure;
 use App\Models\Order;
 use App\Models\OrderEvent;
 use App\Models\PaymentAttempt;
+use App\Models\PaymentControl;
 use App\Models\PaymentEvent;
 use App\Models\PaymentResolution;
 use App\Models\PaymentSettlement;
@@ -29,11 +30,18 @@ final class PaymentOperations
                 ->paginate(20, ['provider_event_id', 'type', 'state', 'reason', 'processed_at'], 'event_page', $page);
 
             return ['attempt' => $attempt->only(['public_id', 'state', 'amount_minor', 'currency', 'livemode', 'provider_session_id', 'failure_code', 'created_at']),
-                'order' => $order->only(['public_id', 'revision', 'payment_status']),
+                'order' => $order->only(['public_id', 'revision', 'status', 'payment_status']),
                 'events' => $events,
                 'settlement' => PaymentSettlement::where('payment_attempt_id', $attempt->id)->first()?->only(['public_id', 'provider_payment_id', 'amount_minor', 'currency', 'paid_at']),
                 'resolutions' => PaymentResolution::where('payment_attempt_id', $attempt->id)->orderByDesc('id')->limit(20)
                     ->get(['public_id', 'original_state', 'original_reason', 'note', 'actor_id', 'created_at']),
+                'controls' => PaymentControl::where('payment_attempt_id', $attempt->id)->with('target:id,public_id')->orderByDesc('id')->limit(20)->get(),
+                'can_expire' => app(PaymentAttemptPolicy::class)->expire($fresh, $attempt) && $order->status === 'open' && $order->payment_status === 'pending'
+                    && $order->payment_attempt_id === $attempt->id && $attempt->provider_session_id !== null && in_array($attempt->state, ['active', 'unknown', 'closing'], true),
+                'can_recover' => app(PaymentAttemptPolicy::class)->recover($fresh, $attempt) && $order->status === 'open' && $order->payment_status === 'pending'
+                    && $order->payment_attempt_id === $attempt->id && $attempt->provider_session_id === null && in_array($attempt->state, ['unknown', 'closing'], true),
+                'can_verify_control' => app(PaymentAttemptPolicy::class)->reconcile($fresh, $attempt) && $order->status === 'open' && $order->payment_status === 'pending'
+                    && $order->payment_attempt_id === $attempt->id && PaymentControl::where('payment_attempt_id', $attempt->id)->where('action', '!=', 'verify')->where('state', '!=', 'confirmed')->exists(),
                 'can_reconcile' => app(PaymentAttemptPolicy::class)->reconcile($fresh, $attempt)
                     && $attempt->provider_session_id !== null && PaymentEvent::where('payment_attempt_id', $attempt->id)
                         ->where('type', 'checkout_session.payment.paid')->whereIn('state', ['rejected', 'needs_review'])

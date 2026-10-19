@@ -4,9 +4,11 @@ namespace App\Filament\Pages;
 
 use App\Actions\Orders\CommercePolicyActions;
 use App\Enums\UserRole;
+use App\Services\Orders\CommerceRules;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
@@ -43,7 +45,7 @@ final class CommerceSettings extends Page
         $policy = app(CommercePolicyActions::class)->read(auth()->user());
         $this->expectedVersion = $policy->version;
         $this->operationId = (string) Str::uuid();
-        $this->form->fill($policy->content);
+        $this->form->fill([...$policy->content, 'payment' => CommerceRules::paymentRules($policy->content)]);
     }
 
     public function hydrate(): void
@@ -65,6 +67,9 @@ final class CommerceSettings extends Page
                 $integer('approval_days', 'Approval validity (days)', 1, 365),
                 Select::make('required_brief')->multiple()->options(['goal' => 'Project goal', 'scope' => 'Requested scope', 'website' => 'Website']),
                 Select::make('required_billing')->multiple()->options(['name' => 'Name', 'email' => 'Email', 'country' => 'Country', 'address' => 'Address', 'company' => 'Company', 'phone' => 'Phone']),
+            ]),
+            Section::make('Cancellation')->description('New settings apply to future accepted requests. An existing payable session must be verified closed before cancellation. Paid requests require Admin review.')->schema([
+                Toggle::make('payment.customer_cancel_before_payment')->label('Allow customers to cancel before payment')->required(),
             ]),
             Section::make('Commerce terms and privacy notice')->description('Starter wording needs to reflect your actual business before launch. New versions apply to future submissions and updated offers; accepted requests retain their terms.')->schema([
                 Textarea::make('terms')->required()->maxLength(50000)->rows(8), Textarea::make('privacy')->required()->maxLength(50000)->rows(8),

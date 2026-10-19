@@ -154,7 +154,7 @@ final class PaymentAttemptActions
         RetryingTransaction::run(function () use ($attempt, $attributes): void {
             Order::whereKey($attempt->order_id)->lockForUpdate()->firstOrFail();
             $current = PaymentAttempt::whereKey($attempt->id)->lockForUpdate()->firstOrFail();
-            if (in_array($current->state, ['paid', 'expired', 'rejected'], true)) {
+            if (in_array($current->state, ['closing', 'paid', 'expired', 'rejected'], true)) {
                 return;
             }
             $current->forceFill($attributes)->save();

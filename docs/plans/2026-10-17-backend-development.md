@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Created | 2026-10-17 |
-| Status | C1/C2/C3/O1 verified; O2 blocked on deferred test credentials |
+| Status | C1/C2/C3/O1 and O2.1/O2.2/O2.3a verified; O2.3b source CI pending; O2.3c and downstream incomplete |
 | First target | Laravel backend, REST contracts, and Filament management |
 | Product authority | [Commerce platform](2026-10-05-commerce-platform.md) |
 | Scope boundary | [First commerce release](2026-10-05-first-commerce-release.md) |
@@ -405,3 +405,15 @@ Source7560514 / [CI39116369733](https://github.com/adzadzadz/adzbyte-app/actions
 ## O2.3a qualified checkpoint — 2026-10-18
 
 Source28a0f86 / [CI39123794458](https://github.com/adzadzadz/adzbyte-app/actions/runs/39123794458), **505 /7,164 per engine**, PHP8.3.35 SQLite/MySQL8.0.46; audits/source/cache gates pass. Actual preserved signed test receipt recovered through Admin with one settlement/resolution and unchanged original rejection. Native/REST/OpenAPI, independent review, migration and process races pass. [Evidence](../evidence/2026-10-18-payments/reconciliation-qualification.md). O2.3b expiry/cancellation is next; O2.3c refunds and aggregate O2 remain incomplete.
+
+
+## O2.3b verification checkpoint — 2026-10-19
+
+Captured configurable cancellation, durable once-only closure/recovery commands,
+strict native/REST adapters, exact capabilities, migration/process races and
+actual unknown-ID recovery/customer cancellation pass local/independent checks.
+One actual unused test session is now expired, with zero payments/settlements;
+accepted history remains readable. [Evidence](../evidence/2026-10-18-payments/closure-qualification.md).
+Final current-source PHP8.3 SQLite/MySQL CI remains required before qualification
+or O2.3c implementation. Test credentials are available; earlier credential
+blockers are historical. O2 aggregate and downstream phases remain incomplete.

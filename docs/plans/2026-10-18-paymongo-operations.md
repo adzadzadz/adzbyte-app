@@ -81,9 +81,9 @@ No generic payment/history editing, creation or deletion routes exist.
 
 [O2.3a evidence](../evidence/2026-10-18-payments/reconciliation-qualification.md).
 
-## O2.3b planned acceptance boundary
+## O2.3b implementation contract
 
-Before implementation, retain these invariants from the verified provider
+The shared actions retain these invariants from the verified provider
 contract ([session lifecycle](https://docs.paymongo.com/docs/payment-channels-key-concepts),
 [expiry API](https://docs.paymongo.com/reference/expire-a-checkout-session)):
 
@@ -114,3 +114,20 @@ contract ([session lifecycle](https://docs.paymongo.com/docs/payment-channels-ke
   provider-success/local-failure recovery, paid/processing races, owned native
   and REST commands, permission revocation, four-process conflicts, migrations,
   and supported PHP8.3 SQLite/MySQL before qualification.
+
+The cancellation setting is `payment.customer_cancel_before_payment`, captured
+in immutable commerce policy versions with a fixed legacy true default.
+Customer POST /api/v1/orders/{order}/cancel and native POST /orders/{order}/cancel
+share PaymentControlActions. Admin POST /api/v1/management/payments/{payment}/
+expire, recover-session and verify-control share that action with native
+Filament modal commands. Inputs use expected_revision and UUID Idempotency-Key;
+Admin notes are required, <=1000 characters. Recovery additionally requires the
+provider session ID. Verification requires an earlier control reference; expiry
+may explicitly target an earlier uncertain cancellation/expiry so its original
+intent can complete. Commands use strict JSON/Origin/session CSRF and16KiB body
+limits. Safe projections omit encrypted proof, actor details and checkout URLs.
+Each reserve/confirmation advances the revision; replay never resends HTTP.
+Controls are durable pending/unknown/blocked/confirmed records. Confirmed/blocked
+records and command identity are immutable; original uncertainty remains readable.
+
+[O2.3b qualification evidence](../evidence/2026-10-18-payments/closure-qualification.md).

@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Payments\Pages;
 
+use App\Actions\Payments\PaymentControlActions;
 use App\Actions\Payments\PaymentOperations;
 use App\Filament\Resources\Payments\PaymentResource;
 use App\Http\Resources\Api\V1\PaymentOperationsResource;
+use App\Models\Order;
 use App\Models\User;
 use App\Policies\PaymentAttemptPolicy;
 use Filament\Actions\Action;
@@ -58,7 +60,7 @@ final class ViewPayment extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [Action::make('reconcile')->label('Reconcile signed payment')
+        $actions = [Action::make('reconcile')->label('Reconcile signed payment')
             ->visible(fn (): bool => app(PaymentOperations::class)->read(auth()->user(), $this->getRecord()->public_id)['can_reconcile'])
             ->authorize(fn (): bool => app(PaymentAttemptPolicy::class)->reconcile(User::findOrFail(auth()->id()), $this->getRecord()))
             ->requiresConfirmation()->modalDescription('Verify this signed receipt against the current PayMongo test session. This preserves the original receipt and records an Admin resolution. It cannot create a payment or override mismatched evidence.')
@@ -81,5 +83,49 @@ final class ViewPayment extends ViewRecord
                 $this->operationId = (string) Str::uuid();
                 Notification::make()->success()->title('Signed payment reconciled')->send();
             })];
+        foreach (['expire' => 'Close payment session', 'recover' => 'Recover unknown session', 'verify' => 'Verify prior closure'] as $command => $label) {
+            $ability = $command === 'verify' ? 'reconcile' : $command;
+            $visible = $command === 'verify' ? 'can_verify_control' : 'can_'.$command;
+            $fields = [Textarea::make('note')->label('Reason (Admin only)')->required()->maxLength(1000)->rows(3)];
+            if ($command === 'recover') {
+                $fields[] = TextInput::make('session')->label('Provider session ID')->required()->maxLength(100);
+            }
+            if ($command === 'verify') {
+                $fields[] = TextInput::make('control')->label('Original control reference')->required()->maxLength(26);
+            }
+            if ($command === 'expire') {
+                $fields[] = TextInput::make('control')->label('Original cancellation or closure reference (optional)')->maxLength(26)
+                    ->helperText('Supply the original reference to complete its cancellation intent after fresh provider verification.');
+            }
+            $actions[] = Action::make($command === 'verify' ? 'verify_control' : $command)->label($label)
+                ->visible(fn (): bool => app(PaymentOperations::class)->read(auth()->user(), $this->getRecord()->public_id)[$visible])
+                ->authorize(fn (): bool => app(PaymentAttemptPolicy::class)->{$ability}(User::findOrFail(auth()->id()), $this->getRecord()))
+                ->requiresConfirmation()->modalDescription(match ($command) {
+                    'expire' => 'Close the captured session with PayMongo and verify it is expired before allowing another payment request. Paid or processing payments stay protected.',
+                    'recover' => 'Verify the supplied provider session against the captured order before binding its identity. This cannot record payment or create another session.',
+                    'verify' => 'Read the existing provider session to resolve an uncertain closure or recovery. This sends no expiry request and preserves the original command.',
+                })->schema($fields)->action(function (array $data) use ($command): void {
+                    try {
+                        $result = app(PaymentControlActions::class)->start(auth()->user(), Order::findOrFail($this->getRecord()->order_id)->public_id, $command,
+                            ['expected_revision' => $this->expectedRevision, 'note' => $data['note'] ?? '',
+                                ...$command === 'recover' ? ['session' => $data['session'] ?? ''] : [],
+                                ...$command === 'verify' ? ['control' => $data['control'] ?? ''] : [],
+                                ...$command === 'expire' && filled($data['control'] ?? null) ? ['control' => $data['control']] : []], $this->operationId, $this->getRecord()->public_id);
+                    } catch (ValidationException|HttpException $exception) {
+                        if ($exception instanceof HttpException && ! in_array($exception->getStatusCode(), [409, 503], true)) {
+                            throw $exception;
+                        }
+                        Notification::make()->danger()->title('Payment command not applied')->body('Review the current order, provider identity and permissions before trying again.')->send();
+                        throw new Halt;
+                    }
+                    $this->getRecord()->refresh();
+                    $this->expectedRevision = app(PaymentOperations::class)->read(auth()->user(), $this->getRecord()->public_id)['order']['revision'];
+                    $this->operationId = (string) Str::uuid();
+                    Notification::make()->title($result->state === 'confirmed' ? 'Payment command confirmed' : 'Payment command needs verification')
+                        ->body($result->state === 'confirmed' ? 'Provider state and the captured request have been verified.' : 'The captured payment remains protected. Review the recorded command and provider state.')->send();
+                });
+        }
+
+        return $actions;
     }
 }

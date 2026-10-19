@@ -12,7 +12,7 @@ final class OrderLifecycle
         'status' => ['open' => ['cancelled', 'completed'], 'cancelled' => [], 'completed' => []],
         'approval_status' => ['pending' => ['clarification', 'approved', 'rejected'], 'clarification' => ['pending', 'rejected'], 'approved' => ['clarification', 'expired'], 'rejected' => [], 'expired' => ['pending', 'clarification']],
         // Reserved provider states; O2 must introduce verified provider transitions.
-        'payment_status' => ['unpaid' => ['pending'], 'pending' => ['paid'], 'paid' => [], 'partially_refunded' => [], 'refunded' => [], 'disputed' => []],
+        'payment_status' => ['unpaid' => ['pending'], 'pending' => ['unpaid', 'paid'], 'paid' => [], 'partially_refunded' => [], 'refunded' => [], 'disputed' => []],
         // O3 adds fulfillment commands after paid state is available.
         'fulfillment_status' => ['not_started' => ['cancelled'], 'in_progress' => [], 'waiting_customer' => [], 'completed' => [], 'cancelled' => []],
     ];

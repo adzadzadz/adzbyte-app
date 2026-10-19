@@ -25,6 +25,16 @@ final class PaymentAttemptPolicy
         return $this->inspect($actor, $attempt) && $this->allows($actor, PaymentCapability::Reconcile);
     }
 
+    public function expire(User $actor, PaymentAttempt $attempt): bool
+    {
+        return $this->inspect($actor, $attempt) && $this->allows($actor, PaymentCapability::Expire);
+    }
+
+    public function recover(User $actor, PaymentAttempt $attempt): bool
+    {
+        return $this->inspect($actor, $attempt) && $this->allows($actor, PaymentCapability::Recover);
+    }
+
     private function allows(User $actor, PaymentCapability $capability): bool
     {
         return $actor->hasVerifiedEmail() && $actor->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value])

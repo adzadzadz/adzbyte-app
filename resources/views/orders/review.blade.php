@@ -4,7 +4,7 @@
     $canCorrect = $order['status'] === 'open' && $order['payment_status'] === 'unpaid' && in_array($order['approval_status'], ['clarification', 'expired'], true);
     $value = fn ($group, $field) => is_string($corrections[$group][$field] ?? null) ? $corrections[$group][$field] : ($order['accepted'][$group][$field] ?? '');
 @endphp
-@if ($order['approval_expires_at'])<p class="mt-6 text-slate-300">Approval is valid until {{ $order['approval_expires_at'] }}. Payment remains unavailable at this stage.</p>@endif
+@if ($order['status'] === 'open' && $order['approval_status'] === 'approved' && in_array($order['payment_status'], ['unpaid', 'pending'], true) && $order['approval_expires_at'])<p class="mt-6 text-slate-300">Approval is valid until {{ $order['approval_expires_at'] }}.</p>@endif
 @if ($offer)
 <section aria-label="Updated offer" class="mt-7 rounded-xl border border-amber-400 p-5">
     <h2 class="text-xl font-medium">Updated offer for your review</h2><p class="mt-3">Your accepted request stays unchanged until you accept this offer. Admin must approve it again afterward.</p>
