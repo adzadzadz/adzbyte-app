@@ -6,12 +6,12 @@
 |---|---|
 | Updated | 2026-10-19 |
 | Priority | Backend, REST API, and management tools first |
-| Active card | O2.3b qualified46614f8 / CI39191936629, 539 /7,537 per PHP8.3.35 SQLite/MySQL8.0.46 engine; all source gates pass. Next O2.3c refund/dispute qualification. O2.3a qualified28a0f86 / CI39123794458, 505 /7,164 per PHP8.3.35 SQLite/MySQL8.0.46 engine |
-| Implementation | f128d5cdcd7f963fa60d5a29cf2f22d44c567286 / CI 39103121139 passes PHP 8.3.35 SQLite/MySQL 8.0.46, 401 / 6,427 each, both audits/build/cache gates. Four review findings fixed and five transaction retry copies consolidated; independent approval and actual HTTP/privacy proof recorded in [review qualification](evidence/2026-10-18-laravel-review/qualification.md). O1 integrated browser evidence remains at its recorded e27fefa revision. |
-| Decision gate | D02/D05/D08 and D06/D07 configurable defaults authorized. Saved test credentials are authorized and actual QRPh test session creation/replay/expiry passes. D07 refund/access defaults approved; support attachments deferred for Drive links. Dedicated test webhook, actual payment/callback/refund outcomes and Q launch settings remain qualification inputs. |
-| Next action | Qualify O2.3c refunds/disputes, followed by O3/S2 and R1/Q |
+| Active card | O2.3c partial: actual QRPh refund failed; test wallet inventory empty. Successful refund/claim contract needs PayMongo sandbox provisioning. O2.3b qualified46614f8 / CI39191936629. |
+| Implementation | Source46614f89c0246be69e5c30c66d858f54e70b2273 implements verified expiry/cancellation/recovery. Current subsequent commits update qualification/docs only. No C product refund implementation. |
+| Decision gate | Configurable starter rules authorized, including partial-refund access retention/full-refund blocking and Drive links instead of attachments. Test payment/callback and cancellation verified. C successful refunds and Q merchant/legal settings remain unresolved qualification inputs. |
+| Next action | Obtain PayMongo sandbox wallet/test funds and supported QRPh refund claim/retrieval contract; inspect preserved failed refund before a new command, then implement/qualify C before O3/S2, R1 and Q. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | O2.3a source28a0f86 / [CI39123794458](https://github.com/adzadzadz/adzbyte-app/actions/runs/39123794458) passes505 /7,164 each PHP8.3.35 SQLite/MySQL8.0.46; all audits/source/cache gates pass. Local PHP8.5.11 full505 /7,164, actual preserved signed-payment Admin reconciliation, desktop1470/mobile320 and independent review pass. |
+| Last recorded runtime tests | Final local539 /7,537; CI39191936629 passes539 /7,537 each PHP8.3.35 SQLite/MySQL8.0.46, audits zero and source/build/cache gates. Actual unknown-ID recovery/customer cancellation and independent review pass. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -51,7 +51,7 @@ Replace the current checkpoint with concrete values as work proceeds:
 | Runtime | Any local process started and whether stopped; temporary fixtures/accounts and cleanup state |
 | Git | Branch and commit(s), dirty state, push result, CI URL/result or not checked |
 | Deployment | Source/deploy commits if relevant; explicit statement whether release/production changed |
-| Next action | Qualify O2.3c refunds/disputes, followed by O3/S2 and R1/Q |
+| Next action | Obtain PayMongo sandbox wallet/test funds and supported QRPh refund claim/retrieval contract; inspect preserved failed refund before a new command, then implement/qualify C before O3/S2, R1 and Q. |
 
 Update after a completed card, before switching tasks, before a risky operation,
 and before stopping. For abrupt interruption, reconstruct missing evidence from
@@ -65,6 +65,14 @@ the product plan and implementation progress in the master roadmap; avoid
 copying their full contents into the session log.
 
 ## Session log
+
+### 2026-10-19 — O2.3c provider qualification blocker
+
+- Actual reserved PHP50 partial test refund ref_dea043c94f124d61b90f58df failed422 with no transfer link/cause. Fresh payment GET/native Dashboard confirm failed refund and original paid125. Generic separate verified-failure command rejects400 QRPh unsupported. GET-refund contracts404. Test wallet GET200/data[] and native No wallet found. Missing wallet is a plausible prerequisite issue, not proven422 cause. Independent review agrees no verified workaround; owner asked to arrange sandbox provision/claim flow. [Evidence/support-ready note](evidence/2026-10-18-payments/refund-qualification-blocker.md).
+- C is partial contract discovery, no product implementation/success claim. O3/S2/R1/Q remain pending; do not bypass strict dependency gates or substitute mocks for actual success.
+- Disabled/GET-verified ONLY own test hook hook_6tzkg95oQ8ddAMayZyQUuBJX. UI86214, ingress94883 and tunnel27148 stopped. Private recovery bundle: /Users/adz/Projects/adzbyte.com/adzbyte-app/storage/app/private/paymongo-qa-recovery-2026-10-19 (ignored0700/files0600), verified database backup retains2 settlements, APP_KEY/test fixture/raw captures, helper/state/failed-refund evidence and README. Originals in /private/tmp and disposable DB/tunnel binary removed. Never repeat setup/next-synthetic/closure-setup/refund POST blindly; restore to new guarded temporary DB and inspect existing provider IDs first.
+- Owner credential archives remain storage/app/private/paymongo-credentials.env and paymongo-test.env, ignored0600; .env/existing development DB/production/live configuration unchanged. Browser left on test-wallet setup page for owner followup.
+
 
 ### 2026-10-19 — O2.3b qualified
 

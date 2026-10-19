@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-19",
+  "qualification": "actual PayMongo test contract discovery; product refund phase remains partial",
+  "payment_id": "pay_urY4hsSwbjmkDVW6FrKodS7V",
+  "source_amount_minor": 12500,
+  "attempted_partial_amount_minor": 5000,
+  "currency": "PHP",
+  "livemode": false,
+  "qrph_specific": {
+    "endpoint": "https://refunds-api.paymongo.com/v1/refunds",
+    "http": 422,
+    "refund_id": "ref_dea043c94f124d61b90f58df",
+    "status": "failed",
+    "transfer_link_present": false,
+    "error_reason_returned": false
+  },
+  "readbacks": {
+    "qrph_refund_http": 404,
+    "generic_refund_http": 404,
+    "payment_http": 200,
+    "payment_status": "paid",
+    "failed_refund_present": true
+  },
+  "generic_new_command_after_confirmed_failure": {
+    "endpoint": "https://api.paymongo.com/v1/refunds",
+    "http": 400,
+    "errors": [
+      {
+        "code": "parameter_invalid",
+        "detail": "Refunds are not allowed for payments with source type qrph.",
+        "source": {
+          "pointer": "payment_id",
+          "attribute": "payment_id"
+        }
+      }
+    ]
+  },
+  "provider_dashboard": "Test mode; Refund failed; PHP50.00; original payment still PAID",
+  "successful_refund_verified": false,
+  "automatic_post_retries": 0,
+  "live_operations": 0,
+  "wallet_inventory": {
+    "endpoint": "https://api.paymongo.com/v2/wallets/",
+    "http": 200,
+    "wallet_count": 0,
+    "dashboard": "Test mode; No wallet found"
+  },
+  "temporary_runtime": {
+    "dedicated_test_hook": "hook_6tzkg95oQ8ddAMayZyQUuBJX",
+    "hook_status": "disabled_confirmed_by_GET",
+    "public_tunnel": "stopped",
+    "qa_ingress_and_ui": "stopped",
+    "private_recovery_bundle": "storage/app/private/paymongo-qa-recovery-2026-10-19",
+    "raw_temp_capture_cleanup": true
+  }
+}

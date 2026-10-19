@@ -418,3 +418,14 @@ O2.3b qualified source46614f8 / [CI39191936629](https://github.com/adzadzadz/adz
 on PHP8.3.35 SQLite/MySQL8.0.46; all source gates pass. O2.3c is next.
 Test credentials are available; earlier credential
 blockers are historical. O2 aggregate and downstream phases remain incomplete.
+
+
+## O2.3c contract discovery blocker — 2026-10-19
+
+Actual QRPh-specific test refund failed with no claim link; generic endpoint
+rejects QRPh. Test wallet inventory is empty. A successful sandbox refund/claim
+and authoritative recovery contract remain unavailable; no C product
+implementation or qualification is claimed. Owner asked to arrange PayMongo test
+wallet/test funds and simulation support. [Evidence/support note](../evidence/2026-10-18-payments/refund-qualification-blocker.md).
+O3/S2, R1 and Q stay pending. Dedicated test webhook disabled; temporary ingress,
+UI/tunnel stopped and private recovery bundle preserved. No live change.

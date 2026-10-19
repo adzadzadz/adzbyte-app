@@ -160,3 +160,5 @@ service access and manual fulfillment; apply the approved configurable access
 rules in O3/S2. Notifications must describe verified financial state only.
 Actual provider outcomes, failures/races, schema/native/HTTP/OpenAPI, independent
 review and PHP8.3 SQLite/MySQL CI remain required before qualification.
+
+[Actual O2.3c blocker, proof and support-ready note](../evidence/2026-10-18-payments/refund-qualification-blocker.md): test wallet inventory empty, one QRPh-specific failed refund, generic QRPh rejection; no successful claim/recovery contract. C and dependent cards remain partial/pending.
