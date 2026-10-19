@@ -131,3 +131,32 @@ Controls are durable pending/unknown/blocked/confirmed records. Confirmed/blocke
 records and command identity are immutable; original uncertainty remains readable.
 
 [O2.3b qualification evidence](../evidence/2026-10-18-payments/closure-qualification.md).
+
+
+## O2.3c qualification approach — 2026-10-19
+
+O2.3b qualified source46614f8 / CI39191936629 before this card starts.
+First confirm the actual QRPh refund contract using the two preserved synthetic
+paid test payments. The current merchant exposes QRPh only. The QRPh-specific
+[official guide](https://docs.paymongo.com/docs/qrph-refunds) uses
+https://refunds-api.paymongo.com/v1/refunds, while the generic guide and API
+reference differ. Do not guess between provider POST endpoints or blindly retry.
+Reserve each private qualification command before dispatch, preserve raw results
+privately, and record sanitized mode/payment/amount/status evidence.
+
+A processing/refunding transfer link requires a customer claim and is not a
+successful refund. Never enter real bank/wallet details or transfer real money
+to qualify a sandbox flow. If test-mode refund/claim outcomes cannot be verified,
+record the exact provider limitation and keep this card and dependent phases
+partial. Credentials being present do not alone qualify refund behavior.
+
+After contract discovery, use native Laravel durable commands, strict exact
+Admin capabilities, fresh authorization/revision locks around bounded HTTP,
+no automatic POST retry, encrypted minimal proof, verified pending/unknown
+recovery, per-payment bounded reserved/succeeded sums, immutable observations,
+owned customer read projections, native/REST adapters and versioned policy
+settings. Partial/full provider results must remain distinct from purchased
+service access and manual fulfillment; apply the approved configurable access
+rules in O3/S2. Notifications must describe verified financial state only.
+Actual provider outcomes, failures/races, schema/native/HTTP/OpenAPI, independent
+review and PHP8.3 SQLite/MySQL CI remain required before qualification.

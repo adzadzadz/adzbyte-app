@@ -326,6 +326,7 @@ strict native/REST adapters, exact capabilities, migration/process races and
 actual unknown-ID recovery/customer cancellation pass local/independent checks.
 One actual unused test session is now expired, with zero payments/settlements;
 accepted history remains readable. [Evidence](../evidence/2026-10-18-payments/closure-qualification.md).
-Final current-source PHP8.3 SQLite/MySQL CI remains required before qualification
-or O2.3c implementation. Test credentials are available; earlier credential
+O2.3b qualified source46614f8 / [CI39191936629](https://github.com/adzadzadz/adzbyte-app/actions/runs/39191936629) passes539/7,537 each
+on PHP8.3.35 SQLite/MySQL8.0.46; all source gates pass. O2.3c is next.
+Test credentials are available; earlier credential
 blockers are historical. O2 aggregate and downstream phases remain incomplete.

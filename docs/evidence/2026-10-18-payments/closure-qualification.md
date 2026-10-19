@@ -1,8 +1,10 @@
 # O2.3b verified checkout closure and cancellation
 
-2026-10-18. Local, independent, actual-provider, schema/race and native/REST
-checks pass. Source CI qualification is pending. O2.3b remains partial until
-current-source PHP8.3 SQLite/MySQL CI passes; O2.3c has not started.
+2026-10-19. **O2.3b qualified.** Local, independent, actual-provider, schema/race
+and native/REST checks pass. Source `46614f89c0246be69e5c30c66d858f54e70b2273` / [CI39191936629](https://github.com/adzadzadz/adzbyte-app/actions/runs/39191936629)
+passes **539 tests/7,537 assertions per engine**, PHP8.3.35 SQLite/MySQL8.0.46.
+Audits zero; metadata, Pint, production build and caches pass. Remote main
+readback matches this source. O2.3c refunds/disputes is next; aggregate O2 remains incomplete.
 [Contract](../../plans/2026-10-18-paymongo-operations.md).
 
 ## Actual sandbox and native proof
