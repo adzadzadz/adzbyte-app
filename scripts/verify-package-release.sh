@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-baseline=eda1d21cc641da7c8d3256c108da3c9d7a74bb8a
+baseline=e4d7637de2da9547e722a0a9c7294ea05ee5a2c7
 source_sha=${1:?Expected reviewed source SHA}
 [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]
 [[ "$(git rev-parse HEAD)" == "$source_sha" ]]

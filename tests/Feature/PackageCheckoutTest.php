@@ -320,6 +320,80 @@ class PackageCheckoutTest extends TestCase
         $this->assertDatabaseCount('package_qrph_events', 2);
     }
 
+    public function test_qualified_native_qrph_expiry_hides_the_matching_intent_qr_once(): void
+    {
+        $this->fakeProvider();
+        $this->create()->assertCreated();
+        $checkout = PackageCheckout::query()->firstOrFail();
+        $this->assertTrue($checkout->expires_at->isFuture());
+        $event = $this->nativeExpiredEvent($checkout);
+        $this->webhook($event)->assertOk();
+        $this->assertSame('expired', $checkout->fresh()->status);
+        $this->assertNull($checkout->fresh()->qr_image);
+        $this->assertNull($checkout->fresh()->paid_at);
+        $this->assertDatabaseHas('package_qrph_events', ['id' => $event['data']['id'],
+            'outcome' => 'expired', 'package_checkout_id' => $checkout->id]);
+        $this->webhook($event)->assertOk();
+        $this->assertDatabaseCount('package_qrph_events', 1);
+        Http::assertSentCount(3);
+    }
+
+    public static function invalidNativeExpiryEvidence(): array
+    {
+        return [
+            'wrong resource mode' => [['livemode' => true], []],
+            'non-boolean mode' => [['livemode' => 0], []],
+            'wrong source status' => [['source_status' => 'pending'], []],
+            'missing source status' => [['source_status' => null], []],
+            'unknown intent' => [['payment_intent_id' => 'pi_UnknownSynthetic'], []],
+            'invalid intent' => [['payment_intent_id' => 'cs_WrongResource'], []],
+            'missing intent' => [['payment_intent_id' => null], []],
+            'wrong resource type' => [[], ['type' => 'payment']],
+            'wrong resource id' => [[], ['id' => 'pm_WrongResource']],
+        ];
+    }
+
+    #[DataProvider('invalidNativeExpiryEvidence')]
+    public function test_qualified_native_qrph_expiry_rejects_mismatched_evidence_without_provider_reads(array $changes, array $resourceChanges): void
+    {
+        $this->fakeProvider();
+        $this->create();
+        $checkout = PackageCheckout::query()->firstOrFail();
+        $event = $this->nativeExpiredEvent($checkout);
+        $resource = &$event['data']['attributes']['data'];
+        $resource['attributes'] = array_replace($resource['attributes'], $changes);
+        $resource = array_replace($resource, $resourceChanges);
+        $this->webhook($event)->assertOk();
+        $this->assertSame('pending', $checkout->fresh()->status);
+        $this->assertSame(self::PNG, $checkout->fresh()->qr_image);
+        $this->assertDatabaseHas('package_qrph_events', ['id' => $event['data']['id'],
+            'outcome' => 'unmatched', 'package_checkout_id' => null]);
+        Http::assertSentCount(3);
+    }
+
+    public function test_qualified_native_qrph_expiry_cannot_cross_checkout_mode_or_reverse_paid(): void
+    {
+        $this->fakeProvider();
+        $this->create();
+        $checkout = PackageCheckout::query()->firstOrFail();
+        config(['package_checkout.mode' => 'live', 'package_checkout.secret_key' => 'sk_live_synthetic123456']);
+        $event = $this->nativeExpiredEvent($checkout);
+        $event['data']['attributes']['livemode'] = true;
+        $event['data']['attributes']['data']['attributes']['livemode'] = true;
+        $this->webhook($event)->assertOk();
+        $this->assertSame('pending', $checkout->fresh()->status);
+        $this->assertDatabaseHas('package_qrph_events', ['id' => $event['data']['id'], 'outcome' => 'unmatched']);
+        config(['package_checkout.mode' => 'test', 'package_checkout.secret_key' => 'sk_test_synthetic123456']);
+        $this->webhook($this->event($checkout))->assertOk();
+        $settled = $checkout->fresh();
+        $this->webhook($this->nativeExpiredEvent($checkout))->assertOk();
+        $this->assertSame('paid', $checkout->fresh()->status);
+        $this->assertSame($settled->provider_payment_id, $checkout->fresh()->provider_payment_id);
+        $this->assertTrue($settled->paid_at->equalTo($checkout->fresh()->paid_at));
+        $this->assertNull($checkout->fresh()->qr_image);
+        Http::assertSentCount(3);
+    }
+
     public function test_failed_payment_is_retained_and_valid_later_paid_event_wins(): void
     {
         $this->fakeProvider();
@@ -528,6 +602,17 @@ class PackageCheckoutTest extends TestCase
         $event = $this->event($checkout, 'qrph.expired');
         $event['data']['attributes']['data'] = ['id' => $checkout->provider_method_id, 'type' => 'payment_method',
             'attributes' => ['type' => 'qrph', 'livemode' => $checkout->provider_mode === 'live']];
+
+        return $event;
+    }
+
+    private function nativeExpiredEvent(PackageCheckout $checkout): array
+    {
+        $event = $this->event($checkout, 'qrph.expired');
+        $event['data']['attributes']['data'] = ['id' => 'qrph_SyntheticQualified', 'type' => 'qrph',
+            'attributes' => ['code_id' => 'qr_SyntheticCode', 'livemode' => $checkout->provider_mode === 'live',
+                'organization_id' => 'org_Synthetic', 'created_at' => now()->toIso8601String(),
+                'source_id' => 'src_Synthetic', 'source_status' => 'expired', 'payment_intent_id' => $checkout->provider_intent_id]];
 
         return $event;
     }
