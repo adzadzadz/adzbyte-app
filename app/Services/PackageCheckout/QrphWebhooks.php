@@ -44,9 +44,16 @@ final class QrphWebhooks
                 $checkout = $this->recover($intent);
             }
         } elseif ($type === 'qrph.expired') {
-            // Only a method we durably created may expire its checkout. Unrecognized
-            // provider variants remain a receipt for review; the local deadline still hides QR.
-            if (($resource['type'] ?? null) === 'payment_method' && $this->provider->id($resource['id'] ?? null, 'pm')
+            // Native signed expiry identifies the QRPh source and its durable PI.
+            // Each checkout creates one method for that intent; never recover or
+            // create provider resources from an unmatched expiry notification.
+            if (($resource['type'] ?? null) === 'qrph' && $this->provider->id($resource['id'] ?? null, 'qrph')
+                && ($resource['attributes']['livemode'] ?? null) === $this->provider->live()
+                && ($resource['attributes']['source_status'] ?? null) === 'expired'
+                && $this->provider->id($resource['attributes']['payment_intent_id'] ?? null, 'pi')) {
+                $intent = $resource['attributes']['payment_intent_id'];
+                $checkout = PackageCheckout::query()->where('provider_intent_id', $intent)->first();
+            } elseif (($resource['type'] ?? null) === 'payment_method' && $this->provider->id($resource['id'] ?? null, 'pm')
                 && ($resource['attributes']['type'] ?? null) === 'qrph'
                 && ($resource['attributes']['livemode'] ?? null) === $this->provider->live()) {
                 $checkout = PackageCheckout::query()->where('provider_method_id', $resource['id'])->first();
@@ -64,7 +71,7 @@ final class QrphWebhooks
                     if ($intent !== null && $locked->provider_intent_id === null && $locked->creation_phase === 'intent_reserved') {
                         $locked->forceFill(['provider_intent_id' => $intent])->save();
                     }
-                    if ($type === 'qrph.expired') {
+                    if ($type === 'qrph.expired' && ($intent === null || $locked->provider_intent_id === $intent)) {
                         $outcome = 'expired';
                         if ($locked->status !== 'paid') {
                             $locked->forceFill(['status' => 'expired', 'qr_image' => null])->save();

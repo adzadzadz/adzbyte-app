@@ -122,3 +122,11 @@ The parent BFF retains the guest receipt/proof for seven days and offers no auto
 ### Required dependency remediation
 
 The deployed baseline failed the current mandatory dependency audit. The reviewed package branch updates only composer.lock and package-lock.json within the existing root constraints and PHP 8.3 platform. Composer and npm audits now report zero vulnerabilities. After remediation, the full SQLite suite passed 86 tests / 591 assertions; Pint, strict Composer validation, clean npm install and Vite production build passed. The exact change inventory and advisory evidence are preserved at /private/tmp/adzbyte-qrph-dependency-remediation.json. MySQL/PHP 8.3 CI is still required before promotion.
+
+### Actual provider expiry compatibility correction
+
+The first scoped backend release passed workflow 39662262073 and deployed as e4d7637de2da9547e722a0a9c7294ea05ee5a2c7. The new migration applied as batch 2, encryption remained valid and health/customer/admin login returned 200. Public native links remain unpublished during test-mode qualification.
+
+A real signed sandbox payment.paid event was received and the synthetic Starter checkout became paid. PayMongo's actual qrph.expired resource is type qrph, with a qrph_ ID, boolean livemode, source_status=expired and payment_intent_id. The compatibility correction strictly matches this resource to the already persisted native intent; it performs no provider creation/recovery and cannot reverse paid. Legacy matched payment_method expiry remains supported. Wrong type/id/status/mode/unknown intent are covered. Full SQLite suite now passes 97 tests / 656 assertions.
+
+The follow-up guarded release baseline advances only to the exact now-deployed e4d7637 commit; unrelated main remains excluded. Replayed expiry events already receipted as unmatched are deliberately unchanged, so a fresh signed expiry must qualify the corrected handler.
