@@ -25,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('package-offers', fn (Request $request) => Limit::perMinute(120)->by($request->ip()));
+        RateLimiter::for('package-create', fn (Request $request) => [Limit::perMinute(30)->by('all'), Limit::perMinute(10)->by($request->ip())]);
+        RateLimiter::for('package-status', fn (Request $request) => Limit::perMinute(120)->by($request->ip()));
+        RateLimiter::for('package-webhook', fn (Request $request) => [Limit::perMinute(300)->by('all'), Limit::perMinute(120)->by($request->ip())]);
+
         FilamentShield::prohibitDestructiveCommands($this->app->isProduction());
 
         Password::defaults(fn (): Password => Password::min(12)
