@@ -1,5 +1,7 @@
 # Project Status
 
+**Isolated source branch, 2026-10-22:** native guest QRPh package checkout is implemented from the deploy artifact baseline for review, with feature disabled by default. See [the contract, verification and activation gates](reviews/2026-10-22-native-qrph-package-checkout.md). Provider, Next integration, release/promotion and production activation remain pending. The historical foundation status below belongs to this branch's older release baseline; it does not describe current main commerce progress.
+
 **Last updated:** 2026-08-04 (PHP 8.3 dependency lock corrected and CI restored)
 
 ## Current Stage

@@ -1,5 +1,5 @@
 name: Release to Hostinger
-run-name: ${{ inputs.command }} main to Hostinger
+run-name: ${{ inputs.command }} ${{ inputs.scope }} to Hostinger
 
 on:
   workflow_dispatch:
@@ -11,6 +11,19 @@ on:
         options:
           - release
           - deploy
+
+      scope:
+        description: Reviewed source scope
+        required: true
+        type: choice
+        default: main
+        options:
+          - main
+          - qrph-package
+      expected_source_sha:
+        description: Full independently reviewed commit SHA (required for qrph-package)
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -26,19 +39,30 @@ jobs:
     timeout-minutes: 2
 
     steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - name: Accept only release or deploy
         env:
           RELEASE_COMMAND: ${{ inputs.command }}
           RELEASE_REF: ${{ github.ref }}
+          RELEASE_SCOPE: ${{ inputs.scope }}
+          EXPECTED_SOURCE_SHA: ${{ inputs.expected_source_sha }}
+          SOURCE_SHA: ${{ github.sha }}
         run: |
           case "$RELEASE_COMMAND" in
             release|deploy) ;;
             *) exit 1 ;;
           esac
 
-          if [[ "$RELEASE_REF" != "refs/heads/main" ]]; then
-            echo "Production releases must run from main." >&2
-            exit 1
+          if [[ "$RELEASE_SCOPE" == "qrph-package" ]]; then
+            [[ "$RELEASE_REF" == "refs/heads/codex/qrph-package-checkout" ]]
+            [[ "$EXPECTED_SOURCE_SHA" == "$SOURCE_SHA" ]]
+            bash scripts/verify-package-release.sh "$SOURCE_SHA"
+            git fetch origin deploy:refs/remotes/origin/deploy
+            [[ "$(git rev-parse origin/deploy)" == "eda1d21cc641da7c8d3256c108da3c9d7a74bb8a" ]]
+          else
+            [[ "$RELEASE_SCOPE" == "main" && "$RELEASE_REF" == "refs/heads/main" ]]
           fi
 
   verify:
@@ -64,20 +88,26 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: main
+          ref: ${{ github.sha }}
 
       - name: Prepare deploy branch
         env:
           SOURCE_SHA: ${{ github.sha }}
+          RELEASE_SCOPE: ${{ inputs.scope }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           if git ls-remote --exit-code --heads origin deploy; then
             git fetch origin deploy:refs/remotes/origin/deploy
+            if [[ "$RELEASE_SCOPE" == "qrph-package" ]]; then
+              bash scripts/verify-package-release.sh "$SOURCE_SHA"
+              [[ "$(git rev-parse origin/deploy)" == "eda1d21cc641da7c8d3256c108da3c9d7a74bb8a" ]]
+            fi
             git switch --create deploy --track origin/deploy
             git merge --no-commit --no-ff "$SOURCE_SHA"
           else
+            [[ "$RELEASE_SCOPE" == "main" ]]
             git switch --create deploy "$SOURCE_SHA"
           fi
 

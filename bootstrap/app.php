@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Responses\PackageCheckoutErrors;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (Throwable $exception, Request $request) {
+            return PackageCheckoutErrors::matches($request)
+                ? PackageCheckoutErrors::render($exception) : null;
+        });
+        // Route-pipeline exceptions are rendered below the access middleware.
+        // Suppress their raw messages/arguments, which can contain private data.
+        $exceptions->dontReportWhen(fn (Throwable $exception) => PackageCheckoutErrors::matches(request()));
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
