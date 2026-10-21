@@ -25,9 +25,9 @@ class CustomerAccountActivation extends Notification implements ShouldQueue
     {
         /** @var User $notifiable */
         return (new MailMessage)
-            ->subject('Activate your Adzbyte account')
+            ->subject('Activate your Adzbyte Solutions account')
             ->greeting("Hello {$notifiable->name},")
-            ->line('Your Adzbyte customer account is ready.')
+            ->line('Your Adzbyte Solutions customer account is ready.')
             ->action('Set password and activate account', $this->activationUrl($notifiable))
             ->line('This secure link expires in 24 hours and can only be used once.');
     }
