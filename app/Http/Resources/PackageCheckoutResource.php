@@ -15,6 +15,7 @@ class PackageCheckoutResource extends JsonResource
                 'currency' => $this->currency, 'quantity' => $this->quantity, 'version' => $this->offer_version],
             'qr_image' => $this->status === 'pending' ? $this->qr_image : null,
             'expires_at' => $this->expires_at?->toIso8601String(),
+            'fulfillment_status' => $this->resource->fulfillmentStatus(),
         ];
     }
 }

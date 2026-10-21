@@ -60,7 +60,7 @@ jobs:
             [[ "$EXPECTED_SOURCE_SHA" == "$SOURCE_SHA" ]]
             bash scripts/verify-package-release.sh "$SOURCE_SHA"
             git fetch origin deploy:refs/remotes/origin/deploy
-            [[ "$(git rev-parse origin/deploy)" == "e4d7637de2da9547e722a0a9c7294ea05ee5a2c7" ]]
+            [[ "$(git rev-parse origin/deploy)" == "25126114762afe1533863b1f7e1264fcd14ea7fe" ]]
           else
             [[ "$RELEASE_SCOPE" == "main" && "$RELEASE_REF" == "refs/heads/main" ]]
           fi
@@ -102,7 +102,7 @@ jobs:
             git fetch origin deploy:refs/remotes/origin/deploy
             if [[ "$RELEASE_SCOPE" == "qrph-package" ]]; then
               bash scripts/verify-package-release.sh "$SOURCE_SHA"
-              [[ "$(git rev-parse origin/deploy)" == "e4d7637de2da9547e722a0a9c7294ea05ee5a2c7" ]]
+              [[ "$(git rev-parse origin/deploy)" == "25126114762afe1533863b1f7e1264fcd14ea7fe" ]]
             fi
             git switch --create deploy --track origin/deploy
             git merge --no-commit --no-ff "$SOURCE_SHA"

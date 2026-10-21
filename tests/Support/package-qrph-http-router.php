@@ -24,7 +24,20 @@ config(['package_checkout.enabled' => true, 'package_checkout.api_token' => 'syn
     'package_checkout.webhook_secret' => 'whsk_synthetic_webhook_secret_only',
     'cache.default' => 'array', 'session.driver' => 'array', 'mail.default' => 'array']);
 Http::preventStrayRequests();
-Http::fake(function ($request) {
+$bridgeEndpoint = 'https://wp.adzbyte.com/wp-json/adzbyte/v1/package-purchase';
+$bridgeSmoke = getenv('PACKAGE_PURCHASE_BRIDGE_SMOKE') === '1'
+    && config('package_checkout.bridge_enabled') === true
+    && config('package_checkout.bridge_test_enabled') === true
+    && config('package_checkout.bridge_test_emails') === ['adrian@adzbyte.com'];
+if ($bridgeSmoke) {
+    // Explicitly opted-in, owned-address integration only. PayMongo stays fake.
+    Http::allowStrayRequests([$bridgeEndpoint]);
+}
+Http::fake(function ($request) use ($bridgeSmoke, $bridgeEndpoint) {
+    if ($bridgeSmoke && $request->method() === 'POST' && $request->url() === $bridgeEndpoint
+        && ($request['email'] ?? null) === 'adrian@adzbyte.com' && ($request['test_mode'] ?? null) === true) {
+        return null;
+    }
     if ($request->method() === 'POST' && $request->url() === 'https://api.paymongo.com/v1/payment_intents') {
         return Http::response(['data' => ['id' => 'pi_'.Str::ulid(),
             'type' => 'payment_intent', 'attributes' => [...$request['data']['attributes'],

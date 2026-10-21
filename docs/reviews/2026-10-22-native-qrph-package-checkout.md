@@ -1,5 +1,7 @@
 # Native QRPh package checkout — isolated source review
 
+The later owner-approved customer-field, two-phase Fluent Forms capture/notification and shared automated-footer work is documented in [package purchase fulfillment](2026-10-22-package-purchase-fulfillment.md). That follow-up supersedes the initial no-notification/field contract below; historical verification remains recorded here.
+
 This branch adds the owner-authorized guest package purchase flow while retaining Preview first in the Next UI. Quantity is always one. It is a separate small application service, schema and provider adapter; it does not change the account/order approval or existing Hosted Checkout semantics on current main. No customer account, cart, customer activation, subscription, receipt email, automatic fulfillment or refund is created.
 
 ## Baseline and release boundary

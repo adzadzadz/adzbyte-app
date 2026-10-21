@@ -3,15 +3,20 @@
 namespace Tests\Feature;
 
 use App\Enums\UserRole;
+use App\Jobs\DeliverPackagePurchase;
 use App\Models\PackageCheckout;
+use App\Models\PackagePurchaseDelivery;
 use App\Models\User;
 use App\Services\PackageCheckout\PackageCheckouts;
+use App\Services\PackageCheckout\PackagePurchaseDeliveries;
 use Carbon\CarbonImmutable;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -37,6 +42,7 @@ class PackageCheckoutTest extends TestCase
             'package_checkout.webhook_secret' => 'whsk_synthetic_webhook_secret_only']);
         $this->travelTo(CarbonImmutable::parse('2026-10-22T12:00:00+08:00'));
         Http::preventStrayRequests();
+        Bus::fake([DeliverPackagePurchase::class]);
     }
 
     public function test_flag_is_off_by_default_and_all_feature_endpoints_are_closed(): void
@@ -79,7 +85,8 @@ class PackageCheckoutTest extends TestCase
         $this->fakeProvider();
         $response = $this->create()->assertCreated()->assertHeader('Cache-Control', 'no-store, private');
         $data = $response->json('data');
-        $this->assertSame(['reference', 'status', 'test_mode', 'offer', 'qr_image', 'expires_at'], array_keys($data));
+        $this->assertSame(['reference', 'status', 'test_mode', 'offer', 'qr_image', 'expires_at', 'fulfillment_status'], array_keys($data));
+        $this->assertNull($data['fulfillment_status']);
         $this->assertTrue($data['test_mode']);
         $this->assertTrue(Str::isUlid($data['reference']));
         $this->assertSame('pending', $data['status']);
@@ -112,7 +119,7 @@ class PackageCheckoutTest extends TestCase
     public static function injectedFields(): array
     {
         return array_map(fn ($field) => [$field], ['amount_minor', 'amount', 'currency', 'quantity', 'provider_intent_id',
-            'payment_method', 'client_key', 'status', 'user_id', 'phone', 'billing', 'return_url']);
+            'payment_method', 'client_key', 'status', 'user_id', 'billing', 'return_url']);
     }
 
     #[DataProvider('injectedFields')]
@@ -585,6 +592,329 @@ class PackageCheckoutTest extends TestCase
         $this->assertDatabaseCount('package_checkouts', 0);
     }
 
+    public function test_full_name_optional_phone_and_pending_capture_are_private_immutable_snapshots(): void
+    {
+        $this->fakeProvider();
+        $input = $this->input(['full_name' => ' Synthetic Person ', 'phone' => ' +63 (912) 345-6789 ']);
+        $reference = $this->create($input)->assertCreated()->json('data.reference');
+        $checkout = PackageCheckout::query()->findOrFail($reference);
+        $this->assertSame('Synthetic Person', $checkout->full_name);
+        $this->assertSame('+63 (912) 345-6789', $checkout->phone);
+        $delivery = $this->delivery($reference, 'pending');
+        $payload = json_decode($delivery->payload, true, 16, JSON_THROW_ON_ERROR);
+        $this->assertSame('pending', $payload['phase']);
+        $this->assertNull($payload['payment_reference']);
+        $this->assertNull($payload['paid_at']);
+        $this->assertSame('Synthetic Person', $payload['full_name']);
+        $this->assertSame('+63 (912) 345-6789', $payload['phone']);
+        $this->assertSame(hash('sha256', $delivery->payload), $delivery->payload_hash);
+        $this->assertNotSame($checkout->full_name, DB::table('package_checkouts')->value('full_name'));
+        $this->assertNotSame($checkout->phone, DB::table('package_checkouts')->value('phone'));
+        $this->assertStringNotContainsString('Synthetic Person', DB::table('package_purchase_deliveries')->value('payload'));
+        $response = $this->getJson('/api/v1/package-checkouts/'.$reference, $this->headers())->assertOk();
+        foreach (['Synthetic Person', '+63', 'buyer@example.test', 'payload_hash'] as $private) {
+            $this->assertStringNotContainsString($private, $response->getContent());
+            $this->assertStringNotContainsString($private, $delivery->toJson());
+        }
+        $this->create([...$input, 'full_name' => 'Synthetic Person', 'phone' => '+63 (912) 345-6789'])->assertOk();
+        $this->create([...$input, 'phone' => '+639123456780'])->assertConflict();
+        $this->assertDatabaseCount('package_purchase_deliveries', 1);
+        Bus::assertDispatchedAfterResponse(DeliverPackagePurchase::class, fn ($job) => $job->reference === $reference && $job->phase === 'pending');
+        Http::assertSentCount(3);
+        $this->expectException(\LogicException::class);
+        $checkout->forceFill(['phone' => '+639123456780'])->save();
+    }
+
+    public function test_legacy_hash_and_name_alias_replay_survive_without_changing_old_snapshots(): void
+    {
+        $this->fakeProvider();
+        $input = $this->input(['business_name' => 'Legacy <Business>']);
+        $reference = $this->create($input)->assertCreated()->json('data.reference');
+        // Reproduce a pre-upgrade operation exactly, including its historical hash.
+        DB::table('package_checkouts')->where('id', $reference)->update(['request_hash' => hash('sha256', json_encode($input, JSON_THROW_ON_ERROR)), 'full_name' => null]);
+        $this->create($input)->assertOk()->assertJsonPath('data.reference', $reference);
+        $this->assertSame('Legacy <Business>', PackageCheckout::query()->findOrFail($reference)->contactName());
+        $this->create([...$input, 'phone' => '+639123456789'])->assertConflict();
+        $this->create(['full_name' => 'Person', 'business_name' => 'Business'])->assertUnprocessable();
+        $this->create(['full_name' => '<Person>'])->assertUnprocessable();
+        Http::assertSentCount(3);
+    }
+
+    public static function invalidPhones(): array
+    {
+        return [['abc'], ['123456'], ['1234567890123456'], [['nested']], [123456789], ["0912\n3456789"]];
+    }
+
+    #[DataProvider('invalidPhones')]
+    public function test_optional_phone_rejects_invalid_types_characters_and_digit_counts(mixed $phone): void
+    {
+        $this->create(['full_name' => 'Synthetic Person', 'phone' => $phone])->assertUnprocessable();
+        $this->assertDatabaseCount('package_checkouts', 0);
+        $this->assertDatabaseCount('package_purchase_deliveries', 0);
+    }
+
+    public function test_pending_capture_exists_before_provider_work_and_survives_an_unknown_qr_result(): void
+    {
+        $this->fakeProvider(function (): void {
+            $this->assertDatabaseCount('package_purchase_deliveries', 1);
+            $this->assertDatabaseHas('package_purchase_deliveries', ['phase' => 'pending', 'status' => 'pending']);
+        });
+        $this->create(['full_name' => 'Synthetic Person', 'phone' => null])->assertCreated();
+        $this->fakeProvider(null, 'intent');
+        $reference = $this->create(['full_name' => 'Another Person', 'phone' => ''])->assertCreated()->assertJsonPath('data.status', 'unknown')->json('data.reference');
+        $this->assertNull(PackageCheckout::query()->findOrFail($reference)->phone);
+        $this->assertSame('pending', $this->delivery($reference, 'pending')->status);
+        $this->assertDatabaseCount('package_purchase_deliveries', 2);
+    }
+
+    public function test_verified_paid_queues_one_completed_phase_without_network_and_preserves_silent_pending(): void
+    {
+        $this->fakeProvider();
+        $reference = $this->create(['full_name' => 'Synthetic Person', 'phone' => null])->json('data.reference');
+        $checkout = PackageCheckout::query()->findOrFail($reference);
+        $event = $this->event($checkout);
+        $this->webhook($event)->assertOk();
+        $this->webhook($event)->assertOk();
+        $this->webhook($this->event($checkout))->assertOk();
+        $this->assertDatabaseCount('package_purchase_deliveries', 2);
+        $payload = json_decode($this->delivery($reference, 'completed')->payload, true, 16, JSON_THROW_ON_ERROR);
+        $this->assertSame(['reference', 'phase', 'payment_reference', 'full_name', 'email', 'phone', 'package_code', 'package_name', 'amount_minor', 'currency', 'quantity', 'paid_at', 'test_mode'], array_keys($payload));
+        $this->assertSame('completed', $payload['phase']);
+        $this->assertSame('pay_Synthetic'.$reference, $payload['payment_reference']);
+        $this->assertSame('2026-10-22T04:00:00Z', $payload['paid_at']);
+        $this->assertSame(77700, $payload['amount_minor']);
+        $this->assertNull($payload['phone']);
+        $base = fn (array $value) => array_diff_key($value, array_flip(['phase', 'payment_reference', 'paid_at']));
+        $this->assertSame($base(json_decode($this->delivery($reference, 'pending')->payload, true, 16, JSON_THROW_ON_ERROR)), $base($payload));
+        $this->getJson('/api/v1/package-checkouts/'.$reference, $this->headers())->assertOk()->assertJsonPath('data.fulfillment_status', 'pending');
+        Bus::assertDispatchedAfterResponse(DeliverPackagePurchase::class, fn ($job) => $job->reference === $reference && $job->phase === 'completed');
+        Http::assertSentCount(3);
+    }
+
+    public function test_outbox_failure_rolls_back_paid_and_receipt_then_retry_commits_all_three(): void
+    {
+        $this->fakeProvider();
+        $reference = $this->create()->json('data.reference');
+        $event = $this->event(PackageCheckout::query()->findOrFail($reference));
+        $eventName = 'eloquent.creating: '.PackagePurchaseDelivery::class;
+        Event::listen($eventName, fn () => throw new \RuntimeException('Synthetic outbox failure'));
+        try {
+            $this->webhook($event)->assertStatus(503);
+        } finally {
+            Event::forget($eventName);
+        }
+        $this->assertDatabaseHas('package_checkouts', ['id' => $reference, 'status' => 'pending']);
+        $this->assertDatabaseCount('package_qrph_events', 0);
+        $this->assertDatabaseCount('package_purchase_deliveries', 1);
+        $this->webhook($event)->assertOk();
+        $this->assertDatabaseCount('package_purchase_deliveries', 2);
+        $this->assertDatabaseHas('package_checkouts', ['id' => $reference, 'status' => 'paid']);
+    }
+
+    public function test_capture_failure_rolls_back_the_reservation_before_any_provider_creation(): void
+    {
+        $this->fakeProvider();
+        $eventName = 'eloquent.creating: '.PackagePurchaseDelivery::class;
+        Event::listen($eventName, fn () => throw new \RuntimeException('Synthetic capture failure'));
+        try {
+            $this->create(['full_name' => 'Synthetic Person', 'phone' => null])->assertStatus(503);
+        } finally {
+            Event::forget($eventName);
+        }
+        $this->assertDatabaseCount('package_checkouts', 0);
+        $this->assertDatabaseCount('package_purchase_deliveries', 0);
+        Http::assertNothingSent();
+    }
+
+    public function test_bridge_delivery_uses_frozen_payload_and_reference_then_stops_after_success(): void
+    {
+        $reference = $this->paidPurchase();
+        $delivery = $this->delivery($reference, 'completed');
+        $body = $delivery->payload;
+        $this->bridgeConfig();
+        $this->fakeBridge();
+        app(PackagePurchaseDeliveries::class)->deliverReference($reference, 'completed');
+        $this->assertSame('delivered', $delivery->fresh()->status);
+        $this->assertSame(1, $delivery->fresh()->attempts);
+        Http::assertSent(function ($request) use ($body, $reference): bool {
+            return $request->url() === 'https://wp.adzbyte.com/wp-json/adzbyte/v1/package-purchase'
+                && $request->body() === $body && $request->hasHeader('Idempotency-Key', $reference)
+                && $request->hasHeader('Authorization', 'Bearer '.str_repeat('b', 64));
+        });
+        app(PackagePurchaseDeliveries::class)->deliverReference($reference, 'completed');
+        Http::assertSentCount(1);
+        $this->getJson('/api/v1/package-checkouts/'.$reference, $this->headers())->assertOk()->assertJsonPath('data.fulfillment_status', 'delivered')->assertJsonPath('data.status', 'paid');
+        $this->assertFalse(app(PackagePurchaseDeliveries::class)->retry($reference, 'completed'));
+    }
+
+    public function test_bridge_capture_acknowledgement_completes_only_the_pending_phase(): void
+    {
+        $this->fakeProvider();
+        $reference = $this->create(['full_name' => 'Synthetic Person', 'phone' => null])->json('data.reference');
+        $this->bridgeConfig();
+        $this->fakeBridge(fn () => Http::response(['data' => ['reference' => $reference, 'status' => 'captured', 'entry_id' => 42]]));
+        app(PackagePurchaseDeliveries::class)->deliverReference($reference, 'pending');
+        $this->assertSame('delivered', $this->delivery($reference, 'pending')->status);
+        $this->assertSame('pending', PackageCheckout::query()->findOrFail($reference)->status);
+        $this->assertDatabaseCount('package_purchase_deliveries', 1);
+        $this->webhook($this->event(PackageCheckout::query()->findOrFail($reference)))->assertOk();
+        app(PackagePurchaseDeliveries::class)->deliverReference($reference, 'completed');
+        $this->assertSame('pending', $this->delivery($reference, 'completed')->status);
+        $this->assertSame('bridge_response_invalid', $this->delivery($reference, 'completed')->last_error_code);
+        $this->assertSame('paid', PackageCheckout::query()->findOrFail($reference)->status);
+    }
+
+    public function test_transport_unknown_retries_identical_bytes_after_backoff_without_changing_payment(): void
+    {
+        $reference = $this->paidPurchase();
+        $this->bridgeConfig();
+        $bodies = [];
+        $this->fakeBridge(function ($request) use (&$bodies, $reference) {
+            $bodies[] = $request->body();
+            if (count($bodies) === 1) {
+                throw new ConnectionException('Synthetic private authenticated error');
+            }
+
+            return Http::response(['data' => ['reference' => $reference, 'status' => 'delivered', 'entry_id' => 42]]);
+        });
+        $service = app(PackagePurchaseDeliveries::class);
+        $service->deliverReference($reference, 'completed');
+        $delivery = $this->delivery($reference, 'completed');
+        $this->assertSame('pending', $delivery->status);
+        $this->assertSame('transport_unknown', $delivery->last_error_code);
+        $service->deliverReference($reference, 'completed');
+        $this->assertCount(1, $bodies);
+        $this->travel(61)->seconds();
+        $service->deliverReference($reference, 'completed');
+        $this->assertSame($bodies[0], $bodies[1]);
+        $this->assertSame('delivered', $delivery->fresh()->status);
+        $this->assertSame('paid', PackageCheckout::query()->findOrFail($reference)->status);
+    }
+
+    public function test_review_response_stops_automatic_delivery_and_is_visible_to_admin(): void
+    {
+        $reference = $this->paidPurchase();
+        $this->bridgeConfig();
+        $this->fakeBridge(fn () => Http::response(['data' => ['reference' => $reference, 'status' => 'review', 'entry_id' => 42]], 202));
+        $service = app(PackagePurchaseDeliveries::class);
+        $service->deliverReference($reference, 'completed');
+        $service->deliverReference($reference, 'completed');
+        $this->assertSame('needs_review', $this->delivery($reference, 'completed')->status);
+        $this->assertSame('bridge_review', $this->delivery($reference, 'completed')->last_error_code);
+        $this->getJson('/api/v1/package-checkouts/'.$reference, $this->headers())->assertOk()->assertJsonPath('data.status', 'paid')->assertJsonPath('data.fulfillment_status', 'review');
+        Http::assertSentCount(1);
+        $this->seed(RoleSeeder::class);
+        $admin = User::factory()->create();
+        $admin->assignRole(UserRole::Administrator->value);
+        $this->actingAs($admin)->get('/admin/package-checkouts/'.$reference)->assertOk()->assertSee('bridge_review');
+        $this->artisan('package-purchases:retry', ['reference' => $reference, 'phase' => 'completed'])->assertSuccessful();
+        $this->assertSame('pending', $this->delivery($reference, 'completed')->status);
+    }
+
+    public static function bridgeFailures(): array
+    {
+        return [[401, 'needs_review', 'bridge_auth'], [403, 'needs_review', 'bridge_auth'],
+            [409, 'needs_review', 'bridge_conflict'], [400, 'needs_review', 'bridge_rejected'],
+            [503, 'pending', 'bridge_unavailable'], [202, 'pending', 'bridge_response_invalid']];
+    }
+
+    #[DataProvider('bridgeFailures')]
+    public function test_bridge_failures_do_not_reverse_paid_or_expose_raw_messages(int $code, string $state, string $error): void
+    {
+        $reference = $this->paidPurchase();
+        $this->bridgeConfig();
+        $this->fakeBridge(fn () => Http::response(['message' => 'private@example.test secret_token'], $code));
+        app(PackagePurchaseDeliveries::class)->deliverReference($reference, 'completed');
+        $delivery = $this->delivery($reference, 'completed');
+        $this->assertSame($state, $delivery->status);
+        $this->assertSame($error, $delivery->last_error_code);
+        $this->assertSame('paid', PackageCheckout::query()->findOrFail($reference)->status);
+        $this->assertStringNotContainsString('private@example.test', $delivery->toJson());
+    }
+
+    public function test_test_mode_requires_explicit_allowlist_and_disabled_bridge_never_claims(): void
+    {
+        $reference = $this->paidPurchase();
+        $this->fakeBridge();
+        $service = app(PackagePurchaseDeliveries::class);
+        $service->deliverReference($reference, 'completed');
+        $this->assertSame(0, $this->delivery($reference, 'completed')->attempts);
+        config(['package_checkout.bridge_enabled' => true, 'package_checkout.bridge_token' => str_repeat('b', 64)]);
+        $service->deliverReference($reference, 'completed');
+        $this->assertSame('test_delivery_blocked', $this->delivery($reference, 'completed')->last_error_code);
+        $service->retry($reference, 'completed');
+        config(['package_checkout.bridge_test_enabled' => true, 'package_checkout.bridge_test_emails' => ['someone-else@example.test']]);
+        $service->deliverReference($reference, 'completed');
+        $this->assertSame('test_delivery_blocked', $this->delivery($reference, 'completed')->last_error_code);
+        Http::assertNothingSent();
+    }
+
+    public function test_worker_lease_blocks_concurrent_send_and_recovers_an_abandoned_worker(): void
+    {
+        $reference = $this->paidPurchase();
+        $this->bridgeConfig();
+        $this->fakeBridge(function () use ($reference) {
+            app(PackagePurchaseDeliveries::class)->deliverReference($reference, 'completed');
+
+            return Http::response(['data' => ['reference' => $reference, 'status' => 'delivered']]);
+        });
+        $delivery = $this->delivery($reference, 'completed');
+        $delivery->forceFill(['status' => 'processing', 'claim_token' => (string) Str::uuid(),
+            'claimed_at' => now()->subMinutes(6), 'attempts' => 1])->save();
+        app(PackagePurchaseDeliveries::class)->deliverReference($reference, 'completed');
+        $this->assertSame('delivered', $delivery->fresh()->status);
+        $this->assertSame(2, $delivery->fresh()->attempts);
+        Http::assertSentCount(1);
+    }
+
+    public function test_worker_exhaustion_stops_and_historical_paid_records_are_not_backfilled(): void
+    {
+        $reference = $this->paidPurchase();
+        $delivery = $this->delivery($reference, 'completed');
+        $delivery->forceFill(['attempts' => 9])->save();
+        $this->bridgeConfig();
+        $this->fakeBridge(fn () => Http::response([], 503));
+        app(PackagePurchaseDeliveries::class)->deliverReference($reference, 'completed');
+        $this->assertSame('needs_review', $delivery->fresh()->status);
+        $this->assertSame(10, $delivery->fresh()->attempts);
+        DB::table('package_purchase_deliveries')->where('package_checkout_id', $reference)->delete();
+        $this->assertSame(0, app(PackagePurchaseDeliveries::class)->deliver());
+        $this->getJson('/api/v1/package-checkouts/'.$reference, $this->headers())->assertOk()->assertJsonPath('data.fulfillment_status', 'review');
+        $this->assertDatabaseCount('package_purchase_deliveries', 0);
+        $this->artisan('package-purchases:deliver', ['--limit' => 0])->assertExitCode(2);
+    }
+
+    private function delivery(string $reference, string $phase): PackagePurchaseDelivery
+    {
+        return PackagePurchaseDelivery::query()->where('package_checkout_id', $reference)->where('phase', $phase)->firstOrFail();
+    }
+
+    private function paidPurchase(): string
+    {
+        $this->fakeProvider();
+        $reference = $this->create(['full_name' => 'Synthetic Person', 'phone' => null])->json('data.reference');
+        $this->webhook($this->event(PackageCheckout::query()->findOrFail($reference)))->assertOk();
+        // Individual worker tests focus on completed delivery; capture is independently tested.
+        $this->delivery($reference, 'pending')->forceFill(['status' => 'delivered', 'delivered_at' => now()])->save();
+
+        return $reference;
+    }
+
+    private function bridgeConfig(): void
+    {
+        config(['package_checkout.bridge_enabled' => true, 'package_checkout.bridge_token' => str_repeat('b', 64),
+            'package_checkout.bridge_test_enabled' => true, 'package_checkout.bridge_test_emails' => ['buyer@example.test']]);
+    }
+
+    private function fakeBridge(?\Closure $callback = null): void
+    {
+        Http::swap(new Factory);
+        Http::preventStrayRequests();
+        Http::fake(['https://wp.adzbyte.com/wp-json/adzbyte/v1/package-purchase' => $callback ?? fn ($request) => Http::response([
+            'data' => ['reference' => $request['reference'], 'status' => 'delivered', 'entry_id' => 42],
+        ])]);
+    }
+
     private function event(PackageCheckout $checkout, string $type = 'payment.paid'): array
     {
         return ['data' => ['id' => 'evt_'.Str::ulid(), 'type' => 'event', 'attributes' => [
@@ -646,8 +976,13 @@ class PackageCheckoutTest extends TestCase
 
     private function input(array $extra = []): array
     {
-        return array_replace(['package_code' => 'starter', 'offer_version' => '2026-10-22', 'operation_id' => (string) Str::uuid(),
+        $input = array_replace(['package_code' => 'starter', 'offer_version' => '2026-10-22', 'operation_id' => (string) Str::uuid(),
             'business_name' => 'Synthetic business', 'email' => 'buyer@example.test'], $extra);
+        if (array_key_exists('full_name', $extra) && ! array_key_exists('business_name', $extra)) {
+            unset($input['business_name']);
+        }
+
+        return $input;
     }
 
     private function create(array $extra = [], array $headers = [])

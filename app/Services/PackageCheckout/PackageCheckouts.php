@@ -8,35 +8,43 @@ use Illuminate\Support\Facades\DB;
 
 final class PackageCheckouts
 {
-    public function __construct(private PackageOffers $offers, private QrphClient $provider) {}
+    public function __construct(private PackageOffers $offers, private QrphClient $provider, private PackagePurchaseDeliveries $purchases) {}
 
     public function create(array $input, string $proof): array
     {
-        $hash = hash('sha256', json_encode($input, JSON_THROW_ON_ERROR));
+        $name = $input['full_name'] ?? $input['business_name'];
+        $phone = $input['phone'] ?? null;
+        $base = ['package_code' => $input['package_code'], 'offer_version' => $input['offer_version'], 'operation_id' => $input['operation_id']];
+        $hash = hash('sha256', json_encode([...$base, 'full_name' => $name, 'email' => $input['email'], 'phone' => $phone], JSON_THROW_ON_ERROR));
+        // Preserve already-created operations from the deployed business_name contract.
+        $legacyHash = $phone === null ? hash('sha256', json_encode([...$base, 'business_name' => $name, 'email' => $input['email']], JSON_THROW_ON_ERROR)) : null;
         $proofHash = hash('sha256', $proof);
         $this->provider->ready();
         try {
-            [$checkout, $owner] = DB::transaction(function () use ($input, $hash, $proofHash): array {
+            [$checkout, $owner] = DB::transaction(function () use ($input, $hash, $legacyHash, $proofHash, $name, $phone): array {
                 $existing = PackageCheckout::query()->where('operation_id', $input['operation_id'])->lockForUpdate()->first();
                 if ($existing) {
-                    return [$this->replay($existing, $hash, $proofHash), false];
+                    return [$this->replay($existing, $hash, $proofHash, $legacyHash), false];
                 }
                 $offer = $this->offers->get($input['package_code']);
                 abort_unless($this->offers->available($offer['code']) && $offer['version'] === $input['offer_version'], 409, 'Offer unavailable.');
 
-                return [PackageCheckout::query()->create([
+                $checkout = PackageCheckout::query()->create([
                     'operation_id' => $input['operation_id'], 'request_hash' => $hash, 'proof_hash' => $proofHash,
                     'package_code' => $offer['code'], 'package_name' => $offer['name'], 'amount_minor' => $offer['amount_minor'],
                     'currency' => $offer['currency'], 'quantity' => 1, 'offer_version' => $offer['version'],
-                    'business_name' => $input['business_name'], 'email' => $input['email'],
+                    'business_name' => $name, 'full_name' => $name, 'email' => $input['email'], 'phone' => $phone,
                     'provider_mode' => $this->provider->live() ? 'live' : 'test',
                     'status' => 'creating', 'creation_phase' => 'intent_reserved',
-                ]), true];
+                ]);
+                $this->purchases->enqueue($checkout, 'pending');
+
+                return [$checkout, true];
             }, 3);
         } catch (UniqueConstraintViolationException) {
             // The winning insert owns provider creation. A competing retry only reads it.
             $checkout = PackageCheckout::query()->where('operation_id', $input['operation_id'])->firstOrFail();
-            $this->replay($checkout, $hash, $proofHash);
+            $this->replay($checkout, $hash, $proofHash, $legacyHash);
             $owner = false;
         }
 
@@ -70,9 +78,11 @@ final class PackageCheckouts
         }, 3);
     }
 
-    private function replay(PackageCheckout $checkout, string $hash, string $proofHash): PackageCheckout
+    private function replay(PackageCheckout $checkout, string $hash, string $proofHash, ?string $legacyHash): PackageCheckout
     {
-        abort_unless(hash_equals($checkout->request_hash, $hash) && hash_equals($checkout->proof_hash, $proofHash), 409, 'Operation conflict.');
+        $matches = hash_equals($checkout->request_hash, $hash)
+            || ($legacyHash !== null && $checkout->phone === null && hash_equals($checkout->request_hash, $legacyHash));
+        abort_unless($matches && hash_equals($checkout->proof_hash, $proofHash), 409, 'Operation conflict.');
 
         return $checkout;
     }
