@@ -22,7 +22,8 @@ class PackageCheckoutResource extends Resource
         return $schema->components([
             TextEntry::make('id')->label('Checkout reference')->copyable(),
             TextEntry::make('status')->badge(),
-            TextEntry::make('business_name'), TextEntry::make('email'),
+            TextEntry::make('full_name')->label('Full name')->state(fn (PackageCheckout $record) => $record->contactName()),
+            TextEntry::make('email'), TextEntry::make('phone'),
             TextEntry::make('package_name'), TextEntry::make('package_code'),
             TextEntry::make('amount_minor')->label('Amount (centavos)'),
             TextEntry::make('currency'), TextEntry::make('quantity'), TextEntry::make('offer_version'),
@@ -30,6 +31,15 @@ class PackageCheckoutResource extends Resource
             TextEntry::make('provider_payment_id')->label('PayMongo payment'),
             TextEntry::make('paid_at')->dateTime(), TextEntry::make('created_at')->dateTime(),
             TextEntry::make('creation_phase'),
+            TextEntry::make('captureDelivery.status')->label('Form capture state'),
+            TextEntry::make('captureDelivery.attempts')->label('Form capture attempts'),
+            TextEntry::make('captureDelivery.last_error_code')->label('Last form capture result'),
+            TextEntry::make('fulfillment_status')->state(fn (PackageCheckout $record) => $record->fulfillmentStatus()),
+            TextEntry::make('purchaseDelivery.status')->label('Delivery state'),
+            TextEntry::make('purchaseDelivery.attempts')->label('Delivery attempts'),
+            TextEntry::make('purchaseDelivery.last_error_code')->label('Last delivery result'),
+            TextEntry::make('purchaseDelivery.next_attempt_at')->label('Next delivery attempt')->dateTime(),
+            TextEntry::make('purchaseDelivery.delivered_at')->label('Notifications delivered')->dateTime(),
         ]);
     }
 
@@ -38,7 +48,9 @@ class PackageCheckoutResource extends Resource
         return $table->columns([
             TextColumn::make('id')->label('Reference')->searchable()->copyable(),
             TextColumn::make('status')->badge(),
-            TextColumn::make('package_name'), TextColumn::make('business_name'),
+            TextColumn::make('package_name'),
+            TextColumn::make('full_name')->label('Full name')->state(fn (PackageCheckout $record) => $record->contactName()),
+            TextColumn::make('purchaseDelivery.status')->label('Delivery')->badge(),
             TextColumn::make('amount_minor')->label('Centavos'),
             TextColumn::make('currency'), TextColumn::make('provider_mode'),
             TextColumn::make('paid_at')->dateTime()->sortable(),

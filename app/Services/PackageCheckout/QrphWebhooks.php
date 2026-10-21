@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 final class QrphWebhooks
 {
-    public function __construct(private QrphClient $provider) {}
+    public function __construct(private QrphClient $provider, private PackagePurchaseDeliveries $purchases) {}
 
     public function receive(string $body): void
     {
@@ -86,6 +86,9 @@ final class QrphWebhooks
                                     'provider_payment_id' => $resource['id'],
                                     'paid_at' => CarbonImmutable::createFromTimestampUTC($resource['attributes']['paid_at']),
                                 ])->save();
+                                // Commit payment, event receipt and the immutable
+                                // delivery together. Network/mail work runs later.
+                                $this->purchases->enqueue($locked, 'completed');
                                 $outcome = 'paid';
                             }
                         } else {
