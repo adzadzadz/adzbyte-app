@@ -3,9 +3,11 @@
 namespace App\Actions\Users;
 
 use App\Enums\UserRole;
+use App\Models\Role;
 use App\Models\User;
+use App\Support\Database\RetryingTransaction;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -66,9 +68,19 @@ final class UpdateManagedUser
             ]);
         }
 
-        return DB::transaction(function () use ($actor, $target, $data, $roleNames): User {
-            $managedUser = User::query()->lockForUpdate()->findOrFail($target->getKey());
-            $actor = User::query()->findOrFail($actor->getKey());
+        return RetryingTransaction::run(function () use ($actor, $target, $data, $roleNames): User {
+            $ids = User::role(UserRole::SuperAdmin->value)->pluck('id')->push($actor->id)->push($target->id)->unique()->sort()->values();
+            $users = User::whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get();
+            $managedUser = $users->firstWhere('id', $target->id);
+            $actor = $users->firstWhere('id', $actor->id);
+            abort_unless($actor && $managedUser, 404);
+            RecordVisibility::assertVisible($actor);
+            RecordVisibility::assertVisible($managedUser);
+            $selectedRoles = Role::where('guard_name', 'web')->whereIn('name', $roleNames)->orderBy('id')->lockForUpdate()->get();
+            foreach ($selectedRoles as $role) {
+                RecordVisibility::assertVisible($role);
+            }
+            abort_unless($selectedRoles->count() === count($roleNames), 422);
             Gate::forUser($actor)->authorize('update', $managedUser);
             $currentRoles = $managedUser->getRoleNames()->sort()->values()->all();
             $sortedRoles = collect($roleNames)->sort()->values()->all();
@@ -111,10 +123,7 @@ final class UpdateManagedUser
             return;
         }
 
-        $superAdministratorCount = User::query()
-            ->role($superAdministrator)
-            ->lockForUpdate()
-            ->count();
+        $superAdministratorCount = RecordVisibility::activeSuperAdministratorCount();
 
         if ($superAdministratorCount <= 1) {
             throw ValidationException::withMessages([

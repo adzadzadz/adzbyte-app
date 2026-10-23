@@ -32,6 +32,7 @@ class CartMigrationTest extends TestCase
     {
         $paths = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($path) => basename($path) < '2026_10_18_030000_create_carts.php'));
         $this->artisan('migrate', ['--path' => $paths, '--realpath' => true, '--force' => true])->assertSuccessful();
+        $this->installVisibilitySchemaForLegacyFixture();
         $user = User::factory()->create();
         $category = ProductCategory::create(['name' => 'Synthetic retained category', 'limit_one_per_cart' => true]);
         $product = Product::factory()->published()->create(['category_id' => $category->id]);

@@ -7,6 +7,7 @@ use App\Filament\Resources\ProductCategories\ProductCategoryResource;
 use App\Models\ProductCategory;
 use App\Models\User;
 use App\Support\Filament\CategoryInput;
+use App\Support\Records\RecordVisibility;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -28,6 +29,7 @@ class EditProductCategory extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
+        abort_if(RecordVisibility::isDeleted($record->fresh()), 403);
         $actor = auth()->user();
         abort_unless($actor instanceof User && $record instanceof ProductCategory, 403);
         try {

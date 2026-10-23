@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Schemas;
 use App\Enums\UserRole;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Records\RecordVisibility;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -35,7 +36,7 @@ final class UserForm
                     ->description('Only a super administrator can change role assignments.')
                     ->schema([
                         Select::make('roles')
-                            ->options(fn (): array => Role::query()
+                            ->options(fn (): array => RecordVisibility::query(Role::query())
                                 ->where('guard_name', 'web')
                                 ->orderBy('name')
                                 ->pluck('name', 'name')

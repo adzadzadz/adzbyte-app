@@ -13,4 +13,8 @@
 
 .adz-portal-conversation-thread { max-height: 28rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: .5rem; }
 .adz-portal-conversation-thread:focus-visible { outline: 2px solid #a78bfa; outline-offset: 3px; }
+.adz-data-definition { display: grid; grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr); gap: .75rem 1.25rem; margin-top: 1.25rem; }
+.adz-data-definition dt { color: var(--adz-text-muted); }
+.adz-data-definition dd { min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 40rem) { .adz-data-definition { grid-template-columns: minmax(0, 1fr); gap: .375rem; } .adz-data-definition dt { margin-top: .75rem; } }
 @media (max-width: 40rem) { .adz-portal-conversation-thread { max-height: 18rem; } }

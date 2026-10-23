@@ -8,11 +8,14 @@ use App\Enums\PaymentCapability;
 use App\Filament\Resources\Payments\Pages\ListPayments;
 use App\Filament\Resources\Payments\Pages\ViewPayment;
 use App\Filament\Resources\Payments\PaymentResource;
+use App\Models\PaymentControl;
 use App\Models\PaymentEvent;
 use App\Models\PaymentResolution;
+use App\Models\PaymentSettlement;
 use App\Models\User;
 use App\Services\Payments\CheckoutEvent;
 use App\Services\Payments\PayMongoSignature;
+use App\Support\Records\RecordVisibility;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -243,6 +246,42 @@ class PaymentOperationsTest extends TestCase
     private function input(): array
     {
         return ['expected_revision' => 3, 'note' => 'Verified preserved signed receipt against current provider state.'];
+    }
+
+    public function test_deleted_financial_history_is_hidden_in_presentation_but_retained_for_reconciliation_and_replay(): void
+    {
+        $this->admin->givePermissionTo('Manage:DataRecords');
+        $visibility = app(RecordVisibility::class);
+        $original = $this->receipt->fresh()->getAttributes();
+        $visibility->delete($this->admin, $this->receipt);
+        $this->assertSame(0, app(PaymentOperations::class)->read($this->admin, $this->attempt->public_id)['events']->total());
+        $key = (string) Str::uuid();
+        $resolution = $this->reconcile($key);
+        $settlement = PaymentSettlement::sole();
+        $this->assertSame($original, $this->receipt->fresh()->getAttributes());
+        $visibility->delete($this->admin, $resolution);
+        $visibility->delete($this->admin, $settlement);
+        $control = (new PaymentControl)->forceFill(['public_id' => (string) Str::ulid(), 'order_id' => $this->order->id,
+            'payment_attempt_id' => $this->attempt->id, 'actor_id' => $this->admin->id, 'operation_id' => (string) Str::uuid(),
+            'request_hash' => str_repeat('a', 64), 'action' => 'verify', 'state' => 'pending', 'reserved_revision' => 4, 'note' => 'Synthetic retained control']);
+        $control->save();
+        $visibility->delete($this->admin, $control);
+        $read = app(PaymentOperations::class)->read($this->admin, $this->attempt->public_id);
+        $this->assertNull($read['settlement']);
+        $this->assertCount(0, $read['resolutions']);
+        $this->assertCount(0, $read['controls']);
+        $this->assertSame('paid', $this->order->fresh()->payment_status);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+        $this->actingAs($this->admin);
+        Livewire::test(ViewPayment::class, ['record' => $this->attempt->public_id])
+            ->assertSuccessful()->assertSee('Payment confirmed. Settlement history is hidden')
+            ->assertSee('No visible signed provider receipts.')->assertSee('No visible resolutions.')
+            ->assertSee('No visible closure or recovery commands.')->assertDontSee('No verified settlement.');
+        $this->assertSame($resolution->id, $this->reconcile($key)->id);
+        $this->assertDatabaseCount('payment_events', 1);
+        $this->assertDatabaseCount('payment_settlements', 1);
+        $this->assertDatabaseCount('payment_resolutions', 1);
+        $this->assertDatabaseCount('payment_controls', 1);
     }
 
     private function reconcile(?string $key = null, ?array $input = null): PaymentResolution

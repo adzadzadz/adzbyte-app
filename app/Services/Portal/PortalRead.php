@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\WorkItem;
 use App\Support\PortalAccess;
 use App\Support\PortalOptions;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,7 @@ final class PortalRead
     {
         $query = $this->filter($this->workQuery($actor, $staff), $actor, $staff, $filters, false)->when($type, fn ($q) => $q->where('type', $type))
             ->when($search !== '', fn ($q) => $q->where('title', 'like', '%'.addcslashes(mb_substr($search, 0, 100), '%_\\').'%'));
-        $items = $query->with(['owner', 'assignee'])->withCount(['milestones', 'milestones as completed_milestones_count' => fn ($q) => $q->whereNotNull('completed_at')])
+        $items = $query->with(['owner', 'assignee'])->withCount(['milestones' => fn ($q) => RecordVisibility::scope($q), 'milestones as completed_milestones_count' => fn ($q) => RecordVisibility::scope($q)->whereNotNull('completed_at')])
             ->orderByRaw("CASE WHEN status = 'waiting_for_customer' THEN 0 WHEN status IN ('completed', 'cancelled') THEN 2 ELSE 1 END")->orderByDesc('updated_at')->orderByDesc('id')->paginate(max(1, min(50, $perPage)), ['*'], 'page', max(1, $page));
 
         return ['items' => $items->map(fn (WorkItem $work) => $this->workSummary($work, $staff))->all(), 'pagination' => $this->pagination($items)];
@@ -31,16 +32,16 @@ final class PortalRead
 
     public function work(User $actor, string $reference, bool $staff = false, int $page = 1): array
     {
-        $work = $this->workQuery($actor, $staff)->where('public_id', $reference)->with(['owner', 'assignee', 'milestones'])
-            ->withCount(['milestones', 'milestones as completed_milestones_count' => fn ($q) => $q->whereNotNull('completed_at')])->firstOrFail();
-        $updates = $work->updates()->with('actor')->orderByDesc('id')->paginate(20, ['*'], 'page', max(1, $page));
+        $work = $this->workQuery($actor, $staff)->where('public_id', $reference)->with(['owner', 'assignee', 'milestones' => fn ($q) => RecordVisibility::scope($q->getQuery())])
+            ->withCount(['milestones' => fn ($q) => RecordVisibility::scope($q), 'milestones as completed_milestones_count' => fn ($q) => RecordVisibility::scope($q)->whereNotNull('completed_at')])->firstOrFail();
+        $updates = RecordVisibility::scope($work->updates()->getQuery())->with('actor')->orderByDesc('id')->paginate(20, ['*'], 'page', max(1, $page));
 
         return [...$this->workSummary($work, $staff), 'summary' => $work->summary, 'assigned_to' => $work->assignee?->name,
             'milestones' => $work->milestones->map(fn ($m) => ['public_id' => $m->public_id, 'title' => $m->title,
                 'target_date' => $m->target_date?->toDateString(), 'completed_at' => $m->completed_at?->toIso8601String()])->all(),
             'updates' => $updates->map(fn ($update) => ['body' => $update->body, 'author' => $update->actor->name, 'created_at' => $update->created_at->toIso8601String()])->all(),
             'pagination' => $this->pagination($updates),
-            'history' => $staff ? $work->events()->with('actor')->latest('id')->limit(50)->get()->map(fn ($event) => [
+            'history' => $staff ? RecordVisibility::scope($work->events()->getQuery())->with('actor')->latest('id')->limit(50)->get()->map(fn ($event) => [
                 'action' => $event->action, 'actor' => $event->actor->name, 'created_at' => $event->created_at->toIso8601String(), 'changes' => $event->changes,
             ])->all() : [],
         ];
@@ -65,7 +66,7 @@ final class PortalRead
     {
         $case = app(PortalActions::class)->caseFor($actor, $reference, $staff);
         $case->load(['owner', 'assignee', 'category', 'workItem']);
-        $messages = $case->messages()->with('actor')->orderByDesc('id')->paginate(30, ['*'], 'page', max(1, $page));
+        $messages = RecordVisibility::scope($case->messages()->getQuery())->with('actor')->orderByDesc('id')->paginate(30, ['*'], 'page', max(1, $page));
         $canNote = $staff && PortalAccess::staff($actor, PortalCapability::NoteCases);
 
         return [...$this->caseSummary($case, $staff), 'description' => $case->description, 'assigned_to' => $case->assignee?->name,
@@ -76,11 +77,11 @@ final class PortalRead
                 'created_at' => $m->created_at->toIso8601String(),
             ])->all(),
             'pagination' => $this->pagination($messages),
-            ...$canNote ? ['notes' => $case->notes()->with('actor')->latest('id')->limit(30)->get()->map(fn ($m) => [
+            ...$canNote ? ['notes' => RecordVisibility::scope($case->notes()->getQuery())->with('actor')->latest('id')->limit(30)->get()->map(fn ($m) => [
                 'body' => $m->body, 'author' => $m->actor->name, 'created_at' => $m->created_at->toIso8601String(),
             ])->all()] : [],
             // A safe status timeline has no note bodies, assignments or internal IDs.
-            'history' => $case->events()->whereIn('action', ['case_created', 'case_updated'])->latest('id')->limit(50)->get()->map(fn ($e) => [
+            'history' => RecordVisibility::scope($case->events()->getQuery())->whereIn('action', ['case_created', 'case_updated'])->latest('id')->limit(50)->get()->map(fn ($e) => [
                 'action' => $e->action, 'status' => $e->changes['after']['status'] ?? $e->changes['status'] ?? null,
                 'created_at' => $e->created_at->toIso8601String(),
             ])->all(),
@@ -110,12 +111,12 @@ final class PortalRead
             ] : null,
             'recent_cases' => PortalAccess::staff($actor, PortalCapability::ViewCases) ? $this->cases($actor, true, perPage: 5)['items'] : [],
             'work' => PortalAccess::staff($actor, PortalCapability::ViewWork) ? [
-                'active' => WorkItem::whereNotIn('status', ['completed', 'cancelled'])->count(),
-                'waiting' => WorkItem::where('status', 'waiting_for_customer')->count(),
+                'active' => RecordVisibility::scope(WorkItem::query())->whereNotIn('status', ['completed', 'cancelled'])->count(),
+                'waiting' => RecordVisibility::scope(WorkItem::query())->where('status', 'waiting_for_customer')->count(),
             ] : null,
             'support' => PortalAccess::staff($actor, PortalCapability::ViewCases) ? [
-                'open' => SupportCase::whereNotIn('status', ['resolved', 'closed'])->count(),
-                'unassigned' => SupportCase::whereNotIn('status', ['resolved', 'closed'])->whereNull('assigned_to')->count(),
+                'open' => RecordVisibility::scope(SupportCase::query())->whereNotIn('status', ['resolved', 'closed'])->count(),
+                'unassigned' => RecordVisibility::scope(SupportCase::query())->whereNotIn('status', ['resolved', 'closed'])->whereNull('assigned_to')->count(),
             ] : null,
         ];
     }
@@ -135,7 +136,7 @@ final class PortalRead
 
     public function categories(bool $all = false): array
     {
-        return SupportCategory::query()->when(! $all, fn ($q) => $q->where('active', true))->orderBy('name')->get()
+        return RecordVisibility::scope(SupportCategory::query())->when(! $all, fn ($q) => $q->where('active', true))->orderBy('name')->get()
             ->map(fn ($c) => ['public_id' => $c->public_id, 'name' => $c->name, 'active' => $c->active])->all();
     }
 
@@ -189,14 +190,14 @@ final class PortalRead
     {
         abort_unless($staff ? PortalAccess::staff($actor, PortalCapability::ViewWork) : PortalAccess::customer($actor), 403);
 
-        return WorkItem::query()->when(! $staff, fn ($q) => $q->where('user_id', $actor->id));
+        return RecordVisibility::scope(WorkItem::query())->when(! $staff, fn ($q) => $q->where('user_id', $actor->id));
     }
 
     private function caseQuery(User $actor, bool $staff): Builder
     {
         abort_unless($staff ? PortalAccess::staff($actor, PortalCapability::ViewCases) : PortalAccess::customer($actor), 403);
 
-        return SupportCase::query()->when(! $staff, fn ($q) => $q->where('user_id', $actor->id));
+        return RecordVisibility::scope(SupportCase::query())->when(! $staff, fn ($q) => $q->where('user_id', $actor->id));
     }
 
     private function workSummary(WorkItem $work, bool $staff): array

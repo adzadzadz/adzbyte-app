@@ -24,6 +24,7 @@ class CartOwnershipMigrationTest extends TestCase
         $this->setUpCatalogDatabase(migrate: false);
         $paths = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($path) => basename($path) < '2026_10_18_050000_add_customer_cart_ownership.php'));
         $this->artisan('migrate', ['--path' => $paths, '--realpath' => true, '--force' => true])->assertSuccessful();
+        $this->installVisibilitySchemaForLegacyFixture();
         $this->seed(RoleSeeder::class);
     }
 

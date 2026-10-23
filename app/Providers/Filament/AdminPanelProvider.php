@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Auth\EmailVerificationPrompt;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
+use App\Http\Middleware\RejectDeletedWebIdentity;
 use App\Support\Filament\AdzbytePanel;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
@@ -42,6 +43,7 @@ class AdminPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
+                RejectDeletedWebIdentity::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 PreventRequestForgery::class,

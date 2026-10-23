@@ -3,6 +3,7 @@
 namespace App\Filament\Auth;
 
 use App\Enums\UserRole;
+use App\Support\Records\RecordVisibility;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use SensitiveParameter;
@@ -19,7 +20,7 @@ trait ScopesPanelPasswordResets
 
         return [...parent::getCredentialsFromFormData($data),
             'email' => mb_strtolower(trim($data['email'])),
-            'panel_access' => fn (Builder $query) => $query->whereHas('roles', fn (Builder $rolesQuery) => $rolesQuery->where('guard_name', 'web')->whereIn('name', $roles)),
+            'panel_access' => fn (Builder $query) => RecordVisibility::query($query)->whereHas('roles', fn (Builder $rolesQuery) => $rolesQuery->where('guard_name', 'web')->whereIn('name', $roles)),
         ];
     }
 }

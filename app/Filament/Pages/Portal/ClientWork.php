@@ -10,8 +10,10 @@ use App\Services\Portal\PortalRead;
 use App\Support\Filament\HandlesPortalCommands;
 use App\Support\Filament\PortalForms;
 use App\Support\Filament\PortalListFilters;
+use App\Support\Filament\RecordVisibilityActions;
 use App\Support\PortalAccess;
 use App\Support\PortalOptions;
+use App\Support\Records\RecordVisibility;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -96,8 +98,8 @@ final class ClientWork extends Page
         if (! $this->record) {
             return [Action::make('createWork')->label('Add project or service')->slideOver()->visible($manage)->schema([
                 Select::make('customer')->label('Customer')->default(fn () => $this->customer)->required()->searchable()
-                    ->getSearchResultsUsing(fn (string $search) => User::role('customer')->where(fn ($q) => $q->where('email', 'like', '%'.addcslashes($search, '%_\\').'%')->orWhere('name', 'like', '%'.addcslashes($search, '%_\\').'%'))->limit(50)->get()->mapWithKeys(fn ($user) => [$user->id => $user->name.' · '.$user->email]))
-                    ->getOptionLabelUsing(fn ($value) => User::role('customer')->find($value)?->email),
+                    ->getSearchResultsUsing(fn (string $search) => RecordVisibility::query(User::role('customer'))->where(fn ($q) => $q->where('email', 'like', '%'.addcslashes($search, '%_\\').'%')->orWhere('name', 'like', '%'.addcslashes($search, '%_\\').'%'))->limit(50)->get()->mapWithKeys(fn ($user) => [$user->id => $user->name.' · '.$user->email]))
+                    ->getOptionLabelUsing(fn ($value) => RecordVisibility::query(User::role('customer'))->find($value)?->email),
                 Select::make('type')->options(PortalOptions::WORK_TYPES)->required()->default('project'), ...PortalForms::work(),
             ])->action(function (array $data): void {
                 $work = $this->runCommand('create', fn ($key) => app(PortalActions::class)->createWork(auth()->user(), $data, $key), 'Work added');
@@ -106,6 +108,7 @@ final class ClientWork extends Page
         }
 
         return [
+            RecordVisibilityActions::delete()->record(fn () => RecordVisibility::query(WorkItem::where('public_id', $this->record), 'all')->firstOrFail())->successRedirectUrl(fn () => self::getUrl()),
             Action::make('editWork')->label('Update details')->visible($manage)->fillForm(fn () => WorkItem::where('public_id', $this->record)->firstOrFail()->only(['title', 'summary', 'status', 'next_step', 'target_date', 'assigned_to']))
                 ->slideOver()->schema([...PortalForms::work(), $this->conflictNotice()])->action(fn (array $data) => $this->save('edit', fn ($key) => app(PortalActions::class)->updateWork(auth()->user(), $this->record, ['expected_revision' => $this->expectedRevision, ...$data], $key))),
             Action::make('addMilestone')->label('Add milestone')->visible($manage)->schema([
@@ -116,11 +119,12 @@ final class ClientWork extends Page
                     if (empty($arguments['milestone'])) {
                         return [];
                     }
-                    $milestone = app(PortalRead::class)->authorizeWork(auth()->user(), $this->record, true)->milestones()->where('public_id', $arguments['milestone'])->firstOrFail();
+                    $work = app(PortalRead::class)->authorizeWork(auth()->user(), $this->record, true);
+                    $milestone = RecordVisibility::query($work->milestones()->getQuery())->where('public_id', $arguments['milestone'])->firstOrFail();
 
                     return ['milestone' => $milestone->public_id, 'title' => $milestone->title, 'target_date' => $milestone->target_date?->toDateString(), 'completed' => $milestone->completed_at !== null];
                 })->schema([
-                    Select::make('milestone')->required()->options(fn () => WorkItem::where('public_id', $this->record)->firstOrFail()->milestones()->pluck('title', 'public_id'))->live()
+                    Select::make('milestone')->required()->options(fn () => RecordVisibility::query(WorkItem::where('public_id', $this->record)->firstOrFail()->milestones()->getQuery())->pluck('title', 'public_id'))->live()
                         ->afterStateUpdated(function ($state, $set): void {
                             $milestone = WorkItem::where('public_id', $this->record)->firstOrFail()->milestones()->where('public_id', $state)->first();
                             if ($milestone) {

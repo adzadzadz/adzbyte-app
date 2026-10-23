@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\ProductCategories\RelationManagers;
 
+use App\Support\Filament\RecordVisibilityActions;
+use App\Support\Records\RecordVisibility;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 
@@ -37,9 +40,11 @@ class ChangesRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table->columns([
+        return $table->modifyQueryUsing(fn (Builder $query): Builder => RecordVisibility::query($query, 'all'))->columns([
+            RecordVisibilityActions::column(),
             TextColumn::make('action'), TextColumn::make('actor.name')->label('Administrator'),
             TextColumn::make('created_at')->dateTime(),
-        ])->defaultSort('id', 'desc')->recordActions([])->toolbarActions([]);
+        ])->filters([RecordVisibilityActions::filter()])->defaultSort('id', 'desc')
+            ->recordActions([RecordVisibilityActions::delete(), RecordVisibilityActions::restore()])->toolbarActions([]);
     }
 }

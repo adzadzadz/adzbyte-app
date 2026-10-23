@@ -5,11 +5,15 @@ namespace App\Filament\Pages\Portal;
 use App\Actions\Customers\ManagePortalCustomer;
 use App\Actions\Portal\PortalActions;
 use App\Enums\PortalCapability;
+use App\Filament\Resources\Users\UserResource;
+use App\Models\User;
 use App\Models\WorkItem;
 use App\Support\Filament\HandlesPortalCommands;
 use App\Support\Filament\PortalForms;
+use App\Support\Filament\RecordVisibilityActions;
 use App\Support\PortalAccess;
 use App\Support\PortalOptions;
+use App\Support\Records\RecordVisibility;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -66,6 +70,10 @@ final class Customers extends Page
                 Notification::make()->success()->title('Customer created · activation invitation queued')->send();
                 $this->redirect(self::getUrl(['record' => $customer->id]));
             }),
+            Action::make('editCustomer')->label('Edit customer')->url(fn () => $this->record ? UserResource::getUrl('edit', ['record' => $this->record]) : null)
+                ->visible(fn () => $this->record && RecordVisibility::allowed(auth()->user())),
+            RecordVisibilityActions::delete()->record(fn () => $this->record ? RecordVisibility::query(User::whereKey($this->record), 'all')->firstOrFail() : null)
+                ->visible(fn () => $this->record && RecordVisibility::allowed(auth()->user()))->successRedirectUrl(fn () => self::getUrl()),
             Action::make('inviteCustomer')->label('Resend activation invitation')->requiresConfirmation()
                 ->visible(fn () => $this->record && PortalAccess::staff(auth()->user(), PortalCapability::ManageCustomers)
                     && ManagePortalCustomer::query()->whereKey($this->record)->whereNull('email_verified_at')->exists())
@@ -98,7 +106,7 @@ final class Customers extends Page
             ->orWhere('email', 'like', '%'.addcslashes(mb_substr($this->search, 0, 100), '%_\\').'%')))->latest('id')->paginate(15, ['*'], 'page', max(1, $this->page));
 
         return ['customer' => $customer, 'customers' => $items,
-            'works' => $customer && PortalAccess::staff(auth()->user(), PortalCapability::ViewWork) ? WorkItem::where('user_id', $customer->id)->latest('updated_at')->limit(50)->get() : collect(),
+            'works' => $customer && PortalAccess::staff(auth()->user(), PortalCapability::ViewWork) ? RecordVisibility::query(WorkItem::where('user_id', $customer->id))->latest('updated_at')->limit(50)->get() : collect(),
         ];
     }
 }

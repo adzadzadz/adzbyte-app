@@ -21,6 +21,7 @@ use App\Services\Orders\OrderAggregate;
 use App\Services\Orders\OrderLifecycle;
 use App\Services\Orders\OrderTotals;
 use App\Support\Database\RetryingTransaction;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use Ramsey\Uuid\Uuid;
@@ -114,6 +115,7 @@ final class OrderReviewActions
                 $query->where('user_id', $fresh->id);
             }
             $order = $query->lockForUpdate()->firstOrFail();
+            RecordVisibility::assertVisible($order);
             $hash = CanonicalValue::hash(['order' => $reference, 'action' => $action, 'input' => $input]);
             $receipt = OrderEvent::where('actor_id', $fresh->id)->where('operation_id', $operationId)->lockForUpdate()->first();
             if ($receipt !== null) {
@@ -189,6 +191,7 @@ final class OrderReviewActions
     private function actor(User $actor, ?OrderCapability $capability): User
     {
         $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+        RecordVisibility::assertVisible($fresh);
         abort_unless($fresh->hasVerifiedEmail(), 403);
         if ($capability === null) {
             abort_unless($fresh->hasRole(UserRole::Customer->value), 403);

@@ -7,6 +7,7 @@ use App\Models\SupportCategory;
 use App\Models\User;
 use App\Support\PortalAccess;
 use App\Support\PortalOptions;
+use App\Support\Records\RecordVisibility;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -25,12 +26,12 @@ final class PortalForms
 
     public static function staff(PortalCapability $capability): array
     {
-        return User::role(['administrator', 'super_admin'])->whereNotNull('email_verified_at')->orderBy('name')->get()
+        return RecordVisibility::query(User::role(['administrator', 'super_admin']))->whereNotNull('email_verified_at')->orderBy('name')->get()
             ->filter(fn (User $user) => PortalAccess::staff($user, $capability))->pluck('name', 'id')->all();
     }
 
     public static function categories(bool $active = true): array
     {
-        return SupportCategory::query()->when($active, fn ($q) => $q->where('active', true))->orderBy('name')->pluck('name', 'public_id')->all();
+        return RecordVisibility::query(SupportCategory::query())->when($active, fn ($q) => $q->where('active', true))->orderBy('name')->pluck('name', 'public_id')->all();
     }
 }

@@ -16,6 +16,7 @@ use App\Models\WorkUpdate;
 use App\Support\Database\RetryingTransaction;
 use App\Support\PortalAccess;
 use App\Support\PortalOptions;
+use App\Support\Records\RecordVisibility;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
@@ -34,10 +35,11 @@ final class PortalActions
                 'customer' => ['required', 'integer'], 'type' => ['required', Rule::in(array_keys(PortalOptions::WORK_TYPES))],
                 ...$this->workRules(),
             ]);
-            $customer = User::query()->find($data['customer']);
+            $customer = User::query()->lockForUpdate()->find($data['customer']);
             if (! $customer || ! $customer->hasRole('customer')) {
                 $this->invalid('customer', 'Select a customer account.');
             }
+            RecordVisibility::assertVisible($customer);
             unset($data['customer']);
             $this->assignee($data['assigned_to'] ?? null, PortalCapability::ViewWork);
             $work = WorkItem::create(['public_id' => (string) Str::ulid(), 'user_id' => $customer->id, ...$data]);
@@ -51,6 +53,7 @@ final class PortalActions
     {
         return $this->command($actor, 'work.update:'.$reference, $input, $key, function (User $actor, array $data) use ($reference): WorkItem {
             $work = WorkItem::where('public_id', $reference)->lockForUpdate()->firstOrFail();
+            RecordVisibility::assertVisible($work);
             Gate::forUser($actor)->authorize('update', $work);
             $data = $this->validate($data, ['expected_revision' => ['required', 'integer:strict', 'min:1'], ...$this->workRules()]);
             $this->revision($work, $data);
@@ -70,6 +73,7 @@ final class PortalActions
     {
         return $this->command($actor, 'work.milestone:'.$reference, $input, $key, function (User $actor, array $data) use ($reference): WorkItem {
             $work = WorkItem::where('public_id', $reference)->lockForUpdate()->firstOrFail();
+            RecordVisibility::assertVisible($work);
             Gate::forUser($actor)->authorize('update', $work);
             $data = $this->validate($data, ['expected_revision' => ['required', 'integer:strict', 'min:1'], 'milestone' => ['nullable', 'ulid'],
                 'title' => ['required', 'string', 'max:255'], 'target_date' => ['nullable', 'date_format:Y-m-d'], 'completed' => ['required', 'boolean']]);
@@ -77,6 +81,9 @@ final class PortalActions
             $milestone = isset($data['milestone'])
                 ? $work->milestones()->where('public_id', $data['milestone'])->firstOrFail()
                 : new WorkMilestone(['work_item_id' => $work->id, 'public_id' => (string) Str::ulid()]);
+            if ($milestone->exists) {
+                RecordVisibility::assertVisible($milestone);
+            }
             if (! $milestone->exists && $work->milestones()->count() >= 100) {
                 $this->invalid('title', 'A work record can have up to 100 milestones.');
             }
@@ -96,6 +103,7 @@ final class PortalActions
     {
         return $this->command($actor, 'work.publish:'.$reference, $input, $key, function (User $actor, array $data) use ($reference): WorkItem {
             $work = WorkItem::where('public_id', $reference)->lockForUpdate()->firstOrFail();
+            RecordVisibility::assertVisible($work);
             Gate::forUser($actor)->authorize('update', $work);
             $data = $this->validate($data, ['expected_revision' => ['required', 'integer:strict', 'min:1'], 'body' => ['required', 'string', 'max:10000']]);
             $this->revision($work, $data);
@@ -118,11 +126,55 @@ final class PortalActions
                 'work' => ['nullable', 'ulid'], 'category' => ['nullable', 'ulid']]);
             $work = isset($data['work']) ? WorkItem::where('public_id', $data['work'])->where('user_id', $actor->id)->firstOrFail() : null;
             $category = isset($data['category']) ? SupportCategory::where('public_id', $data['category'])->where('active', true)->firstOrFail() : null;
+            if ($work) {
+                RecordVisibility::assertVisible($work);
+            }
+            if ($category) {
+                RecordVisibility::assertVisible($category);
+            }
             $case = SupportCase::create(['public_id' => (string) Str::ulid(), 'user_id' => $actor->id,
                 'work_item_id' => $work?->id, 'support_category_id' => $category?->id, 'type' => $data['type'],
                 'subject' => $data['subject'], 'description' => $data['description'], 'public_updated_at' => now(),
                 'customer_read_at' => now(), 'last_message_at' => now()]);
             $this->event($actor, $case, 'case_created', ['type' => $case->type, 'status' => 'open']);
+
+            return $case;
+        });
+    }
+
+    public function createStaffCase(User $actor, array $input, string $key): SupportCase
+    {
+        return $this->command($actor, 'case.manage:create', $input, $key, function (User $actor, array $data): SupportCase {
+            $data = $this->validate($data, ['customer' => ['required', 'integer'], 'type' => ['required', Rule::in(array_keys(PortalOptions::CASE_TYPES))],
+                'subject' => ['required', 'string', 'max:255'], 'description' => ['required', 'string', 'max:10000'], 'work' => ['nullable', 'ulid'], 'category' => ['nullable', 'ulid']]);
+            $customer = User::role('customer')->whereKey($data['customer'])->lockForUpdate()->firstOrFail();
+            RecordVisibility::assertVisible($customer);
+            $work = isset($data['work']) ? RecordVisibility::query(WorkItem::where('user_id', $customer->id))->where('public_id', $data['work'])->firstOrFail() : null;
+            $category = isset($data['category']) ? RecordVisibility::query(SupportCategory::where('active', true))->where('public_id', $data['category'])->firstOrFail() : null;
+            $case = SupportCase::create(['public_id' => (string) Str::ulid(), 'user_id' => $customer->id, 'work_item_id' => $work?->id,
+                'support_category_id' => $category?->id, 'type' => $data['type'], 'subject' => $data['subject'], 'description' => $data['description'],
+                'public_updated_at' => now(), 'customer_read_at' => null, 'staff_read_at' => now(), 'last_message_at' => now()]);
+            $this->event($actor, $case, 'case_created', ['type' => $case->type, 'status' => 'open']);
+
+            return $case;
+        });
+    }
+
+    public function updateCaseDetails(User $actor, string $reference, array $input, string $key): SupportCase
+    {
+        return $this->command($actor, 'case.manage:details:'.$reference, $input, $key, function (User $actor, array $data) use ($reference): SupportCase {
+            $case = $this->caseFor($actor, $reference, true, true);
+            Gate::forUser($actor)->authorize('update', $case);
+            $data = $this->validate($data, ['expected_revision' => ['required', 'integer:strict', 'min:1'],
+                'type' => ['required', Rule::in(array_keys(PortalOptions::CASE_TYPES))], 'subject' => ['required', 'string', 'max:255'], 'description' => ['required', 'string', 'max:10000']]);
+            $this->revision($case, $data);
+            $before = $case->only(array_keys($data));
+            $case->fill($data);
+            $case->revision++;
+            $case->public_updated_at = now();
+            $case->customer_read_at = null;
+            $case->save();
+            $this->event($actor, $case, 'case_details_updated', ['before' => $before, 'after' => $data]);
 
             return $case;
         });
@@ -170,6 +222,9 @@ final class PortalActions
             $this->revision($case, $data);
             $this->assignee($data['assigned_to'] ?? null, PortalCapability::ViewCases);
             $category = isset($data['category']) ? SupportCategory::where('public_id', $data['category'])->firstOrFail() : null;
+            if ($category) {
+                RecordVisibility::assertVisible($category);
+            }
             $before = $case->only(['status', 'priority', 'assigned_to', 'support_category_id']);
             $case->fill(['status' => $data['status'], 'priority' => $data['priority'], 'assigned_to' => $data['assigned_to'] ?? null, 'support_category_id' => $category?->id]);
             $case->revision++;
@@ -189,6 +244,9 @@ final class PortalActions
             $data = $this->validate($data, ['category' => ['nullable', 'ulid'], 'name' => ['required', 'string', 'max:100'], 'active' => ['required', 'boolean']]);
             $category = isset($data['category']) ? SupportCategory::where('public_id', $data['category'])->lockForUpdate()->firstOrFail()
                 : new SupportCategory(['public_id' => (string) Str::ulid()]);
+            if ($category->exists) {
+                RecordVisibility::assertVisible($category);
+            }
             Validator::make($data, ['name' => [Rule::unique('support_categories')->ignore($category->id)]])->validate();
             $before = $category->only(['name', 'active']);
             $category->fill(['name' => $data['name'], 'active' => $data['active']]);
@@ -202,7 +260,7 @@ final class PortalActions
     public function caseFor(User $actor, string $reference, bool $staff = false, bool $lock = false): SupportCase
     {
         abort_unless($staff ? PortalAccess::staff($actor, PortalCapability::ViewCases) : PortalAccess::customer($actor), 403);
-        $query = SupportCase::where('public_id', $reference)->when(! $staff, fn ($query) => $query->where('user_id', $actor->id));
+        $query = RecordVisibility::query(SupportCase::where('public_id', $reference))->when(! $staff, fn ($query) => $query->where('user_id', $actor->id));
         $case = ($lock ? $query->lockForUpdate() : $query)->firstOrFail();
         Gate::forUser($actor)->authorize('view', $case);
 
@@ -224,6 +282,7 @@ final class PortalActions
 
         return RetryingTransaction::run(function () use ($actor, $input, $operation, $key, $fingerprint, $action): Model {
             $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+            RecordVisibility::assertVisible($fresh);
             // Authorization runs before retry receipts too: a revoked actor cannot
             // retrieve a previously accessible record by replaying a command.
             $this->authorizeOperation($fresh, $operation);
@@ -234,7 +293,10 @@ final class PortalActions
                     'work' => WorkItem::class, 'case' => SupportCase::class, 'category' => SupportCategory::class,
                 };
 
-                return $model::findOrFail($receipt->result_id);
+                $result = $model::findOrFail($receipt->result_id);
+                RecordVisibility::assertVisible($result);
+
+                return $result;
             }
             $result = $action($fresh, array_map(fn ($value) => is_string($value) ? trim($value) : $value, $input));
             PortalCommand::create(['actor_id' => $fresh->id, 'operation_id' => $key, 'fingerprint' => $fingerprint,
@@ -272,6 +334,9 @@ final class PortalActions
     {
         if ($id !== null) {
             $user = User::find($id);
+            if ($user) {
+                RecordVisibility::assertVisible($user);
+            }
             if (! $user || ! PortalAccess::staff($user, $capability)) {
                 $this->invalid('assigned_to', 'Choose an authorized staff member.');
             }

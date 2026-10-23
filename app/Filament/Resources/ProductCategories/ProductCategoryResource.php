@@ -8,6 +8,8 @@ use App\Filament\Resources\ProductCategories\Pages\ListProductCategories;
 use App\Filament\Resources\ProductCategories\Pages\ViewProductCategory;
 use App\Filament\Resources\ProductCategories\RelationManagers\ChangesRelationManager;
 use App\Models\ProductCategory;
+use App\Support\Filament\RecordVisibilityActions;
+use App\Support\Records\RecordVisibility;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -20,6 +22,8 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class ProductCategoryResource extends Resource
@@ -33,6 +37,16 @@ class ProductCategoryResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Commerce';
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-tag';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return RecordVisibility::query(parent::getEloquentQuery(), 'all');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return ! RecordVisibility::isDeleted($record) && parent::canEdit($record);
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -55,10 +69,11 @@ class ProductCategoryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->columns([
+            RecordVisibilityActions::column(),
             TextColumn::make('name')->searchable()->sortable(),
             IconColumn::make('limit_one_per_cart')->label('One service per cart')->boolean(),
             TextColumn::make('products_count')->counts('products')->label('Products'),
-        ])->recordActions([ViewAction::make(), EditAction::make()])->toolbarActions([])
+        ])->filters([RecordVisibilityActions::filter()])->recordActions([RecordVisibilityActions::delete(), RecordVisibilityActions::restore(), ViewAction::make(), EditAction::make()->visible(fn (ProductCategory $record): bool => static::canEdit($record))])->toolbarActions([])
             ->recordUrl(fn (ProductCategory $record): ?string => static::canView($record) ? static::getUrl('view', ['record' => $record]) : null);
     }
 

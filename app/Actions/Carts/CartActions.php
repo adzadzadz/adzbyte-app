@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Services\Carts\CartPrincipal;
 use App\Services\Carts\CartSnapshot;
 use App\Support\Database\RetryingTransaction;
+use App\Support\Records\RecordVisibility;
 use Closure;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
@@ -406,7 +407,7 @@ final class CartActions
 
     private function available(Product $product): bool
     {
-        return $product->status === ProductStatus::Published && $product->is_available
+        return ! RecordVisibility::isDeleted($product) && $product->status === ProductStatus::Published && $product->is_available
             && $product->currentPrice !== null && $product->currentPrice->amount_minor > 0 && $product->currentPrice->currency === 'PHP'
             && $product->currentTerms !== null && $product->currentTerms->content !== [];
     }

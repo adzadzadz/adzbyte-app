@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\PackageCheckouts;
 
+use App\Filament\Pages\DataRecords;
 use App\Filament\Resources\PackageCheckouts\Pages\ListPackageCheckouts;
 use App\Filament\Resources\PackageCheckouts\Pages\ViewPackageCheckout;
 use App\Models\PackageCheckout;
 use App\Services\Carts\MinorUnits;
+use App\Support\Filament\RecordVisibilityActions;
+use App\Support\Records\RecordVisibility;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
@@ -14,10 +17,19 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PackageCheckoutResource extends Resource
 {
     protected static ?string $model = PackageCheckout::class;
+
+    public static function getEloquentQuery(): Builder
+    {
+        return RecordVisibility::query(parent::getEloquentQuery(), 'all')->with([
+            'captureDelivery' => fn ($relation) => RecordVisibility::query($relation->getQuery(), 'all'),
+            'purchaseDelivery' => fn ($relation) => RecordVisibility::query($relation->getQuery(), 'all'),
+        ]);
+    }
 
     public static function infolist(Schema $schema): Schema
     {
@@ -38,41 +50,68 @@ class PackageCheckoutResource extends Resource
                 TextEntry::make('email'), TextEntry::make('phone'),
             ]),
             Section::make('Delivery diagnostics')->columns(2)->schema([
-                TextEntry::make('captureDelivery.status')->label('Form capture state'),
-                TextEntry::make('captureDelivery.attempts')->label('Form capture attempts'),
-                TextEntry::make('captureDelivery.last_error_code')->label('Last form capture result'),
+                self::deliveryState('captureDelivery', 'Form capture state'),
+                self::deliveryDiagnostic('captureDelivery.attempts', 'Form capture attempts'),
+                self::deliveryDiagnostic('captureDelivery.last_error_code', 'Last form capture result'),
                 TextEntry::make('fulfillment_status')->state(fn (PackageCheckout $record) => $record->fulfillmentStatus()),
-                TextEntry::make('purchaseDelivery.status')->label('Delivery state'),
-                TextEntry::make('purchaseDelivery.attempts')->label('Delivery attempts'),
-                TextEntry::make('purchaseDelivery.last_error_code')->label('Last delivery result'),
-                TextEntry::make('purchaseDelivery.next_attempt_at')->label('Next delivery attempt')->dateTime(),
-                TextEntry::make('purchaseDelivery.delivered_at')->label('Notifications delivered')->dateTime(),
+                self::deliveryState('purchaseDelivery', 'Delivery state'),
+                self::deliveryDiagnostic('purchaseDelivery.attempts', 'Delivery attempts'),
+                self::deliveryDiagnostic('purchaseDelivery.last_error_code', 'Last delivery result'),
+                self::deliveryDiagnostic('purchaseDelivery.next_attempt_at', 'Next delivery attempt')->dateTime(),
+                self::deliveryDiagnostic('purchaseDelivery.delivered_at', 'Notifications delivered')->dateTime(),
             ]),
         ]);
     }
 
     public static function table(Table $table): Table
     {
-        return $table->modifyQueryUsing(fn ($query) => $query->with(['purchaseDelivery', 'captureDelivery']))->columns([
+        return $table->columns([
+            RecordVisibilityActions::column(),
             TextColumn::make('id')->label('Reference')->searchable()->copyable(),
             TextColumn::make('status')->badge(),
             TextColumn::make('package_name'),
             TextColumn::make('full_name')->label('Full name')->state(fn (PackageCheckout $record) => $record->contactName()),
-            TextColumn::make('purchaseDelivery.status')->label('Delivery')->badge(),
+            TextColumn::make('purchaseDelivery.status')->label('Delivery')->badge()
+                ->state(fn (PackageCheckout $record): ?string => self::deliveryStatus($record, 'purchaseDelivery')),
             TextColumn::make('amount_minor')->label('Amount')->formatStateUsing(fn (string $state): string => MinorUnits::formatPhp($state)),
             TextColumn::make('currency'), TextColumn::make('provider_mode'),
             TextColumn::make('paid_at')->dateTime()->sortable(),
             TextColumn::make('created_at')->dateTime()->sortable(),
-        ])->filters([
+        ])->filters([RecordVisibilityActions::filter(),
             SelectFilter::make('status')->options(array_combine(
                 ['creating', 'pending', 'unknown', 'paid', 'failed', 'expired'],
                 ['Creating', 'Pending', 'Needs review', 'Paid', 'Failed', 'Expired'],
             )),
-        ])->defaultSort('created_at', 'desc')->recordActions([ViewAction::make()]);
+        ])->defaultSort('created_at', 'desc')->recordActions([RecordVisibilityActions::delete(), RecordVisibilityActions::restore(), ViewAction::make()]);
     }
 
     public static function getPages(): array
     {
         return ['index' => ListPackageCheckouts::route('/'), 'view' => ViewPackageCheckout::route('/{record}')];
+    }
+
+    private static function deliveryStatus(PackageCheckout $record, string $relationship): ?string
+    {
+        $delivery = $record->{$relationship};
+
+        return $delivery === null ? null : (RecordVisibility::isDeleted($delivery) ? 'Deleted' : $delivery->status);
+    }
+
+    private static function deliveryState(string $relationship, string $label): TextEntry
+    {
+        return TextEntry::make($relationship.'.status')->label($label)
+            ->state(fn (PackageCheckout $record): ?string => self::deliveryStatus($record, $relationship))
+            ->helperText(fn (PackageCheckout $record): ?string => self::deliveryStatus($record, $relationship) === 'Deleted'
+                ? 'Diagnostics hidden. The delivery record is retained in Data management.' : null)
+            ->url(fn (PackageCheckout $record): ?string => self::deliveryStatus($record, $relationship) === 'Deleted' && DataRecords::canAccess()
+                ? DataRecords::getUrl(['type' => 'package-deliveries', 'record' => $record->{$relationship}->getKey()]) : null);
+    }
+
+    private static function deliveryDiagnostic(string $name, string $label): TextEntry
+    {
+        $relationship = explode('.', $name)[0];
+
+        return TextEntry::make($name)->label($label)->visible(fn (PackageCheckout $record): bool => $record->{$relationship} !== null
+            && ! RecordVisibility::isDeleted($record->{$relationship}));
     }
 }

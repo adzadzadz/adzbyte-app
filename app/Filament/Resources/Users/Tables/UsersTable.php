@@ -2,7 +2,11 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Filament\Resources\Users\UserResource;
+use App\Models\User;
+use App\Support\Filament\RecordVisibilityActions;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -12,7 +16,7 @@ final class UsersTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->columns([
+            ->columns([RecordVisibilityActions::column(),
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
@@ -35,13 +39,13 @@ final class UsersTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
+            ->filters([RecordVisibilityActions::filter(),
                 SelectFilter::make('role')
                     ->relationship('roles', 'name')
                     ->preload(),
             ])
-            ->recordActions([
-                EditAction::make(),
+            ->recordActions([RecordVisibilityActions::delete(), RecordVisibilityActions::restore(), ViewAction::make(),
+                EditAction::make()->visible(fn (User $record): bool => UserResource::canEdit($record)),
             ])
             ->defaultSort('created_at', 'desc');
     }

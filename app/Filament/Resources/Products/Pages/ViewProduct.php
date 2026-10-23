@@ -7,6 +7,8 @@ use App\Enums\ProductStatus;
 use App\Filament\Resources\Products\ProductResource;
 use App\Models\User;
 use App\Support\Filament\CatalogInput;
+use App\Support\Filament\RecordVisibilityActions;
+use App\Support\Records\RecordVisibility;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Textarea;
@@ -30,6 +32,10 @@ final class ViewProduct extends ViewRecord
     {
         $record = $this->getRecord();
 
+        if (RecordVisibility::isDeleted($record)) {
+            return 'Deleted — retained for history. Restore this record or its owning record in Data management before making changes.';
+        }
+
         return 'Publication: '.Str::headline($record->status->value)
             .' · Availability: '.($record->is_available ? 'Enabled' : 'Disabled')
             .' · Price version: '.($record->currentPrice()->first()?->version ?? 'Not set')
@@ -49,8 +55,14 @@ final class ViewProduct extends ViewRecord
     {
         $record = $this->getRecord();
 
+        if (RecordVisibility::isDeleted($record)) {
+            return [RecordVisibilityActions::restore()];
+        }
+
         return [
-            Action::make('editContent')->label('Edit content')->url(ProductResource::getUrl('edit', ['record' => $record]))->visible(fn (): bool => Gate::allows('update', $record)),
+            RecordVisibilityActions::delete(),
+            RecordVisibilityActions::restore(),
+            Action::make('editContent')->label('Edit content')->url(ProductResource::getUrl('edit', ['record' => $record]))->visible(fn (): bool => ProductResource::canEdit($record)),
             $this->command('revisePrice', 'New price')->schema([
                 TextInput::make('amount')->label('Price (PHP)')->required()->inputMode('decimal')->rules([fn () => CatalogInput::moneyRule()])
                     ->helperText('A new version applies to future offers. Zero disables availability.'),
@@ -81,8 +93,9 @@ final class ViewProduct extends ViewRecord
     {
         $ability = in_array($name, ['enableAvailability', 'disableAvailability'], true) ? 'setAvailability' : $name;
 
-        return Action::make($name)->label($label)->authorize(fn (): bool => Gate::allows($ability, $this->getRecord()))
+        return Action::make($name)->label($label)->authorize(fn (): bool => ! RecordVisibility::isDeleted($this->getRecord()) && Gate::allows($ability, $this->getRecord()))
             ->requiresConfirmation()->action(function (array $data) use ($name): void {
+                abort_if(RecordVisibility::isDeleted($this->getRecord()->fresh()), 403);
                 $actor = auth()->user();
                 abort_unless($actor instanceof User, 403);
                 $record = $this->getRecord();

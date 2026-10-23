@@ -8,12 +8,15 @@ use App\Models\PaymentAttempt;
 use App\Models\User;
 use App\Policies\PaymentAttemptPolicy;
 use App\Services\Carts\MinorUnits;
+use App\Support\Filament\RecordVisibilityActions;
+use App\Support\Records\RecordVisibility;
 use BackedEnum;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
@@ -32,6 +35,11 @@ final class PaymentResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Commerce';
 
     protected static ?string $navigationLabel = 'Payments';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return RecordVisibility::query(parent::getEloquentQuery(), 'all');
+    }
 
     public static function canViewAny(): bool
     {
@@ -65,6 +73,7 @@ final class PaymentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->modifyQueryUsing(fn ($query) => $query->with(['order.currentRevision']))->columns([
+            RecordVisibilityActions::column(),
             TextColumn::make('public_id')->label('Payment reference')->searchable()->wrap(),
             TextColumn::make('order.public_id')->label('Order reference')->searchable()->wrap(),
             TextColumn::make('customer')->label('Customer')->state(fn (PaymentAttempt $record): ?string => $record->order?->currentRevision?->billing['name'] ?? null)->placeholder('Not recorded')->wrap(),
@@ -72,8 +81,8 @@ final class PaymentResource extends Resource
             TextColumn::make('amount_minor')->label('Amount')->formatStateUsing(fn (string $state): string => MinorUnits::formatPhp($state)),
             TextColumn::make('livemode')->label('Mode')->formatStateUsing(fn (bool $state): string => $state ? 'Live' : 'Test'),
             TextColumn::make('created_at')->dateTime()->sortable(),
-        ])->filters([SelectFilter::make('state')->options(['creating' => 'Creating', 'unknown' => 'Needs reconciliation', 'active' => 'Active', 'closing' => 'Closure pending', 'paid' => 'Paid', 'expired' => 'Expired', 'rejected' => 'Rejected'])])
-            ->recordActions([ViewAction::make()])->recordUrl(fn (PaymentAttempt $record): ?string => self::canView($record) ? self::getUrl('view', ['record' => $record]) : null)
+        ])->filters([RecordVisibilityActions::filter(), SelectFilter::make('state')->options(['creating' => 'Creating', 'unknown' => 'Needs reconciliation', 'active' => 'Active', 'closing' => 'Closure pending', 'paid' => 'Paid', 'expired' => 'Expired', 'rejected' => 'Rejected'])])
+            ->recordActions([RecordVisibilityActions::delete(), RecordVisibilityActions::restore(), ViewAction::make()])->recordUrl(fn (PaymentAttempt $record): ?string => self::canView($record) ? self::getUrl('view', ['record' => $record]) : null)
             ->defaultSort('id', 'desc')->emptyStateHeading('No payment attempts yet');
     }
 

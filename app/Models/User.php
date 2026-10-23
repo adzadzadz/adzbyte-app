@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Support\Records\RecordVisibility;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -24,6 +25,10 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function canAccessPanel(Panel $panel): bool
     {
+        if (RecordVisibility::isDeleted($this)) {
+            return false;
+        }
+
         return match ($panel->getId()) {
             'account' => $this->hasRole(UserRole::Customer->value),
             'admin' => $this->hasAnyRole([

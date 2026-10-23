@@ -8,6 +8,15 @@ use Symfony\Component\Process\Process;
 
 trait UsesIsolatedCatalogDatabase
 {
+    private function installVisibilitySchemaForLegacyFixture(): void
+    {
+        // These tests exercise an older module's exact upgrade/rollback using
+        // today's services. Install their independent authorization metadata
+        // without registering a later migration batch or changing that target.
+        $migration = require database_path('migrations/2026_10_24_000000_create_record_deletions.php');
+        $migration->up();
+    }
+
     private function runHttpConsumer(Process $consumer): void
     {
         $consumer->start();

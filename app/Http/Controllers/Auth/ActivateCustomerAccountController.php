@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ActivateCustomerAccountRequest;
 use App\Models\User;
 use App\Services\Carts\CartSession;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -16,6 +17,7 @@ class ActivateCustomerAccountController extends Controller
 {
     public function edit(User $user, string $hash): View|RedirectResponse
     {
+        RecordVisibility::assertVisible($user);
         abort_unless(
             $user->hasRole(UserRole::Customer->value)
             && hash_equals(sha1($user->getEmailForVerification()), $hash),
