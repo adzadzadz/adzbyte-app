@@ -11,11 +11,15 @@ safety followups are `3efb95a`. Final source `7928aa9` passes
 including 678 / 8,930 per database, all 16 safety tests and audits/build/cache gates. Independent review approves;
 16 deployment safety tests pass locally, including compiled-secret permissions.
 
-The first production code release still needs the owner's explicit `deploy ` or
-`release` command. Then dispatch deploy.yml once on current clean main; the
-workflow owns backup, checkout, post-pull, migrations, caches, worker restart and
-health checks. Do not repeat post-pull manually. Production code remains `3bcc292e`;
-no customer records changed during infrastructure setup. See the updated
+The owner authorized the first full deployment. [Release 39975941196](https://github.com/adzadzadz/adzbyte-app/actions/runs/39975941196)
+passes and deploys source `d6f6df4` as `621e2c4`. Both database suites pass 678 /
+8,930; all 16 safety tests and audits/build/cache gates pass. The workflow owns
+backup, checkout, post-pull, migrations, caches, worker restart and health checks.
+Do not repeat post-pull manually. Live backup metadata/permissions, environment
+and key preservation, QA counts/ownership, all 22 migrations, zero queued/failed
+jobs, no new application errors, fresh customer pages/session and automatic
+scheduler/worker resumption pass. Future releases still require the owner's
+explicit command and one workflow attempt. See the updated
 [deployment guide](deployment/hostinger-business.md) and
 [qualification](evidence/2026-10-23-cicd/qualification.md).
 
@@ -75,7 +79,7 @@ no customer records changed during infrastructure setup. See the updated
 | Decision gate | Configurable starter rules authorized, including partial-refund access retention/full-refund blocking and Drive links instead of attachments. Test payment/callback and cancellation verified. C successful refunds and Q merchant/legal settings remain unresolved qualification inputs. |
 | Next action | Obtain PayMongo sandbox wallet/test funds and supported QRPh refund claim/retrieval contract; inspect preserved failed refund before a new command, then implement/qualify C before O3/S2, R1 and Q. |
 | Plan | [Backend task cards](plans/2026-10-17-backend-development.md) and [master roadmap](plans/2026-10-05-implementation-roadmap.md) |
-| Last recorded runtime tests | Final local539 /7,537; CI39191936629 passes539 /7,537 each PHP8.3.35 SQLite/MySQL8.0.46, audits zero and source/build/cache gates. Actual unknown-ID recovery/customer cancellation and independent review pass. |
+| Last recorded runtime tests | Final local539 /7,537; CI39191936629 passes539 /7,537 each PHP 8.3.35 SQLite/MySQL8.0.46, audits zero and source/build/cache gates. Actual unknown-ID recovery/customer cancellation and independent review pass. |
 | Production | Older foundation release recorded in STATUS; not rechecked, released, or changed by development/maintenance |
 
 ## Resume procedure
@@ -143,14 +147,14 @@ copying their full contents into the session log.
 - Shared durable PaymentControl actions, exact policies, verified expiry, unknown-ID recovery, GET-only uncertain-command recovery, captured cancellation settings and native/REST adapters implemented. Independent review approved34/368; final wording-only followup approved independently2/21. Existing development/production DB untouched.
 - Final local539/7,537 passes with process-scoped caffeinate -i after macOS Maintenance Sleep caused wall-clock child/barrier timeouts; no bounds or assertions changed. Domain/native/API29/285, independent real HTTP2/30, migration/four-process races3/53 pass. Final copy regression UnpaidCancellationTest2/21 passes. [Evidence](evidence/2026-10-18-payments/closure-qualification.md).
 - Actual single created test session cs_eb804ededdeeb4455e62f821 was deliberately lost before local identity commit, recovered through Admin browser, then customer-cancelled. Provider expired/livemodefalse/zero payments; order cancelled/unpaid/fulfillmentcancelled/rev7, zero new settlements. Prior two test settlements unchanged. Desktop1470/mobile320 no overflow/errors. Screenshots/proof saved; no blind repeat.
-- UI86214/59861 stopped after capture; browser tabclosed and viewportreset. Ingress94883/59860 and tunnel27148 retained for immediate C sandbox. Private QAstate nowincludes closure; never repeat closure-setup creation. Source46614f8 / CI39191936629 passes539/7,537 each PHP8.3.35 SQLite/MySQL8.0.46; all audits/source/cache gates and remote main readback pass. Next O2.3c.
+- UI86214/59861 stopped after capture; browser tabclosed and viewportreset. Ingress94883/59860 and tunnel27148 retained for immediate C sandbox. Private QAstate nowincludes closure; never repeat closure-setup creation. Source46614f8 / CI39191936629 passes539/7,537 each PHP 8.3.35 SQLite/MySQL8.0.46; all audits/source/cache gates and remote main readback pass. Next O2.3c.
 
 ### 2026-10-18 — O2.3a actual audited reconciliation
 
 - Shared exact-capability Admin/REST reads and fresh-provider/signed-receipt reconciliation; original rejected receipt retained, immutable actor/UUID resolution and one settlement atomically committed. No manual paid override or provider POST. [Contract](plans/2026-10-18-paymongo-operations.md).
 - Reviewer found paid-with-refund/dispute ambiguity and cross-action Admin UUID conflict; current GET requires explicit false/empty refunds and conflicts deny409 before GET. Native browser found numeric route generation; Laravel public route key corrected with regression.
 - Actual preserved eventevt_q8HBA6ZmirecamrEGPmrPodm/paymentpay_PYHgGkTio373Bm8z9fYGVEcN nowpaid/rev4, one settlement and one resolution; original raw receipt hash unchanged. Two distinct test payments now each have one settlement. No re-payment, refund or live action.
-- Final local505 /7,164; Pint/metadata/build/whitespace, four-process races, migration and actual HTTP/OpenAPI/session/CSRF pass; desktop1470/mobile320 without overflow/console warnings. [Evidence](evidence/2026-10-18-payments/reconciliation-qualification.md). Source28a0f86 / CI39123794458 nowpasses PHP8.3.35 SQLite/MySQL8.0.46, 505 /7,164 each; all source gates pass.
+- Final local505 /7,164; Pint/metadata/build/whitespace, four-process races, migration and actual HTTP/OpenAPI/session/CSRF pass; desktop1470/mobile320 without overflow/console warnings. [Evidence](evidence/2026-10-18-payments/reconciliation-qualification.md). Source28a0f86 / CI39123794458 nowpasses PHP 8.3.35 SQLite/MySQL8.0.46, 505 /7,164 each; all source gates pass.
 - Private reconciliation UI exec65923/59861 stopped after capture. Ingress exec94883/59860 and tunnel exec27148 remain for next sandbox card. Private state /private/tmp/adzbyte-paymongo-webhook-state.json nowincludes reconciliation identity/hash; private env and first rejected raw callback retained for refund/cleanup. Do not blindly repeat payment or resolution.
 
 ### 2026-10-18 — O2.2 local and actual-provider verification
@@ -159,7 +163,7 @@ copying their full contents into the session log.
 - Signed minimal event inbox/immutable settlement, exact commercial/intent/payment verification, raw HMAC, durable duplicates/conflicts, atomic paid transition and failure recovery added. No redirect/access/fulfillment grant.
 - Actual dedicated test eventevt_NqRXbWaYQsqHyyWEKQpck88x applies one settlement for providerpay_urY4hsSwbjmkDVW6FrKodS7V12500PHP false. Own signed HTTP replay200 keeps one settlement/rev4. Actual customer paid UI passes desktop/320px; no payment controls/overflow/console errors.
 - Provider callback omits fee flag; only signed event omission permitted with exact payment and intent total. Native GET stays strict. Reviewer size finding fixed to8MiB with full action maxASCII/Unicode and oversize denial; large cases use native fresh PHP subprocesses under unchanged128MiB.
-- Current full local477 /6,908, Pint/metadata/build/whitespace pass. Independent code approval received. Source7560514 / CI39116369733 passes PHP8.3.35 SQLite/MySQL8.0.46, 477 /6,908 each; all source gates pass. [Evidence](evidence/2026-10-18-payments/webhook-qualification.md).
+- Current full local477 /6,908, Pint/metadata/build/whitespace pass. Independent code approval received. Source7560514 / CI39116369733 passes PHP 8.3.35 SQLite/MySQL8.0.46, 477 /6,908 each; all source gates pass. [Evidence](evidence/2026-10-18-payments/webhook-qualification.md).
 - Test-only ingress on127.0.0.1:59860 (exec94883) and official tunnel (exec27148) remain for immediate O2.3; loopback UI59861 (exec12845) is stopped. Private state /private/tmp/adzbyte-paymongo-webhook-state.json and private env /private/tmp/adzbyte-paymongo-webhook-qa.env.json; no keys in this document. Saved actual callbacks/QA scripts remain private and must be removed after sandbox closeout.
 - First rejected real test eventevt_q8HBA6ZmirecamrEGPmrPodm / paymentpay_PYHgGkTio373Bm8z9fYGVEcN is now reconciled through O2.3a Admin, with unchanged original rejected receipt and separate immutable resolution. Do not re-create or re-pay either session. Existing/live hooks untouched.
 
