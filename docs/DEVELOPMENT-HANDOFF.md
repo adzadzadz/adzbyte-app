@@ -6,7 +6,9 @@ CI/CD is configured for GitHub-only releases. Restricted main-only environment
 secrets, trusted host pin, forced-command SSH, shared cron locks and disabled
 Hostinger auto-pull are verified. Read-only runner connectivity run 39972909499
 passes. Source `1e5899b` CI 39970852391 passes 678 / 8,930 on both databases; final
-safety followups are `3efb95a` with CI 39972885165. Independent review approves;
+safety followups are `3efb95a`. Final source `7928aa9` passes
+[CI 39973252724](https://github.com/adzadzadz/adzbyte-app/actions/runs/39973252724),
+including 678 / 8,930 per database, all 16 safety tests and audits/build/cache gates. Independent review approves;
 16 deployment safety tests pass locally, including compiled-secret permissions.
 
 The first production code release still needs the owner's explicit `deploy ` or

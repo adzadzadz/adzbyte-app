@@ -160,7 +160,9 @@ encrypted backup, locked fast-forward, Laravel setup and end-to-end health check
 16 deployment safety tests and full local 678 / 8,930 pass. Initial source CI
 39970852391 passes both database suites and all gates. Followup source `3efb95a`
 adds isolated SSH identity, a short locked worker wrapper, read-only connection
-check and compiled-secret permissions; its CI is 39972885165. Independent review
+check and compiled-secret permissions. Final source `7928aa9` passes
+[CI 39973252724](https://github.com/adzadzadz/adzbyte-app/actions/runs/39973252724):
+678 / 8,930 per database, all 16 safety tests, audits/build/cache gates. Independent review
 approves the final implementation. One-time main-only production environment,
 restricted key/pin, locked cron cutover and Hostinger auto-pull-off are configured.
 GitHub-to-Hostinger preflight 39972909499 passes; readiness is `true`. First explicitly

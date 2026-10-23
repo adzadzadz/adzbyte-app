@@ -20,7 +20,7 @@ release under the project's separate release gate.
 - No-dev locked install, forward migrations, caches, worker restart, environment
   hash/permissions preservation, production config/schema/queue validation,
   on-server and runner HTTPS checks including compiled CSS/JS. Public files use
-  ordinary permissions while secrets remain600.
+  ordinary permissions while secrets remain `600`.
 - Failure records and phase metadata, no blind deployment retry, no automatic
   customer-data rollback. Maintenance/availability behavior documented by phase.
 
@@ -47,7 +47,11 @@ release under the project's separate release gate.
   the compiled-secret permission correction, with independent regression proof.
 - Initial source `1e5899b` CI 39970852391 passes both 678 / 8,930 PHP8.3.36 database
   suites, all15 then-current deployment tests, audits, build, cache and formatting.
-  Followup source `3efb95a` CI 39972885165 includes the final 16-test safety suite.
+  Followup CI 39972885165 was superseded by the final documented source.
+- Final source `7928aa9f5e031ea1db7aab52a6d2b7bde8e75141` passes
+  [CI 39973252724](https://github.com/adzadzadz/adzbyte-app/actions/runs/39973252724):
+  **678 tests / 8,930 assertions each SQLite/MySQL**, **16 deployment tests**, PHP/npm
+  audits report no vulnerabilities, formatting/assets/caches all pass. Exit 0.
 
 ## Activation state
 
@@ -68,6 +72,10 @@ release under the project's separate release gate.
   `Protocol 1 ready; current deploy 3bcc292e…`. It performs no code promotion.
 - Readiness variable `HOSTINGER_SSH_AUTOMATION_READY` is `true` only after these checks.
   Dedicated local temporary private-key material is removed after connection proof.
+- Existing compiled production configuration was hardened to `600`; `.env` remains `600`.
+  The final read-only production verifier passes config/schema/queue/permissions.
+  Live health/customer/admin/reset pages return 200, root redirects correctly,
+  environment/log probes return 403, tracked source is clean and HEAD remains `3bcc292e`.
 
 Production remains deploy `3bcc292e59313c27a965510f51a085a06945f8e8`. No code
 release has run for this work. The first full encrypted live backup/deployment
