@@ -1,5 +1,21 @@
 # Customer portal priority — 2026-10-23
 
+## Owner-directed record management extension — 2026-10-24
+
+Keep Filament/Livewire. Administrators manage editable business records through
+authorized forms and recoverably hide/restore business and historical records.
+Payment/provider/audit/version history remains immutable, and financial state
+changes stay in operational workflows. Active cart changes remain in customer
+checkout by the owner's explicit selection. Deletion is separately identified
+from business status and must retain original database rows and lifecycle
+history, including parent recovery and deleted-identity access denial.
+
+Source `9a46720` meets the applicable development gates: both full PHP 8.3.36
+SQLite/MySQL suites pass 723 tests / 9,380 assertions each, along with migration/
+race, independent review and actual desktop/mobile workflow proof. See the
+[implementation and evidence](../evidence/2026-10-24-filament-ux/record-management.md).
+The owner explicitly holds deployment; no existing database migration occurred.
+
 Owner direction: pause ecommerce development; complete the customer portal,
 prioritizing project and service tracking. Include support requests/reports and
 customer–staff conversations. Show ecommerce as **Under development** in

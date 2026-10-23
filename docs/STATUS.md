@@ -1,6 +1,34 @@
 # Project Status
 
-**Last updated:** 2026-10-24 (Filament UX improvements qualified for owner review)
+**Last updated:** 2026-10-24 (Filament UX and recoverable admin CRUD qualified for owner review)
+
+## Recoverable admin CRUD — verified source, deployment on hold
+
+The owner selected editable admin business records, preserved payment/provider/
+audit history, and cart changes in the customer workflow. Administration → Data
+management now covers 30 allowlisted types with Active/Deleted/All filters,
+safe details, confirmed Delete/Restore, parent recovery and lifecycle history.
+Existing admin resources and portal details expose contextual controls; staff
+can create requests and edit their details in side drawers. Original rows and
+business status values remain stored. Deleted identities and stale edits are
+blocked; self/last-super and assigned-role protections include concurrent races.
+
+Source `9a46720` passes [CI 40013619074](https://github.com/adzadzadz/adzbyte-app/actions/runs/40013619074):
+**723 tests / 9,380 assertions independently on SQLite and MySQL 8.0.46,
+PHP 8.3.36**, including populated migration/recovery and independent-process
+contention. Audits report zero vulnerabilities; formatting, clean installs,
+builds, 16 deployment-safety tests and production caches pass. Independent
+review has no unresolved material findings. Actual desktop/320px create/edit,
+Delete/Restore, parent recovery, modal focus and customer-denial checks pass.
+
+One additive metadata migration is included but has not been applied to any
+existing database. The owner explicitly said **do not deploy yet**. No merge,
+deployment, real mail or provider operation occurred. Permanent purge/bulk
+deletion, support email/attachments/automatic refresh/status transitions and
+production latency measurement remain outside this increment. Commerce stays
+paused. [Full CRUD review, limitations and evidence](evidence/2026-10-24-filament-ux/record-management.md).
+
+Next: owner review of the combined [draft PR #1](https://github.com/adzadzadz/adzbyte-app/pull/1).
 
 ## Filament UX improvements — verified source, ready for owner review
 

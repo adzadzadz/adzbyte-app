@@ -1,5 +1,29 @@
 # Development Handoff
 
+## Current record-management checkpoint — 2026-10-24, source qualified
+
+Owner-approved admin CRUD preserves history and keeps cart editing in customer
+checkout. Data management covers 30 types with soft Delete/Restore, parent
+recovery, lifecycle events and authorized Create/Edit destinations. Staff
+request create/details drawers fill the missing support workflows. Original
+rows/business states and financial/provider processing are retained. Deleted
+identities and stale mutations are blocked; role/self/last-super invariants
+are locked and tested under real process contention.
+
+Source `9a46720`, [CI 40013619074](https://github.com/adzadzadz/adzbyte-app/actions/runs/40013619074):
+**723 / 9,380 on each of SQLite and MySQL 8.0.46 / PHP 8.3.36**. Migration
+upgrade/reversal/history guards, races, full regressions, audits, formatting,
+clean builds, safety tests and caches pass. Independent review approves; actual
+1440/320px CRUD/recovery workflows, customer 403 and modal focus pass. Synthetic
+server/tab/database files are cleaned up. [Evidence and missing scope](evidence/2026-10-24-filament-ux/record-management.md).
+
+One additive migration creates deletion metadata/history; it has not run on any
+existing database. Populated history intentionally blocks destructive rollback.
+No purge UI, manual financial-history rewriting, admin cart editing or commerce
+launch is included. The owner explicitly said **do not deploy yet**. Next: owner
+review of combined draft PR #1. Preserve unrelated README/composer Windows setup
+changes and the existing deployment lock; no merge or release command is authorized.
+
 ## Current UI checkpoint — 2026-10-24, source qualified
 
 Owner authorized all reviewed Filament UX batches and React dependency removal.

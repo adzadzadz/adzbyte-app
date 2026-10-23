@@ -1,5 +1,11 @@
 # Filament UX improvement review — 2026-10-24
 
+The subsequent owner-requested [admin CRUD and retained-deletion review](record-management.md)
+extends these batches with Data management, Delete/Restore and support create/edit
+controls. Its schema, scope decisions and newer verification are recorded
+separately below that link. This document retains the original three-batch
+evidence at `229b296`.
+
 The owner approved iterative implementation after the read-only application
 review. Both panels retain Filament 5, Livewire and Laravel services/policies.
 Implementation revision: `229b296dc1872d8116676ca88935f8f4530cc204`, pushed to
