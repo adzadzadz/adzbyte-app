@@ -36,8 +36,9 @@ Native package checkout controllers, models, services, policies, resource, jobs,
 migrations and tests are retained from production. URLs and response envelopes
 remain compatible. Package routes explicitly exclude stateful Sanctum middleware,
 retain dedicated token/proof/raw-signature protection, and bypass the unrelated
-customer API error wrapper. Delivery recovery scheduling remains enabled. Current
-main dependency locks are retained. The full MySQL job now also covers the native
+customer API error wrapper. Delivery recovery scheduling remains enabled. The existing production Composer lock is retained after confirming identical
+root requirements and package set; this preserves the newer installed PHP patches.
+The portal frontend lock retains its Poppins/build dependencies. The full MySQL job now also covers the native
 package tests; a redundant package-only job was removed. OpenAPI adds that legacy
 integration contract without changing existing paths/schemas. Main has no generated
 production build assets.
@@ -46,13 +47,15 @@ production build assets.
 
 Fresh Composer audit (including development packages): zero advisories/abandoned
 packages. Fresh npm audit: zero vulnerabilities across runtime/build dependencies.
-Locked Laravel 13.37.0, Filament 5.10.2, Livewire 4.4.7 and Vite 8.2.4 retained.
+Locked Laravel 13.38.0, Filament 5.10.3, Livewire 4.4.8, CommonMark 2.10.4
+and Vite 8.2.4 retained. The compatible PHP patches match the live production
+lock; nine regenerated Filament files match those packages.
 Official checks:
 
-- Laravel token-guard and relationship advisories patched before installed 13.37:
+- Laravel token-guard and relationship advisories patched before installed 13.38:
   https://github.com/laravel/framework/security/advisories/GHSA-f9x3-7vq9-cph6
   and https://github.com/laravel/framework/security/advisories/GHSA-5wcm-3v2w-8362.
-- Filament tenant-tooltip fix is included in installed 5.10.2:
+- Filament tenant-tooltip fix is included in installed 5.10.3:
   https://github.com/filamentphp/filament/security/advisories/GHSA-9f9v-vm6w-3wx6.
 - Vite custom middleware fix is included in 8.2.4; October 21 v6 issue does not
   affect v8: https://github.com/vitejs/vite/security/advisories/GHSA-9jrq-w75r-8gcw
@@ -94,3 +97,10 @@ Owner separately approved initializing access roles/permissions and creating the
 owner super administrator for adzbite@gmail.com with a secure password setup link.
 No real customer is created by verification. Source CI, final approval and actual
 release results are recorded below when available.
+
+Existing hPanel scheduler and database queue cron run every minute. The inherited
+worker uses --tries=3 --timeout=90; the release will set DB_QUEUE_RETRY_AFTER=180
+so a reserved job cannot be reclaimed before its worker timeout. The owner setup
+script was rehearsed against synthetic local data: creates only a new owner
+identity, queues Filament's admin reset link atomically, and leaves email
+verification required. It rejects an existing identity and never prints tokens.
