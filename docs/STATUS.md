@@ -11,16 +11,19 @@ creation, signed activation invitations and work assignment. Invitations use the
 same-connection database queue and audit/user/job commit together. New customer
 capabilities remain explicit; no staff rights are granted to customers.
 
-Production release [39924287598](https://github.com/adzadzadz/adzbyte-app/actions/runs/39924287598)
-passed and deployed source `bbf1ae5a9f4d` as `230f2cd90d2b` on Hostinger.
-Both PHP 8.3.36 SQLite/MySQL suites pass **662 tests / 8,632 assertions**;
-Node 24.22.1 builds, dependency audits and independent review pass. Post-pull
-completed, all 22 migrations are Ran, and encrypted package records/configuration
-are preserved. Health/login checks and queue processing pass. The separately
-approved owner administrator exists; its secure setup email was processed.
-The owner has now signed in and verified email (read-only confirmation 19:22 PHT). No real customer
-has been created. See [release evidence](evidence/2026-10-23-customer-portal/polish/qualification.md).
-Native public-site package checkout/fulfilment from prior production is retained.
+Latest account lifecycle release [39947378628](https://github.com/adzadzadz/adzbyte-app/actions/runs/39947378628)
+passed and deployed source `a3eeb5a96c80` as `3bcc292e5931` on Hostinger.
+Both PHP 8.3.36 SQLite/MySQL suites pass **677 tests / 8,853 assertions**;
+Node 24.22.1, dependency audits and independent review pass. Both panels now
+queue verification on first prompt entry and scope password recovery before
+creating or consuming reset tokens. Post-pull completed with nothing to migrate;
+all 22 migrations remain Ran. Environment contents, encryption key and existing
+records are preserved; `.env` is mode 600 after restoring permissions reset by
+Hostinger's pull. Health/auth pages, signed-in admin Dashboard and queue health
+pass. The owner has signed in and verified email; no real customer or production
+fixture was created. See [account lifecycle release evidence](evidence/2026-10-23-customer-portal/polish/account-lifecycle-review.md).
+The earlier [portal release](evidence/2026-10-23-customer-portal/polish/qualification.md)
+remains qualified; native public-site package checkout/fulfilment is retained.
 This current release record supersedes historical production statements below.
 
 ## Current Stage
@@ -95,7 +98,7 @@ configuration checks, and an operations/recovery runbook. Commerce development
 now builds on that foundation; remaining domain/adaptor work and its applicable
 decision dependencies are tracked in the roadmap and runbook.
 
-The current PHP 8.3-compatible portal is deployed through the machine-managed `deploy` branch. Customers use `/` and `/login`; administration uses `/admin`.
+The current PHP 8.3-compatible portal is deployed through the machine-managed `deploy ` branch. Customers use `/` and `/login`; administration uses `/admin`.
 
 ## Verified Foundation and Catalog
 
@@ -123,15 +126,57 @@ specified; D02 configurable starter tax/receipt rules are implemented; merchant 
 [development handoff](DEVELOPMENT-HANDOFF.md) preserve the remaining rules and
 resume checkpoint. Frontend integration and production release remain separate.
 
+## Customer onboarding check — 2026-10-23
+
+The combined admin create → assign project/service → real queue worker/isolated
+SMTP receipt → captured invitation link → activation → fresh login → owned pages
+passes **1 test / 77 assertions**. Focused onboarding/activation/ownership tests
+pass **32 / 329**. The owner-approved production QA customer (user 2) and labeled
+sample project/service now exist. Actual invitation receipt in Gmail INBOX is
+confirmed at **21:27:04 PHT**; jobs/failures are zero. Owner activation is now
+confirmed live. The authenticated customer Dashboard, project/service lists and
+both detail pages display the two correct assignments, including after reload.
+The owner completed a fresh password-form sign-in; the resulting customer session
+survives reload and opens both correct detail pages. The live onboarding journey
+is verified end to end; the QA customer remains signed in for manual testing.
+Test-only source `a6a790b` also passes [CI 39960905290](https://github.com/adzadzadz/adzbyte-app/actions/runs/39960905290):
+**678 / 8,930 per database**, PHP 8.3.36 SQLite/MySQL, all gates pass.
+See [onboarding evidence](evidence/2026-10-23-customer-portal/polish/customer-onboarding-check.md).
+
+## Live linked conversation check — 2026-10-23
+
+Owner-authorized QA report submitted from the project stayed inline and retained
+its correct work link. One public admin reply, posted through the shared staff
+action as the existing owner, is visible to the QA customer on both the project
+and Requests & reports; the expanded Requests thread survives reload. One report,
+one public reply, no private notes/duplicates, and correct audit/read state are
+confirmed. No application fix or deployment was needed. See [live conversation evidence](evidence/2026-10-23-customer-portal/polish/linked-report-live-check.md).
+
+## CI/CD automation — configured; first release pending, 2026-10-23
+
+Owner requests releases without repeated hPanel/SSH work. Reviewed main-only
+GitHub release now prepares restricted SSH deployment, request/cron drain,
+encrypted backup, locked fast-forward, Laravel setup and end-to-end health checks.
+16 deployment safety tests and full local 678 / 8,930 pass. Initial source CI
+39970852391 passes both database suites and all gates. Followup source `3efb95a`
+adds isolated SSH identity, a short locked worker wrapper, read-only connection
+check and compiled-secret permissions. Final source `7928aa9` passes
+[CI 39973252724](https://github.com/adzadzadz/adzbyte-app/actions/runs/39973252724):
+678 / 8,930 per database, all 16 safety tests, audits/build/cache gates. Independent review
+approves the final implementation. One-time main-only production environment,
+restricted key/pin, locked cron cutover and Hostinger auto-pull-off are configured.
+GitHub-to-Hostinger preflight 39972909499 passes; readiness is `true`. First explicitly
+authorized code release remains pending. Production remains `3bcc292e`; customer
+data is unchanged. See [CI/CD evidence](evidence/2026-10-23-cicd/qualification.md).
+
 ## Up Next
 
-**Reviewed account-flow release:** source `7caae7d` fixes automatic verification
-notification and cross-panel password-reset token preservation. Independent review,
-full local and PHP 8.3 SQLite/MySQL CI pass (677 / 8,853 each). Publish only after
-a new explicit release/deploy command. The owner has signed in and completed email
-verification; live admin pages work. Next operational use is creating customers
-and assigning their projects/services. Ecommerce O2.3c and dependent commerce work
-stay paused unless the owner explicitly reprioritizes them.
+**Customer onboarding:** account lifecycle fixes are independently reviewed and
+deployed; release 39947378628 passes 677 tests / 8,853 assertions per database.
+The owner has signed in and completed verification, and live admin pages work.
+Next operational use is creating customers and assigning their projects/services.
+Ecommerce O2.3c and dependent commerce work stay paused unless the owner explicitly
+reprioritizes them.
 
 ### Historical commerce checkpoints (paused)
 
@@ -402,7 +447,7 @@ but did not test MySQL. Existing local/production databases remain untouched.
 - GitHub Actions content writes are enabled and the `production` environment exists.
 - CI run 2 passed the full verification workflow after Composer was pinned to a PHP 8.3 resolution platform and Symfony packages were resolved to compatible 7.4 releases.
 - The authorized release workflow run `30860097717` passed and promoted source commit `12ed0c81d235` to deploy commit `eda1d21cc641`.
-- Hostinger pulled the `deploy` branch into `public_html`, installed production dependencies, and reports the deployment completed on PHP 8.3.
+- Hostinger pulled the `deploy ` branch into `public_html`, installed production dependencies, and reports the deployment completed on PHP 8.3.
 - A dedicated production database and mode-`600` `.env` were created without storing credentials in Git. A pre-migration dump is retained outside the web root.
 - A dedicated SSH key is authorized with mode-`600` key-file permissions. Both the Laravel scheduler and stop-when-empty database queue worker are configured in hPanel at `* * * * *` and have produced cron output records.
 - All five production migrations ran, Laravel production caches were built, the manual scheduler and queue checks passed, and both `jobs` and `failed_jobs` were empty after verification.
@@ -506,12 +551,13 @@ Deferred phases still require:
 
 ## Known Issues
 
-- **Account lifecycle review (2026-10-23):** first-entry verification dispatch
-  and cross-panel reset-token preservation are corrected in reviewed source.
-  Local and supported PHP 8.3 SQLite/MySQL [CI 39945788709](https://github.com/adzadzadz/adzbyte-app/actions/runs/39945788709)
-  pass 677 tests / 8,853 assertions per engine; review/audits/build pass. A new
-  authorized release gates production promotion. Live Resend delivered
-  at 19:08 PHT and the owner has completed verification. See [review evidence](evidence/2026-10-23-customer-portal/polish/account-lifecycle-review.md).
+- **Account lifecycle fixes deployed 2026-10-23:** first-entry verification and
+  panel-scoped password recovery are live at `3bcc292e5931`. Full release gates
+  pass 677 tests / 8,853 assertions per engine. Actual verification mail receipt
+  and owner verification are confirmed; queues are healthy. See [review/release evidence](evidence/2026-10-23-customer-portal/polish/account-lifecycle-review.md).
+- Hostinger's automatic pull reset `.env` permissions to 644; this release restored
+  600 and verified contents unchanged. Recheck permissions after future pulls as
+  required by the deployment runbook.
 - **Password reset delivery repaired 2026-10-23:** owner-approved absolute-path
   cron replacements now run every minute. Actual admin form → automatic worker
   → Gmail INBOX receipt verified at 18:58 PHT; zero queued/failed jobs and good
@@ -536,7 +582,7 @@ historical checkpoints and do not describe the current production version.
 - Commit `937fec5` fixes the PHP 8.3 dependency resolution mismatch; GitHub CI run 2 passed.
 - The local super-administrator identity is verified; its password is not stored in the repository.
 - The session-owned development server was stopped.
-- The last recorded production release promoted source commit `12ed0c81d235` to generated `deploy` commit `eda1d21cc641`; current `main` includes later unreleased work. Production state was not rechecked during planning on 2026-10-17.
+- The last recorded production release promoted source commit `12ed0c81d235` to generated `deploy ` commit `eda1d21cc641`; current `main` includes later unreleased work. Production state was not rechecked during planning on 2026-10-17.
 - The first production database, `.env`, SSH path, pre-migration backup, migrations, scheduler cron, and queue cron were created and verified during the authorized release window.
 - Hostinger SMTP is active for `notifications@adzbyte.com`; the protected production `.env` holds the mailbox credential and all temporary credential files were removed after verification.
 - No database seeders ran and no production super-administrator was created.

@@ -74,9 +74,7 @@ is introduced.
   **677 tests / 8,853 assertions per engine**, PHP 8.3.36 SQLite/MySQL, Node
   24.22.1, both jobs successful. The release workflow repeats all gates.
 
-The live resend mitigation is verified. The automatic-send and scoped-reset
-source corrections require a newly authorized release; production remains deploy
-`230f2cd90d2b11ea12a03a00640fe35df66f260b` until that release completes.
+The live resend mitigation and the subsequent production release are verified.
 
 Live authenticated browser review after owner verification: Dashboard, Customers,
 Add customer form, Projects & services, Customer support and Profile all load
@@ -85,3 +83,42 @@ Profile to Dashboard. No production form was submitted other than the requested
 verification resend. Customer mutation/communication journeys remain covered by
 the synthetic browser qualification and the full suite; no production fixtures
 were introduced.
+
+## Completed account lifecycle release — 2026-10-23
+
+- Owner explicitly approved **Deploy the fixes**. One release attempt ran:
+  [39947378628](https://github.com/adzadzadz/adzbyte-app/actions/runs/39947378628),
+  source `a3eeb5a96c800b5acf667d554f0e2eceed6add42`. Its application/test tree
+  matches independently approved `7caae7d`; the intervening commit records proof.
+  All authorization, verification and promotion jobs succeeded. Both full suites
+  pass **677 tests / 8,853 assertions each** on PHP 8.3.36; Node 24.22.1,
+  dependency audits (zero findings), format, metadata, assets and caches pass.
+- Generated deploy `3bcc292e59313c27a965510f51a085a06945f8e8` contains the
+  approved source and CI-built assets, verified with full local ancestry.
+  Hostinger reports **Completed / Current at 19:46 PHT**; SSH HEAD matches.
+- Documented post-pull command exits 0: exact locked no-dev install, **nothing
+  to migrate**, production caches and worker restart complete. All 22 migrations
+  remain Ran; tracked source has no runtime diff. Seven generated untracked
+  Filament font files remain as before.
+- Before/after environment-file and APP_KEY hashes match. Hostinger's pull reset
+  `.env` mode 600 to 644; restored 600 and verified it at 11:49:24 UTC. Existing
+  encrypted contacts decrypt (10 populated fields across five checkout records);
+  owner identity/verification, customer count, existing records, paused commerce
+  flags and native package/bridge flags are preserved. Protected backup remains
+  outside the web root; earlier isolated restore proof remains recorded.
+- Live `/up`, `/login`, `/admin/login`, and both password-reset request pages
+  return 200. Guest dashboards redirect to their panel login. Retired
+  `/account/login` remains 404; `.env` and log paths return 403. Runtime confirms
+  both panels use the custom verification prompt and scoped recovery request.
+- Actual signed-in Chrome production Dashboard loads after release and retains
+  the owner's session. Owner remains verified. No synthetic production account,
+  extra reset email, identity bypass or customer mutation was needed; both
+  unverified-user email journeys are proved through isolated SMTP/queue tests.
+- Scheduler and worker retain absolute Artisan paths and run every minute;
+  actual post-release worker output at **11:50:05 UTC** reports Queue empty,
+  and final queue health/counts are good.
+  A read-only metadata helper initially used an incorrect panel identifier and
+  logged one console diagnostic; corrected to `account`, then completed. No
+  application/request/worker failure was found. Final jobs and failures are zero.
+- Production is verified. Next use is manual customer onboarding. Ecommerce
+  development remains paused; this release changes no payment qualification.

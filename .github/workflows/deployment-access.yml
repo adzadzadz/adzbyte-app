@@ -1,0 +1,35 @@
+name: Check production deployment access
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Verify restricted Hostinger connection
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    environment: production
+    steps:
+      - name: Check pinned SSH access without changing production
+        env:
+          DEPLOY_KEY: ${{ secrets.HOSTINGER_DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          [[ -n "$DEPLOY_KEY" && -n "$KNOWN_HOSTS" ]]
+          umask 077
+          mkdir -p "$RUNNER_TEMP/adzbyte-ssh"
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/adzbyte-ssh/key"
+          printf '%s\n' "$KNOWN_HOSTS" > "$RUNNER_TEMP/adzbyte-ssh/known_hosts"
+          ssh -F /dev/null -i "$RUNNER_TEMP/adzbyte-ssh/key" -p 65002 \
+            -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
+            -o UserKnownHostsFile="$RUNNER_TEMP/adzbyte-ssh/known_hosts" \
+            u463458285@151.106.116.157 preflight
+          echo 'Restricted SSH preflight passed. No code, migrations or customer records changed.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove temporary SSH credentials
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/adzbyte-ssh"
