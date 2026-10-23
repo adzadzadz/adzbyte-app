@@ -136,8 +136,9 @@ sample project/service now exist. Actual invitation receipt in Gmail INBOX is
 confirmed at **21:27:04 PHT**; jobs/failures are zero. Owner activation is now
 confirmed live. The authenticated customer Dashboard, project/service lists and
 both detail pages display the two correct assignments, including after reload.
-A separate fresh password-form sign-in is awaiting direct owner password entry;
-activation-session access and work visibility are verified.
+The owner completed a fresh password-form sign-in; the resulting customer session
+survives reload and opens both correct detail pages. The live onboarding journey
+is verified end to end; the QA customer remains signed in for manual testing.
 Test-only source `a6a790b` also passes [CI 39960905290](https://github.com/adzadzadz/adzbyte-app/actions/runs/39960905290):
 **678 / 8,930 per database**, PHP 8.3.36 SQLite/MySQL, all gates pass.
 See [onboarding evidence](evidence/2026-10-23-customer-portal/polish/customer-onboarding-check.md).

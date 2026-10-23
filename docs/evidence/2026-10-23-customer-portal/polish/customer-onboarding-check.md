@@ -3,8 +3,8 @@
 Owner requested proof that a manually created customer receives an invitation,
 activates, can sign in, and sees assigned projects and services. Existing live
 source remains `a3eeb5a96c80`, deploy `3bcc292e5931`; this follow-up adds test
-coverage only, with no application, schema, mail credentials or production data
-change.
+coverage and the separately approved live QA account/work records. No application,
+schema or mail credential change is required.
 
 ## Combined journey
 
@@ -52,7 +52,7 @@ returns 404, admin access returns 403, and no redundant verification job appears
 The owner explicitly selected **Create QA customer and send invitation**.
 Actual signed-in administrator UI created **QA Portal Test Customer** (user 2)
 for `adzbite+portal-test@gmail.com` at **21:26:26 PHT**. The account has only the
-customer role, zero direct permissions and remains unverified pending activation.
+customer role and zero direct permissions; it was initially unverified pending activation.
 The UI retained customer 2 through Assign project or service. It created:
 
 - **QA SAMPLE — Website Project**, type project, work 1.
@@ -86,9 +86,17 @@ lists only the sample service. Both detail pages display the matching title,
 summary, Not started status, next step and linked requests/reports section.
 Customer screenshots were saved outside Git.
 
-After this successful authenticated check, customer Sign out returned to `/login`.
-The QA email is filled and the owner is asked to enter the password directly in
-Chrome for a fresh login check. Fresh password-form login is pending that manual
-step; activation-session access and work visibility are verified. The isolated
-activation/logout/fresh-login regression already passes; no production password
-was read, set or bypassed. Test records remain clearly labeled as approved.
+Customer Sign out then returned to `/login`. The owner entered the chosen password
+directly in Chrome and submitted Sign in, then reported Done. At **21:57 PHT**,
+the resulting browser session identifies QA Portal Test Customer on the customer
+Dashboard with the verified email. A fresh page reload retains authentication and
+shows **1 project / 1 service** and both expected cards. Opening the project and
+service from this fresh session successfully loads each matching detail page,
+including its title, QA summary, Not started status and next step. Returned to
+Dashboard and saved the fresh-login screenshot outside Git.
+
+The live creation → scheduled invitation → Gmail INBOX → owner activation →
+logout → password-form sign-in → assigned customer work journey is verified.
+No production password was read, set or bypassed by the agent. The QA customer
+remains signed in for manual testing; labeled sample records are retained as
+approved. No additional deployment or application fix was necessary.

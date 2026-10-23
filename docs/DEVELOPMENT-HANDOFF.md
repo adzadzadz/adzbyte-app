@@ -21,15 +21,18 @@
 - Owner has chosen a password, signed in and verified email. Verification and
   reset email receipt are observed in Gmail; actual automatic cron is healthy,
   with zero jobs/failures. Signed-in production Dashboard and manual admin pages
-  load correctly. No production customer or synthetic fixture was created.
+  load correctly. The initial release created no customer; the separately approved
+  QA customer and sample records below were added during onboarding checks.
 - Approved live onboarding QA: customer 2, `adzbite+portal-test@gmail.com`, has
   a clearly labeled sample project and service. Its invitation reached Gmail
   INBOX at 21:27:04 PHT; queues/failures are zero. Owner activation is confirmed
   live; customer session reload, Dashboard (1 project/1 service), both lists and
-  both detail pages pass. Signed out to `/login` to check a fresh password-form
-  sign-in; the owner must enter the password directly in Chrome. The isolated
-  full onboarding journey passes (1 / 77), with focused regressions 32 / 329.
-- Next: finish the fresh sign-in check, then create real customers and assign
+  both detail pages pass. Owner then entered the password directly in Chrome for
+  a fresh login; its session reload and both assigned detail pages pass at
+  21:57 PHT. Live onboarding is verified end to end, and the QA session remains
+  signed in. Isolated proof passes (1 / 77), focused regressions 32 / 329 and
+  supported PHP 8.3 CI 678 / 8,930 per database.
+- Next: create real customers and assign
   projects/services at `/admin`; customer portal is `/`. Local preview remains
   stopped. Outbound support-conversation email/native attachments remain deferred.
 - [Account lifecycle qualification and release](evidence/2026-10-23-customer-portal/polish/account-lifecycle-review.md).
