@@ -8,21 +8,24 @@
 - Ecommerce development remains paused; production screens show Under development
   and reject generic customer commerce writes. Existing public-site native QRPh
   package checkout, webhook and fulfilment recovery remain intact.
-- Source `bbf1ae5a9f4dc6830b9f82ca3625ed7eddd6d531` passes source CI
-  39923664446 and [release 39924287598](https://github.com/adzadzadz/adzbyte-app/actions/runs/39924287598).
-  Independent reviewer approved; 662 tests / 8,632 assertions per engine on
-  PHP 8.3.36 SQLite/MySQL 8.0.46, patched Node 24.22.1, zero dependency findings.
-- Hostinger deploy `230f2cd90d2b11ea12a03a00640fe35df66f260b` completed.
-  Post-pull exited 0, all 22 migrations Ran, key/encrypted records preserved,
-  HTTPS login/health and actual queue notification processing pass. Backup restore
-  proof completed; temporary local production data/key removed.
-- Separately approved owner bootstrap completed and secure admin setup email
-  processed for the owner. No real customer or synthetic production fixtures
-  were created. Next: owner password choice, email verification and manual
-  workflow acceptance at `/admin`; customer portal is `/`.
-- Local preview is stopped after QA. Authenticated production UI acceptance
-  awaits owner activation; local desktop/320px workflow proof uses released code.
-  Outbound support-conversation email/native attachments remain deferred.
+- Account verification/password recovery fixes are reviewed and deployed. Source
+  `a3eeb5a96c800b5acf667d554f0e2eceed6add42` (implementation `7caae7d`) passes
+  [release 39947378628](https://github.com/adzadzadz/adzbyte-app/actions/runs/39947378628):
+  **677 tests / 8,853 assertions per engine**, PHP 8.3.36 SQLite/MySQL,
+  patched Node 24.22.1, zero dependency findings. Both panels automatically queue
+  initial verification and scope reset lookup before token creation/consumption.
+- Hostinger deploy `3bcc292e59313c27a965510f51a085a06945f8e8` is Completed.
+  Post-pull exits 0 with nothing to migrate; all 22 migrations remain Ran.
+  Environment contents, key and existing records are preserved. Hostinger reset
+  `.env` to 644; restored 600. Recheck this after future pulls.
+- Owner has chosen a password, signed in and verified email. Verification and
+  reset email receipt are observed in Gmail; actual automatic cron is healthy,
+  with zero jobs/failures. Signed-in production Dashboard and manual admin pages
+  load correctly. No production customer or synthetic fixture was created.
+- Next: create real customers and assign projects/services at `/admin`; customer
+  portal is `/`. Local preview remains stopped. Outbound support-conversation
+  email/native attachments remain deferred.
+- [Account lifecycle qualification and release](evidence/2026-10-23-customer-portal/polish/account-lifecycle-review.md).
 - [Scope](plans/2026-10-23-customer-portal.md), [API](api/customer-portal.md),
   [release qualification](evidence/2026-10-23-customer-portal/polish/qualification.md).
 

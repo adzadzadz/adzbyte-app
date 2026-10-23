@@ -167,7 +167,10 @@ following without copying secret values into tickets, chat, logs, or Git:
   directory; direct requests for `.env`, storage, source, database dumps, SSH
   keys, and Composer metadata are rejected and rechecked after hosting changes.
 - Database, SMTP, and any provider credentials exist only in the protected
-  server environment. The production `.env` remains mode `600`.
+  server environment. The production `.env` remains mode `600`. Hostinger automatic
+  pulls can reset this mode to `644` (observed 2026-10-23); restore owner-only
+  permissions with `chmod 600 .env` from the deployed root and verify the file
+  contents/key are unchanged before closing the release.
 - Session cookies are secure, HTTP-only, SameSite Lax, and encrypted; the
   database session, cache, and queue tables are migrated.
 - `CACHE_STORE=database` remains enabled while API idempotency uses distributed
