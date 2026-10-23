@@ -9,8 +9,11 @@ use App\Models\WorkItem;
 use App\Services\Portal\PortalRead;
 use App\Support\Filament\HandlesPortalCommands;
 use App\Support\Filament\PortalForms;
+use App\Support\Filament\PortalListFilters;
+use App\Support\Filament\RecordVisibilityActions;
 use App\Support\PortalAccess;
 use App\Support\PortalOptions;
+use App\Support\Records\RecordVisibility;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -24,6 +27,7 @@ use Livewire\Attributes\Url;
 final class ClientWork extends Page
 {
     use HandlesPortalCommands;
+    use PortalListFilters;
 
     protected static ?string $title = 'Projects & services';
 
@@ -35,6 +39,11 @@ final class ClientWork extends Page
 
     protected string $view = 'filament.portal.work';
 
+    protected function queryString(): array
+    {
+        return $this->filterQueryString();
+    }
+
     #[Url]
     public ?int $customer = null;
 
@@ -43,6 +52,9 @@ final class ClientWork extends Page
 
     #[Url]
     public int $page = 1;
+
+    #[Url]
+    public int $listPage = 1;
 
     #[Url]
     public string $search = '';
@@ -77,17 +89,17 @@ final class ClientWork extends Page
         $read = app(PortalRead::class);
 
         return ['staff' => true, 'workType' => null, 'work' => $this->record ? $read->work(auth()->user(), $this->record, true, $this->page) : null,
-            'listing' => $this->record ? null : $read->works(auth()->user(), null, true, $this->page, $this->search)];
+            'listing' => $this->record ? null : $read->works(auth()->user(), null, true, $this->page, $this->search, $this->listFilters())];
     }
 
     protected function getHeaderActions(): array
     {
         $manage = fn (): bool => PortalAccess::staff(auth()->user(), PortalCapability::ManageWork);
         if (! $this->record) {
-            return [Action::make('createWork')->label('Add project or service')->visible($manage)->schema([
+            return [Action::make('createWork')->label('Add project or service')->slideOver()->visible($manage)->schema([
                 Select::make('customer')->label('Customer')->default(fn () => $this->customer)->required()->searchable()
-                    ->getSearchResultsUsing(fn (string $search) => User::role('customer')->where(fn ($q) => $q->where('email', 'like', '%'.addcslashes($search, '%_\\').'%')->orWhere('name', 'like', '%'.addcslashes($search, '%_\\').'%'))->limit(50)->get()->mapWithKeys(fn ($user) => [$user->id => $user->name.' · '.$user->email]))
-                    ->getOptionLabelUsing(fn ($value) => User::role('customer')->find($value)?->email),
+                    ->getSearchResultsUsing(fn (string $search) => RecordVisibility::query(User::role('customer'))->where(fn ($q) => $q->where('email', 'like', '%'.addcslashes($search, '%_\\').'%')->orWhere('name', 'like', '%'.addcslashes($search, '%_\\').'%'))->limit(50)->get()->mapWithKeys(fn ($user) => [$user->id => $user->name.' · '.$user->email]))
+                    ->getOptionLabelUsing(fn ($value) => RecordVisibility::query(User::role('customer'))->find($value)?->email),
                 Select::make('type')->options(PortalOptions::WORK_TYPES)->required()->default('project'), ...PortalForms::work(),
             ])->action(function (array $data): void {
                 $work = $this->runCommand('create', fn ($key) => app(PortalActions::class)->createWork(auth()->user(), $data, $key), 'Work added');
@@ -96,25 +108,35 @@ final class ClientWork extends Page
         }
 
         return [
+            RecordVisibilityActions::delete()->record(fn () => RecordVisibility::query(WorkItem::where('public_id', $this->record), 'all')->firstOrFail())->successRedirectUrl(fn () => self::getUrl()),
             Action::make('editWork')->label('Update details')->visible($manage)->fillForm(fn () => WorkItem::where('public_id', $this->record)->firstOrFail()->only(['title', 'summary', 'status', 'next_step', 'target_date', 'assigned_to']))
-                ->schema(PortalForms::work())->action(fn (array $data) => $this->save('edit', fn ($key) => app(PortalActions::class)->updateWork(auth()->user(), $this->record, ['expected_revision' => $this->expectedRevision, ...$data], $key))),
+                ->slideOver()->schema([...PortalForms::work(), $this->conflictNotice()])->action(fn (array $data) => $this->save('edit', fn ($key) => app(PortalActions::class)->updateWork(auth()->user(), $this->record, ['expected_revision' => $this->expectedRevision, ...$data], $key))),
             Action::make('addMilestone')->label('Add milestone')->visible($manage)->schema([
-                TextInput::make('title')->required()->maxLength(255), DatePicker::make('target_date')->native(), Toggle::make('completed')->default(false),
+                TextInput::make('title')->required()->maxLength(255), DatePicker::make('target_date')->native(), Toggle::make('completed')->default(false), $this->conflictNotice(),
             ])->action(fn (array $data) => $this->save('milestone', fn ($key) => app(PortalActions::class)->milestone(auth()->user(), $this->record, ['expected_revision' => $this->expectedRevision, ...$data], $key))),
-            Action::make('milestone')->label('Update milestone')->visible(fn (): bool => $manage() && WorkItem::where('public_id', $this->record)->firstOrFail()->milestones()->exists())->schema([
-                Select::make('milestone')->required()->options(fn () => WorkItem::where('public_id', $this->record)->firstOrFail()->milestones()->pluck('title', 'public_id'))->live()
-                    ->afterStateUpdated(function ($state, $set): void {
-                        $milestone = WorkItem::where('public_id', $this->record)->firstOrFail()->milestones()->where('public_id', $state)->first();
-                        if ($milestone) {
-                            $set('title', $milestone->title);
-                            $set('target_date', $milestone->target_date?->toDateString());
-                            $set('completed', $milestone->completed_at !== null);
-                        }
-                    }),
-                TextInput::make('title')->required()->maxLength(255), DatePicker::make('target_date')->native(), Toggle::make('completed')->default(false),
-            ])->action(fn (array $data) => $this->save('milestone-edit', fn ($key) => app(PortalActions::class)->milestone(auth()->user(), $this->record, ['expected_revision' => $this->expectedRevision, ...$data], $key))),
+            Action::make('milestone')->label('Update milestone')->visible(fn (): bool => $manage() && WorkItem::where('public_id', $this->record)->firstOrFail()->milestones()->exists())
+                ->fillForm(function (array $arguments): array {
+                    if (empty($arguments['milestone'])) {
+                        return [];
+                    }
+                    $work = app(PortalRead::class)->authorizeWork(auth()->user(), $this->record, true);
+                    $milestone = RecordVisibility::query($work->milestones()->getQuery())->where('public_id', $arguments['milestone'])->firstOrFail();
+
+                    return ['milestone' => $milestone->public_id, 'title' => $milestone->title, 'target_date' => $milestone->target_date?->toDateString(), 'completed' => $milestone->completed_at !== null];
+                })->schema([
+                    Select::make('milestone')->required()->options(fn () => RecordVisibility::query(WorkItem::where('public_id', $this->record)->firstOrFail()->milestones()->getQuery())->pluck('title', 'public_id'))->live()
+                        ->afterStateUpdated(function ($state, $set): void {
+                            $milestone = WorkItem::where('public_id', $this->record)->firstOrFail()->milestones()->where('public_id', $state)->first();
+                            if ($milestone) {
+                                $set('title', $milestone->title);
+                                $set('target_date', $milestone->target_date?->toDateString());
+                                $set('completed', $milestone->completed_at !== null);
+                            }
+                        }),
+                    $this->conflictNotice(), TextInput::make('title')->required()->maxLength(255), DatePicker::make('target_date')->native(), Toggle::make('completed')->default(false),
+                ])->action(fn (array $data) => $this->save('milestone-edit', fn ($key) => app(PortalActions::class)->milestone(auth()->user(), $this->record, ['expected_revision' => $this->expectedRevision, ...$data], $key))),
             Action::make('publishUpdate')->label('Post customer update')->visible($manage)->schema([
-                Textarea::make('body')->label('Update visible to the customer')->required()->rows(5)->maxLength(10000)
+                $this->conflictNotice(), Textarea::make('body')->label('Update visible to the customer')->required()->rows(5)->maxLength(10000)
                     ->helperText('You can include a Google Drive file or folder link shared with this customer.'),
             ])->action(fn (array $data) => $this->save('publish', fn ($key) => app(PortalActions::class)->publishUpdate(auth()->user(), $this->record, ['expected_revision' => $this->expectedRevision, ...$data], $key))),
         ];
@@ -124,5 +146,16 @@ final class ClientWork extends Page
     {
         $work = $this->runCommand($command, $action, 'Work updated');
         $this->expectedRevision = $work->revision;
+    }
+
+    protected function conflictRecord(): array
+    {
+        $work = app(PortalRead::class)->work(auth()->user(), $this->record, true);
+
+        return ['revision' => $work['revision'], 'title' => $work['title'], 'status' => $work['status'],
+            'details' => ['Summary' => $work['summary'], 'Next step' => $work['next_step'] ?? '',
+                'Target date' => $work['target_date'] ?? '', 'Assigned staff' => $work['assigned_to'] ?? 'Unassigned',
+                'Milestones' => collect($work['milestones'])->map(fn ($m) => $m['title'].' · '.($m['completed_at'] ? 'Completed' : 'Upcoming').' · Target: '.($m['target_date'] ?? 'Not set').' · '.$m['public_id'])->implode("\n"),
+                'Latest published update' => $work['updates'][0]['body'] ?? 'No updates yet']];
     }
 }

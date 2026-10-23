@@ -1,1 +1,1 @@
-<p class="text-center text-sm text-gray-400">New to Adzbyte? <a href="{{ route('registration.show') }}" class="font-medium text-primary-400 underline">Create your account</a></p>
+<p class="adz-auth-registration">New to Adzbyte? <a href="{{ route('registration.show') }}">Create your account <span aria-hidden="true">&rarr;</span></a></p>

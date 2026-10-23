@@ -8,6 +8,7 @@ use App\Models\PortalEvent;
 use App\Models\User;
 use App\Notifications\CustomerAccountActivation;
 use App\Support\PortalAccess;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -50,12 +51,13 @@ final class ManagePortalCustomer
 
     public static function query(): Builder
     {
-        return User::role('customer')->whereDoesntHave('roles', fn ($q) => $q->where('name', '!=', 'customer'))->whereDoesntHave('permissions');
+        return RecordVisibility::query(User::role('customer'))->whereDoesntHave('roles', fn ($q) => $q->where('name', '!=', 'customer'))->whereDoesntHave('permissions');
     }
 
     private function authorize(User $actor): void
     {
         $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+        RecordVisibility::assertVisible($fresh);
         abort_unless(PortalAccess::staff($fresh, PortalCapability::ViewCustomers) && PortalAccess::staff($fresh, PortalCapability::ManageCustomers), 403);
     }
 

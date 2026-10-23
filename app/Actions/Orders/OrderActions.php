@@ -19,6 +19,7 @@ use App\Services\Orders\OrderAggregate;
 use App\Services\Orders\OrderLifecycle;
 use App\Services\Orders\OrderTotals;
 use App\Support\Database\RetryingTransaction;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -101,7 +102,7 @@ final class OrderActions
             $customer = $this->customer($actor);
             // Match review commands: policy before order/revision locks.
             app(CommercePolicyActions::class)->current();
-            $order = Order::where('user_id', $customer->id)->where('public_id', $reference)->lockForUpdate()->firstOrFail();
+            $order = RecordVisibility::scope(Order::where('user_id', $customer->id))->where('public_id', $reference)->lockForUpdate()->firstOrFail();
             Gate::forUser($customer)->authorize('view', $order);
 
             return $this->hydrate($order);
@@ -115,13 +116,14 @@ final class OrderActions
         return RetryingTransaction::run(function () use ($actor, $perPage, $page) {
             $customer = $this->customer($actor);
 
-            return Order::where('user_id', $customer->id)->with('currentRevision')->orderByDesc('id')->paginate($perPage, ['*'], 'page', $page);
+            return RecordVisibility::scope(Order::where('user_id', $customer->id))->with('currentRevision')->orderByDesc('id')->paginate($perPage, ['*'], 'page', $page);
         });
     }
 
     private function customer(User $actor): User
     {
         $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+        RecordVisibility::assertVisible($fresh);
         abort_unless($fresh->hasVerifiedEmail() && $fresh->hasRole(UserRole::Customer->value), 403);
 
         return $fresh;

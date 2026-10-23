@@ -11,6 +11,7 @@ use App\Models\ProductPrice;
 use App\Models\ProductTerms;
 use App\Models\User;
 use App\Support\Database\RetryingTransaction;
+use App\Support\Records\RecordVisibility;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -140,7 +141,12 @@ final class CatalogActions
 
         try {
             return RetryingTransaction::run(function () use ($actor, $product, $action, $operationId, $hash, $write): Model {
+                $actor = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+                RecordVisibility::assertVisible($actor);
                 $locked = $product === null ? null : Product::query()->lockForUpdate()->findOrFail($product->getKey());
+                if ($locked) {
+                    RecordVisibility::assertVisible($locked);
+                }
                 Gate::forUser($actor)->authorize($action, $locked ?? Product::class);
                 // A locking read sees the latest receipt even on MySQL repeatable-read.
                 $receipt = $this->receipt($actor, $operationId, true);

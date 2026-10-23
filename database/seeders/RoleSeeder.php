@@ -16,6 +16,7 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
+        Permission::findOrCreate('Manage:DataRecords', 'web');
         foreach (UserRole::cases() as $role) {
             Role::findOrCreate($role->value, 'web');
         }

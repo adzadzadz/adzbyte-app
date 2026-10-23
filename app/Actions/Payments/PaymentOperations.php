@@ -15,6 +15,7 @@ use App\Policies\PaymentAttemptPolicy;
 use App\Services\Orders\CanonicalValue;
 use App\Services\Payments\PayMongoClient;
 use App\Support\Database\RetryingTransaction;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -26,16 +27,16 @@ final class PaymentOperations
 
         return RetryingTransaction::run(function () use ($actor, $reference, $page): array {
             [$fresh, $order, $attempt] = $this->context($actor, $reference);
-            $events = PaymentEvent::where('payment_attempt_id', $attempt->id)->orderByDesc('id')
+            $events = RecordVisibility::scope(PaymentEvent::where('payment_attempt_id', $attempt->id))->orderByDesc('id')
                 ->paginate(20, ['provider_event_id', 'type', 'state', 'reason', 'processed_at'], 'event_page', $page);
 
             return ['attempt' => $attempt->only(['public_id', 'state', 'amount_minor', 'currency', 'livemode', 'provider_session_id', 'failure_code', 'created_at']),
                 'order' => $order->only(['public_id', 'revision', 'status', 'payment_status']),
                 'events' => $events,
-                'settlement' => PaymentSettlement::where('payment_attempt_id', $attempt->id)->first()?->only(['public_id', 'provider_payment_id', 'amount_minor', 'currency', 'paid_at']),
-                'resolutions' => PaymentResolution::where('payment_attempt_id', $attempt->id)->orderByDesc('id')->limit(20)
+                'settlement' => RecordVisibility::scope(PaymentSettlement::where('payment_attempt_id', $attempt->id))->first()?->only(['public_id', 'provider_payment_id', 'amount_minor', 'currency', 'paid_at']),
+                'resolutions' => RecordVisibility::scope(PaymentResolution::where('payment_attempt_id', $attempt->id))->orderByDesc('id')->limit(20)
                     ->get(['public_id', 'original_state', 'original_reason', 'note', 'actor_id', 'created_at']),
-                'controls' => PaymentControl::where('payment_attempt_id', $attempt->id)->with('target:id,public_id')->orderByDesc('id')->limit(20)->get(),
+                'controls' => RecordVisibility::scope(PaymentControl::where('payment_attempt_id', $attempt->id))->with('target:id,public_id')->orderByDesc('id')->limit(20)->get(),
                 'can_expire' => app(PaymentAttemptPolicy::class)->expire($fresh, $attempt) && $order->status === 'open' && $order->payment_status === 'pending'
                     && $order->payment_attempt_id === $attempt->id && $attempt->provider_session_id !== null && in_array($attempt->state, ['active', 'unknown', 'closing'], true),
                 'can_recover' => app(PaymentAttemptPolicy::class)->recover($fresh, $attempt) && $order->status === 'open' && $order->payment_status === 'pending'
@@ -118,6 +119,7 @@ final class PaymentOperations
     private function context(User $actor, string $reference, bool $reconcile = false): array
     {
         $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+        RecordVisibility::assertVisible($fresh);
         $candidate = PaymentAttempt::where('public_id', $reference)->firstOrFail();
         $policy = app(PaymentAttemptPolicy::class);
         abort_unless($reconcile ? $policy->reconcile($fresh, $candidate) : $policy->inspect($fresh, $candidate), 403);

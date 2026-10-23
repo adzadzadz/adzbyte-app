@@ -12,6 +12,9 @@ use App\Filament\Resources\Products\RelationManagers\TermsRelationManager;
 use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Models\Product;
 use App\Support\Filament\CatalogInput;
+use App\Support\Filament\HasLockedCommerceNavigation;
+use App\Support\Filament\RecordVisibilityActions;
+use App\Support\Records\RecordVisibility;
 use BackedEnum;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\TextEntry;
@@ -24,10 +27,14 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 final class ProductResource extends Resource
 {
+    use HasLockedCommerceNavigation;
+
     protected static ?string $model = Product::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
@@ -35,6 +42,16 @@ final class ProductResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Commerce';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return RecordVisibility::query(parent::getEloquentQuery(), 'all');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return ! RecordVisibility::isDeleted($record) && parent::canEdit($record);
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -64,15 +81,16 @@ final class ProductResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->columns([
+            RecordVisibilityActions::column(),
             TextColumn::make('name')->placeholder('Untitled draft')->searchable()->sortable()->wrap(),
             TextColumn::make('status')->badge()->sortable(),
             IconColumn::make('is_available')->label('Available')->boolean(),
             TextColumn::make('currentPrice.amount_minor')->label('Price')->getStateUsing(fn (Product $record): string => CatalogInput::formattedPrice($record->currentPrice?->amount_minor)),
             TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(),
-        ])->filters([
+        ])->filters([RecordVisibilityActions::filter(),
             SelectFilter::make('status')->options(['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived']),
             TernaryFilter::make('is_available')->label('Availability'),
-        ])->recordActions([ViewAction::make()])->defaultSort('id', 'desc')
+        ])->recordActions([RecordVisibilityActions::delete(), RecordVisibilityActions::restore(), ViewAction::make()])->defaultSort('id', 'desc')
             ->recordUrl(fn (Product $record): ?string => self::canView($record) ? self::getUrl('view', ['record' => $record]) : null)
             ->emptyStateHeading('No products yet')->emptyStateDescription('Create a draft when service details are ready.');
     }

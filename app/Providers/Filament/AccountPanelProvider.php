@@ -5,7 +5,9 @@ namespace App\Providers\Filament;
 use App\Filament\Auth\EmailVerificationPrompt;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
+use App\Http\Middleware\RejectDeletedWebIdentity;
 use App\Support\Filament\AdzbytePanel;
+use App\Support\Filament\CommerceNavigation;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -34,8 +36,8 @@ class AccountPanelProvider extends PanelProvider
             ->emailChangeVerification()
             ->profile()
             ->navigationItems([
-                NavigationItem::make('Orders')->url(fn () => route('orders.index'))->icon('heroicon-o-document-text')->group('Ecommerce · Under development')->sort(12),
-                NavigationItem::make('Cart')->url(fn () => route('cart.show'))->icon('heroicon-o-shopping-cart')->group('Ecommerce · Under development')->sort(11),
+                CommerceNavigation::lock(NavigationItem::make('Orders')->url(fn () => route('orders.index'))->icon('heroicon-o-document-text')->group('Ecommerce · Under development')->sort(12)),
+                CommerceNavigation::lock(NavigationItem::make('Cart')->url(fn () => route('cart.show'))->icon('heroicon-o-shopping-cart')->group('Ecommerce · Under development')->sort(11)),
                 NavigationItem::make('Profile & security')->url(fn () => filament()->getProfileUrl())->icon('heroicon-o-user-circle')->sort(5),
             ])
             ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => view('auth.registration-link'))
@@ -48,6 +50,7 @@ class AccountPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
+                RejectDeletedWebIdentity::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 PreventRequestForgery::class,

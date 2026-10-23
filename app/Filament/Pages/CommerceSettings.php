@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Actions\Orders\CommercePolicyActions;
 use App\Enums\UserRole;
 use App\Services\Orders\CommerceRules;
+use App\Support\Filament\HasLockedCommerceNavigation;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -19,6 +20,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class CommerceSettings extends Page
 {
+    use HasLockedCommerceNavigation;
+
     protected string $view = 'filament.pages.commerce-settings';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Commerce';

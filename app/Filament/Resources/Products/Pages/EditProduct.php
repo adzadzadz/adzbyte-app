@@ -7,6 +7,7 @@ use App\Filament\Resources\Products\ProductResource;
 use App\Models\Product;
 use App\Models\User;
 use App\Support\Filament\CatalogInput;
+use App\Support\Records\RecordVisibility;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
@@ -38,6 +39,7 @@ final class EditProduct extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
+        abort_if(RecordVisibility::isDeleted($record->fresh()), 403);
         $actor = auth()->user();
         abort_unless($actor instanceof User && $record instanceof Product, 403);
         try {

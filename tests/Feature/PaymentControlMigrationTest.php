@@ -24,6 +24,7 @@ class PaymentControlMigrationTest extends TestCase
         $this->setUpCatalogDatabase(migrate: false);
         $paths = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($path) => basename($path) < '2026_10_18_120000_create_payment_controls.php'));
         $this->artisan('migrate', ['--path' => $paths, '--realpath' => true, '--force' => true])->assertSuccessful();
+        $this->installVisibilitySchemaForLegacyFixture();
         $legacy = CommerceRules::defaults();
         unset($legacy['payment']);
         $policy = (new CommercePolicyVersion)->forceFill(['version' => 1, 'operation_id' => (string) Str::uuid(), 'content' => $legacy]);

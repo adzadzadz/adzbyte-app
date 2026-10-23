@@ -9,8 +9,8 @@ use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\Payments\PaymentResource;
 use App\Filament\Resources\ProductCategories\ProductCategoryResource;
 use App\Filament\Resources\Products\ProductResource;
+use App\Filament\Resources\Roles\RoleResource;
 use App\Filament\Resources\Users\UserResource;
-use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -278,6 +278,7 @@ return [
     */
 
     'custom_permissions' => [
+        'Manage:DataRecords' => 'Read all business records and manage soft deletion / restoration',
         'Manage:CommerceSettings' => 'Manage commerce settings',
         'View:PortalCustomer' => 'View portal customers',
         'Manage:PortalCustomer' => 'Create customers and send activation invitations',

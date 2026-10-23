@@ -30,6 +30,7 @@ class OrderNotificationMigrationTest extends TestCase
         $this->setUpCatalogDatabase(migrate: false);
         $paths = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($path) => basename($path) < '2026_10_18_080000_create_order_notification_deliveries.php'));
         $this->artisan('migrate', ['--path' => $paths, '--realpath' => true, '--force' => true])->assertSuccessful();
+        $this->installVisibilitySchemaForLegacyFixture();
         $this->seed(RoleSeeder::class);
         config(['queue.default' => 'database']);
     }

@@ -35,6 +35,7 @@ class CartHandoffMigrationTest extends TestCase
     {
         $paths = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($path) => basename($path) < '2026_10_18_040000_create_cart_handoffs.php'));
         $this->artisan('migrate', ['--path' => $paths, '--realpath' => true, '--force' => true])->assertSuccessful();
+        $this->installVisibilitySchemaForLegacyFixture();
         $service = User::factory()->create();
         $issuer = $service->createToken('storefront:upgrade', StorefrontCredential::abilities())->accessToken;
         $category = ProductCategory::create(['name' => 'Synthetic retained category', 'limit_one_per_cart' => true]);

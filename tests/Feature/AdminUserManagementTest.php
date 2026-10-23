@@ -227,7 +227,7 @@ class AdminUserManagementTest extends TestCase
             ->get('/admin/users/create')
             ->assertNotFound();
 
-        $this->assertSame(['index', 'edit'], array_keys(UserResource::getPages()));
+        $this->assertSame(['index', 'view', 'edit'], array_keys(UserResource::getPages()));
     }
 
     public function test_shield_discovers_only_the_intended_user_resource_permissions(): void
@@ -261,10 +261,15 @@ class AdminUserManagementTest extends TestCase
 
         $customRole = Role::create(['name' => 'temporary_operator', 'guard_name' => 'web']);
         $customRole->update(['name' => 'renamed_operator']);
-        $customRole->delete();
+        try {
+            $customRole->delete();
+            $this->fail('Hard deletion should use the retained-record control instead.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('name', $exception->errors());
+        }
 
         $this->assertDatabaseHas('roles', ['name' => UserRole::Customer->value]);
-        $this->assertDatabaseMissing('roles', ['name' => 'renamed_operator']);
+        $this->assertDatabaseHas('roles', ['name' => 'renamed_operator']);
     }
 
     /**

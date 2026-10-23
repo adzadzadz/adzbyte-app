@@ -3,6 +3,7 @@
 namespace App\Services\Catalog;
 
 use App\Models\Product;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -34,7 +35,7 @@ final class PublicCatalog
 
     private function query(): Builder
     {
-        return Product::query()->published()->with(['currentPrice', 'currentTerms', 'category']);
+        return RecordVisibility::scope(Product::query())->published()->with(['currentPrice', 'currentTerms', 'category']);
     }
 
     private function available(Builder $query): void

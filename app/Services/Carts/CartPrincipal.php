@@ -7,6 +7,7 @@ namespace App\Services\Carts;
 use App\Enums\UserRole;
 use App\Models\Cart;
 use App\Models\User;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 
@@ -50,7 +51,10 @@ final readonly class CartPrincipal
 
     public function assertValid(): void
     {
-        abort_if($this->user !== null && ! ($this->user->fresh()?->hasRole(UserRole::Customer->value) ?? false), 403);
+        if ($this->user !== null) {
+            $fresh = $this->user->fresh();
+            abort_unless($fresh && $fresh->hasRole(UserRole::Customer->value) && ! RecordVisibility::isDeleted($fresh), 403);
+        }
     }
 
     public function scope(Builder $query): Builder

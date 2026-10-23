@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Schemas;
 use App\Enums\UserRole;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Records\RecordVisibility;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -35,7 +36,7 @@ final class UserForm
                     ->description('Only a super administrator can change role assignments.')
                     ->schema([
                         Select::make('roles')
-                            ->options(fn (): array => Role::query()
+                            ->options(fn (): array => RecordVisibility::query(Role::query())
                                 ->where('guard_name', 'web')
                                 ->orderBy('name')
                                 ->pluck('name', 'name')
@@ -45,6 +46,9 @@ final class UserForm
                             ->searchable()
                             ->preload()
                             ->required()
+                            ->helperText(fn (?User $record): string => $record !== null && auth()->user()?->is($record)
+                                ? 'You cannot change your own roles. Ask another super administrator to update your access.'
+                                : 'Role changes require a super administrator and apply to this user’s access across the app.')
                             ->disabled(function (?User $record): bool {
                                 $actor = auth()->user();
 

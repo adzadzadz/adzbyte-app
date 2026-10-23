@@ -78,8 +78,8 @@ class PaymentOperationsTransportTest extends TestCase
             usleep(1000);
         } while (microtime(true) < $deadline);
         $consumer = new Process(['node', base_path('tests/Support/payment-operations-consumer.mjs'), $origin], base_path(), ['CHECKOUT_HTTP_COOKIE' => $cookie, 'CHECKOUT_HTTP_OTHER_COOKIE' => $otherCookie, 'PAYMENT_HTTP_REFERENCE' => $this->attempt->public_id, 'PAYMENT_HTTP_EVENT' => $event->provider_event_id, 'PAYMENT_HTTP_OTHER_CSRF' => 'payment-other-csrf']);
-        $consumer->setTimeout(40);
-        $consumer->run();
+        $consumer->setTimeout(PHP_OS_FAMILY === 'Windows' ? 180 : 40);
+        $this->runHttpConsumer($consumer);
         $this->assertTrue($consumer->isSuccessful(), $consumer->getErrorOutput().$consumer->getOutput().$this->server->getErrorOutput());
         $this->assertTrue(json_decode($consumer->getOutput(), true, flags: JSON_THROW_ON_ERROR)['passed']);
         $this->assertDatabaseCount('orders', 1);

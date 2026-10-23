@@ -65,8 +65,8 @@ class CustomerPortalTransportTest extends TestCase
             usleep(1000);
         } while (microtime(true) < $deadline);
         $consumer = new Process(['node', base_path('tests/Support/Portal/consumer.mjs'), $origin], base_path(), ['CHECKOUT_HTTP_COOKIE' => $cookie, 'CHECKOUT_HTTP_OTHER_COOKIE' => $otherCookie, 'PORTAL_WORK_REFERENCE' => $work->public_id]);
-        $consumer->setTimeout(40);
-        $consumer->run();
+        $consumer->setTimeout(PHP_OS_FAMILY === 'Windows' ? 180 : 40);
+        $this->runHttpConsumer($consumer);
         $this->assertTrue($consumer->isSuccessful(), $consumer->getErrorOutput().$consumer->getOutput().$this->server->getErrorOutput());
         $this->assertTrue(json_decode($consumer->getOutput(), true, flags: JSON_THROW_ON_ERROR)['passed']);
         $this->assertDatabaseCount('support_cases', 1);

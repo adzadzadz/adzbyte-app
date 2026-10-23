@@ -12,7 +12,10 @@ const schemas = api.components.schemas;
 const home = await fetch(origin+'/', {headers:{Cookie:cookie}});
 assert.equal(home.status,200);
 const html = await home.text();
-const otherHtml = await (await fetch(origin+'/', {headers:{Cookie:other}})).text();
+const otherHome = await fetch(origin+'/', {headers:{Cookie:other}});
+assert.equal(otherHome.status, 200, 'Second customer dashboard must render successfully');
+const otherHtml = await otherHome.text();
+assert.match(otherHtml, /name="csrf-token" content="([^"]+)"/, 'Second customer dashboard must provide its session CSRF token');
 const otherCsrf = otherHtml.match(/name="csrf-token" content="([^"]+)"/)[1];
 const csrf = html.match(/name="csrf-token" content="([^"]+)"/)[1];
 async function call(method,path,body,status,schema,extra={}) {

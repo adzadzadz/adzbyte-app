@@ -4,9 +4,34 @@ namespace Tests\Support;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Symfony\Component\Process\Process;
 
 trait UsesIsolatedCatalogDatabase
 {
+    private function installVisibilitySchemaForLegacyFixture(): void
+    {
+        // These tests exercise an older module's exact upgrade/rollback using
+        // today's services. Install their independent authorization metadata
+        // without registering a later migration batch or changing that target.
+        $migration = require database_path('migrations/2026_10_24_000000_create_record_deletions.php');
+        $migration->up();
+    }
+
+    private function runHttpConsumer(Process $consumer): void
+    {
+        $consumer->start();
+        while ($consumer->isRunning()) {
+            // Drain both children. On Windows a full server log pipe otherwise
+            // blocks HTTP responses while the parent waits for the consumer.
+            if (isset($this->server) && $this->server instanceof Process) {
+                $this->server->getIncrementalOutput();
+                $this->server->getIncrementalErrorOutput();
+            }
+            $consumer->checkTimeout();
+            usleep(1000);
+        }
+    }
+
     private string $database;
 
     private string $temporary;
@@ -19,7 +44,14 @@ trait UsesIsolatedCatalogDatabase
 
     private function setUpCatalogDatabase(bool $migrate = true): void
     {
-        $this->temporary = tempnam(sys_get_temp_dir(), 'catalog-concurrency-');
+        // Windows truncates tempnam() prefixes to three characters. Keep the
+        // explicit prefix required by the independent HTTP target guards.
+        $this->temporary = sys_get_temp_dir().DIRECTORY_SEPARATOR.'catalog-concurrency-'.Str::uuid();
+        $temporaryFile = fopen($this->temporary, 'x');
+        if ($temporaryFile === false) {
+            throw new \RuntimeException('Could not create the isolated test database file.');
+        }
+        fclose($temporaryFile);
         $this->originalConnection = DB::getDefaultConnection();
         $this->mysql = DB::connection()->getDriverName() === 'mysql';
         if ($this->mysql) {

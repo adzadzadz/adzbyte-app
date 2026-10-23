@@ -3,11 +3,14 @@
 namespace App\Filament\Account\Pages;
 
 use App\Services\Portal\PortalRead;
+use App\Support\Filament\PortalListFilters;
 use Filament\Pages\Page;
 use Livewire\Attributes\Url;
 
 class Projects extends Page
 {
+    use PortalListFilters;
+
     protected static ?string $navigationLabel = 'Projects';
 
     protected static ?int $navigationSort = 1;
@@ -18,11 +21,19 @@ class Projects extends Page
 
     protected string $workType = 'project';
 
+    protected function queryString(): array
+    {
+        return $this->filterQueryString();
+    }
+
     #[Url]
     public ?string $record = null;
 
     #[Url]
     public int $page = 1;
+
+    #[Url]
+    public int $listPage = 1;
 
     #[Url]
     public string $search = '';
@@ -50,6 +61,6 @@ class Projects extends Page
 
         return ['staff' => false, 'workType' => $this->workType,
             'work' => $this->record ? $read->work(auth()->user(), $this->record, false, $this->page) : null,
-            'listing' => $this->record ? null : $read->works(auth()->user(), $this->workType, false, $this->page, $this->search)];
+            'listing' => $this->record ? null : $read->works(auth()->user(), $this->workType, false, $this->page, $this->search, $this->listFilters())];
     }
 }

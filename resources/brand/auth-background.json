@@ -1,0 +1,34 @@
+{
+    "name": "Purple Desert",
+    "provider": "GetLayers",
+    "source_url": "https://www.getlayers.ai/layer/purple-desert",
+    "downloaded_on": "2026-10-24",
+    "license": {
+        "usage": "Commercial use in products and client projects; attribution not required",
+        "evidence": "Free asset detail and the download/client-work FAQ on the source page, checked 2026-10-24"
+    },
+    "purpose": "Guest Filament sign-in and password recovery background; self-hosted with no third-party runtime request",
+    "playback": "Desktop only; respects reduced motion and data saving, with pause/play control and static poster fallback",
+    "assets": [
+        {
+            "source_file": "purple-desert.jpg",
+            "source_sha256": "0400fca224f41c30e1409837a17a15e206db1dfe0404767daafe4210ee04e668",
+            "destination": "public/media/auth/purple-desert.webp",
+            "dimensions": "1920x1434",
+            "bytes": 48306,
+            "sha256": "ccd1b42877891cd54108c869618ccb0a49558e82ab237dc31976abfe4b346eed",
+            "processing": "Resized poster; WebP quality 83, method 6",
+            "alternative_text": "Decorative; hidden from assistive technology"
+        },
+        {
+            "source_file": "purple-desert.mp4",
+            "source_sha256": "5f0da82a05bae34d43f30f9bf8e3f1be9d972167cfc8ead99e279fd5df4c7135",
+            "destination": "public/media/auth/purple-desert.mp4",
+            "dimensions": "1440x1078",
+            "bytes": 1021946,
+            "sha256": "fcfed647a13761ab9acea106537e31c8efe028a38e915cfc57b93befb001853b",
+            "processing": "H.264, 24 fps, CRF 27, yuv420p, faststart; audio and source metadata removed",
+            "alternative_text": "Decorative; hidden from assistive technology"
+        }
+    ]
+}
