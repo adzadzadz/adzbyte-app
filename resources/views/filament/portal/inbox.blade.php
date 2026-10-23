@@ -10,7 +10,7 @@
                 @if ($case && $record === $item['public_id'])<div id="conversation-{{ $item['public_id'] }}" class="adz-portal-expanded">@include('filament.portal.conversation')</div>@endif
             </article>
         @empty
-            <section class="adz-portal-card"><h3 class="adz-portal-title">{{ $search ? 'No matching conversations' : 'No requests or reports yet' }}</h3><p class="adz-portal-muted">{{ $search ? 'Clear your search to see all conversations.' : 'Start a request or report when you need help. Replies and updates will stay together here.' }}</p></section>
+            <section class="adz-portal-card"><h3 class="adz-portal-title">{{ $search ? 'No matching conversations' : 'No requests or reports yet' }}</h3><p class="adz-portal-muted">{{ $search ? 'Clear your search to see all conversations.' : ($staff ? 'Customer requests and reports will appear here.' : 'Start a request or report when you need help. Replies and updates will stay together here.') }}</p></section>
         @endforelse
     </div>
     @if ($case && ! collect($listing['items'])->contains('public_id', $case['public_id']))<div class="adz-portal-expanded">@include('filament.portal.conversation')</div>@endif

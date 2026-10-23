@@ -76,7 +76,7 @@ class PublicRegistrationTransportTest extends TestCase
         $this->assertFileExists($messageFile);
         $mail = quoted_printable_decode(file_get_contents($messageFile));
         $this->assertStringContainsString('transport@example.test', $mail);
-        $this->assertStringContainsString('Activate your Adzbyte account', $mail);
+        $this->assertStringContainsString('Activate your Adzbyte Solutions account', $mail);
         $this->assertStringNotContainsString('untrusted.example', $mail);
         $this->assertStringNotContainsString('<script>', $mail);
         $this->assertSame(1, preg_match('~https://app\.example\.test/activate-account/[^\s<>"\']+~', $mail, $matches));

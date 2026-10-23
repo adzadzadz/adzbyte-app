@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsureCustomerApiAccess;
 use App\Http\Middleware\EnsureIdempotentApiRequest;
 use App\Http\Middleware\EnsureStorefrontToken;
 use App\Http\Responses\ApiErrorResponse;
+use App\Http\Responses\PackageCheckoutErrors;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -31,12 +32,16 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (Throwable $exception, Request $request) {
+            return PackageCheckoutErrors::matches($request) ? PackageCheckoutErrors::render($exception) : null;
+        });
+        $exceptions->dontReportWhen(fn (Throwable $exception) => PackageCheckoutErrors::matches(request()));
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
 
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request): Response {
-            if (! $request->is('api/*')) {
+            if (! $request->is('api/*') || PackageCheckoutErrors::matches($request)) {
                 return $response;
             }
 

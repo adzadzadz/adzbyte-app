@@ -8,6 +8,9 @@
                 <x-portal-text :text="$work['summary']" />
                 <dl class="adz-portal-facts"><div><dt>Target date</dt><dd>{{ $work['target_date'] ? \Illuminate\Support\Carbon::parse($work['target_date'])->format('M j, Y') : 'To be confirmed' }}</dd></div><div><dt>Your contact</dt><dd>{{ $work['assigned_to'] ?? 'Adzbyte Solutions team' }}</dd></div></dl>
                 @if ($work['next_step'])<div class="adz-portal-callout" role="note"><h3>Next step</h3><x-portal-text :text="$work['next_step']" /></div>@endif
+                @unless ($staff)
+                    <x-filament::button tag="a" href="#work-conversations" icon="heroicon-o-chat-bubble-left-right">Requests, reports & replies</x-filament::button>
+                @endunless
             </section>
             <div class="adz-portal-grid">
                 <section class="adz-portal-card" aria-labelledby="milestones-heading">

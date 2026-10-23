@@ -117,7 +117,7 @@ abstract class SupportPage extends Page
             })];
         }
         if (! $this->record) {
-            return static::$staffMode ? $this->categoryActions() : $create;
+            return static::$staffMode ? ($this->contextWork ? [] : $this->categoryActions()) : $create;
         }
         $actions = static::$staffMode ? [] : $create;
         $case = $this->contextCase();
@@ -148,6 +148,11 @@ abstract class SupportPage extends Page
         }
 
         return $actions;
+    }
+
+    public function getCachedHeaderActions(): array
+    {
+        return array_values(array_filter(parent::getCachedHeaderActions(), fn ($action) => $action->getName() !== 'reply'));
     }
 
     public function openConversation(string $reference): void

@@ -152,6 +152,7 @@ class ApiContractTest extends TestCase
             'api.v1.portal.cases.index', 'api.v1.portal.cases.show', 'api.v1.portal.cases.store',
             'api.v1.portal.cases.reply', 'api.v1.portal.cases.read', 'api.v1.portal.categories.index',
             'api.v1.webhooks.paymongo',
+            'api.v1.package-offers.show', 'api.v1.package-checkouts.store', 'api.v1.package-checkouts.resolve', 'api.v1.package-checkouts.show', 'api.v1.webhooks.package-qrph',
             'api.v1.checkout.show', 'api.v1.orders.store', 'api.v1.orders.index', 'api.v1.orders.show', 'api.v1.orders.cancel',
             'api.v1.orders.payment.show', 'api.v1.orders.payment.store',
             'api.v1.orders.review', 'api.v1.orders.reply', 'api.v1.orders.resubmit', 'api.v1.orders.accept_proposal',

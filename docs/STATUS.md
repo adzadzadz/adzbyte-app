@@ -2,6 +2,22 @@
 
 **Last updated:** 2026-10-23 (customer portal priority; ecommerce development paused)
 
+## Portal workflow and production integration — in progress
+
+Customer Dashboard replaces Home. Requests/reports use an expandable inbox on
+Dashboard, Requests & reports, and linked project/service pages; inline create
+and replies keep the current work page. Admin Customers supports manual identity
+creation, signed activation invitations and work assignment. Invitations use the
+same-connection database queue and audit/user/job commit together. New customer
+capabilities remain explicit; no staff rights are granted to customers.
+
+Release preflight confirmed live deploy `1acfad0` / source `30c8cf3` contains
+independent native package checkout/fulfilment. The portal release integrates
+that ancestry and preserves its API, webhook, delivery schedule, email branding
+and tables. This corrects historical production statements below. No production
+mutation has occurred in this follow-up yet. Independent review and combined
+verification are in progress.
+
 ## Current Stage
 
 **Current owner priority:** complete the customer portal, especially manually

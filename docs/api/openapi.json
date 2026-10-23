@@ -16,6 +16,625 @@
         }
     ],
     "paths": {
+        "/api/v1/package-offers/{slug}": {
+            "get": {
+                "operationId": "packageOffer",
+                "tags": [
+                    "Existing package integration"
+                ],
+                "description": "Preserved production server-to-server contract. Origin headers are rejected. See docs/reviews/2026-10-22-package-purchase-fulfillment.md.",
+                "security": [
+                    {
+                        "packageBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageOfferResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/package-checkouts": {
+            "post": {
+                "operationId": "packageCheckoutCreate",
+                "tags": [
+                    "Existing package integration"
+                ],
+                "description": "Preserved production server-to-server contract. Origin headers are rejected. See docs/reviews/2026-10-22-package-purchase-fulfillment.md.",
+                "security": [
+                    {
+                        "packageBearer": [],
+                        "packageProof": []
+                    }
+                ],
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageCheckoutResponse"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "First reservation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageCheckoutResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PackageCheckoutInput"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/package-checkouts/{reference}": {
+            "get": {
+                "operationId": "packageCheckoutShow",
+                "tags": [
+                    "Existing package integration"
+                ],
+                "description": "Preserved production server-to-server contract. Origin headers are rejected. See docs/reviews/2026-10-22-package-purchase-fulfillment.md.",
+                "security": [
+                    {
+                        "packageBearer": [],
+                        "packageProof": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "reference",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageCheckoutResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/package-checkouts/resolve/{operation}": {
+            "get": {
+                "operationId": "packageCheckoutResolve",
+                "tags": [
+                    "Existing package integration"
+                ],
+                "description": "Preserved production server-to-server contract. Origin headers are rejected. See docs/reviews/2026-10-22-package-purchase-fulfillment.md.",
+                "security": [
+                    {
+                        "packageBearer": [],
+                        "packageProof": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "operation",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageCheckoutResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/webhooks/package-qrph": {
+            "post": {
+                "operationId": "packageQrphWebhook",
+                "tags": [
+                    "Existing package integration"
+                ],
+                "security": [],
+                "description": "Raw provider event authenticated using Paymongo-Signature and the existing mode-specific webhook secret. No browser session/CSRF. Maximum 500,000 bytes.",
+                "parameters": [
+                    {
+                        "name": "Paymongo-Signature",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Verified event recorded or replayed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "received"
+                                    ],
+                                    "properties": {
+                                        "received": {
+                                            "const": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Generic legacy package error; distinct from the customer API error envelope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PackageApiError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/portal/works": {
             "get": {
                 "operationId": "listPortalWork",
@@ -8642,6 +9261,17 @@
     },
     "components": {
         "securitySchemes": {
+            "packageBearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "Existing dedicated PACKAGE_CHECKOUT_API_TOKEN used only by the public Next server. This is independent of Sanctum and paused cart/checkout APIs."
+            },
+            "packageProof": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-Checkout-Proof",
+                "description": "Existing guest proof: 64 lowercase hex or 43 base64url characters. Never put it in a URL."
+            },
             "sanctumBearer": {
                 "type": "http",
                 "scheme": "bearer",
@@ -8684,6 +9314,231 @@
             }
         },
         "schemas": {
+            "PackageApiError": {
+                "type": "object",
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PackageOffer": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "name",
+                    "amount_minor",
+                    "currency",
+                    "quantity",
+                    "version"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "amount_minor": {
+                        "type": "integer"
+                    },
+                    "currency": {
+                        "const": "PHP"
+                    },
+                    "quantity": {
+                        "const": 1
+                    },
+                    "version": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PackageOfferResponse": {
+                "type": "object",
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "code",
+                            "name",
+                            "amount_minor",
+                            "currency",
+                            "quantity",
+                            "version",
+                            "available",
+                            "test_mode"
+                        ],
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "amount_minor": {
+                                "type": "integer"
+                            },
+                            "currency": {
+                                "const": "PHP"
+                            },
+                            "quantity": {
+                                "const": 1
+                            },
+                            "version": {
+                                "type": "string"
+                            },
+                            "available": {
+                                "type": "boolean"
+                            },
+                            "test_mode": {
+                                "type": "boolean"
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PackageCheckoutInput": {
+                "type": "object",
+                "required": [
+                    "package_code",
+                    "offer_version",
+                    "operation_id",
+                    "email"
+                ],
+                "anyOf": [
+                    {
+                        "required": [
+                            "full_name"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "business_name"
+                        ]
+                    }
+                ],
+                "not": {
+                    "required": [
+                        "full_name",
+                        "business_name"
+                    ]
+                },
+                "properties": {
+                    "package_code": {
+                        "enum": [
+                            "starter",
+                            "business",
+                            "growth",
+                            "pickleball"
+                        ]
+                    },
+                    "offer_version": {
+                        "type": "string",
+                        "maxLength": 32
+                    },
+                    "operation_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "full_name": {
+                        "type": "string",
+                        "maxLength": 160
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "maxLength": 160
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 30
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PackageCheckoutResponse": {
+                "type": "object",
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "reference",
+                            "status",
+                            "test_mode",
+                            "offer",
+                            "qr_image",
+                            "expires_at",
+                            "fulfillment_status"
+                        ],
+                        "properties": {
+                            "reference": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "test_mode": {
+                                "type": "boolean"
+                            },
+                            "offer": {
+                                "$ref": "#/components/schemas/PackageOffer"
+                            },
+                            "qr_image": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "expires_at": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "format": "date-time"
+                            },
+                            "fulfillment_status": {
+                                "enum": [
+                                    null,
+                                    "pending",
+                                    "delivered",
+                                    "review"
+                                ]
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "additionalProperties": false
+            },
         "PortalWorkSummary": {
             "type": "object",
             "additionalProperties": false,

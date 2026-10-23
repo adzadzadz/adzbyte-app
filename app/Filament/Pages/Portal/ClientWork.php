@@ -27,6 +27,8 @@ final class ClientWork extends Page
 
     protected static ?string $title = 'Projects & services';
 
+    protected static ?int $navigationSort = 1;
+
     protected static string|\UnitEnum|null $navigationGroup = 'Customer portal';
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';

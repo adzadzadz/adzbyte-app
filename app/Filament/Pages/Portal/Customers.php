@@ -20,7 +20,7 @@ final class Customers extends Page
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
-    protected static ?int $navigationSort = -1;
+    protected static ?int $navigationSort = 0;
 
     protected string $view = 'filament.portal.customers';
 

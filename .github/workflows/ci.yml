@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       upload_assets:
@@ -146,3 +147,4 @@ jobs:
           path: public/build
           if-no-files-found: error
           retention-days: 1
+
