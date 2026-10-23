@@ -2,16 +2,15 @@
 
 namespace App\Providers\Filament;
 
+use App\Support\Filament\AdzbytePanel;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -23,27 +22,25 @@ class AccountPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        return AdzbytePanel::configure($panel, AdzbytePanel::CUSTOMER_ACCOUNT)
             ->id('account')
-            ->path('account')
+            ->path('')
             ->login()
             ->passwordReset()
             ->emailVerification()
             ->emailChangeVerification()
             ->profile()
-            ->colors([
-                'primary' => Color::Amber,
+            ->navigationItems([
+                NavigationItem::make('Orders')->url(fn () => route('orders.index'))->icon('heroicon-o-document-text')->group('Ecommerce · Under development')->sort(12),
+                NavigationItem::make('Cart')->url(fn () => route('cart.show'))->icon('heroicon-o-shopping-cart')->group('Ecommerce · Under development')->sort(11),
+                NavigationItem::make('Profile & security')->url(fn () => filament()->getProfileUrl())->icon('heroicon-o-user-circle')->sort(5),
             ])
+            ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => view('auth.registration-link'))
             ->discoverResources(in: app_path('Filament/Account/Resources'), for: 'App\Filament\Account\Resources')
             ->discoverPages(in: app_path('Filament/Account/Pages'), for: 'App\Filament\Account\Pages')
-            ->pages([
-                Dashboard::class,
-            ])
+            ->pages([])
             ->discoverWidgets(in: app_path('Filament/Account/Widgets'), for: 'App\Filament\Account\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

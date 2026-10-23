@@ -1,0 +1,48 @@
+{
+  "qualification": "actual PayMongo test checkout; synthetic disposable order; no live operation",
+  "order": "01M57K155M95B7KJ66T15MMBMP",
+  "attempt": "01M57K15KGRRAHWX9JYT56SK7F",
+  "session": "cs_eb804ededdeeb4455e62f821",
+  "amount_minor": 12500,
+  "currency": "PHP",
+  "creation_posts": 1,
+  "creation_response_fault": "controlled connection exception after actual creation, before application session identity commit",
+  "initial_application_state": "unknown; session identity and checkout URL absent",
+  "recovery": {
+    "command": "01M57K2RX6FD99C157X5E6A8JB",
+    "action": "recover",
+    "state": "confirmed",
+    "provider_status": "active",
+    "revision": 5,
+    "interface": "native Filament Admin"
+  },
+  "cancellation": {
+    "command": "01M57K4VZJQS2M8MF6VEAKJSW8",
+    "action": "cancel",
+    "state": "confirmed",
+    "interface": "native owned customer form"
+  },
+  "provider_readback": {
+    "status": "expired",
+    "livemode": false,
+    "payment_count": 0,
+    "intent_status": null
+  },
+  "application_readback": {
+    "attempt_state": "expired",
+    "order_status": "cancelled",
+    "payment_status": "unpaid",
+    "fulfillment_status": "cancelled",
+    "revision": 7,
+    "settlement_count": 0,
+    "prior_distinct_test_settlements": 2
+  },
+  "browser": {
+    "desktop_width": 1470,
+    "mobile_width": 320,
+    "overflow": false,
+    "warning_error_console_entries": 0,
+    "post_cancellation_payment_link": false,
+    "post_cancellation_cancel_button": false
+  }
+}

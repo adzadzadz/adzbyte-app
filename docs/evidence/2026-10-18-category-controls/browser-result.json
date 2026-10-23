@@ -1,0 +1,19 @@
+{
+  "result": "passed",
+  "checks": [
+    "blank category name shows inline validation",
+    "keyboard toggle and category creation persist with audit history",
+    "product category assignment persists and public opt-in projects the rule; default payload unchanged",
+    "320px category edit has no overflow; toggling off and on updates the actual public API",
+    "view-only administrator has no edit control and direct edit request is forbidden",
+    "1440px assignment view has no overflow"
+  ],
+  "errors": [],
+  "browser": "Chrome",
+  "widths": [
+    1440,
+    320
+  ],
+  "backend": "4859e4e",
+  "environment": "isolated synthetic SQLite, no existing database"
+}

@@ -1,0 +1,31 @@
+{
+    "assets": [
+        {
+            "source": "adzbyte-next/public/images/adzbyte-logo-transparent.png",
+            "destination": "public/images/brand/adzbyte-logo-transparent.png",
+            "purpose": "Full wordmark for panel authentication and expanded navigation",
+            "dimensions": "700x300",
+            "format": "PNG",
+            "sha256": "3017b295f1c5cba4e874dbc83b8e47d30b99b72f47e6cc2f19d463f50674bc2a",
+            "alternative_text": "Uses the active panel name supplied by Filament"
+        },
+        {
+            "source": "adzbyte-next/public/images/adzbyte-logo-square-dark.webp",
+            "destination": "public/images/brand/adzbyte-logo-square-dark.webp",
+            "purpose": "Compact application identity and small branded empty states",
+            "dimensions": "500x500",
+            "format": "WebP",
+            "sha256": "dea5cbeaeebe3ba191575d714110e1d754b4eadf982413604bc8fc028d773ee5",
+            "alternative_text": "Decorative when the full panel name is already visible"
+        },
+        {
+            "source": "adzbyte-next/public/images/adzbyte-logo-square-dark.png",
+            "destination": "public/images/brand/adzbyte-logo-square-dark.png",
+            "purpose": "Browser favicon and lossless metadata fallback",
+            "dimensions": "500x500",
+            "format": "PNG",
+            "sha256": "ea4653a267aa57d4f35efdf3ce5aa224b40aa2069b0f3f8427243e764a3cd369",
+            "alternative_text": "Not applicable to browser metadata"
+        }
+    ]
+}

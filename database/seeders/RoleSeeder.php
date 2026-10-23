@@ -2,9 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Enums\OrderCapability;
+use App\Enums\PaymentCapability;
+use App\Enums\PortalCapability;
+use App\Enums\ProductCapability;
+use App\Enums\ProductCategoryCapability;
 use App\Enums\UserRole;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class RoleSeeder extends Seeder
 {
@@ -12,6 +18,10 @@ class RoleSeeder extends Seeder
     {
         foreach (UserRole::cases() as $role) {
             Role::findOrCreate($role->value, 'web');
+        }
+
+        foreach ([...ProductCapability::cases(), ...ProductCategoryCapability::cases(), ...OrderCapability::cases(), ...PaymentCapability::cases(), ...PortalCapability::cases()] as $capability) {
+            Permission::findOrCreate($capability->value, 'web');
         }
     }
 }

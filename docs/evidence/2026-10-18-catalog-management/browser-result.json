@@ -1,0 +1,22 @@
+{
+  "result": "passed",
+  "results": [
+    "price exact decimal save",
+    "terms save",
+    "publish and enable availability",
+    "archive disables availability",
+    "restore to draft",
+    "view-desktop no overflow",
+    "read-only terms history",
+    "content edit",
+    "create-mobile no overflow",
+    "view-mobile no overflow",
+    "price-mobile no overflow",
+    "mobile inline price validation",
+    "mobile price correction and save",
+    "view-only controls absent and create denied",
+    "Escape closes price modal and restores trigger focus",
+    "role editor exposes all 11 catalog capabilities"
+  ],
+  "errors": []
+}

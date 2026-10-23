@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-23",
+  "environment": "Disposable loopback SQLite, synthetic accounts, in-app Chromium",
+  "desktop": {
+    "width": 1440,
+    "height": 1000
+  },
+  "mobile": {
+    "width": 320,
+    "height": 900,
+    "documentWidth": 320,
+    "scrollWidth": 320
+  },
+  "checks": {
+    "customer_login_home": true,
+    "desktop_project_details_milestones_updates": true,
+    "linked_request_form_and_submit": true,
+    "mobile_customer_reply": true,
+    "staff_login_reply": true,
+    "staff_manual_project_assignment_by_name": true,
+    "customer_sees_assigned_project": true,
+    "internal_note_absent_from_customer_DOM": true,
+    "keyboard_enter_project_navigation": true,
+    "home_and_support_no_mobile_overflow": true,
+    "unexpected_console_errors_or_warnings": false
+  },
+  "screenshots": [
+    "home-desktop.png",
+    "project-desktop.png",
+    "support-mobile.png"
+  ],
+  "production_change": false
+}

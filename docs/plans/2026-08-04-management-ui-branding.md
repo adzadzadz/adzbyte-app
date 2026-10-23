@@ -2,19 +2,19 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved direction; implementation has not started |
-| Applies to | Authenticated Filament `/account` and `/admin` panels |
+| Status | Implemented and verified on 2026-08-04 |
+| Applies to | Authenticated Filament root `/` customer panel and `/admin` |
 | Brand source | `adzbyte-next/src/app/globals.css` and approved files in `adzbyte-next/public/images` |
-| Public UI owner | `adzbyte-next` |
+| Primary public storefront owner | `adzbyte-next` |
 | Management UI owner | `adzbyte-app` |
 
 ## Outcome
 
-The customer and administrator panels should be unmistakably Adzbyte while remaining calm, legible, and efficient for repeated management work. Shared branding creates continuity after a customer leaves the public site, but it does not move public campaign or product UI into this repository.
+The customer and administrator panels should be unmistakably Adzbyte while remaining calm, legible, and efficient for repeated management work. Shared branding creates continuity when a customer moves from the primary public storefront to the app-owned cart, checkout, and account experience. A future authenticated catalog in the customer panel must reuse the authoritative Laravel catalog rather than create a second product source.
 
 The implementation should feel like one product family with two operating contexts:
 
-- `/account` is reassuring and guided, with clear next steps, progress, support, and contextual product imagery.
+- The root `/` customer panel is reassuring and guided, with clear next steps, progress, support, and contextual product imagery.
 - `/admin` is compact and operational, prioritizing queues, status, risk, and scan speed over decorative presentation.
 
 Both panels use the same token system, typography, logo assets, form language, focus treatment, and component conventions. Panel identity must remain explicit so a dual-role user cannot mistake customer actions for administrative actions.
@@ -100,11 +100,11 @@ For every copied asset:
 - Use guided cards, progress indicators, plain-language statuses, and clear next-action hierarchy.
 - Allow contextual service imagery in onboarding, order headers, or empty states only when it maps to the customer's product.
 - Favor a warmer, more spacious composition than the admin panel while retaining efficient forms and accessible tables.
-- Make payment confirmation, brief completeness, draft readiness, corrections, and delivery visually distinct through semantic components rather than decorative color.
+- Make cart, checkout, payment, subscription, fulfillment, request, report, and purchased-product states visually distinct through semantic components rather than decorative color.
 
 ### Admin panel
 
-- Keep the logo and brand accents restrained so queues, overdue work, payment exceptions, and customer context dominate.
+- Keep the logo and brand accents restrained so order, billing, subscription, fulfillment, and customer-service queues dominate.
 - Favor compact tables, filters, bulk actions, clear timestamps, and persistent status labels.
 - Reserve purple for primary operational actions and selected navigation; destructive actions retain a distinct danger treatment.
 - Do not use marketing imagery in operational dashboards or resource pages.
@@ -129,7 +129,7 @@ Buttons, links, inputs, badges, alerts, empty states, file previews, timelines, 
 2. Self-host Poppins and establish the typography, spacing, radius, border, shadow, focus, and semantic-status foundations.
 3. Copy the required wordmark and square mark, create the asset manifest, and configure consistent panel identity and browser metadata.
 4. Brand the shared authentication lifecycle: login, activation, password reset, email verification, and profile entry points.
-5. Apply the shared shell to `/account` and `/admin`, with explicit panel names and deliberately different information density.
+5. Apply the shared shell to `/` and `/admin`, with explicit panel names and deliberately different information density.
 6. Implement shared component states before adding screen-specific decoration or contextual customer imagery.
 7. Capture desktop and mobile reference screenshots and run accessibility, responsive, production-build, and panel-boundary verification.
 

@@ -13,6 +13,18 @@ class CustomerAccountActivation extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    public int $tries = 3;
+
+    public int $timeout = 45;
+
+    /**
+     * @return list<int>
+     */
+    public function backoff(): array
+    {
+        return [10, 30];
+    }
+
     /**
      * @return array<int, string>
      */
@@ -26,7 +38,8 @@ class CustomerAccountActivation extends Notification implements ShouldQueue
         /** @var User $notifiable */
         return (new MailMessage)
             ->subject('Activate your Adzbyte Solutions account')
-            ->greeting("Hello {$notifiable->name},")
+            // Public registration names are untrusted Markdown as well as text.
+            ->greeting('Hello,')
             ->line('Your Adzbyte Solutions customer account is ready.')
             ->action('Set password and activate account', $this->activationUrl($notifiable))
             ->line('This secure link expires in 24 hours and can only be used once.');

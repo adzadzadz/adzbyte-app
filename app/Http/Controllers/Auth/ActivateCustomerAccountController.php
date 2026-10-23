@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\Customers\ActivateCustomerAccount;
 use App\Enums\UserRole;
-use App\Events\CustomerAccountActivated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ActivateCustomerAccountRequest;
 use App\Models\User;
-use Illuminate\Auth\Events\Verified;
+use App\Services\Carts\CartSession;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ActivateCustomerAccountController extends Controller
@@ -31,26 +29,18 @@ class ActivateCustomerAccountController extends Controller
         return view('auth.activate-account', ['user' => $user]);
     }
 
-    public function update(ActivateCustomerAccountRequest $request, User $user): RedirectResponse
-    {
-        $emailWasVerified = DB::transaction(function () use ($request, $user): bool {
-            $user->forceFill([
-                'password' => $request->validated('password'),
-                'remember_token' => Str::random(60),
-            ])->save();
-
-            return $user->markEmailAsVerified();
-        });
-
-        if ($emailWasVerified) {
-            event(new Verified($user));
+    public function update(
+        ActivateCustomerAccountRequest $request,
+        User $user,
+        ActivateCustomerAccount $activateCustomerAccount,
+    ): RedirectResponse {
+        if (! $activateCustomerAccount->handle($user, $request->validated('password'), (string) $request->route('hash'))) {
+            return redirect()->route('filament.account.auth.login');
         }
-
-        CustomerAccountActivated::dispatch($user);
 
         Auth::guard('web')->login($user);
         $request->session()->regenerate();
 
-        return redirect('/account')->with('status', 'Your account is active.');
+        return redirect(app(CartSession::class)->hasContext($request->session()) ? '/cart' : '/')->with('status', 'Your account is active.');
     }
 }

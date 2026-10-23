@@ -1,10 +1,16 @@
 <?php
 
+use App\Http\Middleware\AddSecurityHeaders;
+use App\Http\Middleware\EnsureCustomerApiAccess;
+use App\Http\Middleware\EnsureIdempotentApiRequest;
+use App\Http\Middleware\EnsureStorefrontToken;
+use App\Http\Responses\ApiErrorResponse;
 use App\Http\Responses\PackageCheckoutErrors;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,17 +20,31 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->trustHosts();
+        $middleware->append(AddSecurityHeaders::class);
+        $middleware->statefulApi();
+        $middleware->redirectGuestsTo(fn () => route('filament.account.auth.login'));
+
+        $middleware->alias([
+            'customer.api' => EnsureCustomerApiAccess::class,
+            'idempotent' => EnsureIdempotentApiRequest::class,
+            'storefront.token' => EnsureStorefrontToken::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (Throwable $exception, Request $request) {
-            return PackageCheckoutErrors::matches($request)
-                ? PackageCheckoutErrors::render($exception) : null;
+            return PackageCheckoutErrors::matches($request) ? PackageCheckoutErrors::render($exception) : null;
         });
-        // Route-pipeline exceptions are rendered below the access middleware.
-        // Suppress their raw messages/arguments, which can contain private data.
         $exceptions->dontReportWhen(fn (Throwable $exception) => PackageCheckoutErrors::matches(request()));
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->respond(function (Response $response, Throwable $exception, Request $request): Response {
+            if (! $request->is('api/*') || PackageCheckoutErrors::matches($request)) {
+                return $response;
+            }
+
+            return ApiErrorResponse::fromException($response, $exception);
+        });
     })->create();

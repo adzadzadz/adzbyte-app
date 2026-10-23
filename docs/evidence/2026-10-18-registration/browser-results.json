@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-18",
+  "source": "C3.1 working source",
+  "widths": [
+    1440,
+    320
+  ],
+  "checks": [
+    "Registration linked only on customer login",
+    "Desktop registration has no overflow",
+    "320px registration has no overflow",
+    "Direct native registration without a cart, keyboard submit and generic accepted status",
+    "320px existing activation workflow has no overflow",
+    "Actual database queue -> SMTP receipt -> strong-password activation -> verified customer dashboard",
+    "Actual HTTP registration denies missing CSRF",
+    "Actual versioned API rejects role injection with valid CSRF",
+    "Existing verified identity receives identical accepted API outcome without another user or privilege change",
+    "Used activation link cannot reopen password setup"
+  ],
+  "pageErrors": [],
+  "unexpectedConsoleErrors": [],
+  "synthetic": true
+}

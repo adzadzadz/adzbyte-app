@@ -1,6 +1,15 @@
 <?php
 
 declare(strict_types=1);
+use App\Filament\Pages\CommerceSettings;
+use App\Filament\Pages\Portal\ClientWork;
+use App\Filament\Pages\Portal\Customers;
+use App\Filament\Pages\Portal\CustomerSupport;
+use App\Filament\Resources\Orders\OrderResource;
+use App\Filament\Resources\Payments\PaymentResource;
+use App\Filament\Resources\ProductCategories\ProductCategoryResource;
+use App\Filament\Resources\Products\ProductResource;
+use App\Filament\Resources\Users\UserResource;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
@@ -27,7 +36,7 @@ return [
             'pages' => true,
             'widgets' => true,
             'resources' => true,
-            'custom_permissions' => false,
+            'custom_permissions' => true,
         ],
     ],
 
@@ -120,7 +129,7 @@ return [
         'separator' => ':',
         'case' => 'pascal',
         'generate' => true,
-        'format_custom_permission_keys' => true,
+        'format_custom_permission_keys' => false,
     ],
 
     /*
@@ -140,7 +149,7 @@ return [
 
     'policies' => [
         'path' => app_path('Policies'),
-        'merge' => true,
+        'merge' => false,
         'generate' => true,
         'methods' => [
             'viewAny', 'view', 'create', 'update', 'delete', 'deleteAny', 'restore',
@@ -186,12 +195,24 @@ return [
     'resources' => [
         'subject' => 'model',
         'manage' => [
+            PaymentResource::class => ['viewAny', 'view', 'reconcile', 'expire', 'recover'],
+            OrderResource::class => ['viewAny', 'view', 'approve', 'reject', 'clarify', 'message', 'note', 'propose'],
+            ProductCategoryResource::class => ['viewAny', 'view', 'create', 'update'],
+            ProductResource::class => [
+                'viewAny', 'view', 'create', 'update', 'publish', 'unpublish',
+                'setAvailability', 'archive', 'restore', 'revisePrice', 'reviseTerms',
+            ],
             RoleResource::class => [
                 'viewAny',
                 'view',
                 'create',
                 'update',
                 'delete',
+            ],
+            UserResource::class => [
+                'viewAny',
+                'view',
+                'update',
             ],
         ],
         'exclude' => [
@@ -215,6 +236,10 @@ return [
         'prefix' => 'view',
         'exclude' => [
             Dashboard::class,
+            CommerceSettings::class,
+            ClientWork::class,
+            Customers::class,
+            CustomerSupport::class,
         ],
     ],
 
@@ -252,7 +277,18 @@ return [
     |
     */
 
-    'custom_permissions' => [],
+    'custom_permissions' => [
+        'Manage:CommerceSettings' => 'Manage commerce settings',
+        'View:PortalCustomer' => 'View portal customers',
+        'Manage:PortalCustomer' => 'Create customers and send activation invitations',
+        'View:WorkItem' => 'View projects and services',
+        'Manage:WorkItem' => 'Manage projects and services',
+        'View:SupportCase' => 'View customer support',
+        'Manage:SupportCase' => 'Manage customer support',
+        'Reply:SupportCase' => 'Reply to customer support',
+        'Note:SupportCase' => 'Read and add internal support notes',
+        'Manage:SupportCategory' => 'Manage support categories',
+    ],
 
     /*
     |--------------------------------------------------------------------------

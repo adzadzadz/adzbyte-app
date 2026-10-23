@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-18",
+  "runtime": "PHP 8.5.11",
+  "mode": "test",
+  "database": "disposable SQLite",
+  "transport": "native Laravel HTTP client with verified TLS; temporary QA-only DNS resolution",
+  "provider_session_id": "cs_b40c8936538a9a179e5075a8",
+  "attempt_state": "active",
+  "order_payment_status": "pending",
+  "amount_minor": "12500",
+  "currency": "PHP",
+  "available_methods": ["qrph"],
+  "same_command_replayed": true,
+  "different_command_conflict": 409,
+  "confirmed_payment": false,
+  "cleanup_http": 200,
+  "cleanup_session_status": "expired",
+  "passed": true
+}

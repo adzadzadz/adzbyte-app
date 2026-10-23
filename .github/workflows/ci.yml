@@ -24,6 +24,65 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  verify-mysql:
+    name: Verify MySQL behavior
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test-only-password
+          MYSQL_ROOT_HOST: '%'
+          MYSQL_DATABASE: adzbyte_test_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl, mbstring, pdo_mysql, pdo_sqlite, sqlite3
+          coverage: none
+          tools: composer:v2
+
+      - name: Set up Node.js for the HTTP contract consumer
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.22.1'
+          cache: npm
+
+      - name: Prepare application environment
+        run: cp .env.example .env
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Generate CI application key
+        run: php artisan key:generate --ansi
+
+      - name: Install frontend dependencies for native HTTP views
+        run: npm ci
+
+      - name: Build production assets for native HTTP views
+        run: npm run build
+
+      - name: Run MySQL suite and independent-process races
+        env:
+          TEST_MYSQL_DATABASE: adzbyte_test_ci
+          TEST_MYSQL_HOST: 127.0.0.1
+          TEST_MYSQL_USERNAME: root
+          TEST_MYSQL_PASSWORD: test-only-password
+        run: php vendor/bin/phpunit --configuration phpunit.mysql.xml
+
   verify:
     name: Verify application
     runs-on: ubuntu-24.04
@@ -44,7 +103,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '24'
+          node-version: '24.22.1'
           cache: npm
 
       - name: Prepare application environment
@@ -65,9 +124,6 @@ jobs:
       - name: Check PHP formatting
         run: vendor/bin/pint --test
 
-      - name: Run PHP tests
-        run: composer test
-
       - name: Install frontend dependencies
         run: npm ci
 
@@ -76,6 +132,9 @@ jobs:
 
       - name: Build production assets
         run: npm run build
+
+      - name: Run PHP tests
+        run: composer test
 
       - name: Verify Laravel production caches
         run: php artisan optimize
@@ -89,38 +148,3 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  mysql:
-    name: Verify PHP 8.3 and MySQL package checkout
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    services:
-      mysql:
-        image: mysql:8.4
-        env:
-          MYSQL_ROOT_PASSWORD: synthetic-ci-password
-          MYSQL_DATABASE: adzbyte_test
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -psynthetic-ci-password"
-          --health-interval=10s --health-timeout=5s --health-retries=10
-    steps:
-      - uses: actions/checkout@v6
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: intl, mbstring, pdo_mysql
-          coverage: none
-          tools: composer:v2
-      - run: cp .env.example .env
-      - run: composer install --no-interaction --prefer-dist --no-progress
-      - run: php artisan key:generate --ansi
-      - name: Run checkout tests on disposable MySQL
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_DATABASE: adzbyte_test
-          DB_USERNAME: root
-          DB_PASSWORD: synthetic-ci-password
-        run: php artisan test --filter=PackageCheckoutTest

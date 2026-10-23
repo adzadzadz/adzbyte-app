@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-18",
+  "runtime": "Chrome / local PHP 8.5.11 / Node 26.11.1 / disposable SQLite, real database sessions and CSRF",
+  "nextSource": "52148d3eff3e92ea27696dd2aaebec711a8c287a",
+  "checks": [
+    "Built Next storefront add/handoff -> real customer login/owned cart -> checkout keyboard acceptance/submission creates one pending unpaid request",
+    "Real Admin clarification dialog updates state and records customer-visible message",
+    "Customer sees public clarification only, replies, then explicitly resubmits corrected brief with fresh acceptance; immutable accepted version increments",
+    "Admin approves the corrected accepted request; payment remains unpaid and no fulfillment is started",
+    "A later catalog revision marks the proposed offer stale, disables acceptance and asks Admin to refresh; accepted history remains unchanged",
+    "Fresh proposal is displayed separately from the old accepted total, requires new keyboard acceptance, and creates accepted version 3 pending Admin approval at 320px",
+    "Admin separately reapproves the accepted material revision; request stays unpaid, with readable desktop/mobile review and private-note history",
+    "Actual Admin settings publish immutable versions; a second stale tab is rejected without overwriting current settings, desktop/320px form remains usable",
+    "Read-only Admin can review the request but has no mutation or commerce-settings controls at 320px",
+    "Scheduled expiry removes elapsed approval, retains accepted service/price/history and cart, and requires fresh resubmission without enabling payment",
+    "Required rejection reason validates in the real dialog; Escape restores trigger focus; customer sees rejection reason and no resubmission or payment action",
+    "Another real customer receives native 404 for the owned request; no brief, billing, messages or notes are disclosed",
+    "Super Admin role editor exposes exact review capabilities and a working Manage Commerce Settings checkbox without granting roles by default",
+    "The capability saved through the real role editor grants the synthetic reviewer settings access, independently of order approval rights",
+    "Terminal review state hides unavailable approval/rejection/proposal actions while retaining authorized conversation and notes"
+  ],
+  "errors": [
+    {
+      "name": "other",
+      "type": "console",
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "expected": true,
+      "context": "Deliberate cross-owner 404"
+    }
+  ],
+  "images": "Settled viewport captures at 1440/320px; synthetic fixtures only.",
+  "cleanup": "Chrome, both QA servers, disposable SQLite, synthetic credentials/tokens and private scripts/logs removed. No existing DB migrated.",
+  "followup_validation": "Final FormRequest refinements are requalified by the independent actual HTTP consumer, including native missing-acceptance recovery and normalized resubmission; layouts remain as captured.",
+  "capture_note": "Settled viewport captures avoid compositor/transition artifacts. Current Admin terminal-state captures replace superseded approved-state images after action availability was refined."
+}

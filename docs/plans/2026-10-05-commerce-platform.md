@@ -1,0 +1,532 @@
+# Adzbyte Commerce and Customer Service Platform
+
+| Planning field | Decision |
+|---|---|
+| Date | 2026-10-05 |
+| Status | Product direction and first-release approach approved; commercial rules still being refined |
+| Primary storefront | `adzbyte-next` at `https://adzbyte.com` |
+| Account, cart, and checkout application | `adzbyte-app` at `https://app.adzbyte.com` |
+| Backend and system of record | `adzbyte-app` |
+| First payment provider | PayMongo |
+| Management UI | Filament customer panel at `/` and administrator panel at `/admin` |
+| API prefix | `/api/v1` |
+
+## Product Direction
+
+Adzbyte is building a headless commerce and customer-service platform. The
+public website presents products, while the Laravel application owns the
+authoritative catalog, carts, accounts, checkout, orders, payments,
+subscriptions, purchased-product access, customer communication, and
+administration.
+
+The platform is not limited to the former experimental-launch catalog. Product
+types, pricing, fulfillment rules, and subscription offerings will be defined
+separately. The previous experimental product proposal is retired and is not an
+active product or implementation source.
+
+The approved implementation approach is documented in the
+[First Commerce Release Approach](2026-10-05-first-commerce-release.md). The
+first sellable type is a fixed-scope one-time service, fulfilled manually after
+administrator fit approval and paid in PHP through PayMongo Hosted Checkout v2.
+Package names, scope, and PHP prices are administrator-managed data, with no
+initial packages specified. Tax and receipt treatment, approval rules, payment
+methods, and refund/cancellation policies remain decisions for the dependent
+checkout/payment slices, not prerequisites for the generic catalog backend.
+
+### Development priority confirmed 2026-10-17
+
+The first development target is the backend system, its versioned REST API for
+the frontend, and the Filament management needed for users, products, and later
+commerce operations. Existing identity and administrator user/role foundations
+are retained. Catalog management and safe catalog APIs are the next domain
+slice; a predefined launch catalog is not required.
+
+The [backend development plan](2026-10-17-backend-development.md) refines the
+existing roadmap into task cards and acceptance evidence. The
+[decision register](../decisions/commerce-development.md) indexes pending inputs;
+approved answers must still be recorded in this product plan. The
+[development handoff](../DEVELOPMENT-HANDOFF.md) preserves the current task and
+resume state. Backend readiness does not replace the integrated customer
+journey or authorize production release.
+
+### Dynamic service catalog confirmed 2026-10-17
+
+The owner specified that service packages are dynamic and that no particular
+packages or amounts are defined yet. Build the catalog and management controls
+without waiting for commercial content. This supersedes the earlier P0
+requirement to approve a launch package list and exact prices before C1.
+
+- The catalog may start empty. No real package names, amounts, scope, or
+  entitlements are hard-coded or seeded from the public website. Synthetic
+  records may be used only in isolated tests/demo fixtures.
+- Authorized administrators can add and modify names, descriptions, service
+  scope/deliverables, media, prices, and entitlement/fulfillment terms through
+  `/admin`. Adding another supported service package requires no code change,
+  migration, or deployment.
+- New packages start as drafts. Administrators explicitly publish/unpublish,
+  enable/disable availability, and archive packages. Publication and purchase
+  eligibility are separate; unavailable/incomplete packages cannot be bought.
+  Drafts and archived packages are excluded from public catalog responses.
+- Drafts can have incomplete content and no price. A missing price is not zero
+  or free, and must never enable purchase. No tax classification or receipt
+  promise is inferred from unset configuration.
+- Prices and entitlement terms are versioned. Edits affect future offers;
+  accepted order/purchase snapshots remain unchanged. Referenced products and
+  versions are retained, with archival used instead of destructive deletion.
+- Public REST responses read the same managed data and reflect eligible
+  publication/availability changes with appropriate cache invalidation.
+- This establishes dynamic catalog content and lifecycle controls. It does not
+  add unsupported billing types or settle future cart, tax, approval, refund,
+  fulfillment, or customer-service policies.
+
+Tax/receipt and other commercial decisions are resolved before the purchasing
+behavior that needs them. Catalog infrastructure and its empty/draft states
+can be implemented and verified now without inventing those decisions.
+
+### Category and cart behavior confirmed 2026-10-18
+
+- Categories are administrator-managed. A category toggle limits selection to
+  one distinct service from that category per cart; regular-category services
+  can coexist. Products without a category behave as regular services. Existing
+  catalog records remain uncategorized; no real category or offer is seeded.
+  Selecting a different service in a restricted category replaces its previous
+  selection and notifies the customer; services in other categories stay in
+  the cart. Check the replacement's availability before removing an item.
+- A cart can contain multiple distinct services, quantity one each. Neither the
+  cart nor its lines expire because time passes. Revalidate current publication
+  and availability; unavailable items cannot contribute a payable offer.
+- A changed current price is displayed and must be confirmed before checkout;
+  accepted historical order snapshots remain unchanged.
+- Login merging combines distinct products and collapses duplicate products.
+  Conflicting services in a restricted category require an explicit customer
+  selection; never silently discard a selection or permit an invalid purchase.
+- Use the recommended opaque, single-use, 60-second server-created handoff.
+  This timer applies to the View Cart transfer link only. A fresh handoff can
+  be requested for the same saved cart when a link expires or was consumed.
+- Expiry/security of access credentials and retention/deletion of records are
+  separate from cart validity; D08 still gates relevant privacy/launch choices.
+
+Implementation first adds a category prerequisite to C1, then resumes C2/C3.
+Category assignment and toggling must revalidate existing carts, preserve order
+history, and use shared services/policies. Replacement notification effects must
+survive command retries. Login-merge conflicts still require explicit choice.
+
+## Application Ownership
+
+### `adzbyte-next`
+
+`adzbyte-next` owns the primary public shopping and discovery experience:
+
+- public product listings and product detail pages;
+- search, filtering, merchandising, and campaign presentation;
+- add-to-cart controls and a compact cart summary;
+- a **View Cart** action that transfers the customer to `adzbyte-app`.
+
+It does not own the full cart, authentication, checkout, payment confirmation,
+orders, subscriptions, purchased-product management, or customer-service
+records. It never receives PayMongo secret keys or a privileged application
+credential in browser code.
+
+### `adzbyte-app`
+
+`adzbyte-app` owns:
+
+- the authoritative product catalog, prices, availability, and sale rules;
+- anonymous and customer carts;
+- public registration, login, verification, password recovery, and profiles;
+- the full cart and every checkout step;
+- customers, orders, order items, payments, refunds, subscriptions, invoices,
+  purchased-product access, and entitlements;
+- customer requests, issue reports, messages, attachments, and notifications;
+- the customer account portal and administrator operations;
+- PayMongo calls, webhook processing, reconciliation, and provider references;
+- the versioned APIs used by `adzbyte-next` and future clients;
+- the audit trail and authoritative business state.
+
+The app may add product listings inside the authenticated customer portal in a
+later phase. The primary public product-listing experience remains in
+`adzbyte-next`; a future app listing must reuse the same catalog services and
+must not create a second catalog or pricing source.
+
+## Registration and Customer Identity
+
+- Anyone may register directly in `adzbyte-app`; a cart handoff is not required.
+- Registration creates only a customer identity and must never accept a role or
+  permission from public input.
+- Email verification remains part of the account lifecycle.
+- A customer must authenticate before Laravel creates the payable order and
+  starts a PayMongo payment or subscription authorization.
+- A customer may review an anonymous cart before authentication.
+- Existing accounts must authenticate before an incoming anonymous cart can be
+  attached to them.
+- Every customer-visible record is authorized by ownership. A `customer` role
+  alone never grants access to another customer's records.
+
+Public registration replaces the earlier checkout-provisioned-only account
+rule. The existing secure activation action may remain available for trusted
+staff-created or integration-created customers, but it is no longer the only
+way a customer account can begin.
+
+## Cart and Checkout Sequence
+
+1. `adzbyte-next` reads product and price data from versioned storefront APIs.
+2. A customer adds products to an anonymous Laravel-owned cart through the
+   Next.js server. The Next.js server may hold an opaque cart reference in a
+   secure cookie, but it does not calculate authoritative prices.
+3. Next.js displays only a compact, safe cart summary returned by Laravel.
+4. **View Cart** requests a short-lived, single-use handoff from Laravel and
+   redirects the browser to `app.adzbyte.com`.
+5. Laravel validates the handoff and renders the full cart. The customer can
+   review and edit the cart without authenticating.
+6. **Continue to Purchase** starts the login or registration step. After a
+   successful authentication flow, Laravel attaches or deterministically merges
+   the anonymous cart into the customer's active cart.
+7. Laravel revalidates products, prices, quantities, discounts, availability,
+   tax, fulfillment requirements, and subscription terms. Client-supplied
+   totals are never trusted.
+8. The customer supplies the required project brief, billing or fulfillment
+   information, reviews the final amount, and accepts the applicable purchase
+   terms.
+9. Laravel creates an internal owned order with immutable product, price, scope,
+   and terms snapshots. For the first-release services, this order is not yet
+   payable.
+10. An authorized administrator confirms that the selected service fits the
+    submitted request, rejects it, or requests a customer correction. A
+    material price or scope change requires a new customer acceptance.
+11. Approval enables PayMongo authorization for the approved order snapshot.
+    Laravel creates the provider resource only after the order is persisted so
+    there is a stable reconciliation reference even if the browser never
+    returns.
+12. Laravel redirects the customer to the provider-controlled authorization
+    page when required.
+13. The browser return route shows only a pending or informational result.
+14. A verified, idempotently processed PayMongo webhook changes the
+    authoritative payment, order, invoice, or subscription state.
+15. The customer manages the resulting order, subscription, purchased product,
+    requests, and reports in `adzbyte-app`.
+
+The handoff token must be opaque, short-lived, single-use, and bound to the
+intended cart and return destination. Laravel must validate every line again
+after handoff and after authentication. Cart expiry, merge rules, promotion
+conflicts, and inventory reservations require explicit policy decisions before
+the slice that uses them; promotions and inventory are excluded from the first
+release.
+
+## Commerce Domain
+
+The target backend contains the following bounded areas. Exact tables and
+classes are implementation decisions, but the domain boundaries are durable.
+
+### Catalog
+
+- Products with stable public identifiers, publication state, descriptions,
+  media, and product type.
+- Sellable variants or plans where a product has different prices, terms, or
+  options.
+- Versioned prices in minor currency units and an explicit currency.
+- Product availability and purchase constraints.
+- Versioned product entitlements so an existing purchase is not silently
+  changed when the current catalog changes.
+
+### Cart and checkout
+
+- Anonymous and authenticated carts with line items and server-calculated
+  totals.
+- Deterministic cart handoff, attachment, merge, expiry, and invalidation.
+- Checkout validation and a snapshot of the accepted commercial terms.
+- Idempotent order and provider-session creation.
+
+### Orders and payments
+
+- Orders with opaque public references and immutable order-item snapshots.
+- Separate order, payment, and fulfillment states.
+- Payment attempts, provider events, refunds, disputes where supported, and
+  reconciliation metadata.
+- Append-only events for important state transitions and staff actions.
+- Provider return pages are informational; verified webhooks are authoritative.
+
+### Subscriptions and invoices
+
+- Internal plans mapped to PayMongo plan identifiers without making provider
+  objects the local source of truth.
+- Subscriptions, billing cycles, invoices, payment attempts, cancellation, and
+  provider status synchronization.
+- Explicit handling for incomplete, active, past-due, unpaid, and cancelled
+  states.
+- Customer-visible next billing information and authorized self-service actions.
+- Entitlement changes follow confirmed billing state rather than browser
+  redirects.
+
+PayMongo supports scheduled subscription billing through plans, customers,
+subscriptions, invoices, and recurring collection. Subscription access requires
+separate PayMongo account activation and supported payment methods must be
+confirmed before implementation.
+
+### Purchased products and entitlements
+
+- A customer-facing purchased-product record derived from a paid order item or
+  active subscription.
+- A snapshot of access, limits, renewal behavior, and fulfillment expectations.
+- Product-specific controls may be added behind entitlement checks without
+  weakening order or subscription ownership.
+- Expiration, cancellation, refund, and failed-renewal behavior must update
+  access through explicit state transitions.
+
+### Requests, reports, and conversations
+
+Customers can contact Adzbyte from a purchased product, order, or subscription:
+
+- A **request** asks Adzbyte to perform an allowed service action or change.
+- A **report** describes a fault, incident, incorrect result, or other problem.
+- Both have an opaque reference, owner, subject, description, status, priority,
+  timestamps, and an optional link to a purchased product, order, or
+  subscription.
+- Both support a customer-visible message thread, attachments, staff assignment,
+  notifications, and an append-only activity history.
+- Internal notes are stored separately and must never be returned through a
+  customer API.
+- Product entitlements may restrict which request types or service levels are
+  available, but customers must still have a safe way to report account,
+  payment, privacy, or security problems.
+
+A shared case model with an explicit `request` or `report` type is preferred
+unless later workflow differences justify separate models. The two concepts
+remain visibly distinct to customers even if they share infrastructure.
+
+## API Contract
+
+All shop capabilities originate in `adzbyte-app` application services. Every
+customer-facing shop capability must have a versioned API contract, even when
+the initial app-owned page calls the same service directly rather than making an
+HTTP request to itself. Administrator-only configuration may remain panel-only
+until an approved external client needs it.
+
+### Access modes
+
+| Caller | Purpose | Authentication |
+|---|---|---|
+| Public or Next.js storefront | Published catalog reads | Public, cacheable, rate-limited endpoints returning only safe fields |
+| `adzbyte-next` server | Anonymous cart mutations and cart handoff | Dedicated revocable service token with narrow abilities |
+| Authenticated customer | Identity and owned commerce/customer-service records | Stateful Sanctum session or an explicitly issued first-party token |
+| Filament panels | Customer and administrator management | Laravel web session plus panel access and policies |
+| PayMongo | Payment and subscription events | Verified signature against the raw request body |
+
+Planned endpoint groups include:
+
+- storefront catalog, product detail, price, and availability;
+- anonymous cart creation, mutation, summary, and handoff;
+- authenticated cart and checkout preparation;
+- orders, payments, invoices, subscriptions, and purchased products;
+- requests, reports, messages, and attachments;
+- restricted administrator or integration actions where an API consumer is
+  approved;
+- dedicated PayMongo webhooks.
+
+Every mutation that can be retried uses an idempotency key. API Resources define
+response fields, Form Requests validate input, policies authorize records and
+actions, and the OpenAPI document changes with the implementation. Generic
+unrestricted CRUD is not an acceptable substitute for checkout, payment,
+subscription, refund, cancellation, or entitlement workflows.
+
+## Customer Portal
+
+The app provides a limited anonymous full-cart page after a valid handoff. The
+authenticated root `/` Filament panel will provide:
+
+- account and profile management;
+- the full cart and checkout entry;
+- order history, order details, receipts, and payment state;
+- subscriptions, invoices, next billing information, and allowed subscription
+  actions;
+- purchased products and their entitled controls;
+- requests, issue reports, message threads, attachments, and notifications;
+- a future authenticated product listing using the same catalog services.
+
+The portal remains the authoritative customer account experience even though
+the backend APIs are designed for reuse.
+
+## Administrator Operations
+
+The `/admin` panel will provide policy-backed management of:
+
+- products, variants or plans, prices, availability, and publication;
+- customers and account state;
+- carts when operational support requires inspection;
+- orders, payments, refunds, reconciliation, and provider events;
+- subscriptions, invoices, failed renewals, cancellations, and entitlements;
+- purchased products and fulfillment state;
+- customer requests, reports, messages, attachments, assignment, and internal
+  notes;
+- roles, permissions, audit events, and operational queues.
+
+Filament panels, API controllers, jobs, and webhooks must call shared application
+services and policies so business rules cannot diverge by interface.
+
+## Security and Reliability Rules
+
+- Never trust a browser or Next.js-supplied price, total, customer identifier,
+  entitlement, payment state, or role.
+- Never expose Laravel, PayMongo, mail, hosting, or integration credentials to
+  browser code.
+- Verify PayMongo signatures against the raw request body and store provider
+  event identifiers for idempotency.
+- Process provider events safely when duplicated, delayed, or out of order.
+- Keep payment credentials with PayMongo; store only required provider
+  references and non-sensitive billing metadata.
+- Enforce ownership in queries and policies across panels and APIs.
+- Store uploads privately and issue authorized temporary downloads.
+- Queue notifications and provider follow-up work after database commit.
+- Record security-sensitive and financially significant transitions without
+  storing secrets or unnecessary sensitive data in logs.
+
+## Delivery Scope
+
+The first complete commerce release should prove this vertical path:
+
+```text
+published product in Laravel
+  -> product rendered by adzbyte-next through the catalog API
+  -> anonymous cart and compact Next.js cart summary
+  -> signed handoff to the full app cart
+  -> registration or login
+  -> checkout brief and immutable order snapshot
+  -> administrator fit approval
+  -> PayMongo test payment
+  -> verified webhook confirmation
+  -> order and purchased product visible in the customer portal
+  -> customer submits a request or report
+  -> administrator responds and resolves it
+```
+
+Subscription billing follows after the one-time purchase path is verified.
+
+## First-Release Decisions Resolved
+
+- Implement a narrow native Laravel commerce domain instead of installing a
+  general-purpose commerce package or adding a second hosted store.
+- Launch with fixed-scope, one-time service products only.
+- Fulfill the services manually after administrator fit and scope approval.
+- Fix each service line quantity at one.
+- Store and charge first-release checkout prices in PHP; administrators configure
+  exact amounts per package. No initial amounts are specified and current USD
+  figures must not be imported or converted silently.
+- Use PayMongo Hosted Checkout v2 after a persisted approved order exists.
+- Exclude physical goods, inventory, shipping, downloads, appointments,
+  variants, promotions, and subscription checkout from the initial slice.
+- Keep monthly care plans and custom project ranges enquiry-only until their
+  separate billing and fulfillment rules are approved.
+- Service packages are dynamic managed records with an initially empty catalog;
+  no launch-package or exact-price decision blocks generic C1 development.
+
+The detailed scope, workflow, boundaries, sequencing, and development-entry
+gate are maintained in the
+[First Commerce Release Approach](2026-10-05-first-commerce-release.md).
+
+## Decisions Still Required
+
+### Catalog and fulfillment
+
+- Tax treatment and invoice/receipt requirements before checkout and real sales.
+- Additional per-customer purchase limits or package-specific sale constraints
+  before enforcement; basic draft/publication/availability/archive controls are
+  already part of the dynamic-catalog requirement.
+- Required project-brief fields and the manual fulfillment states visible to
+  customers and administrators.
+
+### Cart and checkout
+
+- Cart expiration and authenticated-cart merge rules.
+- Whether one cart may contain more than one distinct service package.
+- Required customer and billing fields for each product type.
+- Fit-approval authority, correction/rejection behavior, approval expiry, and
+  customer notifications.
+
+### Payments and subscriptions
+
+- Enabled PayMongo one-time payment methods.
+- Confirmation that PayMongo Subscriptions is enabled for the merchant account.
+- Subscription intervals, trials, plan changes, cancellation timing, proration,
+  grace periods, retry outcomes, and entitlement suspension.
+- Full and partial refund rules, cancellation policy, and dispute handling.
+
+### Customer service
+
+- Request and report categories, required fields, priorities, assignment rules,
+  service targets, escalation, reopening, and closure behavior.
+- Attachment types, sizes, counts, malware handling, and retention.
+- Email and in-app notification events and customer preferences.
+
+### Privacy and operations
+
+- Retention and deletion periods for carts, accounts, orders, payments,
+  subscriptions, messages, attachments, and audit events.
+- Account deletion and financial-record retention behavior.
+- Tax, consumer-protection, privacy, and terms language required for launch.
+- Monitoring destination and financial/operational alert thresholds.
+
+These decisions must be recorded here before their implementation slice begins.
+
+## Official Provider References
+
+- [PayMongo Hosted Checkout](https://docs.paymongo.com/docs/payment-channels-hosted-checkout)
+- [PayMongo Checkout Session resource](https://docs.paymongo.com/reference/checkout-session-resource)
+- [PayMongo webhook setup and signature verification](https://docs.paymongo.com/docs/developer-tools-webhook-setup-management)
+- [PayMongo Subscriptions](https://docs.paymongo.com/docs/payment-acceptance-subscriptions)
+- [PayMongo subscription resource](https://docs.paymongo.com/reference/subscription-resource)
+- [Laravel Sanctum](https://laravel.com/docs/13.x/sanctum)
+
+
+## Configurable commerce defaults authorized 2026-10-18
+
+The owner authorized configurable common defaults for tax/documents, approval,
+Terms/Privacy and retention. Admin is the current approver; clarification and
+conversation are the normal path, while rejection remains available. The exact
+answers and selected defaults are recorded in the [decision register](../decisions/commerce-development.md#configurable-starter-defaults-authorized-2026-10-18)
+and supersede the corresponding unanswered D02/D05/D08 items above for O1
+development. Implement versioned settings and accepted snapshots, with no
+invented merchant tax registration or legal identity. The cart no-expiry rule
+continues to apply. Production legal/document qualification, merchant/payment
+configuration and operational readiness remain distinct from development.
+
+
+## Configurable payment and service defaults authorized 2026-10-18
+
+The owner approved the D06/D07 starter proposals in the [decision register](../decisions/commerce-development.md#payment-fulfillment-and-support-answers-2026-10-18):
+merchant-available methods only, no customer surcharge, cancellation before
+payment, Admin-reviewed post-payment refunds/cancellation, verified provider
+outcomes, and Admin reconciliation/disputes. Fulfillment uses Not started,
+In progress, Waiting for customer, Completed and cancellation; communication
+separates customer messages/internal notes; Admin manages case categories,
+Normal default priority, assignment and reopening without a promised response
+deadline. All remain configurable. Precise purchased-service entitlements and
+refund access remain slice-specific. The owner will configure PayMongo test
+credentials later; actual provider qualification cannot yet be completed.
+
+## Subsequent test integration, access and attachment decisions
+
+The owner subsequently authorized using the saved **test** credentials and
+continuing the remaining phases with all required verification gates. This
+supersedes the earlier test-credential deferral, while production operations and
+live credentials remain outside that authorization. Current actual provider
+proof is recorded in the [payment implementation contract](2026-10-18-paymongo-payments.md).
+
+Purchased-service defaults are configurable and captured with accepted rights:
+partial refunds retain access; full refunds or confirmed cancellation stop new
+service requests; history remains readable; Admin may make audited exceptions.
+First-release native support attachments and their scanning infrastructure are
+explicitly deferred. Customers instead share Google Drive file/folder links
+with appropriate case staff; no automatic import or public-sharing requirement.
+See the [exact answers](../decisions/commerce-development.md#test-integration-and-remaining-slice-answers-2026-10-18).
+
+
+## Portal-first priority authorized 2026-10-23
+
+The owner paused ecommerce development and requested a polished customer portal,
+with project and service tracking as the highest priority. Admins manually
+assign projects/services to customer accounts. Operational tracking records are
+independent of checkout, subscription billing and purchased entitlements. The
+owner also confirmed support requests/reports and conversations, while existing
+commerce screens remain reachable with production Under development notices.
+See the [portal delivery contract](2026-10-23-customer-portal.md). The paused
+refund/commerce qualification gates remain in force for their dependent billing
+and entitlement work; they do not block this separately authorized portal scope.

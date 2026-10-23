@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Customers\ActivateCustomerAccount;
 use App\Actions\Customers\CreateProvisionalCustomer;
 use App\Actions\Customers\SendCustomerAccountActivation;
 use App\Enums\UserRole;
@@ -18,6 +19,7 @@ use Filament\Facades\Filament;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -119,12 +121,14 @@ class AuthenticationLifecycleTest extends TestCase
         $this->get($activationUrl)
             ->assertOk()
             ->assertSee('Activate your account')
+            ->assertSee('Customer account')
+            ->assertSee('images/brand/adzbyte-logo-transparent.png', false)
             ->assertSee($customer->email);
 
         $this->post($activationUrl, [
             'password' => 'StrongPassword123!',
             'password_confirmation' => 'StrongPassword123!',
-        ])->assertRedirect('/account');
+        ])->assertRedirect('/');
 
         $customer->refresh();
 
@@ -157,6 +161,28 @@ class AuthenticationLifecycleTest extends TestCase
         $this->get($activationUrl)->assertForbidden();
     }
 
+    public function test_activation_rechecks_locked_persisted_state_before_replacing_a_password(): void
+    {
+        Event::fake([CustomerAccountActivated::class, Verified::class]);
+
+        $staleCustomer = User::factory()->unverified()->create();
+        $staleCustomer->assignRole(UserRole::Customer->value);
+
+        User::query()
+            ->whereKey($staleCustomer->getKey())
+            ->update(['email_verified_at' => now()]);
+
+        $this->assertFalse(app(ActivateCustomerAccount::class)->handle(
+            $staleCustomer,
+            'ReplacementPassword123!',
+            sha1($staleCustomer->getEmailForVerification()),
+        ));
+
+        $this->assertTrue(Hash::check('password', $staleCustomer->refresh()->password));
+        Event::assertNotDispatched(Verified::class);
+        Event::assertNotDispatched(CustomerAccountActivated::class);
+    }
+
     public function test_activation_links_cannot_authorize_another_email_or_role(): void
     {
         $administrator = User::factory()->unverified()->create();
@@ -172,6 +198,34 @@ class AuthenticationLifecycleTest extends TestCase
         );
 
         $this->get($signedUrl)->assertForbidden();
+    }
+
+    public function test_activation_rejects_an_email_changed_after_the_link_was_authorized(): void
+    {
+        Event::fake([CustomerAccountActivated::class, Verified::class]);
+        $customer = User::factory()->unverified()->create();
+        $customer->assignRole(UserRole::Customer->value);
+        $activationUrl = (new CustomerAccountActivation)->activationUrl($customer);
+        $raced = false;
+        DB::connection()->beforeStartingTransaction(function () use ($customer, &$raced): void {
+            if (! $raced) {
+                $raced = true;
+                User::whereKey($customer->id)->update(['email' => 'changed@example.test']);
+            }
+        });
+
+        $this->post($activationUrl, [
+            'password' => 'ReplacementPassword123!',
+            'password_confirmation' => 'ReplacementPassword123!',
+        ])->assertRedirect('/login');
+
+        $this->assertTrue($raced);
+        $this->assertSame('changed@example.test', $customer->refresh()->email);
+        $this->assertFalse($customer->hasVerifiedEmail());
+        $this->assertTrue(Hash::check('password', $customer->password));
+        $this->assertGuest();
+        Event::assertNotDispatched(Verified::class);
+        Event::assertNotDispatched(CustomerAccountActivated::class);
     }
 
     public function test_activation_submissions_are_rate_limited(): void
@@ -194,22 +248,22 @@ class AuthenticationLifecycleTest extends TestCase
         ])->assertTooManyRequests();
     }
 
-    public function test_filament_authentication_features_are_enabled_without_registration(): void
+    public function test_existing_panel_authentication_coexists_with_customer_only_public_registration(): void
     {
-        $this->get('/account/password-reset/request')->assertOk();
+        $this->get('/password-reset/request')->assertOk();
         $this->get('/admin/password-reset/request')->assertOk();
-        $this->get('/account/register')->assertNotFound();
+        $this->get('/register')->assertOk();
         $this->get('/admin/register')->assertNotFound();
 
         $customer = User::factory()->create();
         $customer->assignRole(UserRole::Customer->value);
 
         $this->actingAs($customer)
-            ->get('/account/profile')
+            ->get('/profile')
             ->assertOk();
 
-        $this->post('/account/logout')
-            ->assertRedirect('/account/login');
+        $this->post('/logout')
+            ->assertRedirect('/login');
 
         $this->assertGuest();
     }
@@ -220,10 +274,10 @@ class AuthenticationLifecycleTest extends TestCase
         $customer->assignRole(UserRole::Customer->value);
 
         $this->actingAs($customer)
-            ->get('/account')
-            ->assertRedirect('/account/email-verification/prompt');
+            ->get('/')
+            ->assertRedirect('/email-verification/prompt');
 
-        $this->get('/account/email-verification/prompt')->assertOk();
+        $this->get('/email-verification/prompt')->assertOk();
     }
 
     public function test_filament_email_verification_marks_the_shared_user_verified(): void
@@ -236,7 +290,7 @@ class AuthenticationLifecycleTest extends TestCase
 
         $this->actingAs($customer)
             ->get($verificationUrl)
-            ->assertRedirect('/account');
+            ->assertRedirect('/');
 
         $this->assertTrue($customer->refresh()->hasVerifiedEmail());
         Event::assertDispatched(Verified::class);
