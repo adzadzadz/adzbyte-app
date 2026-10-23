@@ -104,3 +104,11 @@ so a reserved job cannot be reclaimed before its worker timeout. The owner setup
 script was rehearsed against synthetic local data: creates only a new owner
 identity, queues Filament's admin reset link atomically, and leaves email
 verification required. It rejects an existing identity and never prints tokens.
+
+The official October 21 Node advisory identified CI's cached Node24.21.0 as
+below patched24.22.1. Both build/HTTP-consumer jobs now pin24.22.1 before
+promotion; this is build exposure, with no Node runtime deployed for this PHP
+app. The final workflow reruns all gates using the patched binary. References:
+https://nodejs.org/en/blog/vulnerability/october-2026-security-releases and
+https://nodejs.org/en/blog/release/v24.22.1. Local preview is stopped after QA;
+release assets come only from patched CI, not the older local Node/PHP tools.
