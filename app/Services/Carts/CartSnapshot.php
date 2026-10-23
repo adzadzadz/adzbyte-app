@@ -5,6 +5,7 @@ namespace App\Services\Carts;
 use App\Enums\ProductStatus;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Support\Collection;
 
 /** Internal result. HTTP adapters must project product models with Resources. */
@@ -24,7 +25,7 @@ final class CartSnapshot
             $product = $item->product;
             $price = $product->currentPrice;
             $terms = $product->currentTerms;
-            $available = $product->status === ProductStatus::Published && $product->is_available
+            $available = ! RecordVisibility::isDeleted($product) && $product->status === ProductStatus::Published && $product->is_available
                 && $price !== null && $price->amount_minor > 0 && $price->currency === 'PHP'
                 && $terms !== null && $terms->content !== [];
             $changed = $price?->id !== $item->quoted_price_id || $terms?->id !== $item->quoted_terms_id;

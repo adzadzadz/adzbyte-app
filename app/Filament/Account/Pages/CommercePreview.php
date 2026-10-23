@@ -2,10 +2,13 @@
 
 namespace App\Filament\Account\Pages;
 
+use App\Support\Filament\HasLockedCommerceNavigation;
 use Filament\Pages\Page;
 
 final class CommercePreview extends Page
 {
+    use HasLockedCommerceNavigation;
+
     protected static ?string $title = 'Ecommerce preview';
 
     protected static ?string $navigationLabel = 'Ecommerce';

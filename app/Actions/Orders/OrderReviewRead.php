@@ -10,6 +10,7 @@ use App\Models\OrderProposal;
 use App\Models\User;
 use App\Services\Orders\OrderAggregate;
 use App\Support\Database\RetryingTransaction;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 final class OrderReviewRead
@@ -23,10 +24,11 @@ final class OrderReviewRead
             app(CommercePolicyActions::class)->current();
             $query = Order::where('public_id', $reference);
             if (! $staff) {
+                RecordVisibility::scope($query);
                 $query->where('user_id', $fresh->id);
             }
             $order = OrderAggregate::hydrate($query->lockForUpdate()->firstOrFail());
-            $messages = OrderMessage::where('order_id', $order->id);
+            $messages = RecordVisibility::scope(OrderMessage::where('order_id', $order->id));
             if (! $staff) {
                 $messages->where('audience', 'customer');
             }
@@ -46,13 +48,14 @@ final class OrderReviewRead
         return RetryingTransaction::run(function () use ($actor, $page) {
             $this->actor($actor, OrderCapability::ViewAny);
 
-            return Order::with('currentRevision')->orderByDesc('id')->paginate(20, ['*'], 'page', $page);
+            return RecordVisibility::scope(Order::with('currentRevision'))->orderByDesc('id')->paginate(20, ['*'], 'page', $page);
         });
     }
 
     private function actor(User $actor, ?OrderCapability $capability): User
     {
         $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+        RecordVisibility::assertVisible($fresh);
         abort_unless($fresh->hasVerifiedEmail(), 403);
         abort_unless($capability === null ? $fresh->hasRole(UserRole::Customer->value)
             : $fresh->hasAnyRole([UserRole::Administrator->value, UserRole::SuperAdmin->value]) && $fresh->checkPermissionTo($capability->value), 403);

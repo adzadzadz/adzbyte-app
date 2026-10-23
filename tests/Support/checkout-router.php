@@ -46,7 +46,7 @@ if ($browser) {
     $file = realpath($public.$path);
     $types = ['css' => 'text/css', 'js' => 'application/javascript', 'png' => 'image/png', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'svg' => 'image/svg+xml', 'webp' => 'image/webp', 'woff2' => 'font/woff2', 'ico' => 'image/x-icon'];
     $extension = is_string($file) ? pathinfo($file, PATHINFO_EXTENSION) : '';
-    if ($file !== false && str_starts_with($file, $public.'/') && is_file($file) && isset($types[$extension])) {
+    if ($file !== false && str_starts_with(str_replace('\\', '/', $file), str_replace('\\', '/', realpath($public)).'/') && is_file($file) && isset($types[$extension])) {
         header('Content-Type: '.$types[$extension]);
         readfile($file);
         exit;

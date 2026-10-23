@@ -5,16 +5,23 @@ namespace App\Filament\Resources\Orders;
 use App\Filament\Resources\Orders\Pages\ListOrders;
 use App\Filament\Resources\Orders\Pages\ViewOrder;
 use App\Models\Order;
+use App\Services\Carts\MinorUnits;
+use App\Support\Filament\HasLockedCommerceNavigation;
+use App\Support\Filament\RecordVisibilityActions;
+use App\Support\Records\RecordVisibility;
 use BackedEnum;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 final class OrderResource extends Resource
 {
+    use HasLockedCommerceNavigation;
+
     protected static ?string $model = Order::class;
 
     protected static ?string $recordRouteKeyName = 'public_id';
@@ -25,18 +32,27 @@ final class OrderResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Commerce';
 
-    protected static ?string $navigationLabel = 'Service requests';
+    protected static ?string $navigationLabel = 'Orders';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return RecordVisibility::query(parent::getEloquentQuery(), 'all');
+    }
 
     public static function table(Table $table): Table
     {
-        return $table->columns([
+        return $table->modifyQueryUsing(fn ($query) => $query->with(['currentRevision.lines']))->columns([
+            RecordVisibilityActions::column(),
             TextColumn::make('public_id')->label('Reference')->searchable()->wrap(),
+            TextColumn::make('customer')->label('Customer')->state(fn (Order $record): ?string => $record->currentRevision?->billing['name'] ?? null)->placeholder('Not recorded')->wrap(),
+            TextColumn::make('services')->label('Services')->state(fn (Order $record): string => $record->currentRevision?->lines->map(fn ($line) => $line->snapshot['name'] ?? 'Service')->implode(', ') ?? '')->wrap(),
+            TextColumn::make('currentRevision.total_minor')->label('Total')->formatStateUsing(fn (string $state): string => MinorUnits::formatPhp($state)),
             TextColumn::make('approval_status')->label('Approval')->badge(),
             TextColumn::make('payment_status')->label('Payment')->badge(),
             TextColumn::make('revision')->label('Revision'),
             TextColumn::make('created_at')->dateTime()->sortable(),
-        ])->filters([SelectFilter::make('approval_status')->options(['pending' => 'Pending', 'clarification' => 'Clarification', 'approved' => 'Approved', 'rejected' => 'Rejected', 'expired' => 'Expired'])])
-            ->recordActions([ViewAction::make()])->defaultSort('id', 'desc')->emptyStateHeading('No service requests yet');
+        ])->filters([RecordVisibilityActions::filter(), SelectFilter::make('approval_status')->options(['pending' => 'Pending', 'clarification' => 'Clarification', 'approved' => 'Approved', 'rejected' => 'Rejected', 'expired' => 'Expired'])])
+            ->recordActions([RecordVisibilityActions::delete(), RecordVisibilityActions::restore(), ViewAction::make()])->defaultSort('id', 'desc')->emptyStateHeading('No purchase requests yet');
     }
 
     public static function getPages(): array

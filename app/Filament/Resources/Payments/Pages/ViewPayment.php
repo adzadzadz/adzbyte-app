@@ -9,6 +9,8 @@ use App\Http\Resources\Api\V1\PaymentOperationsResource;
 use App\Models\Order;
 use App\Models\User;
 use App\Policies\PaymentAttemptPolicy;
+use App\Support\Filament\RecordVisibilityActions;
+use App\Support\Records\RecordVisibility;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -22,6 +24,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class ViewPayment extends ViewRecord
 {
+    public function getSubheading(): ?string
+    {
+        return RecordVisibility::isDeleted($this->getRecord()) ? 'Deleted — retained for history. Restore this record or its owning record in Data management before making changes.' : null;
+    }
+
     protected static string $resource = PaymentResource::class;
 
     protected string $view = 'filament.payments.view';
@@ -60,6 +67,10 @@ final class ViewPayment extends ViewRecord
 
     protected function getHeaderActions(): array
     {
+        if (RecordVisibility::isDeleted($this->getRecord())) {
+            return [RecordVisibilityActions::restore()];
+        }
+
         $actions = [Action::make('reconcile')->label('Reconcile signed payment')
             ->visible(fn (): bool => app(PaymentOperations::class)->read(auth()->user(), $this->getRecord()->public_id)['can_reconcile'])
             ->authorize(fn (): bool => app(PaymentAttemptPolicy::class)->reconcile(User::findOrFail(auth()->id()), $this->getRecord()))
@@ -67,6 +78,7 @@ final class ViewPayment extends ViewRecord
             ->schema([TextInput::make('event')->label('Provider event ID')->required()->maxLength(100),
                 Textarea::make('note')->label('Reason for reconciliation (Admin only)')->required()->maxLength(1000)->rows(3)])
             ->action(function (array $data): void {
+                abort_if(RecordVisibility::isDeleted($this->getRecord()->fresh()), 403);
                 try {
                     app(PaymentOperations::class)->reconcile(auth()->user(), $this->getRecord()->public_id, $data['event'] ?? '',
                         ['expected_revision' => $this->expectedRevision, 'note' => $data['note'] ?? ''], $this->operationId);
@@ -105,6 +117,7 @@ final class ViewPayment extends ViewRecord
                     'recover' => 'Verify the supplied provider session against the captured order before binding its identity. This cannot record payment or create another session.',
                     'verify' => 'Read the existing provider session to resolve an uncertain closure or recovery. This sends no expiry request and preserves the original command.',
                 })->schema($fields)->action(function (array $data) use ($command): void {
+                    abort_if(RecordVisibility::isDeleted($this->getRecord()->fresh()), 403);
                     try {
                         $result = app(PaymentControlActions::class)->start(auth()->user(), Order::findOrFail($this->getRecord()->order_id)->public_id, $command,
                             ['expected_revision' => $this->expectedRevision, 'note' => $data['note'] ?? '',
@@ -126,6 +139,6 @@ final class ViewPayment extends ViewRecord
                 });
         }
 
-        return $actions;
+        return [...$actions, RecordVisibilityActions::delete(), RecordVisibilityActions::restore()];
     }
 }

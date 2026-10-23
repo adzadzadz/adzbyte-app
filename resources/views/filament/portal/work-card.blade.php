@@ -1,11 +1,11 @@
 @php
     $url = $staff
-        ? \App\Filament\Pages\Portal\ClientWork::getUrl(['record' => $item['public_id']], panel: 'admin')
-        : ($item['type'] === 'project' ? \App\Filament\Account\Pages\Projects::getUrl(['record' => $item['public_id']], panel: 'account') : \App\Filament\Account\Pages\Services::getUrl(['record' => $item['public_id']], panel: 'account'));
+        ? \App\Filament\Pages\Portal\ClientWork::getUrl([...($listContext ?? []), 'record' => $item['public_id']], panel: 'admin')
+        : ($item['type'] === 'project' ? \App\Filament\Account\Pages\Projects::getUrl([...($listContext ?? []), 'record' => $item['public_id']], panel: 'account') : \App\Filament\Account\Pages\Services::getUrl([...($listContext ?? []), 'record' => $item['public_id']], panel: 'account'));
 @endphp
 <article class="adz-portal-card">
     <div class="adz-portal-row"><span class="adz-portal-kicker">{{ ucfirst($item['type']) }}</span><span class="adz-portal-status" data-status="{{ $item['status'] }}">{{ \App\Support\PortalOptions::label($item['status'], $staff) }}</span></div>
-    <h2 class="adz-portal-title"><a href="{{ $url }}" class="adz-portal-link">{{ $item['title'] }}</a></h2>
+    <h2 class="adz-portal-title"><a wire:navigate href="{{ $url }}" class="adz-portal-link">{{ $item['title'] }}</a></h2>
     @if ($staff)<p class="adz-portal-muted">{{ $item['customer'] }}</p>@endif
     @if ($item['unread'] && ! $staff)<span class="adz-portal-unread">New update</span>@endif
     @if ($item['milestone_count'])

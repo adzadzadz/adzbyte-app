@@ -7,6 +7,8 @@ use App\Enums\ProductStatus;
 use App\Filament\Resources\Products\ProductResource;
 use App\Models\User;
 use App\Support\Filament\CatalogInput;
+use App\Support\Filament\RecordVisibilityActions;
+use App\Support\Records\RecordVisibility;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Textarea;
@@ -26,6 +28,21 @@ final class ViewProduct extends ViewRecord
     #[Locked]
     public array $operationIds = [];
 
+    public function getSubheading(): ?string
+    {
+        $record = $this->getRecord();
+
+        if (RecordVisibility::isDeleted($record)) {
+            return 'Deleted — retained for history. Restore this record or its owning record in Data management before making changes.';
+        }
+
+        return 'Publication: '.Str::headline($record->status->value)
+            .' · Availability: '.($record->is_available ? 'Enabled' : 'Disabled')
+            .' · Price version: '.($record->currentPrice()->first()?->version ?? 'Not set')
+            .' · Terms version: '.($record->currentTerms()->first()?->version ?? 'Not set')
+            .'. Review these before enabling a service for purchase.';
+    }
+
     public function mount(int|string $record): void
     {
         foreach (['publish', 'unpublish', 'archive', 'restore', 'enableAvailability', 'disableAvailability', 'revisePrice', 'reviseTerms'] as $name) {
@@ -38,8 +55,14 @@ final class ViewProduct extends ViewRecord
     {
         $record = $this->getRecord();
 
+        if (RecordVisibility::isDeleted($record)) {
+            return [RecordVisibilityActions::restore()];
+        }
+
         return [
-            Action::make('editContent')->label('Edit content')->url(ProductResource::getUrl('edit', ['record' => $record]))->visible(fn (): bool => Gate::allows('update', $record)),
+            RecordVisibilityActions::delete(),
+            RecordVisibilityActions::restore(),
+            Action::make('editContent')->label('Edit content')->url(ProductResource::getUrl('edit', ['record' => $record]))->visible(fn (): bool => ProductResource::canEdit($record)),
             $this->command('revisePrice', 'New price')->schema([
                 TextInput::make('amount')->label('Price (PHP)')->required()->inputMode('decimal')->rules([fn () => CatalogInput::moneyRule()])
                     ->helperText('A new version applies to future offers. Zero disables availability.'),
@@ -48,7 +71,7 @@ final class ViewProduct extends ViewRecord
 
                 return ['amount' => $minor === null ? '' : intdiv($minor, 100).'.'.str_pad((string) ($minor % 100), 2, '0', STR_PAD_LEFT)];
             }),
-            $this->command('reviseTerms', 'New terms')->modalDescription('Create a version for future offers. Earlier versions remain unchanged. Existing structured sections are preserved unless you enter replacement text.')
+            $this->command('reviseTerms', 'New terms')->slideOver()->modalDescription('Create a version for future offers. Earlier versions remain unchanged. Existing structured sections are preserved unless you enter replacement text.')
                 ->schema(collect(CatalogInput::TERMS_FIELDS)->map(fn (string $label, string $key) => Textarea::make($key)->label($label)->rows(3))->all())
                 ->fillForm(function (): array {
                     $document = $this->getRecord()->currentTerms()->first()?->content ?? [];
@@ -70,8 +93,9 @@ final class ViewProduct extends ViewRecord
     {
         $ability = in_array($name, ['enableAvailability', 'disableAvailability'], true) ? 'setAvailability' : $name;
 
-        return Action::make($name)->label($label)->authorize(fn (): bool => Gate::allows($ability, $this->getRecord()))
+        return Action::make($name)->label($label)->authorize(fn (): bool => ! RecordVisibility::isDeleted($this->getRecord()) && Gate::allows($ability, $this->getRecord()))
             ->requiresConfirmation()->action(function (array $data) use ($name): void {
+                abort_if(RecordVisibility::isDeleted($this->getRecord()->fresh()), 403);
                 $actor = auth()->user();
                 abort_unless($actor instanceof User, 403);
                 $record = $this->getRecord();

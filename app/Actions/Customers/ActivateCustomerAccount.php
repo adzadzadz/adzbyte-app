@@ -5,6 +5,7 @@ namespace App\Actions\Customers;
 use App\Enums\UserRole;
 use App\Events\CustomerAccountActivated;
 use App\Models\User;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -21,6 +22,7 @@ final class ActivateCustomerAccount
 
         $activatedUser = DB::transaction(function () use ($user, $validated, $verificationHash): ?User {
             $lockedUser = User::query()->lockForUpdate()->findOrFail($user->getKey());
+            RecordVisibility::assertVisible($lockedUser);
 
             if (! $lockedUser->hasRole(UserRole::Customer->value)
                 || $lockedUser->hasVerifiedEmail()

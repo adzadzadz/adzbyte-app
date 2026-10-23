@@ -21,6 +21,7 @@ class PaymentResolutionMigrationTest extends TestCase
         $this->setUpCatalogDatabase(migrate: false);
         $paths = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($path) => basename($path) < '2026_10_18_110000_create_payment_resolutions.php'));
         $this->artisan('migrate', ['--path' => $paths, '--realpath' => true, '--force' => true])->assertSuccessful();
+        $this->installVisibilitySchemaForLegacyFixture();
         $this->createPaymentAttempt();
     }
 

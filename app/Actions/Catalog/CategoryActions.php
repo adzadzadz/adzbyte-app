@@ -8,6 +8,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductCategoryChange;
 use App\Models\User;
 use App\Support\Database\RetryingTransaction;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -37,7 +38,12 @@ final class CategoryActions
         $operationId = strtolower($operationId);
         try {
             return RetryingTransaction::run(function () use ($actor, $category, $attributes, $action, $hash, $operationId): ProductCategory {
+                $actor = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+                RecordVisibility::assertVisible($actor);
                 $locked = $category === null ? null : ProductCategory::query()->lockForUpdate()->findOrFail($category->getKey());
+                if ($locked) {
+                    RecordVisibility::assertVisible($locked);
+                }
                 Gate::forUser($actor)->authorize($action, $locked ?? ProductCategory::class);
                 $receipt = ProductCategoryChange::query()->where('actor_id', $actor->id)->where('operation_id', $operationId)->lockForUpdate()->first();
                 if ($receipt !== null) {

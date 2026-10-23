@@ -1,6 +1,113 @@
 # Project Status
 
-**Last updated:** 2026-10-23 (customer portal priority; ecommerce development paused)
+**Last updated:** 2026-10-24 (combined UI/CRUD and ecommerce lock release authorized; exact-source qualification pending)
+
+## Commerce navigation lock — locally verified, 2026-10-24
+
+Customer Ecommerce/Cart/Orders and every admin Commerce navigation entry, including Package checkouts, now
+show lock icons and stay on the current page. Clicking or using Enter/Space
+shows **This feature is under development.** The dashboard commerce shortcut
+uses the same locked behavior. Direct commerce screen URLs return a private,
+uncached 503 notice; Filament retains the guard for subsequent Livewire requests.
+`COMMERCE_FEATURES_LOCKED` defaults to `true` in every application environment;
+commerce development tests explicitly disable it and lock tests enable it.
+Existing API/provider processing behavior is unchanged by this UI lock.
+
+Focused navigation/account/portal tests pass **12 tests / 304 assertions**.
+The production asset build passes; an isolated browser fixture using the actual
+Filament navigation renderer confirms click/keyboard tooltip feedback without
+navigation. No production deployment or data change occurred.
+
+The owner subsequently authorized the combined UI/admin CRUD release with only
+ecommerce locked. Data management and project management remain accessible.
+Fresh Composer/npm audits pass with zero findings; [release preflight](evidence/2026-10-24-commerce-lock/release-preflight.md)
+records the source boundary and official advisory review.
+
+Next: commit the release source, pass exact-source CI on both databases and run
+the protected production workflow once.
+
+## Recoverable admin CRUD — verified source, included in authorized release
+
+The owner selected editable admin business records, preserved payment/provider/
+audit history, and cart changes in the customer workflow. Administration → Data
+management now covers 30 allowlisted types with Active/Deleted/All filters,
+safe details, confirmed Delete/Restore, parent recovery and lifecycle history.
+Existing admin resources and portal details expose contextual controls; staff
+can create requests and edit their details in side drawers. Original rows and
+business status values remain stored. Deleted identities and stale edits are
+blocked; self/last-super and assigned-role protections include concurrent races.
+
+Source `9a46720` passes [CI 40013619074](https://github.com/adzadzadz/adzbyte-app/actions/runs/40013619074):
+**723 tests / 9,380 assertions independently on SQLite and MySQL 8.0.46,
+PHP 8.3.36**, including populated migration/recovery and independent-process
+contention. Audits report zero vulnerabilities; formatting, clean installs,
+builds, 16 deployment-safety tests and production caches pass. Independent
+review has no unresolved material findings. Actual desktop/320px create/edit,
+Delete/Restore, parent recovery, modal focus and customer-denial checks pass.
+
+One additive metadata migration is included but has not been applied to any
+existing database. The earlier **do not deploy yet** hold is superseded by the
+owner's current combined release authorization. At source qualification no merge,
+deployment, real mail or provider operation occurred. Permanent purge/bulk
+deletion, support email/attachments/automatic refresh/status transitions and
+production latency measurement remain outside this increment. Commerce stays
+paused. [Full CRUD review, limitations and evidence](evidence/2026-10-24-filament-ux/record-management.md).
+
+Next: owner review of the combined [draft PR #1](https://github.com/adzadzadz/adzbyte-app/pull/1).
+
+## Filament UX improvements — verified source, ready for owner review
+
+Three authorized batches retain Filament/Livewire and remove the abandoned
+React dependencies. Panel navigation, actionable waiting queues, staff filters,
+contextual assignment/work drawers, milestone editing, inline conversations,
+draft/conflict recovery and account/commerce clarity are implemented. Independent
+review approves the source after regression fixes. Built desktop/mobile browser
+checks pass using disposable synthetic data, including 320px without horizontal
+overflow; the QA server and databases are removed.
+
+The complete local SQLite suite passes **692 tests / 9,028 assertions**.
+[CI 40004323532](https://github.com/adzadzadz/adzbyte-app/actions/runs/40004323532)
+passes the same **692 / 9,028 on each database**, SQLite and MySQL 8.0.46, using
+PHP 8.3.36, for implementation `229b296` in
+[draft PR #1](https://github.com/adzadzadz/adzbyte-app/pull/1). Full Pint, metadata,
+both audits, clean installs, build, all 16 deployment-safety tests and production
+caches pass. No merge or production deployment occurred. Commerce stays paused.
+[Full review and evidence](evidence/2026-10-24-filament-ux/qualification.md).
+
+Next: owner review of draft PR #1. Deployment requires a separate explicit command.
+
+## Guest authentication visual refresh — locally verified, 2026-10-24
+
+Customer and administrator sign-in retain the familiar Filament form card, now
+positioned on the right on desktop with refined spacing, controls and focus
+treatment. Password recovery shares the shell. A self-hosted GetLayers **Purple
+Desert** landscape supplies the background: a 1.02 MB silent loop on desktop,
+pause/play control, and a 48 KB poster for mobile, reduced-motion and data-saving
+preferences. The source is a free commercially licensed download; provenance
+and hashes are recorded in `resources/brand/auth-background.json`.
+
+Focused branding/authentication verification passes **19 tests / 118 assertions**;
+PHP formatting and the Vite build pass. Browser checks cover customer/admin,
+password recovery, 320/390px layouts, validation errors and animation controls.
+The encoded video decodes cleanly. No authentication rules or production data
+changed. Next: review the local sign-in design; deployment remains separately gated.
+
+## Latest production release — automated CI/CD verified, 2026-10-23
+
+Owner-authorized [release 39975941196](https://github.com/adzadzadz/adzbyte-app/actions/runs/39975941196)
+deploys source `d6f6df447987d63c909c9037f6de58e68f06bb9b` as
+`621e2c47763c3f49583c536c8c781cbdaf87ddee`. Both database suites pass 678 tests /
+8,930 assertions; all 16 deployment safety tests, fresh dependency audits, build
+and cache checks pass. GitHub performed the encrypted backup, locked update,
+post-pull, migrations, cache generation, worker restart and both HTTPS checks
+without manual production deployment commands or hPanel changes.
+
+Independent checks confirm the live SHA, protected backup/secret permissions,
+unchanged environment/key and aggregate customer/work/conversation counts,
+all 22 migrations applied, zero queued/failed jobs and no new application errors.
+The existing customer session survives reload, opens both assignments and shows
+the same admin reply on the project and Requests pages. Scheduler/worker outputs
+at 15:22 UTC prove automatic work resumed. [Execution evidence](evidence/2026-10-23-cicd/qualification.md#first-production-run--passed).
 
 ## Portal workflow and production integration — deployed
 
@@ -30,8 +137,8 @@ This current release record supersedes historical production statements below.
 
 **Current owner priority:** complete the customer portal, especially manually
 assigned project and service tracking. Ecommerce development is paused;
-existing screens stay reachable with production **Under development** notices
-and customer write protection. Staff can assign work to a customer, manage
+commerce screens are locked with **Under development** navigation tooltips
+and direct-page protection. Staff can assign work to a customer, manage
 milestones/status/next steps and publish updates. Customers can create linked
 or standalone requests/reports and exchange messages with authorized staff;
 private notes stay separate. See the [portal scope](plans/2026-10-23-customer-portal.md),
@@ -98,7 +205,7 @@ configuration checks, and an operations/recovery runbook. Commerce development
 now builds on that foundation; remaining domain/adaptor work and its applicable
 decision dependencies are tracked in the roadmap and runbook.
 
-The current PHP 8.3-compatible portal is deployed through the machine-managed `deploy ` branch. Customers use `/` and `/login`; administration uses `/admin`.
+The current PHP 8.3-compatible portal is deployed through the machine-managed `deploy` branch. Customers use `/` and `/login`; administration uses `/admin`.
 
 ## Verified Foundation and Catalog
 
@@ -152,7 +259,7 @@ and Requests & reports; the expanded Requests thread survives reload. One report
 one public reply, no private notes/duplicates, and correct audit/read state are
 confirmed. No application fix or deployment was needed. See [live conversation evidence](evidence/2026-10-23-customer-portal/polish/linked-report-live-check.md).
 
-## CI/CD automation — configured; first release pending, 2026-10-23
+## CI/CD automation — deployed and verified, 2026-10-23
 
 Owner requests releases without repeated hPanel/SSH work. Reviewed main-only
 GitHub release now prepares restricted SSH deployment, request/cron drain,
@@ -165,9 +272,9 @@ check and compiled-secret permissions. Final source `7928aa9` passes
 678 / 8,930 per database, all 16 safety tests, audits/build/cache gates. Independent review
 approves the final implementation. One-time main-only production environment,
 restricted key/pin, locked cron cutover and Hostinger auto-pull-off are configured.
-GitHub-to-Hostinger preflight 39972909499 passes; readiness is `true`. First explicitly
-authorized code release remains pending. Production remains `3bcc292e`; customer
-data is unchanged. See [CI/CD evidence](evidence/2026-10-23-cicd/qualification.md).
+GitHub-to-Hostinger preflight 39972909499 passes; readiness is `true`. The first
+explicitly authorized release 39975941196 now passes end to end. Production is
+`621e2c4`; customer data and environment/key are preserved. See [CI/CD evidence](evidence/2026-10-23-cicd/qualification.md).
 
 ## Up Next
 
@@ -190,7 +297,7 @@ Source `f128d5c` passes [CI 39103121139](https://github.com/adzadzadz/adzbyte-ap
 formatting/metadata/build/production caches passed. The review gate is cleared. See the
 [review and qualification record](evidence/2026-10-18-laravel-review/qualification.md).
 
-**O2.1 — verified complete at `8f13521`.** [CI 39114275120](https://github.com/adzadzadz/adzbyte-app/actions/runs/39114275120) passes **436 / 6,688 per engine**, PHP8.3.35 SQLite/MySQL8.0.46, audits/metadata/format/build/caches. Independent review, actual QRPh test creation/retrieval/replay/expiry, real HTTP/OpenAPI, schema/concurrency and desktop/320px native UI pass. [Evidence](evidence/2026-10-18-payments/qualification.md). **O2.2 verified complete at `7560514`.** [CI 39116369733](https://github.com/adzadzadz/adzbyte-app/actions/runs/39116369733) passes **477 / 6,908 per engine**, PHP8.3.35 SQLite/MySQL8.0.46, audits/metadata/format/build/caches. Actual signed QRPh test payment/callback, provider delivery Success, duplicate safety, native desktop/320px and independent review pass. See [webhook evidence](evidence/2026-10-18-payments/webhook-qualification.md). **O2.3a verified complete at`28a0f86` / [CI39123794458](https://github.com/adzadzadz/adzbyte-app/actions/runs/39123794458): 505 /7,164 per PHP8.3.35 SQLite/MySQL8.0.46 engine; all source gates pass.** shared policy-backed Admin/REST reads and audited reconciliation recover the preserved actual signed test payment with one settlement/resolution and unchanged original receipt. Final local505 /7,164 and native desktop/320px pass; independent review corrections pass. [Evidence](evidence/2026-10-18-payments/reconciliation-qualification.md). **O2.3b qualified at46614f8 / [CI39191936629](https://github.com/adzadzadz/adzbyte-app/actions/runs/39191936629): 539 /7,537 per PHP8.3.35 SQLite/MySQL8.0.46 engine; all source gates pass.** Actual test unknown-ID recovery, verified expiry/customer cancellation, native1470/320, real HTTP/OpenAPI, schema/races and independent approval pass. [Closure evidence](evidence/2026-10-18-payments/closure-qualification.md). **O2.3c is partial and blocked on sandbox refund qualification:** QRPh-specific test refund failed422 without a claim link, generic API rejects QRPh, and test wallet inventory is empty. No successful refund/claim contract or C implementation is claimed. [Blocker and support-ready note](evidence/2026-10-18-payments/refund-qualification-blocker.md). O2 aggregate and dependent O3/S2/R1/Q remain incomplete.
+**O2.1 — verified complete at `8f13521`.** [CI 39114275120](https://github.com/adzadzadz/adzbyte-app/actions/runs/39114275120) passes **436 / 6,688 per engine**, PHP 8.3.35 SQLite/MySQL8.0.46, audits/metadata/format/build/caches. Independent review, actual QRPh test creation/retrieval/replay/expiry, real HTTP/OpenAPI, schema/concurrency and desktop/320px native UI pass. [Evidence](evidence/2026-10-18-payments/qualification.md). **O2.2 verified complete at `7560514`.** [CI 39116369733](https://github.com/adzadzadz/adzbyte-app/actions/runs/39116369733) passes **477 / 6,908 per engine**, PHP 8.3.35 SQLite/MySQL8.0.46, audits/metadata/format/build/caches. Actual signed QRPh test payment/callback, provider delivery Success, duplicate safety, native desktop/320px and independent review pass. See [webhook evidence](evidence/2026-10-18-payments/webhook-qualification.md). **O2.3a verified complete at`28a0f86` / [CI39123794458](https://github.com/adzadzadz/adzbyte-app/actions/runs/39123794458): 505 /7,164 per PHP 8.3.35 SQLite/MySQL8.0.46 engine; all source gates pass.** shared policy-backed Admin/REST reads and audited reconciliation recover the preserved actual signed test payment with one settlement/resolution and unchanged original receipt. Final local505 /7,164 and native desktop/320px pass; independent review corrections pass. [Evidence](evidence/2026-10-18-payments/reconciliation-qualification.md). **O2.3b qualified at46614f8 / [CI39191936629](https://github.com/adzadzadz/adzbyte-app/actions/runs/39191936629): 539 /7,537 per PHP 8.3.35 SQLite/MySQL8.0.46 engine; all source gates pass.** Actual test unknown-ID recovery, verified expiry/customer cancellation, native1470/320, real HTTP/OpenAPI, schema/races and independent approval pass. [Closure evidence](evidence/2026-10-18-payments/closure-qualification.md). **O2.3c is partial and blocked on sandbox refund qualification:** QRPh-specific test refund failed422 without a claim link, generic API rejects QRPh, and test wallet inventory is empty. No successful refund/claim contract or C implementation is claimed. [Blocker and support-ready note](evidence/2026-10-18-payments/refund-qualification-blocker.md). O2 aggregate and dependent O3/S2/R1/Q remain incomplete.
 
 Historical O1 evidence:
 D06/D07 configurable defaults are recorded. O1 is verified complete at
@@ -447,7 +554,7 @@ but did not test MySQL. Existing local/production databases remain untouched.
 - GitHub Actions content writes are enabled and the `production` environment exists.
 - CI run 2 passed the full verification workflow after Composer was pinned to a PHP 8.3 resolution platform and Symfony packages were resolved to compatible 7.4 releases.
 - The authorized release workflow run `30860097717` passed and promoted source commit `12ed0c81d235` to deploy commit `eda1d21cc641`.
-- Hostinger pulled the `deploy ` branch into `public_html`, installed production dependencies, and reports the deployment completed on PHP 8.3.
+- Hostinger pulled the `deploy` branch into `public_html`, installed production dependencies, and reports the deployment completed on PHP 8.3.
 - A dedicated production database and mode-`600` `.env` were created without storing credentials in Git. A pre-migration dump is retained outside the web root.
 - A dedicated SSH key is authorized with mode-`600` key-file permissions. Both the Laravel scheduler and stop-when-empty database queue worker are configured in hPanel at `* * * * *` and have produced cron output records.
 - All five production migrations ran, Laravel production caches were built, the manual scheduler and queue checks passed, and both `jobs` and `failed_jobs` were empty after verification.
@@ -582,7 +689,7 @@ historical checkpoints and do not describe the current production version.
 - Commit `937fec5` fixes the PHP 8.3 dependency resolution mismatch; GitHub CI run 2 passed.
 - The local super-administrator identity is verified; its password is not stored in the repository.
 - The session-owned development server was stopped.
-- The last recorded production release promoted source commit `12ed0c81d235` to generated `deploy ` commit `eda1d21cc641`; current `main` includes later unreleased work. Production state was not rechecked during planning on 2026-10-17.
+- The last recorded production release promoted source commit `12ed0c81d235` to generated `deploy` commit `eda1d21cc641`; current `main` includes later unreleased work. Production state was not rechecked during planning on 2026-10-17.
 - The first production database, `.env`, SSH path, pre-migration backup, migrations, scheduler cron, and queue cron were created and verified during the authorized release window.
 - Hostinger SMTP is active for `notifications@adzbyte.com`; the protected production `.env` holds the mailbox credential and all temporary credential files were removed after verification.
 - No database seeders ran and no production super-administrator was created.

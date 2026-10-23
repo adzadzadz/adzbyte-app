@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Pages;
 use App\Actions\Users\UpdateManagedUser;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\User;
+use App\Support\Records\RecordVisibility;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -22,6 +23,7 @@ final class EditUser extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
+        abort_if(RecordVisibility::isDeleted($record->fresh()), 403);
         $actor = auth()->user();
 
         abort_unless($actor instanceof User && $record instanceof User, 403);

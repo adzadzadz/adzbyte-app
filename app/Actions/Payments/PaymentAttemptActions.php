@@ -15,6 +15,7 @@ use App\Services\Orders\OrderAggregate;
 use App\Services\Payments\CheckoutSession;
 use App\Services\Payments\PayMongoClient;
 use App\Support\Database\RetryingTransaction;
+use App\Support\Records\RecordVisibility;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -121,9 +122,11 @@ final class PaymentAttemptActions
     private function owned(User $actor, string $reference): array
     {
         $fresh = User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+        RecordVisibility::assertVisible($fresh);
         abort_unless($fresh->hasVerifiedEmail() && $fresh->hasRole(UserRole::Customer->value), 403);
         app(CommercePolicyActions::class)->current();
         $order = Order::where('public_id', $reference)->where('user_id', $fresh->id)->lockForUpdate()->firstOrFail();
+        RecordVisibility::assertVisible($order);
         Gate::forUser($fresh)->authorize('create', [PaymentAttempt::class, $order]);
 
         return [$fresh, $order];

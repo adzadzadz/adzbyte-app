@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\URL;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Process\Process;
@@ -32,6 +33,8 @@ class AccountEmailLifecycleTest extends TestCase
         parent::setUp();
         $this->setUpCatalogDatabase();
         $this->seed(RoleSeeder::class);
+        config(['app.url' => 'http://localhost']);
+        URL::forceRootUrl('http://localhost');
         config(['queue.default' => 'database', 'queue.connections.database.after_commit' => true]);
     }
 

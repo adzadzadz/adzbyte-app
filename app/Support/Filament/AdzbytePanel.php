@@ -2,6 +2,7 @@
 
 namespace App\Support\Filament;
 
+use App\Http\Middleware\LockCommercePages;
 use Filament\FontProviders\LocalFontProvider;
 use Filament\Panel;
 use Filament\Support\Colors\Color;
@@ -34,6 +35,7 @@ final class AdzbytePanel
     public static function configure(Panel $panel, string $context): Panel
     {
         return $panel
+            ->middleware([LockCommercePages::class], isPersistent: true)
             ->brandName($context)
             ->brandLogo(asset('images/brand/adzbyte-logo-transparent.png'))
             ->darkModeBrandLogo(asset('images/brand/adzbyte-logo-transparent.png'))
@@ -47,6 +49,21 @@ final class AdzbytePanel
             ->viteTheme('resources/css/filament/theme.css')
             ->darkMode(condition: true, isForced: true)
             ->themeSwitcher(false)
+            ->spa(hasPrefetching: false)
+            ->spaUrlExceptions(['*/login*', '*/logout*', '*/register*', '*/password-reset/*', '*/email-verification/*', '*/email-change-verification/*', '*/activate-account/*', '*/cart*', '*/checkout*', '*/orders*'])
+            ->unsavedChangesAlerts()
+            ->renderHook(
+                PanelsRenderHook::SIMPLE_LAYOUT_START,
+                fn (): View => view('filament.branding.auth-scene', ['context' => $context]),
+            )
+            ->renderHook(
+                PanelsRenderHook::SIMPLE_LAYOUT_END,
+                fn (): View => view('filament.branding.auth-footer'),
+            )
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
+                fn (): View => view('filament.branding.login-intro', ['context' => $context]),
+            )
             ->renderHook(
                 PanelsRenderHook::SIMPLE_PAGE_START,
                 fn (): View => view('filament.branding.panel-context', [

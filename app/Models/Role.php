@@ -30,6 +30,7 @@ final class Role extends PermissionRole
                     'name' => 'Application access roles cannot be deleted.',
                 ]);
             }
+            throw ValidationException::withMessages(['name' => 'Use the soft Delete control in Data management. Role records are retained.']);
         });
     }
 

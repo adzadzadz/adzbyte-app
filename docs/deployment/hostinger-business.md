@@ -11,13 +11,13 @@ explicit release/deploy -> exact-source CI -> deploy branch + verified assets
 ```
 
 Normal pushes run CI only. Start **Release to Hostinger** in GitHub Actions on
-`main`, choose command `deploy ` (scope `main`), and optionally pin the full reviewed
+`main`, choose command `deploy` (scope `main`), and optionally pin the full reviewed
 source SHA. No hPanel visit or manual Artisan command is needed after the one-time
-setup below. The workflow rejects missing setup before publishing `deploy ` and
+setup below. The workflow rejects missing setup before publishing `deploy` and
 rejects a main branch that moved during verification. The historical single-use
 `qrph-package` scope is retired; its production integration is merged into main.
 
-The machine-managed `deploy ` branch contains the tested source and CI-built
+The machine-managed `deploy` branch contains the tested source and CI-built
 `public/build`. Never push it manually. Secrets, database, uploads, `.env`, vendor
 and node_modules remain outside Git. Releases briefly return 503 while changing
 files; this shared-hosting design does not promise zero downtime.
@@ -100,7 +100,7 @@ SESSION_SAME_SITE=lax
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 QUEUE_AFTER_COMMIT=true
-DB_QUEUE_RETRY_AFTER=90
+DB_QUEUE_RETRY_AFTER=180
 QUEUE_MONITOR_MAX_JOBS=25
 QUEUE_MONITOR_STALE_AFTER_SECONDS=300
 SANCTUM_STATEFUL_DOMAINS=adzbyte.com,app.adzbyte.com

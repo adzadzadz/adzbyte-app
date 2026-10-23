@@ -6,6 +6,8 @@ use App\Actions\Orders\OrderReviewActions;
 use App\Actions\Orders\OrderReviewRead;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Http\Resources\Api\V1\OrderReviewResource;
+use App\Support\Filament\RecordVisibilityActions;
+use App\Support\Records\RecordVisibility;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -19,6 +21,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class ViewOrder extends ViewRecord
 {
+    public function getSubheading(): ?string
+    {
+        return RecordVisibility::isDeleted($this->getRecord()) ? 'Deleted — retained for history. Restore this record or its owning record in Data management before making changes.' : null;
+    }
+
     protected static string $resource = OrderResource::class;
 
     protected string $view = 'filament.orders.view';
@@ -58,6 +65,10 @@ final class ViewOrder extends ViewRecord
 
     protected function getHeaderActions(): array
     {
+        if (RecordVisibility::isDeleted($this->getRecord())) {
+            return [RecordVisibilityActions::restore()];
+        }
+
         $labels = ['clarify' => 'Request clarification', 'message' => 'Send message', 'approve' => 'Approve', 'propose' => 'Send updated offer', 'note' => 'Add internal note', 'reject' => 'Reject'];
         $actions = [];
         foreach ($labels as $command => $label) {
@@ -85,6 +96,7 @@ final class ViewOrder extends ViewRecord
                 $action->color('danger');
             }
             $actions[] = $action->action(function (array $data) use ($command): void {
+                abort_if(RecordVisibility::isDeleted($this->getRecord()->fresh()), 403);
                 try {
                     app(OrderReviewRead::class)->read(auth()->user(), $this->getRecord()->public_id, true);
                     app(OrderReviewActions::class)->staff(auth()->user(), $this->getRecord()->public_id, $command,
@@ -103,6 +115,6 @@ final class ViewOrder extends ViewRecord
             });
         }
 
-        return $actions;
+        return [...$actions, RecordVisibilityActions::delete(), RecordVisibilityActions::restore()];
     }
 }

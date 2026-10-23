@@ -28,6 +28,7 @@ class OrderMigrationTest extends TestCase
         $this->setUpCatalogDatabase(migrate: false);
         $paths = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($path) => basename($path) < '2026_10_18_060000_create_order_domain.php'));
         $this->artisan('migrate', ['--path' => $paths, '--realpath' => true, '--force' => true])->assertSuccessful();
+        $this->installVisibilitySchemaForLegacyFixture();
     }
 
     protected function tearDown(): void

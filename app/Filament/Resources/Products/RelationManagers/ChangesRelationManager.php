@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\RelationManagers;
 
+use App\Support\Filament\RecordVisibilityActions;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -13,7 +14,7 @@ final class ChangesRelationManager extends CatalogHistoryRelationManager
 
     public function table(Table $table): Table
     {
-        return $table->columns([
+        return $this->historyTable($table)->columns([RecordVisibilityActions::column(),
             TextColumn::make('action')->formatStateUsing(fn (string $state): string => str($state)->headline()->toString()),
             TextColumn::make('actor.name')->label('Changed by')->wrap(),
             TextColumn::make('created_at')->dateTime()->sortable(),
