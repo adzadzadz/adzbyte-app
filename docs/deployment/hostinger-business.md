@@ -11,13 +11,13 @@ explicit release/deploy -> exact-source CI -> deploy branch + verified assets
 ```
 
 Normal pushes run CI only. Start **Release to Hostinger** in GitHub Actions on
-`main`, choose command `deploy` (scope `main`), and optionally pin the full reviewed
+`main`, choose command `deploy ` (scope `main`), and optionally pin the full reviewed
 source SHA. No hPanel visit or manual Artisan command is needed after the one-time
-setup below. The workflow rejects missing setup before publishing `deploy` and
+setup below. The workflow rejects missing setup before publishing `deploy ` and
 rejects a main branch that moved during verification. The historical single-use
 `qrph-package` scope is retired; its production integration is merged into main.
 
-The machine-managed `deploy` branch contains the tested source and CI-built
+The machine-managed `deploy ` branch contains the tested source and CI-built
 `public/build`. Never push it manually. Secrets, database, uploads, `.env`, vendor
 and node_modules remain outside Git. Releases briefly return 503 while changing
 files; this shared-hosting design does not promise zero downtime.
@@ -48,13 +48,17 @@ The entrypoint fetches only the fixed public repository, validates deploy tip,
 main/source ancestry and forward-only history, locks concurrent releases, and
 extracts versioned release logic from that approved deploy object.
 
-Install reviewed `scripts/deployment/cron-run.sh` beside the entrypoint with mode700.
+Install reviewed `scripts/deployment/cron-run.sh` beside the entrypoint with mode 700.
 Configure both cron locks below, verify their commands, then create the private
 `runtime-lock-enabled` setup marker. Run restricted-key `preflight` with pinned
 host verification. A fresh production PHP build check requires 8.3.36+ on the
 8.3 line, or Hostinger's specifically qualified 8.3.35 build dated Oct21+2026.
 Fresh framework/dependency/runtime advisory review is still required before each
 explicit release; keep that qualification current as PHP/security patches change.
+
+The main-only `Check production deployment access` workflow uses the same pinned,
+isolated SSH identity and production environment to run only `preflight`. It is
+safe for connection diagnosis without promoting a branch or changing app data.
 
 ## 2. Disable Hostinger's competing automatic deployment
 
@@ -134,7 +138,7 @@ Before code changes, every release takes a single-transaction MySQL dump and
 protected environment snapshot outside public_html. AES256-CBC/PBKDF2 encrypts
 the dump with a fresh protected key; stream decryption must match its hash.
 Plaintext dump/client credentials are removed even on failure. Backups and their
-keys stay mode600 inside mode700 directories; GitHub receives no database, SMTP,
+keys stay mode600 inside mode 700 directories; GitHub receives no database, SMTP,
 APP_KEY or backup decryption material. Record the encryption round-trip separately
 from periodic isolated database restore rehearsals. Backups remain on this hosting
 account; durable off-site retention is a separate operations task. No automatic
@@ -149,8 +153,9 @@ COMPOSER_BINARY=/usr/local/bin/composer2 PHP_BINARY=/usr/bin/php bash scripts/ho
 
 That installs locked no-dev dependencies, migrates forward, builds production
 caches and restarts workers. No seed, account creation, secret rotation or
-migration rollback runs. `.env` is restored to600; public checkout/install assets
-use normal web-readable permissions. Config/schema/queue checks must pass before
+migration rollback runs. `.env` and compiled configuration are `600`; public
+checkout/install assets use normal web-readable permissions. Laravel operations
+run with restrictive umask `077`. Config/schema/queue checks must pass before
 traffic reopens. HTTP probes then run on-server and independently from GitHub,
 including current compiled CSS/JS. The workflow reports success only afterward.
 
@@ -173,7 +178,7 @@ Both Custom cron entries run every minute (`* * * * *`):
 /bin/bash /home/u463458285/.local/share/adzbyte-app-deploy/cron-run.sh worker
 ```
 
-Hostinger enforces a255-character command limit. The scheduler fits directly;
+Hostinger enforces a 255-character command limit. The scheduler fits directly;
 the worker uses the installed wrapper with its fixed absolute Artisan path.
 The shared lock is held for the entire command; the deployment's exclusive lock
 waits for those processes and excludes new cron work until internal verification

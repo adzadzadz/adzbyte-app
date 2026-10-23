@@ -168,12 +168,20 @@ manifest. Both CI database jobs build assets before the suite.
 
 GitHub Actions verifies pull requests and `main`, but never promotes them
 automatically. An explicitly authorized manual release workflow promotes the
-verified `main` revision to a machine-managed `deploy` branch with compiled Vite
-assets. Hostinger Business pulls only that branch for `app.adzbyte.com`.
+verified `main` revision to a machine-managed `deploy ` branch with compiled Vite
+assets. The workflow then connects through restricted, host-pinned SSH, backs up
+production, drains active requests/jobs, updates Hostinger, runs migrations and
+caches, and verifies public HTTPS. Routine releases need no hPanel visit or
+manual post-pull commands. Customer data and production environment stay in place.
+
+Use [Release to Hostinger](https://github.com/adzadzadz/adzbyte-app/actions/workflows/deploy.yml)
+on `main` for an authorized release. The separate
+[deployment access check](https://github.com/adzadzadz/adzbyte-app/actions/workflows/deployment-access.yml)
+tests the restricted connection without publishing code.
 
 See the [Hostinger Business deployment guide](docs/deployment/hostinger-business.md)
-for repository settings, hPanel setup, production environment configuration,
-post-pull commands, cron jobs, and release verification.
+for the one-time setup, production environment, locked cron jobs, failure handling
+and release verification.
 
 The [core operations and readiness runbook](docs/operations/core-readiness.md)
 covers health signals, queue recovery, migration incidents, backup/restore

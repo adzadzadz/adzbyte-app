@@ -1,5 +1,22 @@
 # Development Handoff
 
+## Current infrastructure checkpoint — 2026-10-23
+
+CI/CD is configured for GitHub-only releases. Restricted main-only environment
+secrets, trusted host pin, forced-command SSH, shared cron locks and disabled
+Hostinger auto-pull are verified. Read-only runner connectivity run 39972909499
+passes. Source `1e5899b` CI 39970852391 passes 678 / 8,930 on both databases; final
+safety followups are `3efb95a` with CI 39972885165. Independent review approves;
+16 deployment safety tests pass locally, including compiled-secret permissions.
+
+The first production code release still needs the owner's explicit `deploy ` or
+`release` command. Then dispatch deploy.yml once on current clean main; the
+workflow owns backup, checkout, post-pull, migrations, caches, worker restart and
+health checks. Do not repeat post-pull manually. Production code remains `3bcc292e`;
+no customer records changed during infrastructure setup. See the updated
+[deployment guide](deployment/hostinger-business.md) and
+[qualification](evidence/2026-10-23-cicd/qualification.md).
+
 ## Current checkpoint — deployed customer portal, 2026-10-23
 
 - Owner priority delivered: manual customer creation and project/service assignment,

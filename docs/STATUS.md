@@ -98,7 +98,7 @@ configuration checks, and an operations/recovery runbook. Commerce development
 now builds on that foundation; remaining domain/adaptor work and its applicable
 decision dependencies are tracked in the roadmap and runbook.
 
-The current PHP 8.3-compatible portal is deployed through the machine-managed `deploy` branch. Customers use `/` and `/login`; administration uses `/admin`.
+The current PHP 8.3-compatible portal is deployed through the machine-managed `deploy ` branch. Customers use `/` and `/login`; administration uses `/admin`.
 
 ## Verified Foundation and Catalog
 
@@ -152,14 +152,20 @@ and Requests & reports; the expanded Requests thread survives reload. One report
 one public reply, no private notes/duplicates, and correct audit/read state are
 confirmed. No application fix or deployment was needed. See [live conversation evidence](evidence/2026-10-23-customer-portal/polish/linked-report-live-check.md).
 
-## CI/CD automation — in progress, 2026-10-23
+## CI/CD automation — configured; first release pending, 2026-10-23
 
 Owner requests releases without repeated hPanel/SSH work. Reviewed main-only
 GitHub release now prepares restricted SSH deployment, request/cron drain,
 encrypted backup, locked fast-forward, Laravel setup and end-to-end health checks.
-15 deployment safety tests and full local 678 / 8,930 pass. One-time restricted
-access/cron/auto-pull cutover, exact-source CI and first explicitly authorized
-release remain pending. Existing production code is unchanged. See [CI/CD evidence](evidence/2026-10-23-cicd/qualification.md).
+16 deployment safety tests and full local 678 / 8,930 pass. Initial source CI
+39970852391 passes both database suites and all gates. Followup source `3efb95a`
+adds isolated SSH identity, a short locked worker wrapper, read-only connection
+check and compiled-secret permissions; its CI is 39972885165. Independent review
+approves the final implementation. One-time main-only production environment,
+restricted key/pin, locked cron cutover and Hostinger auto-pull-off are configured.
+GitHub-to-Hostinger preflight 39972909499 passes; readiness is `true`. First explicitly
+authorized code release remains pending. Production remains `3bcc292e`; customer
+data is unchanged. See [CI/CD evidence](evidence/2026-10-23-cicd/qualification.md).
 
 ## Up Next
 
@@ -439,7 +445,7 @@ but did not test MySQL. Existing local/production databases remain untouched.
 - GitHub Actions content writes are enabled and the `production` environment exists.
 - CI run 2 passed the full verification workflow after Composer was pinned to a PHP 8.3 resolution platform and Symfony packages were resolved to compatible 7.4 releases.
 - The authorized release workflow run `30860097717` passed and promoted source commit `12ed0c81d235` to deploy commit `eda1d21cc641`.
-- Hostinger pulled the `deploy` branch into `public_html`, installed production dependencies, and reports the deployment completed on PHP 8.3.
+- Hostinger pulled the `deploy ` branch into `public_html`, installed production dependencies, and reports the deployment completed on PHP 8.3.
 - A dedicated production database and mode-`600` `.env` were created without storing credentials in Git. A pre-migration dump is retained outside the web root.
 - A dedicated SSH key is authorized with mode-`600` key-file permissions. Both the Laravel scheduler and stop-when-empty database queue worker are configured in hPanel at `* * * * *` and have produced cron output records.
 - All five production migrations ran, Laravel production caches were built, the manual scheduler and queue checks passed, and both `jobs` and `failed_jobs` were empty after verification.
@@ -574,7 +580,7 @@ historical checkpoints and do not describe the current production version.
 - Commit `937fec5` fixes the PHP 8.3 dependency resolution mismatch; GitHub CI run 2 passed.
 - The local super-administrator identity is verified; its password is not stored in the repository.
 - The session-owned development server was stopped.
-- The last recorded production release promoted source commit `12ed0c81d235` to generated `deploy` commit `eda1d21cc641`; current `main` includes later unreleased work. Production state was not rechecked during planning on 2026-10-17.
+- The last recorded production release promoted source commit `12ed0c81d235` to generated `deploy ` commit `eda1d21cc641`; current `main` includes later unreleased work. Production state was not rechecked during planning on 2026-10-17.
 - The first production database, `.env`, SSH path, pre-migration backup, migrations, scheduler cron, and queue cron were created and verified during the authorized release window.
 - Hostinger SMTP is active for `notifications@adzbyte.com`; the protected production `.env` holds the mailbox credential and all temporary credential files were removed after verification.
 - No database seeders ran and no production super-administrator was created.

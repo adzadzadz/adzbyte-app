@@ -26,12 +26,15 @@ release under the project's separate release gate.
 
 ## Verification so far
 
-- Deployment safety integration: **15 tests**, including real disposable Git
+- Deployment safety integration: **16 tests**, including real disposable Git
   histories, data/environment preservation, real PHP request/shutdown locking,
   real encrypted backup round-trip and temporary credential/plaintext cleanup.
   Initial local failures exposed absent macOS flock and Bash3.2 conditional
   errexit behavior; tests use actual OS flock through a local shim and guards now
   explicitly exit. Linux CI exercises native util-linux flock.
+- Followup coverage verifies fixed cron modes and shared lock arguments, plus
+  an existing compiled-secret cache `0644` becomes `0600`. Composer/public files use `022`;
+  Laravel migration/cache steps use `077`. The verifier enforces cached config `600`.
 - Full local application suite: **678 tests / 8,930 assertions**, exit0.
   PHP8.5.11 SQLite. Formatting, Composer metadata, YAML parse and whitespace pass.
 - New non-mutating production config/migration verifier passes against the live
@@ -39,11 +42,36 @@ release under the project's separate release gate.
   checks its specifically qualified Oct21 security build instead.
 - Independent reviewer requested active-work drain and a later-shutdown lock fix;
   both implemented and regression tested. Reviewer independently passes all15
-  deployment tests and **approves revised implementation/cutover plan**, subject
-  to actual key/pin, cron locks, main-only environment and auto-pull-off checks.
+  deployment tests and **approves revised implementation/cutover plan**. Final
+  bounded review also approves isolated identity/access workflow/cron wrapper and
+  the compiled-secret permission correction, with independent regression proof.
+- Initial source `1e5899b` CI 39970852391 passes both 678 / 8,930 PHP8.3.36 database
+  suites, all15 then-current deployment tests, audits, build, cache and formatting.
+  Followup source `3efb95a` CI 39972885165 includes the final 16-test safety suite.
 
 ## Activation state
 
-One-time access/cron/Hostinger cutover and exact-source CI are pending. Readiness
-must remain false until each setup check is recorded. Production remains deploy
-`3bcc292e59313c27a965510f51a085a06945f8e8`. No code release has run for this work.
+- Production environment allows only branch `main`. Dedicated deployment key and
+  trusted known-hosts are stored as environment secrets. Existing operator key
+  is preserved. Arbitrary `id` with the dedicated identity and no SSH config
+  is rejected exit64; forced `preflight` succeeds. No credentials are committed.
+- Scheduler runs each minute with direct shared/nonblocking flock; worker runs
+  each minute through the reviewed outside-webroot wrapper, accommodating
+  Hostinger's 255-character command limit. Old unlocked entries removed only
+  after replacements existed. Actual scheduler output 14:46 UTC shows all three
+  scheduled tasks DONE; actual worker output 14:46 UTC is STOPPED / Queue empty.
+  Both use the exact same storage/framework/deployment.lock. Ready marker set.
+- Hostinger auto-deployment is off, confirmed after reload by visible tooltip
+  and screenshot. No Redeploy action was used. The existing website is retained.
+- [GitHub access check 39972909499](https://github.com/adzadzadz/adzbyte-app/actions/runs/39972909499)
+  succeeds from GitHub's runner using environment secrets and strict host pin:
+  `Protocol 1 ready; current deploy 3bcc292e…`. It performs no code promotion.
+- Readiness variable `HOSTINGER_SSH_AUTOMATION_READY` is `true` only after these checks.
+  Dedicated local temporary private-key material is removed after connection proof.
+
+Production remains deploy `3bcc292e59313c27a965510f51a085a06945f8e8`. No code
+release has run for this work. The first full encrypted live backup/deployment
+run requires the separate explicit release command; do not claim that end-to-end
+production qualification yet. Backup round-trip failure paths are covered with
+synthetic SQL/real OpenSSL locally. Backups remain on-host; offsite retention and
+an isolated restore exercise are separate operational work.
