@@ -1,8 +1,8 @@
 *.log
 .DS_Store
 .env
-.env.backup
-.env.production
+.env.*
+!.env.example
 .phpactor.json
 .phpunit.result.cache
 /.codex
@@ -28,3 +28,6 @@ Thumbs.db
 
 # Python deployment-test bytecode
 __pycache__/
+
+# Windows OS metadata
+desktop.ini
