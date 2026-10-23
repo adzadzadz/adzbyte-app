@@ -123,6 +123,294 @@ body.fi-body {
     width: 0.375rem;
 }
 
+/* Keep Filament's familiar form card over a self-hosted GetLayers backdrop. */
+.fi-simple-layout:has(> .adz-auth-scene) {
+    background: #080b14;
+    display: flex;
+    min-height: 100dvh;
+    overflow: visible;
+    padding: 2rem 1.25rem 1rem;
+}
+
+.fi-simple-layout:has(> .adz-auth-scene)::before,
+.fi-simple-layout:has(> .adz-auth-scene)::after {
+    content: none;
+}
+
+.adz-auth-skip {
+    background: var(--adz-surface);
+    border: 1px solid var(--adz-cyan);
+    border-radius: 0.5rem;
+    color: var(--adz-text);
+    left: 1.5rem;
+    padding: 0.75rem 1rem;
+    position: fixed;
+    top: 0.75rem;
+    transform: translateY(-200%);
+    z-index: 50;
+}
+
+.adz-auth-skip:focus {
+    transform: translateY(0);
+}
+
+.adz-auth-backdrop {
+    background: #080b14 var(--adz-auth-image) center / cover no-repeat;
+    inset: 0;
+    pointer-events: none;
+    position: fixed;
+    z-index: -2;
+}
+
+.adz-auth-backdrop::after {
+    background: linear-gradient(180deg, rgba(8, 11, 20, 0.2), rgba(8, 11, 20, 0.55));
+    content: '';
+    inset: 0;
+    position: absolute;
+}
+
+.adz-auth-backdrop__video {
+    display: none;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    transition: opacity 700ms ease;
+    width: 100%;
+}
+
+.adz-auth-backdrop__video.is-ready {
+    opacity: 1;
+}
+
+.adz-auth-story,
+.adz-auth-motion {
+    display: none;
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .fi-simple-main-ctn {
+    min-width: 0;
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .fi-simple-main {
+    backdrop-filter: blur(24px);
+    background: rgba(12, 17, 29, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 1.25rem;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    margin: 0;
+    max-width: 29rem;
+    padding: 2rem 1.5rem;
+    --tw-ring-shadow: 0 0 #0000;
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .fi-simple-header .fi-logo {
+    height: 3rem !important;
+    margin-bottom: 1.5rem;
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .fi-simple-header-heading {
+    font-size: 1.875rem;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.25;
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .fi-simple-header-subheading {
+    line-height: 1.7;
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .adz-panel-context--simple {
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
+}
+
+.adz-auth-intro {
+    color: var(--adz-text-muted);
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    margin-top: -0.75rem;
+    text-align: center;
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .fi-input-wrp {
+    background: rgba(255, 255, 255, 0.035);
+    border-radius: 0.625rem;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.24);
+    transition: box-shadow 150ms ease;
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .fi-input-wrp:focus-within {
+    box-shadow: 0 0 0 2px var(--adz-primary), 0 0 0 5px rgba(129, 57, 255, 0.16);
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .fi-input-wrp.fi-invalid {
+    box-shadow: 0 0 0 1px var(--danger-400);
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .fi-input {
+    padding-block: 0.75rem;
+}
+
+.fi-simple-layout:has(> .adz-auth-scene) .fi-btn.fi-color-primary {
+    border-radius: 0.625rem;
+    min-height: 2.875rem;
+}
+
+.adz-auth-registration {
+    border-top: 1px solid var(--adz-border);
+    color: var(--adz-text-muted);
+    font-size: 0.75rem;
+    line-height: 1.8;
+    padding-top: 1.25rem;
+    text-align: center;
+}
+
+.adz-auth-registration a {
+    color: var(--adz-text);
+    display: inline-block;
+    font-weight: 500;
+    margin-left: 0.25rem;
+    text-decoration: underline;
+    text-decoration-color: var(--adz-border-strong);
+    text-underline-offset: 4px;
+}
+
+.adz-auth-registration a:hover,
+.adz-auth-footer a:hover {
+    color: var(--adz-cyan);
+}
+
+.adz-auth-footer {
+    align-items: center;
+    color: var(--adz-text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 0.6875rem;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-inline: auto;
+    max-width: 29rem;
+    padding-top: 1.5rem;
+    width: 100%;
+}
+
+.adz-auth-footer a span {
+    margin-left: 0.375rem;
+}
+
+.adz-auth-motion:focus-visible,
+.adz-auth-footer a:focus-visible,
+.adz-auth-registration a:focus-visible {
+    border-radius: 0.25rem;
+    outline: 2px solid var(--adz-cyan);
+    outline-offset: 5px;
+}
+
+@media (min-width: 40rem) {
+    .fi-simple-layout:has(> .adz-auth-scene) .fi-simple-main {
+        padding: 2rem 2.5rem;
+    }
+}
+
+@media (min-width: 64rem) {
+    .fi-simple-layout:has(> .adz-auth-scene) {
+        align-items: end;
+        padding: 1.5rem clamp(3rem, 6vw, 8rem);
+    }
+
+    .adz-auth-backdrop::after {
+        background:
+            linear-gradient(90deg, rgba(5, 8, 17, 0.08) 25%, rgba(8, 11, 20, 0.45) 100%),
+            linear-gradient(0deg, rgba(5, 8, 17, 0.6), transparent 65%);
+    }
+
+    .adz-auth-backdrop__video {
+        display: block;
+    }
+
+    .adz-auth-story {
+        bottom: clamp(7rem, 16vh, 12rem);
+        display: block;
+        left: clamp(3rem, 6vw, 8rem);
+        max-width: min(39vw, 35rem);
+        position: absolute;
+        text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    .adz-auth-story__eyebrow {
+        color: #d6c5fc;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        margin-bottom: 1.25rem;
+        text-transform: uppercase;
+    }
+
+    .adz-auth-story h2 {
+        color: var(--adz-text);
+        font-size: clamp(2.5rem, 4vw, 4rem);
+        font-weight: 500;
+        letter-spacing: -0.055em;
+        line-height: 1.14;
+    }
+
+    .adz-auth-story h2 span {
+        color: #d6c5fc;
+    }
+
+    .adz-auth-story__description {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.875rem;
+        line-height: 1.85;
+        margin-top: 1.5rem;
+        max-width: 25rem;
+    }
+
+    .adz-auth-motion {
+        align-items: center;
+        background: rgba(8, 11, 20, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 9999px;
+        bottom: 1.5rem;
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        display: inline-flex;
+        font-size: 0.6875rem;
+        gap: 0.5rem;
+        left: clamp(3rem, 6vw, 8rem);
+        min-height: 2.75rem;
+        padding: 0.5rem 0.875rem;
+        position: absolute;
+    }
+
+    .adz-auth-motion svg {
+        height: 0.875rem;
+        width: 0.875rem;
+    }
+
+    .fi-simple-layout:has(> .adz-auth-scene) .fi-simple-main-ctn {
+        justify-content: end;
+        padding: 0;
+    }
+
+    .adz-auth-footer {
+        margin-inline: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .adz-auth-backdrop__video,
+    .adz-auth-motion {
+        display: none;
+    }
+
+    .fi-simple-layout:has(> .adz-auth-scene) .fi-input-wrp {
+        transition: none;
+    }
+}
+
 .fi-sidebar,
 .fi-topbar {
     background: color-mix(in srgb, var(--adz-surface) 96%, transparent);

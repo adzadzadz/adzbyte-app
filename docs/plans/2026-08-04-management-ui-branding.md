@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Implemented and verified on 2026-08-04 |
+| Status | Implemented 2026-08-04; guest authentication refreshed locally 2026-10-24 |
 | Applies to | Authenticated Filament root `/` customer panel and `/admin` |
 | Brand source | `adzbyte-next/src/app/globals.css` and approved files in `adzbyte-next/public/images` |
 | Primary public storefront owner | `adzbyte-next` |
@@ -90,6 +90,16 @@ For every copied asset:
 
 ### Authentication and activation
 
+- Guest Filament sign-in and password recovery use the familiar centered-content
+  form card, positioned on the right on desktop. Refined spacing, input boundaries,
+  focus rings and a translucent surface retain the existing authentication behavior.
+- A self-hosted **Purple Desert** background from
+  [GetLayers](https://www.getlayers.ai/layer/purple-desert) supplies the cinematic
+  violet landscape. The downloaded free asset is commercially licensed. Provenance,
+  processing and hashes live in `resources/brand/auth-background.json`.
+- Desktop animation has a pause/play control. Mobile, reduced-motion and
+  data-saving preferences use the optimized poster without requesting video.
+  Signed-in simple pages keep their existing layout.
 - Use the full wordmark, dark canvas, restrained gradient glow, and one clear primary action.
 - Keep login, activation, reset, and verification forms visually consistent across both panel routes.
 - State the destination clearly as **Customer account** or **Adzbyte administration** before credentials are entered.

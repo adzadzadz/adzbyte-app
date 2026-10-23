@@ -1,6 +1,22 @@
 # Project Status
 
-**Last updated:** 2026-10-23 (customer portal priority; ecommerce development paused)
+**Last updated:** 2026-10-24 (local authentication visual refresh; customer portal priority)
+
+## Guest authentication visual refresh — locally verified, 2026-10-24
+
+Customer and administrator sign-in retain the familiar Filament form card, now
+positioned on the right on desktop with refined spacing, controls and focus
+treatment. Password recovery shares the shell. A self-hosted GetLayers **Purple
+Desert** landscape supplies the background: a 1.02 MB silent loop on desktop,
+pause/play control, and a 48 KB poster for mobile, reduced-motion and data-saving
+preferences. The source is a free commercially licensed download; provenance
+and hashes are recorded in `resources/brand/auth-background.json`.
+
+Focused branding/authentication verification passes **19 tests / 118 assertions**;
+PHP formatting and the Vite build pass. Browser checks cover customer/admin,
+password recovery, 320/390px layouts, validation errors and animation controls.
+The encoded video decodes cleanly. No authentication rules or production data
+changed. Next: review the local sign-in design; deployment remains separately gated.
 
 ## Latest production release — automated CI/CD verified, 2026-10-23
 

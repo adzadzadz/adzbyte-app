@@ -48,6 +48,18 @@ final class AdzbytePanel
             ->darkMode(condition: true, isForced: true)
             ->themeSwitcher(false)
             ->renderHook(
+                PanelsRenderHook::SIMPLE_LAYOUT_START,
+                fn (): View => view('filament.branding.auth-scene', ['context' => $context]),
+            )
+            ->renderHook(
+                PanelsRenderHook::SIMPLE_LAYOUT_END,
+                fn (): View => view('filament.branding.auth-footer'),
+            )
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
+                fn (): View => view('filament.branding.login-intro', ['context' => $context]),
+            )
+            ->renderHook(
                 PanelsRenderHook::SIMPLE_PAGE_START,
                 fn (): View => view('filament.branding.panel-context', [
                     'context' => $context,
