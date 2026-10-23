@@ -530,3 +530,9 @@ commerce screens remain reachable with production Under development notices.
 See the [portal delivery contract](2026-10-23-customer-portal.md). The paused
 refund/commerce qualification gates remain in force for their dependent billing
 and entitlement work; they do not block this separately authorized portal scope.
+
+The owner's 2026-10-24 navigation update supersedes the reachable-screen preview:
+customer and administrator commerce entries remain visible with lock icons;
+clicking or keyboard activation shows **This feature is under development.**
+Direct commerce screen access is blocked while `COMMERCE_FEATURES_LOCKED` is true
+(the default). API/provider processing remains governed by its existing controls.

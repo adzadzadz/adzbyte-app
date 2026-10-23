@@ -18,8 +18,9 @@
 The owner paused ecommerce development and prioritized the customer portal,
 particularly projects and services **manually assigned by admins**. This
 independent increment provides operational tracking and support without waiting
-for checkout/purchased-entitlement qualification. Existing ecommerce screens
-remain accessible with production Under development notices. The [portal plan](2026-10-23-customer-portal.md)
+for checkout/purchased-entitlement qualification. The owner's 2026-10-24 update
+locks all customer/admin commerce navigation with development tooltips and
+blocks direct commerce screen URLs by default. The [portal plan](2026-10-23-customer-portal.md)
 and [qualification record](../evidence/2026-10-23-customer-portal/qualification.md)
 define its own acceptance gate. Commerce O2.3c/O3/S2 and broader R1/Q checkboxes
 remain incomplete and paused, rather than being relabeled as portal completion.

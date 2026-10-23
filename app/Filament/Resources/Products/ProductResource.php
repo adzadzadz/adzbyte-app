@@ -12,6 +12,7 @@ use App\Filament\Resources\Products\RelationManagers\TermsRelationManager;
 use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Models\Product;
 use App\Support\Filament\CatalogInput;
+use App\Support\Filament\HasLockedCommerceNavigation;
 use App\Support\Filament\RecordVisibilityActions;
 use App\Support\Records\RecordVisibility;
 use BackedEnum;
@@ -32,6 +33,8 @@ use UnitEnum;
 
 final class ProductResource extends Resource
 {
+    use HasLockedCommerceNavigation;
+
     protected static ?string $model = Product::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;

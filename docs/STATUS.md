@@ -1,8 +1,32 @@
 # Project Status
 
-**Last updated:** 2026-10-24 (Filament UX and recoverable admin CRUD qualified for owner review)
+**Last updated:** 2026-10-24 (combined UI/CRUD and ecommerce lock release authorized; exact-source qualification pending)
 
-## Recoverable admin CRUD — verified source, deployment on hold
+## Commerce navigation lock — locally verified, 2026-10-24
+
+Customer Ecommerce/Cart/Orders and every admin Commerce navigation entry, including Package checkouts, now
+show lock icons and stay on the current page. Clicking or using Enter/Space
+shows **This feature is under development.** The dashboard commerce shortcut
+uses the same locked behavior. Direct commerce screen URLs return a private,
+uncached 503 notice; Filament retains the guard for subsequent Livewire requests.
+`COMMERCE_FEATURES_LOCKED` defaults to `true` in every application environment;
+commerce development tests explicitly disable it and lock tests enable it.
+Existing API/provider processing behavior is unchanged by this UI lock.
+
+Focused navigation/account/portal tests pass **12 tests / 304 assertions**.
+The production asset build passes; an isolated browser fixture using the actual
+Filament navigation renderer confirms click/keyboard tooltip feedback without
+navigation. No production deployment or data change occurred.
+
+The owner subsequently authorized the combined UI/admin CRUD release with only
+ecommerce locked. Data management and project management remain accessible.
+Fresh Composer/npm audits pass with zero findings; [release preflight](evidence/2026-10-24-commerce-lock/release-preflight.md)
+records the source boundary and official advisory review.
+
+Next: commit the release source, pass exact-source CI on both databases and run
+the protected production workflow once.
+
+## Recoverable admin CRUD — verified source, included in authorized release
 
 The owner selected editable admin business records, preserved payment/provider/
 audit history, and cart changes in the customer workflow. Administration → Data
@@ -22,7 +46,8 @@ review has no unresolved material findings. Actual desktop/320px create/edit,
 Delete/Restore, parent recovery, modal focus and customer-denial checks pass.
 
 One additive metadata migration is included but has not been applied to any
-existing database. The owner explicitly said **do not deploy yet**. No merge,
+existing database. The earlier **do not deploy yet** hold is superseded by the
+owner's current combined release authorization. At source qualification no merge,
 deployment, real mail or provider operation occurred. Permanent purge/bulk
 deletion, support email/attachments/automatic refresh/status transitions and
 production latency measurement remain outside this increment. Commerce stays
@@ -112,8 +137,8 @@ This current release record supersedes historical production statements below.
 
 **Current owner priority:** complete the customer portal, especially manually
 assigned project and service tracking. Ecommerce development is paused;
-existing screens stay reachable with production **Under development** notices
-and customer write protection. Staff can assign work to a customer, manage
+commerce screens are locked with **Under development** navigation tooltips
+and direct-page protection. Staff can assign work to a customer, manage
 milestones/status/next steps and publish updates. Customers can create linked
 or standalone requests/reports and exchange messages with authorized staff;
 private notes stay separate. See the [portal scope](plans/2026-10-23-customer-portal.md),

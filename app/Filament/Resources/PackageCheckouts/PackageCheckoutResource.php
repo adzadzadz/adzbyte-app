@@ -7,6 +7,7 @@ use App\Filament\Resources\PackageCheckouts\Pages\ListPackageCheckouts;
 use App\Filament\Resources\PackageCheckouts\Pages\ViewPackageCheckout;
 use App\Models\PackageCheckout;
 use App\Services\Carts\MinorUnits;
+use App\Support\Filament\HasLockedCommerceNavigation;
 use App\Support\Filament\RecordVisibilityActions;
 use App\Support\Records\RecordVisibility;
 use Filament\Actions\ViewAction;
@@ -21,6 +22,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PackageCheckoutResource extends Resource
 {
+    use HasLockedCommerceNavigation;
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Commerce';
+
     protected static ?string $model = PackageCheckout::class;
 
     public static function getEloquentQuery(): Builder

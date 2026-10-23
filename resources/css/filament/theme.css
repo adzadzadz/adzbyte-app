@@ -28,6 +28,21 @@
     --adz-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
 }
 
+[data-commerce-locked] {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+[data-commerce-locked]:focus-visible {
+    outline: 2px solid var(--adz-primary);
+    outline-offset: 2px;
+    border-radius: var(--adz-radius);
+}
+
+[data-commerce-locked] .fi-sidebar-item-btn {
+    cursor: not-allowed;
+}
+
 html.fi,
 body.fi-body {
     background: var(--adz-canvas);

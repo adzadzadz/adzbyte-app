@@ -6,6 +6,7 @@ use App\Filament\Resources\Orders\Pages\ListOrders;
 use App\Filament\Resources\Orders\Pages\ViewOrder;
 use App\Models\Order;
 use App\Services\Carts\MinorUnits;
+use App\Support\Filament\HasLockedCommerceNavigation;
 use App\Support\Filament\RecordVisibilityActions;
 use App\Support\Records\RecordVisibility;
 use BackedEnum;
@@ -19,6 +20,8 @@ use UnitEnum;
 
 final class OrderResource extends Resource
 {
+    use HasLockedCommerceNavigation;
+
     protected static ?string $model = Order::class;
 
     protected static ?string $recordRouteKeyName = 'public_id';

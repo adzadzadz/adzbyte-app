@@ -8,6 +8,7 @@ use App\Models\PaymentAttempt;
 use App\Models\User;
 use App\Policies\PaymentAttemptPolicy;
 use App\Services\Carts\MinorUnits;
+use App\Support\Filament\HasLockedCommerceNavigation;
 use App\Support\Filament\RecordVisibilityActions;
 use App\Support\Records\RecordVisibility;
 use BackedEnum;
@@ -22,6 +23,8 @@ use UnitEnum;
 
 final class PaymentResource extends Resource
 {
+    use HasLockedCommerceNavigation;
+
     protected static ?string $model = PaymentAttempt::class;
 
     protected static ?string $slug = 'payments';

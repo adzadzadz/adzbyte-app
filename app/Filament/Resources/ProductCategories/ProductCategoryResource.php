@@ -8,6 +8,7 @@ use App\Filament\Resources\ProductCategories\Pages\ListProductCategories;
 use App\Filament\Resources\ProductCategories\Pages\ViewProductCategory;
 use App\Filament\Resources\ProductCategories\RelationManagers\ChangesRelationManager;
 use App\Models\ProductCategory;
+use App\Support\Filament\HasLockedCommerceNavigation;
 use App\Support\Filament\RecordVisibilityActions;
 use App\Support\Records\RecordVisibility;
 use BackedEnum;
@@ -28,6 +29,8 @@ use UnitEnum;
 
 class ProductCategoryResource extends Resource
 {
+    use HasLockedCommerceNavigation;
+
     protected static ?string $model = ProductCategory::class;
 
     protected static ?string $recordTitleAttribute = 'name';

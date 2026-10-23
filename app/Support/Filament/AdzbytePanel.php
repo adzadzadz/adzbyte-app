@@ -2,6 +2,7 @@
 
 namespace App\Support\Filament;
 
+use App\Http\Middleware\LockCommercePages;
 use Filament\FontProviders\LocalFontProvider;
 use Filament\Panel;
 use Filament\Support\Colors\Color;
@@ -34,6 +35,7 @@ final class AdzbytePanel
     public static function configure(Panel $panel, string $context): Panel
     {
         return $panel
+            ->middleware([LockCommercePages::class], isPersistent: true)
             ->brandName($context)
             ->brandLogo(asset('images/brand/adzbyte-logo-transparent.png'))
             ->darkModeBrandLogo(asset('images/brand/adzbyte-logo-transparent.png'))

@@ -4,6 +4,7 @@ use App\Http\Middleware\AddSecurityHeaders;
 use App\Http\Middleware\EnsureCustomerApiAccess;
 use App\Http\Middleware\EnsureIdempotentApiRequest;
 use App\Http\Middleware\EnsureStorefrontToken;
+use App\Http\Middleware\LockCommercePages;
 use App\Http\Middleware\RejectDeletedIdentity;
 use App\Http\Middleware\RejectDeletedWebIdentity;
 use App\Http\Responses\ApiErrorResponse;
@@ -27,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustHosts();
         $middleware->append(AddSecurityHeaders::class);
         $middleware->statefulApi();
-        $middleware->web(append: RejectDeletedWebIdentity::class);
+        $middleware->web(append: [RejectDeletedWebIdentity::class, LockCommercePages::class]);
         $middleware->api(append: RejectDeletedIdentity::class);
         $middleware->appendToPriorityList(after: AuthenticatesRequests::class, append: RejectDeletedIdentity::class);
         $middleware->prependToPriorityList(before: AuthenticatesRequests::class, prepend: RejectDeletedWebIdentity::class);
