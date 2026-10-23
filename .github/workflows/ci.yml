@@ -121,6 +121,9 @@ jobs:
       - name: Audit PHP dependencies
         run: composer audit --locked --no-interaction
 
+      - name: Verify deployment safety and workflow contracts
+        run: python3 -m unittest discover -s tests/Deployment -p 'test_*.py' -v
+
       - name: Check PHP formatting
         run: vendor/bin/pint --test
 

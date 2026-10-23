@@ -1,49 +1,71 @@
 # Hostinger Business Deployment
 
-The production release flow uses a machine-managed `deploy` branch:
+The release workflow performs the whole deployment over restricted SSH:
 
 ```text
-pull request -> main -> CI verification
-explicit "release" or "deploy" -> manual release workflow -> deploy -> Hostinger
+main / pull request -> CI (SQLite + MySQL, audits, build, deployment safety tests)
+explicit release/deploy -> exact-source CI -> deploy branch + verified assets
+  -> restricted SSH -> drain -> encrypted backup -> maintenance -> fast-forward
+  -> no-dev dependencies -> migrations -> caches -> queue restart
+  -> configuration/queue checks -> reopen traffic -> HTTPS/asset checks
 ```
 
-Developers work on feature branches and `main`. Do not commit to, merge into, or
-rewrite `deploy` manually. Normal pushes never update it. The manual release
-workflow creates and updates it only after an explicit `release` or `deploy`
-directive and after the PHP tests, formatting checks, dependency audits, frontend
-build, and Laravel production-cache check pass.
+Normal pushes run CI only. Start **Release to Hostinger** in GitHub Actions on
+`main`, choose command `deploy` (scope `main`), and optionally pin the full reviewed
+source SHA. No hPanel visit or manual Artisan command is needed after the one-time
+setup below. The workflow rejects missing setup before publishing `deploy` and
+rejects a main branch that moved during verification. The historical single-use
+`qrph-package` scope is retired; its production integration is merged into main.
 
-The `deploy` branch contains the reviewed source from `main` plus the compiled
-`public/build` directory. Runtime secrets, `.env`, `vendor`, and `node_modules`
-remain outside Git.
+The machine-managed `deploy` branch contains the tested source and CI-built
+`public/build`. Never push it manually. Secrets, database, uploads, `.env`, vendor
+and node_modules remain outside Git. Releases briefly return 503 while changing
+files; this shared-hosting design does not promise zero downtime.
 
-## 1. GitHub repository settings
+## 1. One-time GitHub and restricted SSH setup
 
-1. Open **Settings -> Actions -> General -> Workflow permissions**.
-2. Allow GitHub Actions to write repository contents so the promotion job can
-   update `deploy`.
-3. Create a `production` environment. Add a required reviewer if the repository's
-   GitHub plan supports environment approvals.
-4. Protect `main` and require the **Verify application** check before merging.
-5. Do not require pull requests for `deploy`; its only writer is the promotion
-   job's `GITHUB_TOKEN`.
+The `production` environment must restrict deployment branches to `main` and
+contain:
 
-Pushing the workflow to `main` runs CI only. The remote `deploy` branch is created
-by the first explicitly authorized run of **Release to Hostinger**. Start that
-workflow only through the `release-adzbyte-app` project skill or an equivalent
-deliberate manual action that selects `release` or `deploy`.
+| Kind | Name | Purpose |
+| --- | --- | --- |
+| Secret | `HOSTINGER_DEPLOY_SSH_KEY` | Dedicated Ed25519 key, never the operator's key |
+| Secret | `HOSTINGER_KNOWN_HOSTS` | Host entry verified through existing trusted SSH |
+| Variable | `HOSTINGER_SSH_AUTOMATION_READY` | Set to `true` only after all setup checks |
 
-## 2. Hostinger Git integration
+The workflow targets account `u463458285`, host `151.106.116.157`, port `65002`.
+Its production job has the existing content-write permission to promote deploy.
+PR/ordinary CI jobs do not receive deployment secrets. Keep main write access
+limited; trusted source code executes as the hosting account during deployment.
 
-1. In hPanel, open **Websites -> app.adzbyte.com -> Dashboard**.
-2. Set the website PHP version to PHP 8.3.
-3. Open **Advanced -> Git**, connect the `adzadzadz/adzbyte-app` repository, and
-   select the `deploy` branch.
-4. Use `public_html` as the repository root and enable automatic deployment.
-5. Confirm that the first deployment log identifies the expected `deploy` commit.
+Install the reviewed `scripts/deployment/ssh-entrypoint.sh` outside the web root
+as `/home/u463458285/.local/share/adzbyte-app-deploy/ssh-entrypoint.sh`, mode 700,
+with its directory mode 700. Add only the dedicated public key to authorized_keys
+using `restrict,command="/home/u463458285/.local/share/adzbyte-app-deploy/ssh-entrypoint.sh"`.
+Preserve existing keys. The new key permits only `preflight` and
+`deploy <full-source-sha> <full-deploy-sha>`; shell, PTY and forwarding are denied.
+The entrypoint fetches only the fixed public repository, validates deploy tip,
+main/source ancestry and forward-only history, locks concurrent releases, and
+extracts versioned release logic from that approved deploy object.
 
-The root `.htaccess` forwards requests into Laravel's `public` directory. Do not
-put the production `.env` file in Git.
+Configure both cron locks below, verify their commands, then create the private
+`runtime-lock-enabled` setup marker. Run restricted-key `preflight` with pinned
+host verification. A fresh production PHP build check requires 8.3.36+ on the
+8.3 line, or Hostinger's specifically qualified 8.3.35 build dated Oct21+2026.
+Fresh framework/dependency/runtime advisory review is still required before each
+explicit release; keep that qualification current as PHP/security patches change.
+
+## 2. Disable Hostinger's competing automatic deployment
+
+Keep the existing website and domain configuration. In Hostinger Deployments,
+turn **Auto-deployment off** for app.adzbyte.com after restricted SSH preflight
+works. The GitHub workflow now owns fetch/checkout and all Laravel steps; having
+two deployers would race. Do not click Hostinger Redeploy during a GitHub release.
+No hosting-plan change or purchased service is required.
+
+Set readiness true only after pinned-key preflight, main-only environment policy,
+both actual locked cron commands and disabled Hostinger auto-pull are confirmed.
+The first new pipeline release requires the separate explicit release/deploy gate.
 
 ## 3. Production environment
 
@@ -97,47 +119,68 @@ php artisan key:generate --force
 Changing the production application key later invalidates encrypted sessions and
 can make encrypted application data unreadable.
 
-## 4. First deployment and post-pull commands
+## 4. Automated release and recovery
 
-From the deployed project root over SSH, run:
+GitHub checks access before branch promotion, then calls the forced entrypoint.
+The server waits up to150 seconds for active HTTP requests and cron work to drain
+using one exclusive filesystem lock. New PHP requests return a no-store 503
+before Composer loads, and new scheduled runs skip while the exclusive lock is
+held. HTTP resources remain locked through later shutdown callbacks. The initial
+cutover installs this HTTP gate without changing domain code, schema or dependencies;
+subsequent releases use it to drain requests before any file replacement.
 
-```bash
-bash scripts/hostinger-after-pull.sh
-```
+Before code changes, every release takes a single-transaction MySQL dump and
+protected environment snapshot outside public_html. AES256-CBC/PBKDF2 encrypts
+the dump with a fresh protected key; stream decryption must match its hash.
+Plaintext dump/client credentials are removed even on failure. Backups and their
+keys stay mode600 inside mode700 directories; GitHub receives no database, SMTP,
+APP_KEY or backup decryption material. Record the encryption round-trip separately
+from periodic isolated database restore rehearsals. Backups remain on this hosting
+account; durable off-site retention is a separate operations task. No automatic
+backup deletion policy is introduced.
 
-This installs the exact locked production dependencies, applies outstanding
-migrations, builds Laravel's production caches, and asks queue workers to reload.
-It intentionally does not run database seeders or create the production super
-administrator; those remain deliberate bootstrap operations.
-
-Hostinger's Git integration pulls the branch, but its current documentation does
-not guarantee application-specific migration, cache, or queue commands. Until an
-SSH post-deploy step is added to GitHub Actions, run the script after each pull
-that contains PHP dependency, migration, or configuration changes.
-
-## 5. Cron jobs
-
-Hostinger Business uses scheduled jobs instead of a persistent Supervisor-managed
-worker. Configure these custom cron jobs with the real absolute project path:
-
-```bash
-/usr/bin/php /home/USER/domains/app.adzbyte.com/public_html/artisan schedule:run
-```
+After drain/backup the runner enters maintenance, fast-forwards only to the
+expected deploy commit, preserves environment contents/key, and invokes:
 
 ```bash
-/usr/bin/php /home/USER/domains/app.adzbyte.com/public_html/artisan queue:work database --stop-when-empty --tries=3 --backoff=10 --timeout=60 --max-time=50
+COMPOSER_BINARY=/usr/local/bin/composer2 PHP_BINARY=/usr/bin/php bash scripts/hostinger-after-pull.sh
 ```
 
-Run both every minute. Verify their output in hPanel and confirm that a queued
-customer activation notification is actually processed.
+That installs locked no-dev dependencies, migrates forward, builds production
+caches and restarts workers. No seed, account creation, secret rotation or
+migration rollback runs. `.env` is restored to600; public checkout/install assets
+use normal web-readable permissions. Config/schema/queue checks must pass before
+traffic reopens. HTTP probes then run on-server and independently from GitHub,
+including current compiled CSS/JS. The workflow reports success only afterward.
 
-Verified 2026-10-23: the commands above are configured as Custom crons, each
-`* * * * *`. Use the absolute Artisan path directly, without `cd` or `&&` in
-the hPanel command field. The previous shell-form entries failed to process
-reset mail and were replaced after owner approval. Actual scheduled execution,
-queue drain and fresh reset email receipt in Gmail INBOX were verified.
-Production `DB_QUEUE_RETRY_AFTER=180` exceeds the 60-second worker timeout.
-See [repair evidence](../evidence/2026-10-23-customer-portal/polish/password-reset-check.md).
+Protected `last-release.json` records source, deploy, previous SHA, phase, state
+and backup location. A backup/drain failure leaves old code available. A failure
+after mutation leaves maintenance enabled until an operator investigates; a
+post-reopen HTTP failure is reported with new code retained. Never automatically
+roll customer data back. Consult the core incident runbook and obtain a fresh
+explicit release/deploy instruction before retrying a failed release.
+
+## 5. Locked scheduler and mail-worker cron
+
+Both Custom cron entries run every minute (`* * * * *`):
+
+```bash
+/usr/bin/flock --shared --nonblock /home/u463458285/domains/app.adzbyte.com/public_html/storage/framework/deployment.lock /usr/bin/php /home/u463458285/domains/app.adzbyte.com/public_html/artisan schedule:run
+```
+
+```bash
+/usr/bin/flock --shared --nonblock /home/u463458285/domains/app.adzbyte.com/public_html/storage/framework/deployment.lock /usr/bin/php /home/u463458285/domains/app.adzbyte.com/public_html/artisan queue:work database --stop-when-empty --tries=3 --backoff=10 --timeout=60 --max-time=50
+```
+
+The shared lock is held for the entire command; the deployment's exclusive lock
+waits for those processes and excludes new cron work until internal verification
+finishes. Skipped work resumes at the next minute; queue jobs remain durable.
+Use the exact absolute paths. Queue reservation retry-after remains180, above
+worker timeout60; the configuration verifier conservatively requires >90.
+
+The earlier absolute-Artisan cron repair and actual Gmail receipt proof remain
+in [password-reset evidence](../evidence/2026-10-23-customer-portal/polish/password-reset-check.md).
+The CI/CD cutover evidence records the new wrappers and actual scheduled output.
 
 ## 6. Release verification
 

@@ -13,15 +13,14 @@ on:
           - deploy
 
       scope:
-        description: Reviewed source scope
+        description: Reviewed source scope (main only)
         required: true
         type: choice
         default: main
         options:
           - main
-          - qrph-package
       expected_source_sha:
-        description: Full independently reviewed commit SHA (required for qrph-package)
+        description: Optional full reviewed main commit SHA to pin the release
         type: string
         required: false
 
@@ -55,14 +54,9 @@ jobs:
             *) exit 1 ;;
           esac
 
-          if [[ "$RELEASE_SCOPE" == "qrph-package" ]]; then
-            [[ "$RELEASE_REF" == "refs/heads/codex/qrph-package-checkout" ]]
-            [[ "$EXPECTED_SOURCE_SHA" == "$SOURCE_SHA" ]]
-            bash scripts/verify-package-release.sh "$SOURCE_SHA"
-            git fetch origin deploy:refs/remotes/origin/deploy
-            [[ "$(git rev-parse origin/deploy)" == "a5d9e3c3d7a214768f129e5c93fbd3705db94b9b" ]]
-          else
-            [[ "$RELEASE_SCOPE" == "main" && "$RELEASE_REF" == "refs/heads/main" ]]
+          [[ "$RELEASE_SCOPE" == "main" && "$RELEASE_REF" == "refs/heads/main" ]]
+          if [[ -n "$EXPECTED_SOURCE_SHA" ]]; then
+            [[ "$EXPECTED_SOURCE_SHA" =~ ^[a-f0-9]{40}$ && "$EXPECTED_SOURCE_SHA" == "$SOURCE_SHA" ]]
           fi
 
   verify:
@@ -73,15 +67,21 @@ jobs:
       upload_assets: true
 
   promote:
-    name: Promote to deploy branch
+    name: Deploy and verify production
     needs: verify
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 25
     environment:
       name: production
       url: https://app.adzbyte.com
     permissions:
       contents: write
+
+    env:
+      SSH_HOST: 151.106.116.157
+      SSH_PORT: '65002'
+      SSH_USER: u463458285
+      SOURCE_SHA: ${{ github.sha }}
 
     steps:
       - name: Check out source history
@@ -90,24 +90,43 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.sha }}
 
+      - name: Verify deployment access before publishing
+        env:
+          AUTOMATION_READY: ${{ vars.HOSTINGER_SSH_AUTOMATION_READY }}
+          DEPLOY_KEY: ${{ secrets.HOSTINGER_DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          [[ "$AUTOMATION_READY" == "true" && -n "$DEPLOY_KEY" && -n "$KNOWN_HOSTS" ]] || {
+            echo 'Complete the one-time restricted SSH setup and disable Hostinger auto-deployment first.' >&2
+            exit 1
+          }
+          umask 077
+          mkdir -p "$RUNNER_TEMP/adzbyte-ssh"
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/adzbyte-ssh/key"
+          printf '%s\n' "$KNOWN_HOSTS" > "$RUNNER_TEMP/adzbyte-ssh/known_hosts"
+          ssh -i "$RUNNER_TEMP/adzbyte-ssh/key" -p "$SSH_PORT" \
+            -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
+            -o UserKnownHostsFile="$RUNNER_TEMP/adzbyte-ssh/known_hosts" \
+            "$SSH_USER@$SSH_HOST" preflight
+          git fetch origin main:refs/remotes/origin/main
+          [[ "$(git rev-parse origin/main)" == "$SOURCE_SHA" ]] || {
+            echo 'main moved during verification. Start a newly authorized release of the current source.' >&2
+            exit 1
+          }
+
       - name: Prepare deploy branch
         env:
           SOURCE_SHA: ${{ github.sha }}
-          RELEASE_SCOPE: ${{ inputs.scope }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           if git ls-remote --exit-code --heads origin deploy; then
             git fetch origin deploy:refs/remotes/origin/deploy
-            if [[ "$RELEASE_SCOPE" == "qrph-package" ]]; then
-              bash scripts/verify-package-release.sh "$SOURCE_SHA"
-              [[ "$(git rev-parse origin/deploy)" == "a5d9e3c3d7a214768f129e5c93fbd3705db94b9b" ]]
-            fi
             git switch --create deploy --track origin/deploy
             git merge --no-commit --no-ff "$SOURCE_SHA"
           else
-            [[ "$RELEASE_SCOPE" == "main" ]]
             git switch --create deploy "$SOURCE_SHA"
           fi
 
@@ -120,9 +139,40 @@ jobs:
           path: public/build
 
       - name: Publish deploy branch
+        id: publish
         env:
           SOURCE_SHA: ${{ github.sha }}
         run: |
           git add --force public/build
           git commit --allow-empty --message "Deploy ${SOURCE_SHA::12}"
           git push origin deploy
+          echo "deploy_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Run protected server deployment
+        env:
+          DEPLOY_SHA: ${{ steps.publish.outputs.deploy_sha }}
+        run: |
+          set -euo pipefail
+          ssh -i "$RUNNER_TEMP/adzbyte-ssh/key" -p "$SSH_PORT" \
+            -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
+            -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
+            -o UserKnownHostsFile="$RUNNER_TEMP/adzbyte-ssh/known_hosts" \
+            "$SSH_USER@$SSH_HOST" "deploy $SOURCE_SHA $DEPLOY_SHA"
+
+      - name: Verify public HTTPS from the runner
+        run: bash scripts/deployment/http-check.sh https://app.adzbyte.com
+
+      - name: Record verified release
+        env:
+          DEPLOY_SHA: ${{ steps.publish.outputs.deploy_sha }}
+        run: |
+          {
+            echo '### Production verified'
+            echo "Source: \`$SOURCE_SHA\`"
+            echo "Deploy: \`$DEPLOY_SHA\`"
+            echo 'Protected database backup, environment preservation, locked deployment, migrations, caches, worker restart and HTTPS checks passed.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove temporary SSH credentials
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/adzbyte-ssh"

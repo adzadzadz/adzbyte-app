@@ -152,6 +152,15 @@ and Requests & reports; the expanded Requests thread survives reload. One report
 one public reply, no private notes/duplicates, and correct audit/read state are
 confirmed. No application fix or deployment was needed. See [live conversation evidence](evidence/2026-10-23-customer-portal/polish/linked-report-live-check.md).
 
+## CI/CD automation — in progress, 2026-10-23
+
+Owner requests releases without repeated hPanel/SSH work. Reviewed main-only
+GitHub release now prepares restricted SSH deployment, request/cron drain,
+encrypted backup, locked fast-forward, Laravel setup and end-to-end health checks.
+15 deployment safety tests and full local 678 / 8,930 pass. One-time restricted
+access/cron/auto-pull cutover, exact-source CI and first explicitly authorized
+release remain pending. Existing production code is unchanged. See [CI/CD evidence](evidence/2026-10-23-cicd/qualification.md).
+
 ## Up Next
 
 **Customer onboarding:** account lifecycle fixes are independently reviewed and
