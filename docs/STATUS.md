@@ -143,6 +143,15 @@ Test-only source `a6a790b` also passes [CI 39960905290](https://github.com/adzad
 **678 / 8,930 per database**, PHP 8.3.36 SQLite/MySQL, all gates pass.
 See [onboarding evidence](evidence/2026-10-23-customer-portal/polish/customer-onboarding-check.md).
 
+## Live linked conversation check — 2026-10-23
+
+Owner-authorized QA report submitted from the project stayed inline and retained
+its correct work link. One public admin reply, posted through the shared staff
+action as the existing owner, is visible to the QA customer on both the project
+and Requests & reports; the expanded Requests thread survives reload. One report,
+one public reply, no private notes/duplicates, and correct audit/read state are
+confirmed. No application fix or deployment was needed. See [live conversation evidence](evidence/2026-10-23-customer-portal/polish/linked-report-live-check.md).
+
 ## Up Next
 
 **Customer onboarding:** account lifecycle fixes are independently reviewed and

@@ -32,6 +32,12 @@
   21:57 PHT. Live onboarding is verified end to end, and the QA session remains
   signed in. Isolated proof passes (1 / 77), focused regressions 32 / 329 and
   supported PHP 8.3 CI 678 / 8,930 per database.
+- Live conversation QA passes: project-linked report `01M5MGYBRP2B9K52Y6ZAS83QGV`
+  created inline by QA customer 2; public admin reply from actor 1 is visible on
+  both project and Requests & reports, including after reload. One report/reply,
+  no notes/duplicates. Staff reply used the normal shared action through SSH;
+  customer creation/read surfaces used Chrome. The customer remains signed in on
+  the expanded Requests thread. [Evidence](evidence/2026-10-23-customer-portal/polish/linked-report-live-check.md).
 - Next: create real customers and assign
   projects/services at `/admin`; customer portal is `/`. Local preview remains
   stopped. Outbound support-conversation email/native attachments remain deferred.
