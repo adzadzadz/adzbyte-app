@@ -3,6 +3,7 @@
 declare(strict_types=1);
 use App\Filament\Pages\CommerceSettings;
 use App\Filament\Pages\Portal\ClientWork;
+use App\Filament\Pages\Portal\Customers;
 use App\Filament\Pages\Portal\CustomerSupport;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\Payments\PaymentResource;
@@ -237,6 +238,7 @@ return [
             Dashboard::class,
             CommerceSettings::class,
             ClientWork::class,
+            Customers::class,
             CustomerSupport::class,
         ],
     ],
@@ -277,6 +279,8 @@ return [
 
     'custom_permissions' => [
         'Manage:CommerceSettings' => 'Manage commerce settings',
+        'View:PortalCustomer' => 'View portal customers',
+        'Manage:PortalCustomer' => 'Create customers and send activation invitations',
         'View:WorkItem' => 'View projects and services',
         'Manage:WorkItem' => 'Manage projects and services',
         'View:SupportCase' => 'View customer support',

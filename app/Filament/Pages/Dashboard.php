@@ -7,9 +7,9 @@ use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
 {
-    protected static ?string $navigationLabel = 'Overview';
+    protected static ?string $navigationLabel = 'Dashboard';
 
-    protected static ?string $title = 'Operations';
+    protected static ?string $title = 'Dashboard';
 
     protected string $view = 'filament.pages.dashboard';
 

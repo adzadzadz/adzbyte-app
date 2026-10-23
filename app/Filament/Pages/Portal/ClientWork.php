@@ -34,6 +34,9 @@ final class ClientWork extends Page
     protected string $view = 'filament.portal.work';
 
     #[Url]
+    public ?int $customer = null;
+
+    #[Url]
     public ?string $record = null;
 
     #[Url]
@@ -80,7 +83,7 @@ final class ClientWork extends Page
         $manage = fn (): bool => PortalAccess::staff(auth()->user(), PortalCapability::ManageWork);
         if (! $this->record) {
             return [Action::make('createWork')->label('Add project or service')->visible($manage)->schema([
-                Select::make('customer')->label('Customer')->required()->searchable()
+                Select::make('customer')->label('Customer')->default(fn () => $this->customer)->required()->searchable()
                     ->getSearchResultsUsing(fn (string $search) => User::role('customer')->where(fn ($q) => $q->where('email', 'like', '%'.addcslashes($search, '%_\\').'%')->orWhere('name', 'like', '%'.addcslashes($search, '%_\\').'%'))->limit(50)->get()->mapWithKeys(fn ($user) => [$user->id => $user->name.' · '.$user->email]))
                     ->getOptionLabelUsing(fn ($value) => User::role('customer')->find($value)?->email),
                 Select::make('type')->options(PortalOptions::WORK_TYPES)->required()->default('project'), ...PortalForms::work(),

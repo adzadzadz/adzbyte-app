@@ -4,6 +4,7 @@ namespace App\Support\Filament;
 
 use App\Actions\Portal\PortalActions;
 use App\Enums\PortalCapability;
+use App\Models\SupportCase;
 use App\Models\SupportCategory;
 use App\Models\WorkItem;
 use App\Services\Portal\PortalRead;
@@ -16,7 +17,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Pages\Page;
 use Livewire\Attributes\Locked;
-use Livewire\Attributes\Url;
 
 abstract class SupportPage extends Page
 {
@@ -24,19 +24,27 @@ abstract class SupportPage extends Page
 
     protected static bool $staffMode = false;
 
+    protected bool $embedded = false;
+
+    protected function queryString(): array
+    {
+        return $this->embedded ? [] : ['record' => ['except' => null], 'linkedWork' => ['except' => null], 'page' => ['except' => 1], 'search' => ['except' => '']];
+    }
+
     protected string $view = 'filament.portal.support';
 
-    #[Url]
+    #[Locked]
+    public ?string $contextWork = null;
+
     public ?string $record = null;
 
-    #[Url]
     public ?string $linkedWork = null;
 
-    #[Url]
     public int $page = 1;
 
-    #[Url]
     public string $search = '';
+
+    public int $threadPage = 1;
 
     #[Locked]
     public ?int $expectedRevision = null;
@@ -55,7 +63,7 @@ abstract class SupportPage extends Page
         if ($this->record) {
             $read = app(PortalRead::class);
             $this->expectedRevision = $read->supportCase(auth()->user(), $this->record, static::$staffMode)['revision'];
-            $read->markCaseRead(auth()->user(), $this->record, static::$staffMode);
+            $read->markCaseRead(auth()->user(), $this->record, static::$staffMode, $this->expectedRevision);
         }
         if ($this->linkedWork && ! static::$staffMode) {
             WorkItem::where('user_id', auth()->id())->where('public_id', $this->linkedWork)->firstOrFail();
@@ -76,37 +84,43 @@ abstract class SupportPage extends Page
     {
         abort_unless(static::canAccess(), 403);
         $read = app(PortalRead::class);
+        if ($this->contextWork) {
+            $read->work(auth()->user(), $this->contextWork, static::$staffMode);
+            if ($this->record) {
+                abort_unless(app(PortalActions::class)->caseFor(auth()->user(), $this->record, static::$staffMode)->workItem?->public_id === $this->contextWork, 404);
+            }
+        }
 
         return ['staff' => static::$staffMode,
-            'case' => $this->record ? $read->supportCase(auth()->user(), $this->record, static::$staffMode, $this->page) : null,
-            'listing' => $this->record ? null : $read->cases(auth()->user(), static::$staffMode, $this->page, $this->search),
+            'case' => $this->record ? $read->supportCase(auth()->user(), $this->record, static::$staffMode, $this->threadPage) : null,
+            'listing' => $read->cases(auth()->user(), static::$staffMode, $this->page, $this->search, $this->contextWork),
             'linkedTitle' => $this->linkedWork && ! static::$staffMode ? WorkItem::where('user_id', auth()->id())->where('public_id', $this->linkedWork)->value('title') : null];
     }
 
     protected function getHeaderActions(): array
     {
-        if (! $this->record && ! static::$staffMode) {
-            return [Action::make('createCase')->label('New request or report')->icon('heroicon-o-plus')->schema([
+        if (! static::$staffMode) {
+            $create = [Action::make('createCase')->label('New request or report')->icon('heroicon-o-plus')->schema([
                 Select::make('type')->options(PortalOptions::CASE_TYPES)->required()->default('request')
                     ->helperText('Choose Request for help or a change, or Report an issue for something that went wrong.'),
                 TextInput::make('subject')->required()->maxLength(255),
                 Select::make('category')->options(fn () => PortalForms::categories())->placeholder('General / not sure'),
-                Select::make('work')->label('Related project or service (optional)')->default($this->linkedWork)->searchable()
+                Select::make('work')->label('Related project or service (optional)')->default($this->contextWork ?? $this->linkedWork)->disabled(fn () => $this->contextWork !== null)->dehydrated()->searchable()
                     ->getSearchResultsUsing(fn (string $search) => WorkItem::where('user_id', auth()->id())->where('title', 'like', '%'.addcslashes($search, '%_\\').'%')->limit(50)->pluck('title', 'public_id'))
                     ->getOptionLabelUsing(fn ($value) => WorkItem::where('user_id', auth()->id())->where('public_id', $value)->value('title'))
                     ->helperText('You can report account, payment, privacy or security issues without a project or purchase.'),
                 Textarea::make('description')->required()->maxLength(10000)->rows(6)
                     ->helperText('Include helpful details and any Google Drive file or folder link shared with our team. Do not send passwords or payment details.'),
             ])->action(function (array $data): void {
-                $case = $this->runCommand('create', fn ($key) => app(PortalActions::class)->createCase(auth()->user(), $data, $key), 'Request received');
-                $this->redirect(static::getUrl(['record' => $case->public_id]));
+                $case = $this->runCommand('create', fn ($key) => app(PortalActions::class)->createCase(auth()->user(), [...$data, ...$this->contextWork ? ['work' => $this->contextWork] : []], $key), 'Request received');
+                $this->openConversation($case->public_id);
             })];
         }
         if (! $this->record) {
-            return $this->categoryActions();
+            return static::$staffMode ? $this->categoryActions() : $create;
         }
-        $actions = [];
-        $case = app(PortalActions::class)->caseFor(auth()->user(), $this->record, static::$staffMode);
+        $actions = static::$staffMode ? [] : $create;
+        $case = $this->contextCase();
         $active = ! in_array($case->status, ['resolved', 'closed'], true);
         if ($active && (! static::$staffMode || PortalAccess::staff(auth()->user(), PortalCapability::ReplyCases))) {
             $actions[] = Action::make('reply')->label('Send a reply')->icon('heroicon-o-chat-bubble-left-right')->schema([
@@ -136,6 +150,42 @@ abstract class SupportPage extends Page
         return $actions;
     }
 
+    public function openConversation(string $reference): void
+    {
+        $this->record = $reference;
+        $case = $this->contextCase();
+        $this->expectedRevision = $case->revision;
+        $this->threadPage = 1;
+        $this->refreshConversationActions();
+        app(PortalRead::class)->markCaseRead(auth()->user(), $reference, static::$staffMode, $case->revision);
+    }
+
+    public function closeConversation(): void
+    {
+        $this->record = null;
+        $this->expectedRevision = null;
+        $this->threadPage = 1;
+        $this->refreshConversationActions();
+    }
+
+    private function refreshConversationActions(): void
+    {
+        $this->cachedHeaderActions = [];
+        $this->cachedActions = [];
+        $this->cacheInteractsWithHeaderActions();
+    }
+
+    private function contextCase(): SupportCase
+    {
+        $case = app(PortalActions::class)->caseFor(auth()->user(), $this->record, static::$staffMode);
+        if ($this->contextWork) {
+            app(PortalRead::class)->work(auth()->user(), $this->contextWork, static::$staffMode);
+            abort_unless($case->workItem?->public_id === $this->contextWork, 404);
+        }
+
+        return $case;
+    }
+
     private function categoryActions(): array
     {
         if (! PortalAccess::staff(auth()->user(), PortalCapability::Categories)) {
@@ -155,9 +205,11 @@ abstract class SupportPage extends Page
 
     private function save(string $command, \Closure $action): void
     {
+        $this->contextCase();
         $case = $this->runCommand($command, $action, $command === 'reply' ? 'Message sent' : 'Case updated');
         $this->expectedRevision = $case->revision;
-        app(PortalRead::class)->markCaseRead(auth()->user(), $this->record, static::$staffMode);
-        $this->page = 1;
+        app(PortalRead::class)->markCaseRead(auth()->user(), $this->record, static::$staffMode, $this->expectedRevision);
+        $this->threadPage = 1;
+        $this->refreshConversationActions();
     }
 }

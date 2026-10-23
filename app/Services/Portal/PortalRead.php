@@ -2,6 +2,7 @@
 
 namespace App\Services\Portal;
 
+use App\Actions\Customers\ManagePortalCustomer;
 use App\Actions\Portal\PortalActions;
 use App\Enums\PortalCapability;
 use App\Models\SupportCase;
@@ -42,9 +43,13 @@ final class PortalRead
         ];
     }
 
-    public function cases(User $actor, bool $staff = false, int $page = 1, string $search = ''): array
+    public function cases(User $actor, bool $staff = false, int $page = 1, string $search = '', ?string $work = null): array
     {
+        if ($work) {
+            $this->workQuery($actor, $staff)->where('public_id', $work)->firstOrFail();
+        }
         $items = $this->caseQuery($actor, $staff)->with(['owner', 'category', 'workItem'])
+            ->when($work, fn ($q) => $q->whereHas('workItem', fn ($q) => $q->where('public_id', $work)))
             ->when($search !== '', fn ($q) => $q->where('subject', 'like', '%'.addcslashes(mb_substr($search, 0, 100), '%_\\').'%'))
             ->orderByRaw("CASE WHEN status = 'waiting_for_customer' THEN 0 WHEN status IN ('resolved', 'closed') THEN 2 ELSE 1 END")->orderByDesc('public_updated_at')->orderByDesc('id')->paginate(12, ['*'], 'page', max(1, $page));
 
@@ -94,6 +99,11 @@ final class PortalRead
     public function staffHome(User $actor): array
     {
         return [
+            'customers' => PortalAccess::staff($actor, PortalCapability::ViewCustomers) ? [
+                'total' => ManagePortalCustomer::query()->count(),
+                'pending' => ManagePortalCustomer::query()->whereNull('email_verified_at')->count(),
+            ] : null,
+            'recent_cases' => PortalAccess::staff($actor, PortalCapability::ViewCases) ? array_slice($this->cases($actor, true)['items'], 0, 5) : [],
             'work' => PortalAccess::staff($actor, PortalCapability::ViewWork) ? [
                 'active' => WorkItem::whereNotIn('status', ['completed', 'cancelled'])->count(),
                 'waiting' => WorkItem::where('status', 'waiting_for_customer')->count(),
@@ -112,10 +122,10 @@ final class PortalRead
         DB::table('work_items')->where('id', $work->id)->update(['customer_read_at' => now()]);
     }
 
-    public function markCaseRead(User $actor, string $reference, bool $staff = false): void
+    public function markCaseRead(User $actor, string $reference, bool $staff = false, ?int $revision = null): void
     {
         $case = app(PortalActions::class)->caseFor($actor, $reference, $staff);
-        DB::table('support_cases')->where('id', $case->id)->update([$staff ? 'staff_read_at' : 'customer_read_at' => now()]);
+        DB::table('support_cases')->where('id', $case->id)->where('revision', $revision ?? $case->revision)->update([$staff ? 'staff_read_at' : 'customer_read_at' => now()]);
     }
 
     public function categories(bool $all = false): array

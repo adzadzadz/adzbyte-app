@@ -21,7 +21,7 @@ class AdminDashboardTest extends TestCase
 
         $this->assertContains(Dashboard::class, $panel->getPages());
         $this->assertNotContains(AccountWidget::class, $panel->getWidgets());
-        $this->assertSame('Overview', Dashboard::getNavigationLabel());
+        $this->assertSame('Dashboard', Dashboard::getNavigationLabel());
     }
 
     public function test_an_administrator_sees_only_their_own_access_context(): void
@@ -44,9 +44,8 @@ class AdminDashboardTest extends TestCase
             ->assertOk()
             ->assertSee('data-admin-home', false)
             ->assertSee('Welcome back, Operations.')
-            ->assertSee('operations@example.test')
-            ->assertSee('Administrator')
-            ->assertSee('Core safeguards')
+            ->assertSee('Daily workflow')
+            ->assertDontSee('Manage customers →')
             ->assertDontSee('other-admin@example.test');
     }
 

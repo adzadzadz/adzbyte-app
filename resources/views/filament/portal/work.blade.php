@@ -8,7 +8,6 @@
                 <x-portal-text :text="$work['summary']" />
                 <dl class="adz-portal-facts"><div><dt>Target date</dt><dd>{{ $work['target_date'] ? \Illuminate\Support\Carbon::parse($work['target_date'])->format('M j, Y') : 'To be confirmed' }}</dd></div><div><dt>Your contact</dt><dd>{{ $work['assigned_to'] ?? 'Adzbyte Solutions team' }}</dd></div></dl>
                 @if ($work['next_step'])<div class="adz-portal-callout" role="note"><h3>Next step</h3><x-portal-text :text="$work['next_step']" /></div>@endif
-                @unless ($staff)<x-filament::button tag="a" :href="\App\Filament\Account\Pages\Support::getUrl(['linkedWork' => $work['public_id']], panel: 'account')" icon="heroicon-o-chat-bubble-left-right">Request help or report an issue</x-filament::button>@endunless
             </section>
             <div class="adz-portal-grid">
                 <section class="adz-portal-card" aria-labelledby="milestones-heading">
@@ -24,6 +23,13 @@
                     @include('filament.portal.pagination', ['pagination' => $work['pagination'], 'label' => 'Update'])
                 </section>
             </div>
+            @if (! $staff || \App\Support\PortalAccess::staff(auth()->user(), \App\Enums\PortalCapability::ViewCases))
+                @if ($staff)
+                    <livewire:portal.staff-support-inbox :work="$work['public_id']" :key="'staff-support-'.$work['public_id']" />
+                @else
+                    <livewire:portal.support-inbox :work="$work['public_id']" :key="'support-'.$work['public_id']" />
+                @endif
+            @endif
             @if ($staff)<details class="adz-portal-card"><summary>Recent activity history</summary><ol class="adz-portal-history">@foreach ($work['history'] as $event)<li>{{ ucfirst(str_replace('_', ' ', $event['action'])) }} · {{ $event['actor'] }} · {{ \Illuminate\Support\Carbon::parse($event['created_at'])->timezone('Asia/Manila')->format('M j, g:i a') }}</li>@endforeach</ol><p class="adz-portal-muted">Latest 50 events shown. The complete history is retained.</p></details>@endif
         @else
             <p class="adz-portal-intro">{{ $staff ? 'Manage customer work, milestones and progress updates independently of checkout.' : 'Follow progress, see what is coming next, and keep your team in the loop.' }}</p>

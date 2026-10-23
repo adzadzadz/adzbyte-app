@@ -4,6 +4,8 @@ namespace App\Enums;
 
 enum PortalCapability: string
 {
+    case ViewCustomers = 'View:PortalCustomer';
+    case ManageCustomers = 'Manage:PortalCustomer';
     case ViewWork = 'View:WorkItem';
     case ManageWork = 'Manage:WorkItem';
     case ViewCases = 'View:SupportCase';

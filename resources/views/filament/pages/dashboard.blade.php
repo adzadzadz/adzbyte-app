@@ -36,60 +36,12 @@
             </div>
         @endif
 
-        <div class="adz-admin-home__grid">
-            <section class="adz-admin-home__card" aria-labelledby="admin-access-heading">
-                <div class="adz-admin-home__card-header">
-                    <span class="adz-admin-home__icon" aria-hidden="true">
-                        <x-filament::icon icon="heroicon-o-shield-check" />
-                    </span>
-                    <div>
-                        <p class="adz-admin-home__card-kicker">Current session</p>
-                        <h3 id="admin-access-heading" class="adz-admin-home__card-title">Access context</h3>
-                    </div>
-                </div>
-
-                <dl class="adz-admin-home__details">
-                    <div>
-                        <dt>Administrator</dt>
-                        <dd>{{ $user->name }}</dd>
-                    </div>
-                    <div>
-                        <dt>Email</dt>
-                        <dd>{{ $user->email }}</dd>
-                    </div>
-                    <div>
-                        <dt>Assigned roles</dt>
-                        <dd>{{ $roles->join(', ') }}</dd>
-                    </div>
-                </dl>
-            </section>
-
-            <section class="adz-admin-home__card" aria-labelledby="admin-foundation-heading">
-                <div class="adz-admin-home__card-header">
-                    <span class="adz-admin-home__icon adz-admin-home__icon--cyan" aria-hidden="true">
-                        <x-filament::icon icon="heroicon-o-command-line" />
-                    </span>
-                    <div>
-                        <p class="adz-admin-home__card-kicker">Configuration</p>
-                        <h3 id="admin-foundation-heading" class="adz-admin-home__card-title">Core safeguards</h3>
-                    </div>
-                </div>
-
-                <ul class="adz-admin-home__safeguards" aria-label="Configured core safeguards">
-                    <li>
-                        <span>Authenticated panel</span>
-                        <span class="adz-admin-home__state">Active</span>
-                    </li>
-                    <li>
-                        <span>Email verification</span>
-                        <span class="adz-admin-home__state">Required</span>
-                    </li>
-                    <li>
-                        <span>Role-based access</span>
-                        <span class="adz-admin-home__state">Enforced</span>
-                    </li>
-                </ul>
-            </section>
-        </div>
+        @if ($portalOverview['customers'])
+            <section class="adz-portal-card"><p class="adz-portal-kicker">Customer management</p><h2 class="adz-portal-title">{{ $portalOverview['customers']['total'] }} customers · {{ $portalOverview['customers']['pending'] }} awaiting activation</h2><p class="adz-portal-muted">Start with a customer account, then assign their project or service. Send an activation invitation so they can choose a password.</p><a class="adz-portal-link" href="{{ \App\Filament\Pages\Portal\Customers::getUrl(panel: 'admin') }}">Manage customers →</a></section>
+        @endif
+        @if ($portalOverview['recent_cases'])
+            <section class="adz-portal-section"><h2 class="adz-portal-section-title">Support follow-up</h2><div class="adz-portal-case-list">@foreach ($portalOverview['recent_cases'] as $item)@include('filament.portal.case-card', ['item' => $item, 'staff' => true])@endforeach</div></section>
+        @endif
+        <section class="adz-portal-card"><h2 class="adz-portal-title">Daily workflow</h2><ol class="adz-portal-history"><li>Create the customer account and queue their activation invitation.</li><li>Assign a project or service with its next step and target date.</li><li>Keep milestones and progress updates current.</li><li>Open linked conversations from the work page, or use Customer support for the full queue.</li></ol></section>
     </div>
 </x-filament-panels::page>

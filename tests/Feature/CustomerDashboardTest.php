@@ -21,7 +21,7 @@ class CustomerDashboardTest extends TestCase
 
         $this->assertContains(Dashboard::class, $panel->getPages());
         $this->assertNotContains(AccountWidget::class, $panel->getWidgets());
-        $this->assertSame('Home', Dashboard::getNavigationLabel());
+        $this->assertSame('Dashboard', Dashboard::getNavigationLabel());
     }
 
     public function test_a_customer_sees_only_their_own_account_context_on_the_home_page(): void
