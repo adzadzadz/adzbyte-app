@@ -1,16 +1,13 @@
 # Core Operations and Readiness Runbook
 
-This runbook covers the implemented application foundation: identity,
-authenticated panels, user/role administration, trusted customer activation,
-the API foundation, queues, and release infrastructure. Public registration,
-catalog, carts, checkout, orders, payments, subscriptions, customer-service
-cases, uploads, fulfillment, and retention procedures must be added with those
-vertical slices and their unresolved decisions.
-
-C1.1 adds catalog domain code and a migration verified only in disposable test
-databases. Actor-authorized management, public catalog routes, operational
-catalog procedures, and deployment of the new schema remain pending. See the
-[catalog domain specification](../plans/2026-10-18-catalog-domain.md).
+This runbook covers identity, authenticated panels, customer activation,
+project/service tracking, customer support, API foundations, queues and release
+infrastructure. The portal is deployed; native public-site package checkout and
+fulfilment remain active. Generic ecommerce development and its remaining
+qualification gates are paused. Subscriptions, purchased entitlements, uploads,
+long-term retention and broader commerce operations remain separate boundaries.
+See [current status](../STATUS.md) and
+[portal release proof](../evidence/2026-10-23-customer-portal/polish/qualification.md).
 
 ## Automated signals
 
@@ -25,7 +22,7 @@ catalog procedures, and deployment of the new schema remain pending. See the
   connection, queue, job identifier, and exception class.
 - API idempotency records expire after 24 hours by default and are pruned daily.
 
-On Hostinger, hPanel cron output and `storage/logs/laravel.log` are the currently
+On Hostinger, hPanel cron output and daily `storage/logs/laravel-YYYY-MM-DD.log` are the currently
 available monitoring channels. An external alert destination remains a later
 notification decision; until then, check both after releases and at least once
 per operating day.
@@ -81,6 +78,12 @@ from being released while its original worker may still be running.
 Hostinger backup frequency, encrypted off-site storage, and the durable retention
 window still require an infrastructure decision. This baseline therefore does
 not close the roadmap's full backup/retention/privacy task.
+
+The 2026-10-23 portal release satisfied the per-release restore check: an encrypted
+pre-migration backup restored in an isolated MariaDB database and all pending
+migrations applied while preserving package records. Temporary local production
+data and the decryption key were deleted; the protected encrypted backup remains
+outside the production web root. See the release evidence for its identifier.
 
 ## Credential exposure or account compromise
 

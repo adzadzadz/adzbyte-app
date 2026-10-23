@@ -131,13 +131,20 @@ cd /home/USER/domains/app.adzbyte.com/public_html && /usr/bin/php artisan queue:
 Run both every minute. Verify their output in hPanel and confirm that a queued
 customer activation notification is actually processed.
 
+Verified 2026-10-23: the existing production queue cron uses
+`--stop-when-empty --tries=3 --timeout=90`. It is preserved; production
+`DB_QUEUE_RETRY_AFTER=180` keeps reservation expiry longer than that worker
+timeout. Owner setup email processing and zero queued/failed jobs were verified
+after the portal release. The bounded command above is the preferred future
+cron configuration, not a claim that the inherited cron was edited.
+
 ## 6. Release verification
 
 For every first or changed deployment:
 
 1. Confirm `https://app.adzbyte.com/up` returns HTTP 200.
 2. Confirm `/login` and `/admin/login` load over HTTPS, and that `/` redirects unauthenticated visitors to `/login`.
-3. Check `storage/logs/laravel.log` without exposing it publicly.
+3. Check `storage/logs/laravel-YYYY-MM-DD.log` (daily production channel) and any historical `laravel.log` without exposing them publicly.
 4. Confirm `php artisan migrate:status` has no pending migrations.
 5. Confirm the queue cron drains the `jobs` table and failures appear in
    `failed_jobs`.

@@ -3,16 +3,18 @@
 `adzbyte-app` is Adzbyte's commerce backend, checkout application, customer
 portal, and administrative system of record.
 
-**Current priority (2026-10-23): customer portal.** Admins manually assign projects
+**Current priority (2026-10-23): customer portal.** Admins manually create customer accounts and assign projects
 and services; customers follow milestones, next steps and updates, and exchange
 support messages. Ecommerce development is paused. Its existing screens remain
 reachable with production Under development notices and customer write protection.
 See the [portal plan](docs/plans/2026-10-23-customer-portal.md) and
 [portal API](docs/api/customer-portal.md). Source qualification is tracked in
-[portal evidence](docs/evidence/2026-10-23-customer-portal/qualification.md).
+[portal release evidence](docs/evidence/2026-10-23-customer-portal/polish/qualification.md).
+The reviewed portal is deployed at [app.adzbyte.com](https://app.adzbyte.com);
+administration is at [/admin](https://app.adzbyte.com/admin).
 
 The reusable application foundation is complete: authentication, management
-branding, customer and administrator Home foundations, API contracts,
+branding, customer and administrator Dashboards, API contracts,
 idempotency, queues, operational hardening, and administrator user/role
 management. C1.1 adds the dynamic catalog domain and versioned price/terms
 persistence; C1.2 adds capability-backed shared actions, locked revision
@@ -48,11 +50,12 @@ catalog source.
 
 Both management experiences use Filament 5 and require authentication:
 
-- `/` — customer Home, Projects, Services, Requests & reports, profile/security,
+- `/` — customer Dashboard, Projects, Services, Requests & reports, profile/security,
   and an ecommerce preview. Native attachments are deferred; share Drive links.
-- `/admin` — administrators manage catalog, customers, orders, payments,
-  subscriptions, purchased products, customer-service cases, roles, and audit
-  events.
+- `/admin` — administrator Dashboard, Customers, Projects & services, Customer
+  support, catalog/order/payment tools, native package checkouts, user/role
+  management and audit history. Subscription/purchased-entitlement work remains
+  paused.
 
 Filament is a PHP/Livewire server-driven UI framework. It is not React. The separate `adzbyte-next` application remains the React/Next.js public frontend.
 
