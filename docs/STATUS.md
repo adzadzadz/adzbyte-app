@@ -18,7 +18,7 @@ Node 24.22.1 builds, dependency audits and independent review pass. Post-pull
 completed, all 22 migrations are Ran, and encrypted package records/configuration
 are preserved. Health/login checks and queue processing pass. The separately
 approved owner administrator exists; its secure setup email was processed.
-Owner password choice/email verification remain user actions. No real customer
+The owner has now signed in and verified email (read-only confirmation 19:22 PHT). No real customer
 has been created. See [release evidence](evidence/2026-10-23-customer-portal/polish/qualification.md).
 Native public-site package checkout/fulfilment from prior production is retained.
 This current release record supersedes historical production statements below.
@@ -505,14 +505,19 @@ Deferred phases still require:
 
 ## Known Issues
 
+- **Account lifecycle review (2026-10-23):** first-entry verification dispatch
+  and cross-panel reset-token preservation are corrected in reviewed source.
+  Full local 677 tests / 8,853 assertions and audits/build pass; supported CI
+  and a new authorized release gate production promotion. Live Resend delivered
+  at 19:08 PHT and the owner has completed verification. See [review evidence](evidence/2026-10-23-customer-portal/polish/account-lifecycle-review.md).
 - **Password reset delivery repaired 2026-10-23:** owner-approved absolute-path
   cron replacements now run every minute. Actual admin form → automatic worker
   → Gmail INBOX receipt verified at 18:58 PHT; zero queued/failed jobs and good
   queue health. Both admin/customer reset flows pass isolated delivery tests.
   Use the newest reset email in the Gmail thread. See [repair evidence](evidence/2026-10-23-customer-portal/polish/password-reset-check.md).
-- The owner must choose a password and verify email before authenticated
-  production acceptance. Fresh reset email receipt in Gmail INBOX is verified;
-  password choice and verification remain owner actions.
+- Owner login and email verification are complete. Fresh reset and verification
+  email receipt in Gmail INBOX are verified; no agent-set password or verification
+  bypass was used.
 - Local preview is stopped after QA; deployed links are available for owner
   testing. Outbound support-message email/native attachments remain deferred.
 - Paused commerce refund, merchant/legal and broader retention qualification

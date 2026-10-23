@@ -32,6 +32,8 @@ foreach (['CACHE_STORE' => 'database', 'SESSION_DRIVER' => 'array', 'QUEUE_CONNE
 }
 $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
+// Serialized models retain the isolated connection name from the parent process.
+config(['database.connections.catalog_concurrency' => [...DB::connection()->getConfig(), 'name' => 'catalog_concurrency']]);
 if ($mode === 'queue') {
     if (config('mail.default') !== 'smtp' || config('mail.mailers.smtp.host') !== '127.0.0.1' || config('mail.mailers.smtp.username') || config('mail.mailers.smtp.url') !== null) {
         throw new RuntimeException('Queue transport proof must use credential-free loopback SMTP.');
