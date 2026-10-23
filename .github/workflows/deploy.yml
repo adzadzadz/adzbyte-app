@@ -105,8 +105,8 @@ jobs:
           mkdir -p "$RUNNER_TEMP/adzbyte-ssh"
           printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/adzbyte-ssh/key"
           printf '%s\n' "$KNOWN_HOSTS" > "$RUNNER_TEMP/adzbyte-ssh/known_hosts"
-          ssh -i "$RUNNER_TEMP/adzbyte-ssh/key" -p "$SSH_PORT" \
-            -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
+          ssh -F /dev/null -i "$RUNNER_TEMP/adzbyte-ssh/key" -p "$SSH_PORT" \
+            -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
             -o UserKnownHostsFile="$RUNNER_TEMP/adzbyte-ssh/known_hosts" \
             "$SSH_USER@$SSH_HOST" preflight
           git fetch origin main:refs/remotes/origin/main
@@ -153,8 +153,8 @@ jobs:
           DEPLOY_SHA: ${{ steps.publish.outputs.deploy_sha }}
         run: |
           set -euo pipefail
-          ssh -i "$RUNNER_TEMP/adzbyte-ssh/key" -p "$SSH_PORT" \
-            -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
+          ssh -F /dev/null -i "$RUNNER_TEMP/adzbyte-ssh/key" -p "$SSH_PORT" \
+            -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
             -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
             -o UserKnownHostsFile="$RUNNER_TEMP/adzbyte-ssh/known_hosts" \
             "$SSH_USER@$SSH_HOST" "deploy $SOURCE_SHA $DEPLOY_SHA"

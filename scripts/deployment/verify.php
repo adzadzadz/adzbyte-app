@@ -11,6 +11,7 @@ $checks = [
     'production' => app()->environment('production') && ! config('app.debug'),
     'canonical HTTPS URL' => config('app.url') === 'https://app.adzbyte.com',
     'protected environment' => ! is_link('.env') && (fileperms('.env') & 0777) === 0600,
+    'protected compiled configuration' => is_file('bootstrap/cache/config.php') && ! is_link('bootstrap/cache/config.php') && (fileperms('bootstrap/cache/config.php') & 0777) === 0600,
     'encrypted secure sessions' => config('session.encrypt') && config('session.secure') && config('session.http_only') && config('session.same_site') === 'lax',
     'database cache and queue' => config('cache.default') === 'database' && config('queue.default') === 'database',
     'transactional queue' => config('queue.connections.database.after_commit') && config('queue.connections.database.retry_after') > 90,

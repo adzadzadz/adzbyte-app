@@ -63,6 +63,7 @@ git merge --ff-only "$deploy_sha"
 [[ "$(git rev-parse HEAD)" == "$deploy_sha" ]] || exit 1
 chmod 600 .env
 phase=laravel
+umask 077
 COMPOSER_BINARY=/usr/local/bin/composer2 PHP_BINARY=/usr/bin/php bash scripts/hostinger-after-pull.sh
 umask 077
 phase=verify

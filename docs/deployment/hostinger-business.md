@@ -48,6 +48,7 @@ The entrypoint fetches only the fixed public repository, validates deploy tip,
 main/source ancestry and forward-only history, locks concurrent releases, and
 extracts versioned release logic from that approved deploy object.
 
+Install reviewed `scripts/deployment/cron-run.sh` beside the entrypoint with mode700.
 Configure both cron locks below, verify their commands, then create the private
 `runtime-lock-enabled` setup marker. Run restricted-key `preflight` with pinned
 host verification. A fresh production PHP build check requires 8.3.36+ on the
@@ -169,9 +170,11 @@ Both Custom cron entries run every minute (`* * * * *`):
 ```
 
 ```bash
-/usr/bin/flock --shared --nonblock /home/u463458285/domains/app.adzbyte.com/public_html/storage/framework/deployment.lock /usr/bin/php /home/u463458285/domains/app.adzbyte.com/public_html/artisan queue:work database --stop-when-empty --tries=3 --backoff=10 --timeout=60 --max-time=50
+/bin/bash /home/u463458285/.local/share/adzbyte-app-deploy/cron-run.sh worker
 ```
 
+Hostinger enforces a255-character command limit. The scheduler fits directly;
+the worker uses the installed wrapper with its fixed absolute Artisan path.
 The shared lock is held for the entire command; the deployment's exclusive lock
 waits for those processes and excludes new cron work until internal verification
 finishes. Skipped work resumes at the next minute; queue jobs remain durable.
@@ -180,7 +183,7 @@ worker timeout60; the configuration verifier conservatively requires >90.
 
 The earlier absolute-Artisan cron repair and actual Gmail receipt proof remain
 in [password-reset evidence](../evidence/2026-10-23-customer-portal/polish/password-reset-check.md).
-The CI/CD cutover evidence records the new wrappers and actual scheduled output.
+The CI/CD cutover evidence records both locked commands and actual scheduled output.
 
 ## 6. Release verification
 

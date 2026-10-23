@@ -56,6 +56,7 @@ elif [[ "$1" == artisan ]]; then
         down) touch "$QA_APP/storage/framework/down" ;;
         up) rm -f "$QA_APP/storage/framework/down" ;;
         migrate) [[ "${FAIL_PHASE:-}" != migration ]] || exit 1 ;;
+        optimize) printf 'synthetic compiled secrets' > "$QA_APP/bootstrap/cache/config.php" ;;
     esac
 fi
 ''')
@@ -75,8 +76,11 @@ else printf 200; fi
         shutil.copy(REPO / "scripts/hostinger-after-pull.sh", self.app / "scripts/hostinger-after-pull.sh")
         shutil.copy(REPO / "scripts/deployment/http-check.sh", self.app / "scripts/deployment/http-check.sh")
         (self.app / "public/build/assets").mkdir(parents=True)
+        (self.app / "bootstrap/cache").mkdir(parents=True)
+        (self.app / "bootstrap/cache/config.php").write_text("old synthetic compiled secrets")
+        (self.app / "bootstrap/cache/config.php").chmod(0o644)
         (self.app / "public/build/assets/app-fixture.css").write_text("body {}")
-        (self.app / ".gitignore").write_text(".env\nstorage/\n")
+        (self.app / ".gitignore").write_text(".env\nstorage/\nbootstrap/cache/\n")
         (self.app / ".env").write_text("APP_KEY=synthetic-key-that-must-survive\nDB_PASSWORD=synthetic-only\n")
         (self.app / ".env").chmod(0o644)
         (self.app / "storage/customer-records").write_text("retained customer fixture")
@@ -119,6 +123,7 @@ else printf 200; fi
         self.assertEqual(self.target, self.git("rev-parse", "HEAD").strip())
         self.assertEqual(original, (self.app / ".env").read_bytes())
         self.assertEqual(0o600, (self.app / ".env").stat().st_mode & 0o777)
+        self.assertEqual(0o600, (self.app / "bootstrap/cache/config.php").stat().st_mode & 0o777)
         self.assertEqual("retained customer fixture", (self.app / "storage/customer-records").read_text())
         self.assertFalse((self.app / "storage/framework/down").exists())
         calls = self.log.read_text()
@@ -246,6 +251,32 @@ function config($name){return match($name){'app.debug'=>false,'database.default'
                 for file in backup.iterdir():
                     self.assertEqual(0o600, file.stat().st_mode & 0o777, str(file))
                 self.assertNotIn(b"CREATE TABLE", (backup / "database.sql.enc").read_bytes())
+
+
+class CronWrapperTests(unittest.TestCase):
+    def test_only_fixed_scheduler_and_worker_commands_are_allowed_under_shared_lock(self):
+        with tempfile.TemporaryDirectory(prefix="adzbyte-cron-test-") as directory:
+            root = Path(directory)
+            capture = root / "capture"
+            capture.write_text('#!/usr/bin/env python3\nimport json,sys\nprint(json.dumps(sys.argv[1:]))\n')
+            capture.chmod(0o700)
+            wrapper = root / "cron-run.sh"
+            wrapper.write_text((REPO / "scripts/deployment/cron-run.sh").read_text().replace("/usr/bin/flock", str(capture)))
+            for mode, command in [("scheduler", "schedule:run"), ("worker", "queue:work")]:
+                result = subprocess.run(["bash", str(wrapper), mode], capture_output=True, text=True)
+                self.assertEqual(0, result.returncode, result.stderr)
+                arguments = json.loads(result.stdout)
+                self.assertEqual(["--shared", "--nonblock"], arguments[:2])
+                self.assertTrue(arguments[2].endswith("/storage/framework/deployment.lock"))
+                self.assertEqual("/usr/bin/php", arguments[3])
+                self.assertTrue(arguments[4].endswith("/public_html/artisan"))
+                self.assertEqual(command, arguments[5])
+                if mode == "worker":
+                    self.assertIn("--timeout=60", arguments)
+                    self.assertIn("--max-time=50", arguments)
+            for arguments in [[], ["migrate"], ["worker", "extra"]]:
+                result = subprocess.run(["bash", str(wrapper), *arguments], capture_output=True, text=True)
+                self.assertEqual(64, result.returncode)
 
 
 class WebRequestDrainTests(unittest.TestCase):
