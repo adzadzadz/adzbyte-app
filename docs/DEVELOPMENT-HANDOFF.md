@@ -24,11 +24,12 @@
   load correctly. No production customer or synthetic fixture was created.
 - Approved live onboarding QA: customer 2, `adzbite+portal-test@gmail.com`, has
   a clearly labeled sample project and service. Its invitation reached Gmail
-  INBOX at 21:27:04 PHT; queues/failures are zero. Owner must choose its password
-  via that invitation, preferably in a private window. Production activation and
-  customer login/page confirmation remain pending that step; the isolated full
-  onboarding journey passes (1 / 77), with focused regressions 32 / 329.
-- Next: complete that owner activation, then create real customers and assign
+  INBOX at 21:27:04 PHT; queues/failures are zero. Owner activation is confirmed
+  live; customer session reload, Dashboard (1 project/1 service), both lists and
+  both detail pages pass. Signed out to `/login` to check a fresh password-form
+  sign-in; the owner must enter the password directly in Chrome. The isolated
+  full onboarding journey passes (1 / 77), with focused regressions 32 / 329.
+- Next: finish the fresh sign-in check, then create real customers and assign
   projects/services at `/admin`; customer portal is `/`. Local preview remains
   stopped. Outbound support-conversation email/native attachments remain deferred.
 - [Account lifecycle qualification and release](evidence/2026-10-23-customer-portal/polish/account-lifecycle-review.md).

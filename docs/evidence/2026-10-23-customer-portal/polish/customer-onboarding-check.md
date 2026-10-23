@@ -73,7 +73,22 @@ and exactly the two assigned work records. The owner remains responsible for
 choosing the password through the invitation, preferably in a private window so
 the administrator browser session remains separate.
 
-Live account activation and subsequent customer login/work visibility are pending
-that owner step. The complete activation and fresh-login journey already passes
-in the isolated regression; no production password or verification bypass was
-used. Test records remain clearly labeled as approved.
+## Owner activation and live customer pages
+
+The owner reported completing activation. Read-only production confirmation at
+**21:34:34 PHT** shows customer 2 verified, customer role only, zero direct
+permissions, both original assignments, zero queued jobs and zero failed jobs.
+Actual Chrome customer session identifies QA Portal Test Customer. Reloading
+its protected project URL preserves authenticated access without a verification
+prompt. Dashboard displays **1 active project and 1 active service**, both QA
+cards and the verified identity. Projects lists only the sample project; Services
+lists only the sample service. Both detail pages display the matching title,
+summary, Not started status, next step and linked requests/reports section.
+Customer screenshots were saved outside Git.
+
+After this successful authenticated check, customer Sign out returned to `/login`.
+The QA email is filled and the owner is asked to enter the password directly in
+Chrome for a fresh login check. Fresh password-form login is pending that manual
+step; activation-session access and work visibility are verified. The isolated
+activation/logout/fresh-login regression already passes; no production password
+was read, set or bypassed. Test records remain clearly labeled as approved.
