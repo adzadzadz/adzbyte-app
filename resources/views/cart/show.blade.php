@@ -12,7 +12,7 @@
     <header class="border-b border-slate-800 px-5 py-5">
         <nav class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-5" aria-label="Cart navigation">
             <a href="{{ $shop }}" aria-label="Adzbyte services"><img src="{{ asset('images/brand/adzbyte-logo-transparent.png') }}" width="160" height="45" alt="Adzbyte" class="h-auto w-36"></a>
-            <a href="{{ $shop }}" class="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4">Browse services</a>
+            <a href="/" class="underline">Return to dashboard</a><a href="{{ $shop }}" class="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4">Browse services</a>
         </nav>
     </header>
     <main id="cart-content" class="mx-auto max-w-5xl px-5 py-10 [overflow-wrap:anywhere] sm:py-14">
@@ -79,7 +79,10 @@
                     <h2 class="text-lg font-medium">Subtotal</h2>
                     <p class="mt-3 text-2xl font-semibold">{{ \App\Services\Carts\MinorUnits::formatPhp($cart['subtotal_minor']) }}</p>
                     @if (! $cart['subtotal_complete'])<p class="mt-3 text-sm text-amber-300">Unavailable listings are excluded from this subtotal.</p>@endif
-                    @if ($cart['requires_review'] && $cart['category_conflicts'] === [] && collect($cart['items'])->every(fn ($line) => $line['available']))
+                    @if (\App\Http\Middleware\CommercePreviewOnly::enabled())
+                        <p class="mt-6 text-slate-300">Read-only preview. Checkout and cart changes are unavailable while commerce is under development.</p>
+                        <a href="/" class="mt-5 block underline">Return to your dashboard</a>
+                    @elseif ($cart['requires_review'] && $cart['category_conflicts'] === [] && collect($cart['items'])->every(fn ($line) => $line['available']))
                         <form method="post" action="{{ route('cart.confirm') }}" class="mt-6">
                             @csrf
                             <input type="hidden" name="operation_id" value="{{ \Illuminate\Support\Str::uuid() }}">

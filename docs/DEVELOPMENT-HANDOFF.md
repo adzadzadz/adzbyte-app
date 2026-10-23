@@ -1,5 +1,24 @@
 # Development Handoff
 
+## Current UI checkpoint — 2026-10-24, final verification pending
+
+Owner authorized all reviewed Filament UX batches and React dependency removal.
+Implementation, independent review, built 1440/320px browser workflows, full
+formatting, metadata validation, audits and build pass. New UX tests pass 14 / 98;
+prior failure-regression selection passes 37 / 403. Final full local SQLite run
+and GitHub PHP 8.3 SQLite/MySQL CI are pending. See the
+[complete review](evidence/2026-10-24-filament-ux/qualification.md).
+
+The Windows HTTP test harness now preserves isolated database filename prefixes,
+drains server pipes while consumers run, and allows native cold-start duration.
+No production database, schema, provider, permissions or commerce launch change
+is included. Synthetic browser server, accounts and database are cleaned up.
+
+Preserve unrelated Windows setup edits in README.md/composer.json and the local
+deployment lock. Concurrent sign-in visual work is already committed on the
+shared branch. Next: finish source CI and update this checkpoint; deployment
+still requires a separate explicit owner command.
+
 ## Current infrastructure checkpoint — 2026-10-23
 
 CI/CD is configured for GitHub-only releases. Restricted main-only environment

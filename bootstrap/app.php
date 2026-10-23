@@ -10,6 +10,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Exceptions\InvalidSignatureException;
 use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -32,6 +33,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (InvalidSignatureException $exception, Request $request) {
+            if ($request->routeIs('account-activation.*')) {
+                return response()->view('auth.activation-unavailable', status: 403)->header('Cache-Control', 'no-store, private');
+            }
+
+            return null;
+        });
         $exceptions->render(function (Throwable $exception, Request $request) {
             return PackageCheckoutErrors::matches($request) ? PackageCheckoutErrors::render($exception) : null;
         });

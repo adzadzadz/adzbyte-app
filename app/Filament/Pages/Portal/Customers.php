@@ -3,10 +3,15 @@
 namespace App\Filament\Pages\Portal;
 
 use App\Actions\Customers\ManagePortalCustomer;
+use App\Actions\Portal\PortalActions;
 use App\Enums\PortalCapability;
 use App\Models\WorkItem;
+use App\Support\Filament\HandlesPortalCommands;
+use App\Support\Filament\PortalForms;
 use App\Support\PortalAccess;
+use App\Support\PortalOptions;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -14,6 +19,8 @@ use Livewire\Attributes\Url;
 
 final class Customers extends Page
 {
+    use HandlesPortalCommands;
+
     protected static ?string $title = 'Customers';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Customer portal';
@@ -32,6 +39,12 @@ final class Customers extends Page
 
     #[Url]
     public int $page = 1;
+
+    public function mount(): void
+    {
+        abort_unless(self::canAccess(), 403);
+        $this->operationId('assign');
+    }
 
     public static function canAccess(): bool
     {
@@ -60,7 +73,20 @@ final class Customers extends Page
                     app(ManagePortalCustomer::class)->resend(auth()->user(), $this->record);
                     Notification::make()->success()->title('Activation invitation queued')->send();
                 }),
+            Action::make('assignWork')->label('Assign project or service')->slideOver()
+                ->visible(fn () => $this->record && PortalAccess::staff(auth()->user(), PortalCapability::ViewWork) && PortalAccess::staff(auth()->user(), PortalCapability::ManageWork))
+                ->modalDescription(fn () => 'Assign work to '.ManagePortalCustomer::query()->findOrFail($this->record)->name.'. The customer will see this in their portal.')
+                ->schema([Select::make('type')->options(PortalOptions::WORK_TYPES)->default('project')->required(), ...PortalForms::work()])
+                ->action(function (array $data): void {
+                    $customer = ManagePortalCustomer::query()->findOrFail($this->record);
+                    $this->runCommand('assign', fn ($key) => app(PortalActions::class)->createWork(auth()->user(), [...$data, 'customer' => $customer->id], $key), 'Work assigned to '.$customer->name);
+                }),
         ];
+    }
+
+    public function getCachedHeaderActions(): array
+    {
+        return array_values(array_filter(parent::getCachedHeaderActions(), fn ($action) => $action->getName() !== 'assignWork'));
     }
 
     protected function getViewData(): array

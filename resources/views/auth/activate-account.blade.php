@@ -31,6 +31,8 @@
                     Set a password for <strong>{{ $user->email }}</strong> to continue to your customer account.
                 </p>
 
+                <p id="password-requirements" class="adz-activation-copy">Use at least 12 characters, including uppercase and lowercase letters, a number, and a symbol.</p>
+
                 <form method="POST" action="{{ request()->fullUrl() }}" class="adz-activation-form">
                     @csrf
 
@@ -40,13 +42,16 @@
                             id="password"
                             name="password"
                             type="password"
+                            minlength="12"
+                            aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}"
+                            aria-describedby="password-requirements{{ $errors->has('password') ? ' password-error' : '' }}"
                             autocomplete="new-password"
                             required
                             autofocus
                             class="adz-activation-input"
                         >
                         @error('password')
-                            <p class="adz-activation-error" role="alert">{{ $message }}</p>
+                            <p id="password-error" class="adz-activation-error" role="alert">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -56,16 +61,27 @@
                             id="password_confirmation"
                             name="password_confirmation"
                             type="password"
+                            aria-invalid="{{ $errors->has('password_confirmation') ? 'true' : 'false' }}"
+                            @if ($errors->has('password_confirmation')) aria-describedby="password-confirmation-error" @endif
                             autocomplete="new-password"
                             required
                             class="adz-activation-input"
                         >
+                        @error('password_confirmation')
+                            <p id="password-confirmation-error" class="adz-activation-error" role="alert">{{ $message }}</p>
+                        @enderror
                     </div>
+
+                    <label class="adz-activation-label"><input type="checkbox" aria-controls="password password_confirmation" onchange="for (const id of ['password', 'password_confirmation']) document.getElementById(id).type = this.checked ? 'text' : 'password'"> Show passwords</label>
 
                     <button type="submit" class="adz-activation-submit">
                         Activate account
                     </button>
                 </form>
+                <nav aria-label="Account help" class="adz-activation-copy">
+                    <a href="{{ route('filament.account.auth.login') }}" class="underline">Sign in</a>
+                    · <a href="{{ route('filament.account.auth.password-reset.request') }}" class="underline">Reset password</a>
+                </nav>
             </section>
         </main>
 

@@ -1,0 +1,16 @@
+.adz-portal-filters { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; }
+.adz-portal-filters label { display: grid; gap: .375rem; color: #b7c1d1; font-size: .8125rem; flex: 1 1 10rem; }
+.adz-portal-select { width: 100%; min-width: 0; border: 1px solid var(--adz-border-strong, #475569); background: var(--adz-surface, #111827); color: #f8fafc; border-radius: .625rem; padding: .65rem .75rem; font: inherit; }
+.adz-portal-select:focus-visible { outline: 2px solid var(--adz-primary, #8139ff); outline-offset: 3px; }
+.adz-portal-feedback { color: #b7c1d1; font-size: .875rem; }
+.adz-portal-feedback p { margin-block: .5rem; }
+.adz-portal-attention { scroll-margin-top: 6rem; }
+.adz-portal-attention a:focus-visible, .adz-portal-case-toggle:focus-visible { outline: 2px solid #a78bfa; outline-offset: 4px; }
+.adz-portal-composer { display: grid; gap: .75rem; margin-top: 1.25rem; }
+.adz-portal-composer textarea { min-height: 8rem; resize: vertical; }
+.adz-portal-compact-details summary { cursor: pointer; padding-block: .5rem; }
+@media (max-width: 40rem) { .adz-portal-filters label { flex-basis: calc(50% - .75rem); } }
+
+.adz-portal-conversation-thread { max-height: 28rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: .5rem; }
+.adz-portal-conversation-thread:focus-visible { outline: 2px solid #a78bfa; outline-offset: 3px; }
+@media (max-width: 40rem) { .adz-portal-conversation-thread { max-height: 18rem; } }

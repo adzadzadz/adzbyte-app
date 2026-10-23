@@ -10,18 +10,21 @@ use App\Models\SupportCategory;
 use App\Models\User;
 use App\Models\WorkItem;
 use App\Support\PortalAccess;
+use App\Support\PortalOptions;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 final class PortalRead
 {
-    public function works(User $actor, ?string $type = null, bool $staff = false, int $page = 1, string $search = ''): array
+    public function works(User $actor, ?string $type = null, bool $staff = false, int $page = 1, string $search = '', array $filters = [], int $perPage = 12): array
     {
-        $query = $this->workQuery($actor, $staff)->when($type, fn ($q) => $q->where('type', $type))
+        $query = $this->filter($this->workQuery($actor, $staff), $actor, $staff, $filters, false)->when($type, fn ($q) => $q->where('type', $type))
             ->when($search !== '', fn ($q) => $q->where('title', 'like', '%'.addcslashes(mb_substr($search, 0, 100), '%_\\').'%'));
-        $items = $query->with('owner')->withCount(['milestones', 'milestones as completed_milestones_count' => fn ($q) => $q->whereNotNull('completed_at')])
-            ->orderByRaw("CASE WHEN status = 'waiting_for_customer' THEN 0 WHEN status IN ('completed', 'cancelled') THEN 2 ELSE 1 END")->orderByDesc('updated_at')->orderByDesc('id')->paginate(12, ['*'], 'page', max(1, $page));
+        $items = $query->with(['owner', 'assignee'])->withCount(['milestones', 'milestones as completed_milestones_count' => fn ($q) => $q->whereNotNull('completed_at')])
+            ->orderByRaw("CASE WHEN status = 'waiting_for_customer' THEN 0 WHEN status IN ('completed', 'cancelled') THEN 2 ELSE 1 END")->orderByDesc('updated_at')->orderByDesc('id')->paginate(max(1, min(50, $perPage)), ['*'], 'page', max(1, $page));
 
         return ['items' => $items->map(fn (WorkItem $work) => $this->workSummary($work, $staff))->all(), 'pagination' => $this->pagination($items)];
     }
@@ -43,15 +46,17 @@ final class PortalRead
         ];
     }
 
-    public function cases(User $actor, bool $staff = false, int $page = 1, string $search = '', ?string $work = null): array
+    public function cases(User $actor, bool $staff = false, int $page = 1, string $search = '', ?string $work = null, array $filters = [], int $perPage = 12): array
     {
         if ($work) {
             $this->workQuery($actor, $staff)->where('public_id', $work)->firstOrFail();
         }
-        $items = $this->caseQuery($actor, $staff)->with(['owner', 'category', 'workItem'])
+        $items = $this->filter($this->caseQuery($actor, $staff), $actor, $staff, $filters, true)->with(['owner', 'assignee', 'category', 'workItem'])
             ->when($work, fn ($q) => $q->whereHas('workItem', fn ($q) => $q->where('public_id', $work)))
             ->when($search !== '', fn ($q) => $q->where('subject', 'like', '%'.addcslashes(mb_substr($search, 0, 100), '%_\\').'%'))
-            ->orderByRaw("CASE WHEN status = 'waiting_for_customer' THEN 0 WHEN status IN ('resolved', 'closed') THEN 2 ELSE 1 END")->orderByDesc('public_updated_at')->orderByDesc('id')->paginate(12, ['*'], 'page', max(1, $page));
+            ->orderByRaw($staff ? "CASE WHEN status IN ('resolved', 'closed') THEN 2 WHEN status = 'waiting_for_customer' THEN 1 ELSE 0 END" : "CASE WHEN status = 'waiting_for_customer' THEN 0 WHEN status IN ('resolved', 'closed') THEN 2 ELSE 1 END")
+            ->when($staff, fn ($q) => $q->orderByRaw("CASE WHEN priority = 'high' THEN 0 WHEN priority = 'normal' THEN 1 ELSE 2 END"))
+            ->orderByDesc('public_updated_at')->orderByDesc('id')->paginate(max(1, min(50, $perPage)), ['*'], 'page', max(1, $page));
 
         return ['items' => $items->map(fn (SupportCase $case) => $this->caseSummary($case, $staff))->all(), 'pagination' => $this->pagination($items)];
     }
@@ -92,7 +97,7 @@ final class PortalRead
             'services' => (clone $works)->where('type', 'service')->whereNotIn('status', ['completed', 'cancelled'])->count(),
             'waiting' => (clone $works)->where('status', 'waiting_for_customer')->count() + (clone $cases)->where('status', 'waiting_for_customer')->count(),
             'open_cases' => (clone $cases)->whereNotIn('status', ['resolved', 'closed'])->count(),
-            'works' => $this->works($actor)['items'], 'cases' => $this->cases($actor)['items'],
+            'works' => $this->works($actor, perPage: 4)['items'],
         ];
     }
 
@@ -103,7 +108,7 @@ final class PortalRead
                 'total' => ManagePortalCustomer::query()->count(),
                 'pending' => ManagePortalCustomer::query()->whereNull('email_verified_at')->count(),
             ] : null,
-            'recent_cases' => PortalAccess::staff($actor, PortalCapability::ViewCases) ? array_slice($this->cases($actor, true)['items'], 0, 5) : [],
+            'recent_cases' => PortalAccess::staff($actor, PortalCapability::ViewCases) ? $this->cases($actor, true, perPage: 5)['items'] : [],
             'work' => PortalAccess::staff($actor, PortalCapability::ViewWork) ? [
                 'active' => WorkItem::whereNotIn('status', ['completed', 'cancelled'])->count(),
                 'waiting' => WorkItem::where('status', 'waiting_for_customer')->count(),
@@ -134,6 +139,52 @@ final class PortalRead
             ->map(fn ($c) => ['public_id' => $c->public_id, 'name' => $c->name, 'active' => $c->active])->all();
     }
 
+    public function authorizeWork(User $actor, string $reference, bool $staff = false): WorkItem
+    {
+        return $this->workQuery($actor, $staff)->where('public_id', $reference)->firstOrFail();
+    }
+
+    private function filter(Builder $query, User $actor, bool $staff, array $filters, bool $cases): Builder
+    {
+        $filters = Validator::make($filters, [
+            'status' => ['nullable', Rule::in(array_keys($cases ? PortalOptions::CASE_STATUSES : PortalOptions::WORK_STATUSES))],
+            'queue' => ['nullable', Rule::in(['unread', 'waiting'])],
+            'assignment' => ['nullable', Rule::in(['mine', 'unassigned'])],
+            'priority' => ['nullable', Rule::in(array_keys(PortalOptions::PRIORITIES))],
+            'type' => ['nullable', Rule::in(array_keys($cases ? PortalOptions::CASE_TYPES : PortalOptions::WORK_TYPES))],
+            'customer' => ['nullable', 'string', 'max:100'],
+        ])->validate();
+        foreach (['status', 'type'] as $field) {
+            if (! empty($filters[$field])) {
+                $query->where($field, $filters[$field]);
+            }
+        }
+        if (($filters['queue'] ?? '') === 'waiting') {
+            $query->where('status', 'waiting_for_customer');
+        }
+        if (($filters['queue'] ?? '') === 'unread') {
+            $readColumn = $staff && $cases ? 'staff_read_at' : 'customer_read_at';
+            $updatedColumn = $cases ? 'public_updated_at' : 'updated_at';
+            $query->where(fn ($q) => $q->whereNull($readColumn)->orWhereColumn($readColumn, '<', $updatedColumn));
+        }
+        if ($staff) {
+            if (($filters['assignment'] ?? '') === 'mine') {
+                $query->where('assigned_to', $actor->id);
+            } elseif (($filters['assignment'] ?? '') === 'unassigned') {
+                $query->whereNull('assigned_to');
+            }
+            if ($cases && ! empty($filters['priority'])) {
+                $query->where('priority', $filters['priority']);
+            }
+            if (! empty($filters['customer'])) {
+                $term = '%'.addcslashes($filters['customer'], '%_\\').'%';
+                $query->whereHas('owner', fn ($q) => $q->where(fn ($q) => $q->where('name', 'like', $term)->orWhere('email', 'like', $term)));
+            }
+        }
+
+        return $query;
+    }
+
     private function workQuery(User $actor, bool $staff): Builder
     {
         abort_unless($staff ? PortalAccess::staff($actor, PortalCapability::ViewWork) : PortalAccess::customer($actor), 403);
@@ -154,7 +205,7 @@ final class PortalRead
             'next_step' => $work->next_step, 'target_date' => $work->target_date?->toDateString(), 'revision' => $work->revision,
             'milestone_count' => $work->milestones_count, 'completed_milestone_count' => $work->completed_milestones_count,
             'unread' => $work->customer_read_at === null || $work->customer_read_at->lt($work->updated_at),
-            'updated_at' => $work->updated_at->toIso8601String(), ...$staff ? ['customer' => $work->owner->name] : []];
+            'updated_at' => $work->updated_at->toIso8601String(), ...$staff ? ['customer' => $work->owner->name, 'assignee' => $work->relationLoaded('assignee') ? $work->assignee?->name : null] : []];
     }
 
     private function caseSummary(SupportCase $case, bool $staff): array
@@ -165,7 +216,7 @@ final class PortalRead
             'priority' => $case->priority, 'category' => $case->category?->name, 'revision' => $case->revision,
             'work' => $case->workItem ? ['public_id' => $case->workItem->public_id, 'title' => $case->workItem->title, 'type' => $case->workItem->type] : null,
             'unread' => $read === null || $read->lt($case->public_updated_at), 'created_at' => $case->created_at->toIso8601String(),
-            'updated_at' => $case->public_updated_at->toIso8601String(), ...$staff ? ['customer' => $case->owner->name] : []];
+            'updated_at' => $case->public_updated_at->toIso8601String(), ...$staff ? ['customer' => $case->owner->name, 'assignee' => $case->assignee?->name] : []];
     }
 
     private function pagination(LengthAwarePaginator $items): array

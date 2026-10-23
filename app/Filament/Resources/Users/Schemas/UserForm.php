@@ -45,6 +45,9 @@ final class UserForm
                             ->searchable()
                             ->preload()
                             ->required()
+                            ->helperText(fn (?User $record): string => $record !== null && auth()->user()?->is($record)
+                                ? 'You cannot change your own roles. Ask another super administrator to update your access.'
+                                : 'Role changes require a super administrator and apply to this user’s access across the app.')
                             ->disabled(function (?User $record): bool {
                                 $actor = auth()->user();
 

@@ -1,6 +1,25 @@
 # Project Status
 
-**Last updated:** 2026-10-24 (local authentication visual refresh; customer portal priority)
+**Last updated:** 2026-10-24 (Filament UX improvements; final verification in progress)
+
+## Filament UX improvements — implementation reviewed, verification pending
+
+Three authorized batches retain Filament/Livewire and remove the abandoned
+React dependencies. Panel navigation, actionable waiting queues, staff filters,
+contextual assignment/work drawers, milestone editing, inline conversations,
+draft/conflict recovery and account/commerce clarity are implemented. Independent
+review approves the source after regression fixes. Built desktop/mobile browser
+checks pass using disposable synthetic data, including 320px without horizontal
+overflow; the QA server and databases are removed.
+
+New UX regressions pass 14 tests / 98 assertions, failure-regression selection
+passes 37 / 403, full Pint and build pass, and both dependency audits are clean.
+Final complete SQLite rerun and supported-runtime SQLite/MySQL CI remain pending;
+the task is not yet qualified. No production deployment occurred. Commerce stays
+paused. [Full review and evidence](evidence/2026-10-24-filament-ux/qualification.md).
+
+Next: finish both database CI jobs at the delivered implementation revision and
+reconcile this checkpoint before presenting the owner review.
 
 ## Guest authentication visual refresh — locally verified, 2026-10-24
 

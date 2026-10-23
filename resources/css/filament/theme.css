@@ -4,6 +4,7 @@
 @import '@fontsource/poppins/latin-600.css';
 @import '@fontsource/poppins/latin-700.css';
 @import '../../../vendor/filament/filament/resources/css/theme.css';
+@import './portal-ux.css';
 
 @source '../../../app/Filament/**/*';
 @source '../../../app/Providers/Filament/**/*';
@@ -34,7 +35,7 @@ body.fi-body {
 }
 
 body.fi-body {
-    min-width: 20rem;
+    min-width: 0;
 }
 
 .fi-simple-layout {

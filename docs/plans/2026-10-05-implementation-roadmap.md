@@ -283,6 +283,12 @@ is denied in panels and APIs.
 
 ## Definition of Done for Every Task
 
+The owner-approved 2026-10-24 Filament UI increment retains the existing commerce
+phase boundaries. Three UX batches are implemented and independently reviewed;
+final full-suite/source CI qualification is pending. See the
+[increment review](../evidence/2026-10-24-filament-ux/qualification.md). This work
+does not complete the deferred commerce/provider gates below.
+
 - Follow the owner-required [phase verification gate](../verification.md).
   A task/phase stays partial until all applicable checks pass at its delivered
   source revision; dependent implementation waits for those gates.

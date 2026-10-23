@@ -17,6 +17,7 @@
         @if (session('status'))<p role="status" class="mt-6 rounded-xl border border-emerald-800 bg-emerald-950/50 p-4">{{ session('status') }}</p>@endif
         @if ($errors->any())<div role="alert" class="mt-6 rounded-xl border border-rose-800 bg-rose-950/40 p-4"><p>Check the details below.</p><ul class="mt-2 list-inside list-disc">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
         @if (\App\Http\Middleware\CommercePreviewOnly::enabled())
+            <p class="mt-4 text-slate-300">Read-only preview: checkout and purchase changes are unavailable. <a href="/" class="underline">Return to your dashboard</a> to manage projects, services, and support requests.</p>
             <fieldset disabled class="min-w-0">{{ $slot }}</fieldset>
         @else
             {{ $slot }}

@@ -56,7 +56,7 @@ class CheckoutTest extends TestCase
         $r = $this->get('/api/v1/checkout', ['Accept' => 'application/json'])->assertOk()->assertJsonPath('data.totals.total_minor', '12500')->assertJsonPath('data.policy.tax_mode', 'unconfigured')->assertJsonPath('meta.csrf_token', 'csrf')->assertJsonPath('data.existing_order', null)->assertHeader('Cache-Control', 'no-store, private');
         $this->assertStringNotContainsString('actor_id', $r->getContent());
         $this->assertStringNotContainsString('content_hash', $r->getContent());
-        $this->get('/orders')->assertOk()->assertSee('No requests yet.');
+        $this->get('/orders')->assertOk()->assertSee('No purchase requests yet.');
     }
 
     public function test_api_creation_replay_owned_read_listing_and_native_existing_request_redirect(): void

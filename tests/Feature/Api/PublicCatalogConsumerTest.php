@@ -67,7 +67,7 @@ class PublicCatalogConsumerTest extends TestCase
         $this->assertNotNull($node, 'Node.js is required for the HTTP consumer gate.');
         $consumer = new Process([$node, base_path('tests/Support/public-catalog-consumer.mjs'), 'http://'.$address], base_path());
         $consumer->setTimeout(30);
-        $consumer->run();
+        $this->runHttpConsumer($consumer);
         $this->assertTrue($consumer->isSuccessful(), $consumer->getOutput().$consumer->getErrorOutput());
         $result = json_decode($consumer->getOutput(), true, flags: JSON_THROW_ON_ERROR);
         $this->assertSame('passed', $result['result']);

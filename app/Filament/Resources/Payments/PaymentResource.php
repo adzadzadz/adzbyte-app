@@ -64,8 +64,10 @@ final class PaymentResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([
+        return $table->modifyQueryUsing(fn ($query) => $query->with(['order.currentRevision']))->columns([
             TextColumn::make('public_id')->label('Payment reference')->searchable()->wrap(),
+            TextColumn::make('order.public_id')->label('Order reference')->searchable()->wrap(),
+            TextColumn::make('customer')->label('Customer')->state(fn (PaymentAttempt $record): ?string => $record->order?->currentRevision?->billing['name'] ?? null)->placeholder('Not recorded')->wrap(),
             TextColumn::make('state')->badge(),
             TextColumn::make('amount_minor')->label('Amount')->formatStateUsing(fn (string $state): string => MinorUnits::formatPhp($state)),
             TextColumn::make('livemode')->label('Mode')->formatStateUsing(fn (bool $state): string => $state ? 'Live' : 'Test'),

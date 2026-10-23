@@ -26,6 +26,17 @@ final class ViewProduct extends ViewRecord
     #[Locked]
     public array $operationIds = [];
 
+    public function getSubheading(): ?string
+    {
+        $record = $this->getRecord();
+
+        return 'Publication: '.Str::headline($record->status->value)
+            .' · Availability: '.($record->is_available ? 'Enabled' : 'Disabled')
+            .' · Price version: '.($record->currentPrice()->first()?->version ?? 'Not set')
+            .' · Terms version: '.($record->currentTerms()->first()?->version ?? 'Not set')
+            .'. Review these before enabling a service for purchase.';
+    }
+
     public function mount(int|string $record): void
     {
         foreach (['publish', 'unpublish', 'archive', 'restore', 'enableAvailability', 'disableAvailability', 'revisePrice', 'reviseTerms'] as $name) {
@@ -48,7 +59,7 @@ final class ViewProduct extends ViewRecord
 
                 return ['amount' => $minor === null ? '' : intdiv($minor, 100).'.'.str_pad((string) ($minor % 100), 2, '0', STR_PAD_LEFT)];
             }),
-            $this->command('reviseTerms', 'New terms')->modalDescription('Create a version for future offers. Earlier versions remain unchanged. Existing structured sections are preserved unless you enter replacement text.')
+            $this->command('reviseTerms', 'New terms')->slideOver()->modalDescription('Create a version for future offers. Earlier versions remain unchanged. Existing structured sections are preserved unless you enter replacement text.')
                 ->schema(collect(CatalogInput::TERMS_FIELDS)->map(fn (string $label, string $key) => Textarea::make($key)->label($label)->rows(3))->all())
                 ->fillForm(function (): array {
                     $document = $this->getRecord()->currentTerms()->first()?->content ?? [];
