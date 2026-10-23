@@ -31,6 +31,11 @@ returns 404, admin access returns 403, and no redundant verification job appears
 - Combined journey: **1 test / 77 assertions**, exit 0.
 - Focused combined onboarding, portal workflow, activation and ownership checks:
   **32 tests / 329 assertions**, exit 0, local PHP 8.5.11 SQLite.
+- Source `a6a790bc7e8544f265e71844ccdf214a9bc496d3` passes
+  [CI 39960905290](https://github.com/adzadzadz/adzbyte-app/actions/runs/39960905290):
+  **678 tests / 8,930 assertions per database**, PHP 8.3.36 SQLite/MySQL,
+  both jobs successful, dependency audits/build/cache gates pass. This adds
+  test coverage only and requires no production code deployment.
 - Focused Pint and whitespace checks pass. Disposable database, receiver and
   worker are cleaned up by test teardown. No external mailbox is used by tests.
 - Read-only live revision and `operations:queue-health` confirm the expected
@@ -38,9 +43,37 @@ returns 404, admin access returns 403, and no redundant verification job appears
   delivery was observed earlier this day, as recorded in account lifecycle and
   password-reset evidence; this is shared transport evidence, not a production
   customer invitation receipt claim.
-- A clearly labeled production QA customer plus sample project/service and
-  invitation to the owner's Gmail alias was offered as an optional final inbox
-  check. This requires the owner's separate authorization for production data.
-  Until authorized and performed, this follow-up does not claim live invitation
-  inbox placement or production customer activation/login. The owner chooses
-  any live account password personally.
+- The owner subsequently approved the production QA customer, sample work and
+  invitation. Live creation/delivery is confirmed below; password choice and
+  activation remain owner actions.
+
+## Approved production inbox check
+
+The owner explicitly selected **Create QA customer and send invitation**.
+Actual signed-in administrator UI created **QA Portal Test Customer** (user 2)
+for `adzbite+portal-test@gmail.com` at **21:26:26 PHT**. The account has only the
+customer role, zero direct permissions and remains unverified pending activation.
+The UI retained customer 2 through Assign project or service. It created:
+
+- **QA SAMPLE — Website Project**, type project, work 1.
+- **QA SAMPLE — Website Care Service**, type service, work 2.
+
+Both are Not started, explicitly described as QA samples with no paid work,
+billing or delivery commitment, and visible together on the customer's admin
+record. No unrelated customer, owner identity or package/payment data changed.
+
+The automatic scheduled queue worker delivered the actual invitation to Gmail
+**INBOX at 21:27:04 PHT (13:27:04 UTC)**, from
+`Adzbyte Solutions <support@adzbyte.com>`, subject
+**Activate your Adzbyte Solutions account**. Gmail metadata and the visible
+search row confirm recipient, subject and inbox placement. Only metadata and
+search-row evidence were read; the signed link was not copied, opened or consumed.
+At 13:29:44 UTC there were zero queued jobs, zero failed jobs, one QA customer
+and exactly the two assigned work records. The owner remains responsible for
+choosing the password through the invitation, preferably in a private window so
+the administrator browser session remains separate.
+
+Live account activation and subsequent customer login/work visibility are pending
+that owner step. The complete activation and fresh-login journey already passes
+in the isolated regression; no production password or verification bypass was
+used. Test records remain clearly labeled as approved.

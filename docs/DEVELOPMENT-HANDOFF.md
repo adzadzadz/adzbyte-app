@@ -22,9 +22,15 @@
   reset email receipt are observed in Gmail; actual automatic cron is healthy,
   with zero jobs/failures. Signed-in production Dashboard and manual admin pages
   load correctly. No production customer or synthetic fixture was created.
-- Next: create real customers and assign projects/services at `/admin`; customer
-  portal is `/`. Local preview remains stopped. Outbound support-conversation
-  email/native attachments remain deferred.
+- Approved live onboarding QA: customer 2, `adzbite+portal-test@gmail.com`, has
+  a clearly labeled sample project and service. Its invitation reached Gmail
+  INBOX at 21:27:04 PHT; queues/failures are zero. Owner must choose its password
+  via that invitation, preferably in a private window. Production activation and
+  customer login/page confirmation remain pending that step; the isolated full
+  onboarding journey passes (1 / 77), with focused regressions 32 / 329.
+- Next: complete that owner activation, then create real customers and assign
+  projects/services at `/admin`; customer portal is `/`. Local preview remains
+  stopped. Outbound support-conversation email/native attachments remain deferred.
 - [Account lifecycle qualification and release](evidence/2026-10-23-customer-portal/polish/account-lifecycle-review.md).
 - [Scope](plans/2026-10-23-customer-portal.md), [API](api/customer-portal.md),
   [release qualification](evidence/2026-10-23-customer-portal/polish/qualification.md).

@@ -131,9 +131,14 @@ resume checkpoint. Frontend integration and production release remain separate.
 The combined admin create → assign project/service → real queue worker/isolated
 SMTP receipt → captured invitation link → activation → fresh login → owned pages
 passes **1 test / 77 assertions**. Focused onboarding/activation/ownership tests
-pass **32 / 329**. Live revision and queue health pass read-only checks. This
-follow-up changes test coverage only; live invitation inbox placement remains
-separate from isolated SMTP proof. See [onboarding evidence](evidence/2026-10-23-customer-portal/polish/customer-onboarding-check.md).
+pass **32 / 329**. The owner-approved production QA customer (user 2) and labeled
+sample project/service now exist. Actual invitation receipt in Gmail INBOX is
+confirmed at **21:27:04 PHT**; jobs/failures are zero. The QA customer remains
+unverified until the owner chooses a password via that invitation. Live customer
+login/work visibility follows that manual step; isolated proof passes already.
+Test-only source `a6a790b` also passes [CI 39960905290](https://github.com/adzadzadz/adzbyte-app/actions/runs/39960905290):
+**678 / 8,930 per database**, PHP 8.3.36 SQLite/MySQL, all gates pass.
+See [onboarding evidence](evidence/2026-10-23-customer-portal/polish/customer-onboarding-check.md).
 
 ## Up Next
 
