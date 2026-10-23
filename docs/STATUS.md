@@ -505,6 +505,11 @@ Deferred phases still require:
 
 ## Known Issues
 
+- **2026-10-23 password reset delivery:** a new owner reset notification remained
+  queued for over 12 minutes with zero attempts. Both panel reset flows pass
+  isolated queue/transport tests; production cron execution needs repair and
+  automatic delivery verification. Owner approval for the prepared cron repair
+  is pending. See [diagnosis](evidence/2026-10-23-customer-portal/polish/password-reset-check.md).
 - The owner must choose a password and verify email before authenticated
   production acceptance. Setup email processing succeeded; inbox placement
   was not independently observed.
