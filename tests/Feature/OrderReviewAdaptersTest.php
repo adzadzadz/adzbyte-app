@@ -222,7 +222,7 @@ class OrderReviewAdaptersTest extends TestCase
     public function test_role_controls_expose_exact_review_and_settings_capabilities_without_default_grants(): void
     {
         $permissions = FilamentShield::getCustomPermissions();
-        $this->assertSame(['Manage:CommerceSettings', ...array_column(PortalCapability::cases(), 'value')], array_keys($permissions));
+        $this->assertSame(['Manage:DataRecords', 'Manage:CommerceSettings', ...array_column(PortalCapability::cases(), 'value')], array_keys($permissions));
         $this->assertTrue(config('filament-shield.shield_resource.tabs.custom_permissions'));
         $this->assertSame(['viewAny', 'view', 'approve', 'reject', 'clarify', 'message', 'note', 'propose'], config('filament-shield.resources.manage.'.OrderResource::class));
         $this->assertSame(0, Role::where('name', 'administrator')->firstOrFail()->permissions()->count());
