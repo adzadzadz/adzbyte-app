@@ -2,6 +2,9 @@
 
 The owner approved iterative implementation after the read-only application
 review. Both panels retain Filament 5, Livewire and Laravel services/policies.
+Implementation revision: `229b296dc1872d8116676ca88935f8f4530cc204`, pushed to
+`codex/windows-local-development-20261024` in
+[draft PR #1](https://github.com/adzadzadz/adzbyte-app/pull/1).
 The abandoned React prototype dependencies are removed from the local install;
 `package.json` and its lockfile contain no React, router, query, icon, React Vite
 plugin, Vitest, jsdom or Testing Library dependencies. Those manifest additions
@@ -14,6 +17,24 @@ were uncommitted, so removal restores the existing tracked manifests.
 | 1 — navigation and queues | Livewire SPA navigation within the panels; complete waiting/unread lists; staff status, assignment, customer, priority and type filters; filter-preserving return links; loading, offline and result feedback | Filtered empty states and a selected unread thread's close control corrected after independent review |
 | 2 — contextual work and conversations | Customer-scoped assignment drawer; work create/edit drawers; prefilled milestone row action; compact conversation details, bounded message pane, inline composer, older/newer/latest navigation, canonical links and explicit refresh | Draft ownership, history changes, stale revision recovery and command-specific idempotency keys corrected and covered by regressions |
 | 3 — account and commerce clarity | Activation rules/reveal/errors and generic expired-link recovery; clearer registration; honest commerce preview; consistent purchase terminology; recognizable customer/service/amount fields and formatted currency; product terms drawer and role helper | Reviewed with the complete integrated change; no unresolved material source findings |
+
+### Original review closure
+
+| Finding | Closure |
+|---|---|
+| Activation requirements and expired links | Visible rules/reveal/associated errors and generic recovery |
+| Waiting count had no actionable destination | Complete filtered waiting lists from the attention section |
+| Reply did not clear the waiting status | Saved-reply guidance explains the existing manual transition |
+| Staff triage lacked useful filters | Composable scoped filters and actionable case ordering |
+| Stale-write protection stranded drafts | Saved-version comparison, explicit review and retained draft/retry identity |
+| Assignment interrupted customer setup | Customer-scoped drawer saves directly in the customer record |
+| Milestone edits were detached from rows | Row action selects and prefills the correct milestone |
+| Dense conversations and obscured reply context | Compact details, bounded thread, inline reply and separate private notes |
+| Message pagination and location were ambiguous | Older/Newer/Latest controls, URL-backed page and canonical conversation link |
+| Notification expectations were unclear | Explicit portal-only wording and Refresh conversation action |
+| Support and purchase language conflicted | Orders/purchase terminology, preview explanations and portal return links |
+| Commerce admin emphasized technical identifiers | Recognizable customer/service/total fields, currency, grouped details and terms drawer |
+| Asynchronous actions lacked sufficient feedback | Loading/offline/result feedback, errors, draft protection and narrow-screen correction |
 
 The dashboard loads four recent work records instead of twelve and no longer
 fetches an unused conversation collection. The staff dashboard fetches five
@@ -54,16 +75,17 @@ frontend would add maintenance without addressing these interaction costs.
 | Independent review | Approved after iterative fixes; no unresolved material findings in the final reviewed source |
 | New UX regressions | `PortalUxTest` and `AccountCommerceUxTest`: 14 tests / 98 assertions passed |
 | Previous full-run failure regressions | MySQL target-guard, account email lifecycle, checkout and portal UX selection: 37 tests / 403 assertions passed |
-| Full local SQLite suite | Final run in progress; update before qualification |
-| Supported runtime / both databases | GitHub CI pending; PHP 8.3 SQLite and MySQL jobs required |
+| Full local SQLite suite | Passed: 692 tests / 9,028 assertions, zero failures/errors, 487 seconds; `php vendor/bin/phpunit --no-progress --log-junit <temporary-report>` |
+| Supported runtime / both databases | [CI 40004323532](https://github.com/adzadzadz/adzbyte-app/actions/runs/40004323532) passed at implementation `229b296`: 692 tests / 9,028 assertions independently on SQLite and MySQL 8.0.46, PHP 8.3.36 |
 | PHP formatting | Full `vendor/bin/pint --test` passed |
 | Metadata / audits | Composer validation passed; locked Composer and npm audits report zero vulnerabilities |
 | Production assets | `npm run build` passed; no React application bundle; shared theme approximately 724 KB raw / 76 KB gzip |
 | Source whitespace | `git diff --check` passed |
+| CI supporting gates | Passed: clean installs, Composer validation, both audits, all 16 deployment-safety tests, Pint, production assets and Laravel production caches |
 | Schema / API / provider | No migration, API contract or provider integration change; full existing regression suites apply |
 | Production | No deployment or production data mutation performed |
 
-Local verification uses official PHP 8.3.36 NTS on Windows with SQLite, and
+Local verification uses official PHP 8.3.36 NTS on Windows with SQLite 3.53.4, and
 Node 24.14.1. CI uses its configured PHP 8.3 and Node 24.22.1. The first full
 Windows run exposed test harness assumptions: truncated `tempnam` prefixes,
 undrained child-server pipes, native Windows cold-start duration, and a mail
@@ -73,7 +95,7 @@ setting sends PHP startup errors to stderr for the guard subprocess tests.
 
 The first final verification attempt had 680 passes and ten failures; those
 failures were fixture/runtime assumptions and one outdated empty-state copy
-assertion. Their focused rerun passes. The final complete rerun is authoritative.
+assertion. Their focused rerun and the final complete rerun pass.
 
 ### Browser evidence
 
@@ -94,8 +116,16 @@ application or production database was used, and no external mail was sent.
   width was corrected after browser inspection. Document scroll width equals
   its 305px client width with the Windows scrollbar present.
 - Desktop checks at 1440px. Console warning/error log was empty during the
-  exercised customer journey. This is not a formal screen-reader or browser
+  exercised customer and admin journeys. This is not a formal screen-reader or browser
   compatibility certification.
+
+The session-owned browser tab, viewport override, PHP QA server and both
+synthetic browser databases were removed after verification. The existing user
+development server was preserved. A clean `npm ci` initially hit a Windows
+native-module file lock from that server; `npm install --ignore-scripts` repaired
+the local install, and the production build passed. The SQLite CI job's fresh
+`npm ci` and production build pass, supplying clean-install proof. Unrelated README/composer Windows setup edits and the
+existing local deployment lock remain outside this commit.
 
 ## Explicit boundaries and follow-ups
 
@@ -106,6 +136,7 @@ background refresh and automatic case transitions require product/backend
 scope and are not represented as delivered here. The existing commerce roadmap
 retains its separate incomplete commercial/provider qualification gates.
 
-Next action: finish source CI on both database engines, reconcile this record,
-then present the complete change for owner review. Deployment requires its own
-explicit owner command.
+All applicable implementation/source gates pass at `229b296`. This evidence-only
+follow-up changes no tested implementation. Next action: owner review of draft
+PR #1. No merge or deployment was performed; deployment requires its own explicit
+owner command.

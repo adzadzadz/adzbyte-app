@@ -284,8 +284,9 @@ is denied in panels and APIs.
 ## Definition of Done for Every Task
 
 The owner-approved 2026-10-24 Filament UI increment retains the existing commerce
-phase boundaries. Three UX batches are implemented and independently reviewed;
-final full-suite/source CI qualification is pending. See the
+phase boundaries. Three UX batches are implemented, independently reviewed and
+qualified at `229b296`: CI 40004323532 passes 692 tests / 9,028 assertions on each
+database, PHP 8.3.36 SQLite/MySQL 8.0.46, with audits/build/cache gates. See the
 [increment review](../evidence/2026-10-24-filament-ux/qualification.md). This work
 does not complete the deferred commerce/provider gates below.
 

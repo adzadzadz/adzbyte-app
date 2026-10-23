@@ -1,12 +1,16 @@
 # Development Handoff
 
-## Current UI checkpoint — 2026-10-24, final verification pending
+## Current UI checkpoint — 2026-10-24, source qualified
 
 Owner authorized all reviewed Filament UX batches and React dependency removal.
 Implementation, independent review, built 1440/320px browser workflows, full
-formatting, metadata validation, audits and build pass. New UX tests pass 14 / 98;
-prior failure-regression selection passes 37 / 403. Final full local SQLite run
-and GitHub PHP 8.3 SQLite/MySQL CI are pending. See the
+formatting, metadata validation, audits and build pass. The complete local
+SQLite suite passes **692 / 9,028**. Implementation `229b296` is pushed to the
+existing development branch in [draft PR #1](https://github.com/adzadzadz/adzbyte-app/pull/1).
+GitHub [CI 40004323532](https://github.com/adzadzadz/adzbyte-app/actions/runs/40004323532)
+passes **692 / 9,028 independently on SQLite and MySQL 8.0.46, PHP 8.3.36**,
+plus clean installs, audits, all 16 safety tests, formatting/build and production
+caches. See the
 [complete review](evidence/2026-10-24-filament-ux/qualification.md).
 
 The Windows HTTP test harness now preserves isolated database filename prefixes,
@@ -16,8 +20,8 @@ is included. Synthetic browser server, accounts and database are cleaned up.
 
 Preserve unrelated Windows setup edits in README.md/composer.json and the local
 deployment lock. Concurrent sign-in visual work is already committed on the
-shared branch. Next: finish source CI and update this checkpoint; deployment
-still requires a separate explicit owner command.
+shared branch. Next: owner review of draft PR #1; no merge or deployment was
+performed. Deployment still requires a separate explicit owner command.
 
 ## Current infrastructure checkpoint — 2026-10-23
 

@@ -1,8 +1,8 @@
 # Project Status
 
-**Last updated:** 2026-10-24 (Filament UX improvements; final verification in progress)
+**Last updated:** 2026-10-24 (Filament UX improvements qualified for owner review)
 
-## Filament UX improvements — implementation reviewed, verification pending
+## Filament UX improvements — verified source, ready for owner review
 
 Three authorized batches retain Filament/Livewire and remove the abandoned
 React dependencies. Panel navigation, actionable waiting queues, staff filters,
@@ -12,14 +12,16 @@ review approves the source after regression fixes. Built desktop/mobile browser
 checks pass using disposable synthetic data, including 320px without horizontal
 overflow; the QA server and databases are removed.
 
-New UX regressions pass 14 tests / 98 assertions, failure-regression selection
-passes 37 / 403, full Pint and build pass, and both dependency audits are clean.
-Final complete SQLite rerun and supported-runtime SQLite/MySQL CI remain pending;
-the task is not yet qualified. No production deployment occurred. Commerce stays
-paused. [Full review and evidence](evidence/2026-10-24-filament-ux/qualification.md).
+The complete local SQLite suite passes **692 tests / 9,028 assertions**.
+[CI 40004323532](https://github.com/adzadzadz/adzbyte-app/actions/runs/40004323532)
+passes the same **692 / 9,028 on each database**, SQLite and MySQL 8.0.46, using
+PHP 8.3.36, for implementation `229b296` in
+[draft PR #1](https://github.com/adzadzadz/adzbyte-app/pull/1). Full Pint, metadata,
+both audits, clean installs, build, all 16 deployment-safety tests and production
+caches pass. No merge or production deployment occurred. Commerce stays paused.
+[Full review and evidence](evidence/2026-10-24-filament-ux/qualification.md).
 
-Next: finish both database CI jobs at the delivered implementation revision and
-reconcile this checkpoint before presenting the owner review.
+Next: owner review of draft PR #1. Deployment requires a separate explicit command.
 
 ## Guest authentication visual refresh — locally verified, 2026-10-24
 
