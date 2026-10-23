@@ -126,6 +126,15 @@ specified; D02 configurable starter tax/receipt rules are implemented; merchant 
 [development handoff](DEVELOPMENT-HANDOFF.md) preserve the remaining rules and
 resume checkpoint. Frontend integration and production release remain separate.
 
+## Customer onboarding check — 2026-10-23
+
+The combined admin create → assign project/service → real queue worker/isolated
+SMTP receipt → captured invitation link → activation → fresh login → owned pages
+passes **1 test / 77 assertions**. Focused onboarding/activation/ownership tests
+pass **32 / 329**. Live revision and queue health pass read-only checks. This
+follow-up changes test coverage only; live invitation inbox placement remains
+separate from isolated SMTP proof. See [onboarding evidence](evidence/2026-10-23-customer-portal/polish/customer-onboarding-check.md).
+
 ## Up Next
 
 **Customer onboarding:** account lifecycle fixes are independently reviewed and
