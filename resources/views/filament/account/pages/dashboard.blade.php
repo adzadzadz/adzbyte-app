@@ -1,79 +1,26 @@
 @php
     $user = filament()->auth()->user();
-    $firstName = str($user->name)->trim()->before(' ')->toString();
-    $firstName = $firstName !== '' ? $firstName : 'there';
+    $firstName = str($user->name)->trim()->before(' ')->toString() ?: 'there';
 @endphp
-
 <x-filament-panels::page>
-    <div class="adz-customer-home" data-customer-home>
-        <section class="adz-customer-home__hero" aria-labelledby="customer-home-heading">
-            <div class="adz-customer-home__hero-copy">
-                <p class="adz-customer-home__eyebrow">Your Adzbyte workspace</p>
-                <h2 id="customer-home-heading" class="adz-customer-home__heading">
-                    Welcome back, {{ $firstName }}.
-                </h2>
-                <p class="adz-customer-home__intro">
-                    This is your secure home for account details and future project activity with Adzbyte.
-                </p>
-            </div>
-
-            @if ($profileUrl = filament()->getProfileUrl())
-                <x-filament::button
-                    tag="a"
-                    :href="$profileUrl"
-                    icon="heroicon-o-user-circle"
-                    class="adz-customer-home__primary-action"
-                >
-                    Manage profile
-                </x-filament::button>
-            @endif
+    <div class="adz-portal adz-customer-home" data-customer-home>
+        <section class="adz-portal-hero" aria-labelledby="customer-home-heading">
+            <p class="adz-portal-kicker">Your Adzbyte Solutions portal</p>
+            <h2 id="customer-home-heading" class="adz-portal-heading">Welcome back, {{ $firstName }}.</h2>
+            <p class="adz-portal-intro">Follow your projects and services, see what needs your attention, and stay in touch with your team.</p>
+            <div class="adz-portal-actions"><x-filament::button tag="a" :href="\App\Filament\Account\Pages\Projects::getUrl(panel: 'account')" icon="heroicon-o-rectangle-stack">View projects</x-filament::button><x-filament::button tag="a" color="gray" :href="\App\Filament\Account\Pages\Support::getUrl(panel: 'account')" icon="heroicon-o-chat-bubble-left-right">Contact your team</x-filament::button></div>
         </section>
-
-        <div class="adz-customer-home__grid">
-            <section class="adz-customer-home__card" aria-labelledby="account-summary-heading">
-                <div class="adz-customer-home__card-header">
-                    <span class="adz-customer-home__icon" aria-hidden="true">
-                        <x-filament::icon icon="heroicon-o-user-circle" />
-                    </span>
-                    <div>
-                        <p class="adz-customer-home__card-kicker">Account</p>
-                        <h3 id="account-summary-heading" class="adz-customer-home__card-title">Your details</h3>
-                    </div>
-                </div>
-
-                <dl class="adz-customer-home__details">
-                    <div>
-                        <dt>Name</dt>
-                        <dd>{{ $user->name }}</dd>
-                    </div>
-                    <div>
-                        <dt>Email</dt>
-                        <dd>{{ $user->email }}</dd>
-                    </div>
-                </dl>
-
-                <div class="adz-customer-home__verified">
-                    <x-filament::icon icon="heroicon-o-check-badge" aria-hidden="true" />
-                    <span>Email verified</span>
-                </div>
-            </section>
-
-            <section class="adz-customer-home__card adz-customer-home__empty" aria-labelledby="workspace-status-heading">
-                <img
-                    src="{{ asset('images/brand/adzbyte-logo-square-dark.webp') }}"
-                    alt=""
-                    width="500"
-                    height="500"
-                    class="adz-customer-home__mark"
-                >
-                <div>
-                    <p class="adz-customer-home__card-kicker">Workspace</p>
-                    <h3 id="workspace-status-heading" class="adz-customer-home__card-title">Your workspace is ready</h3>
-                    <p class="adz-customer-home__empty-copy">
-                        Purchases and project activity will appear here as each core workflow is connected.
-                    </p>
-                </div>
-            </section>
+        <div class="adz-portal-stats" aria-label="Your workspace summary">
+            @foreach ([['Active projects', $overview['projects'], \App\Filament\Account\Pages\Projects::getUrl(panel: 'account')], ['Active services', $overview['services'], \App\Filament\Account\Pages\Services::getUrl(panel: 'account')], ['Waiting for you', $overview['waiting'], null], ['Open conversations', $overview['open_cases'], \App\Filament\Account\Pages\Support::getUrl(panel: 'account')]] as [$label, $count, $url])
+                <div class="adz-portal-stat"><span class="adz-portal-stat-number">{{ $count }}</span>@if ($url)<a class="adz-portal-link" href="{{ $url }}">{{ $label }}</a>@else<span>{{ $label }}</span>@endif</div>
+            @endforeach
+        </div>
+        @if ($overview['waiting'])<p class="adz-portal-callout" role="note">Your team is waiting for your input. Look for <strong>Waiting for you</strong> in your projects, services and conversations below.</p>@endif
+        <section aria-labelledby="recent-work-heading" class="adz-portal-section"><div class="adz-portal-row"><h2 id="recent-work-heading" class="adz-portal-section-title">Your projects & services</h2><a class="adz-portal-link" href="{{ \App\Filament\Account\Pages\Services::getUrl(panel: 'account') }}">All services →</a></div><div class="adz-portal-grid">@forelse (array_slice($overview['works'], 0, 4) as $item)@include('filament.portal.work-card', ['item' => $item, 'staff' => false])@empty<section class="adz-portal-card adz-portal-empty"><h3 class="adz-portal-title">Your workspace is ready</h3><p class="adz-portal-muted">Your team will add your projects and services here. Each one will show progress, milestones, updates and the next step.</p><a class="adz-portal-link" href="{{ \App\Filament\Account\Pages\Support::getUrl(panel: 'account') }}">Start a conversation with your team</a></section>@endforelse</div></section>
+        <section aria-labelledby="recent-support-heading" class="adz-portal-section"><div class="adz-portal-row"><h2 id="recent-support-heading" class="adz-portal-section-title">Requests & reports</h2><a class="adz-portal-link" href="{{ \App\Filament\Account\Pages\Support::getUrl(panel: 'account') }}">All conversations →</a></div><div class="adz-portal-grid">@forelse (array_slice($overview['cases'], 0, 2) as $item)@include('filament.portal.case-card', ['item' => $item, 'staff' => false])@empty<section class="adz-portal-card"><h3 class="adz-portal-title">How can we help?</h3><p class="adz-portal-muted">Ask for help, request a change, or tell us about an issue. Your conversations stay together here.</p><a class="adz-portal-link" href="{{ \App\Filament\Account\Pages\Support::getUrl(panel: 'account') }}">New request or report →</a></section>@endforelse</div></section>
+        <div class="adz-portal-grid">
+            <section class="adz-portal-card" aria-labelledby="account-summary-heading"><p class="adz-portal-kicker">Account</p><h2 id="account-summary-heading" class="adz-portal-title">Your details</h2><dl class="adz-portal-facts"><div><dt>Name</dt><dd>{{ $user->name }}</dd></div><div><dt>Email</dt><dd>{{ $user->email }}</dd></div></dl><p class="adz-portal-verified">✓ Email verified</p><a class="adz-portal-link" href="{{ filament()->getProfileUrl() }}">Manage profile & security</a></section>
+            <section class="adz-portal-card"><span class="adz-portal-status" data-status="on_hold">Under development</span><h2 class="adz-portal-title">Ecommerce is taking shape</h2><p class="adz-portal-muted">See what we’re building for carts, orders and payments. Purchasing is still under development.</p><a class="adz-portal-link" href="{{ \App\Filament\Account\Pages\CommercePreview::getUrl(panel: 'account') }}">Explore the preview →</a></section>
         </div>
     </div>
 </x-filament-panels::page>

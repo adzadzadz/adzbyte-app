@@ -1,6 +1,27 @@
 # Development Handoff
 
-## Current checkpoint
+## Current checkpoint — customer portal, 2026-10-23
+
+- Owner priority: project/service tracking with **manual administrator assignment
+  to customer accounts**, plus support requests/reports and conversations.
+- Ecommerce development is paused. Existing screens remain accessible; production
+  shows Under development notices and rejects customer writes. Staff/provider
+  callbacks remain available. No production change has been made.
+- Implemented: customer Home/Projects/Services/Requests & reports, staff work and
+  support management, milestones, updates, next steps, safe Drive links, private
+  notes, read state, audit history, retries and revision protection. Operational
+  work records are independent of billing/purchased entitlements.
+- [Scope](plans/2026-10-23-customer-portal.md), [API](api/customer-portal.md),
+  [qualification](evidence/2026-10-23-customer-portal/qualification.md).
+- Full local PHP 8.5.11 SQLite: 556 tests / 7,803 assertions before the final
+  strict revision/UUID follow-up. Final focused tests and PHP 8.3 SQLite/MySQL
+  CI are recorded in qualification as they finish.
+- Next action: finish supported-runtime CI for the pushed source, then prepare
+  a separately authorized portal release. Existing databases and production
+  remain untouched. Outbound portal email notifications and native attachments
+  are outside this increment; unread indicators and Drive sharing are included.
+
+## Previous commerce checkpoint — paused
 
 | Field | State |
 |---|---|

@@ -13,7 +13,7 @@
                 <p class="adz-admin-home__eyebrow">Operations workspace</p>
                 <h2 id="admin-home-heading" class="adz-admin-home__heading">Welcome back, {{ $firstName }}.</h2>
                 <p class="adz-admin-home__intro">
-                    Core administration access is ready. Operational queues will appear here as their underlying workflows are connected.
+                    Manage your customer workspace, keep project progress current, and follow up on support conversations.
                 </p>
             </div>
 
@@ -28,6 +28,13 @@
                 </x-filament::button>
             @endif
         </section>
+
+        @if ($portalOverview['work'] || $portalOverview['support'])
+            <div class="adz-portal-grid" aria-label="Customer portal operations">
+                @if ($portalOverview['work'])<section class="adz-portal-card"><p class="adz-portal-kicker">Projects & services</p><h2 class="adz-portal-title">{{ $portalOverview['work']['active'] }} active work records</h2><p class="adz-portal-muted">{{ $portalOverview['work']['waiting'] }} waiting for customer input.</p><a class="adz-portal-link" href="{{ \App\Filament\Pages\Portal\ClientWork::getUrl(panel: 'admin') }}">Manage customer work →</a></section>@endif
+                @if ($portalOverview['support'])<section class="adz-portal-card"><p class="adz-portal-kicker">Customer support</p><h2 class="adz-portal-title">{{ $portalOverview['support']['open'] }} open conversations</h2><p class="adz-portal-muted">{{ $portalOverview['support']['unassigned'] }} need a staff assignment.</p><a class="adz-portal-link" href="{{ \App\Filament\Pages\Portal\CustomerSupport::getUrl(panel: 'admin') }}">Open support queue →</a></section>@endif
+            </div>
+        @endif
 
         <div class="adz-admin-home__grid">
             <section class="adz-admin-home__card" aria-labelledby="admin-access-heading">

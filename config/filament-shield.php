@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 use App\Filament\Pages\CommerceSettings;
+use App\Filament\Pages\Portal\ClientWork;
+use App\Filament\Pages\Portal\CustomerSupport;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\Payments\PaymentResource;
 use App\Filament\Resources\ProductCategories\ProductCategoryResource;
@@ -234,6 +236,8 @@ return [
         'exclude' => [
             Dashboard::class,
             CommerceSettings::class,
+            ClientWork::class,
+            CustomerSupport::class,
         ],
     ],
 
@@ -271,7 +275,16 @@ return [
     |
     */
 
-    'custom_permissions' => ['Manage:CommerceSettings' => 'Manage commerce settings'],
+    'custom_permissions' => [
+        'Manage:CommerceSettings' => 'Manage commerce settings',
+        'View:WorkItem' => 'View projects and services',
+        'Manage:WorkItem' => 'Manage projects and services',
+        'View:SupportCase' => 'View customer support',
+        'Manage:SupportCase' => 'Manage customer support',
+        'Reply:SupportCase' => 'Reply to customer support',
+        'Note:SupportCase' => 'Read and add internal support notes',
+        'Manage:SupportCategory' => 'Manage support categories',
+    ],
 
     /*
     |--------------------------------------------------------------------------

@@ -16,6 +16,1225 @@
         }
     ],
     "paths": {
+        "/api/v1/portal/works": {
+            "get": {
+                "operationId": "listPortalWork",
+                "summary": "listPortalWork",
+                "tags": [
+                    "Customer portal"
+                ],
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    },
+                    {
+                        "sanctumSession": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100000
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "search",
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 100
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "project",
+                                "service"
+                            ]
+                        }
+                    }
+                ],
+                "description": "Verified customer ownership only. No staff notes or internal identifiers. Lists use 12 items, work updates 20, messages 30 (newest page first, chronological within each page). Writes are limited to 64 KiB. Read markers take no fields. Unknown fields/query parameters are rejected. Uses the api-customer 120/minute limit.",
+                "responses": {
+                    "200": {
+                        "description": "Customer-safe portal result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PortalWorkListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access or origin denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Owned record not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Revision or idempotency conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Payload too large",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "CSRF token missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/portal/works/{reference}": {
+            "get": {
+                "operationId": "getPortalWork",
+                "summary": "getPortalWork",
+                "tags": [
+                    "Customer portal"
+                ],
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    },
+                    {
+                        "sanctumSession": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "reference",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100000
+                        }
+                    }
+                ],
+                "description": "Verified customer ownership only. No staff notes or internal identifiers. Lists use 12 items, work updates 20, messages 30 (newest page first, chronological within each page). Writes are limited to 64 KiB. Read markers take no fields. Unknown fields/query parameters are rejected. Uses the api-customer 120/minute limit.",
+                "responses": {
+                    "200": {
+                        "description": "Customer-safe portal result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PortalWorkResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access or origin denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Owned record not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Revision or idempotency conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Payload too large",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "CSRF token missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/portal/works/{reference}/read": {
+            "post": {
+                "operationId": "markPortalWorkRead",
+                "summary": "markPortalWorkRead",
+                "tags": [
+                    "Customer portal"
+                ],
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    },
+                    {
+                        "sanctumSession": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "reference",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "in": "header",
+                        "name": "Origin",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Exact configured app origin; also required for Bearer commands."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-CSRF-TOKEN",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Required for a stateful browser session. Get the token from the authenticated panel HTML meta tag."
+                    }
+                ],
+                "description": "Verified customer ownership only. No staff notes or internal identifiers. Lists use 12 items, work updates 20, messages 30 (newest page first, chronological within each page). Writes are limited to 64 KiB. Read markers take no fields. Unknown fields/query parameters are rejected. Uses the api-customer 120/minute limit.",
+                "responses": {
+                    "200": {
+                        "description": "Customer-safe portal result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PortalReadResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access or origin denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Owned record not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Revision or idempotency conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Payload too large",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "CSRF token missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/portal/categories": {
+            "get": {
+                "operationId": "listPortalCategories",
+                "summary": "listPortalCategories",
+                "tags": [
+                    "Customer portal"
+                ],
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    },
+                    {
+                        "sanctumSession": []
+                    }
+                ],
+                "parameters": [],
+                "description": "Verified customer ownership only. No staff notes or internal identifiers. Lists use 12 items, work updates 20, messages 30 (newest page first, chronological within each page). Writes are limited to 64 KiB. Read markers take no fields. Unknown fields/query parameters are rejected. Uses the api-customer 120/minute limit.",
+                "responses": {
+                    "200": {
+                        "description": "Customer-safe portal result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PortalCategoriesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access or origin denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Owned record not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Revision or idempotency conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Payload too large",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "CSRF token missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/portal/cases": {
+            "get": {
+                "operationId": "listPortalCases",
+                "summary": "listPortalCases",
+                "tags": [
+                    "Customer portal"
+                ],
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    },
+                    {
+                        "sanctumSession": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100000
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "search",
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 100
+                        }
+                    }
+                ],
+                "description": "Verified customer ownership only. No staff notes or internal identifiers. Lists use 12 items, work updates 20, messages 30 (newest page first, chronological within each page). Writes are limited to 64 KiB. Read markers take no fields. Unknown fields/query parameters are rejected. Uses the api-customer 120/minute limit.",
+                "responses": {
+                    "200": {
+                        "description": "Customer-safe portal result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PortalCaseListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access or origin denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Owned record not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Revision or idempotency conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Payload too large",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "CSRF token missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createPortalCase",
+                "summary": "createPortalCase",
+                "tags": [
+                    "Customer portal"
+                ],
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    },
+                    {
+                        "sanctumSession": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Origin",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Exact configured app origin; also required for Bearer commands."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-CSRF-TOKEN",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Required for a stateful browser session. Get the token from the authenticated panel HTML meta tag."
+                    },
+                    {
+                        "in": "header",
+                        "name": "Idempotency-Key",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "description": "Verified customer ownership only. No staff notes or internal identifiers. Lists use 12 items, work updates 20, messages 30 (newest page first, chronological within each page). Writes are limited to 64 KiB. Read markers take no fields. Unknown fields/query parameters are rejected. Uses the api-customer 120/minute limit.",
+                "responses": {
+                    "200": {
+                        "description": "Customer-safe portal result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PortalCaseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access or origin denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Owned record not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Revision or idempotency conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Payload too large",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "CSRF token missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PortalCaseCreate"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/portal/cases/{reference}": {
+            "get": {
+                "operationId": "getPortalCase",
+                "summary": "getPortalCase",
+                "tags": [
+                    "Customer portal"
+                ],
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    },
+                    {
+                        "sanctumSession": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "reference",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100000
+                        }
+                    }
+                ],
+                "description": "Verified customer ownership only. No staff notes or internal identifiers. Lists use 12 items, work updates 20, messages 30 (newest page first, chronological within each page). Writes are limited to 64 KiB. Read markers take no fields. Unknown fields/query parameters are rejected. Uses the api-customer 120/minute limit.",
+                "responses": {
+                    "200": {
+                        "description": "Customer-safe portal result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PortalCaseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access or origin denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Owned record not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Revision or idempotency conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Payload too large",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "CSRF token missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/portal/cases/{reference}/messages": {
+            "post": {
+                "operationId": "replyToPortalCase",
+                "summary": "replyToPortalCase",
+                "tags": [
+                    "Customer portal"
+                ],
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    },
+                    {
+                        "sanctumSession": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "reference",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "in": "header",
+                        "name": "Origin",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Exact configured app origin; also required for Bearer commands."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-CSRF-TOKEN",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Required for a stateful browser session. Get the token from the authenticated panel HTML meta tag."
+                    },
+                    {
+                        "in": "header",
+                        "name": "Idempotency-Key",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "description": "Verified customer ownership only. No staff notes or internal identifiers. Lists use 12 items, work updates 20, messages 30 (newest page first, chronological within each page). Writes are limited to 64 KiB. Read markers take no fields. Unknown fields/query parameters are rejected. Uses the api-customer 120/minute limit.",
+                "responses": {
+                    "200": {
+                        "description": "Customer-safe portal result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PortalCaseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access or origin denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Owned record not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Revision or idempotency conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Payload too large",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "CSRF token missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PortalReply"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/portal/cases/{reference}/read": {
+            "post": {
+                "operationId": "markPortalCaseRead",
+                "summary": "markPortalCaseRead",
+                "tags": [
+                    "Customer portal"
+                ],
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    },
+                    {
+                        "sanctumSession": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "reference",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                    },
+                    {
+                        "in": "header",
+                        "name": "Origin",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Exact configured app origin; also required for Bearer commands."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-CSRF-TOKEN",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Required for a stateful browser session. Get the token from the authenticated panel HTML meta tag."
+                    }
+                ],
+                "description": "Verified customer ownership only. No staff notes or internal identifiers. Lists use 12 items, work updates 20, messages 30 (newest page first, chronological within each page). Writes are limited to 64 KiB. Read markers take no fields. Unknown fields/query parameters are rejected. Uses the api-customer 120/minute limit.",
+                "responses": {
+                    "200": {
+                        "description": "Customer-safe portal result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PortalReadResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access or origin denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Owned record not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Revision or idempotency conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Payload too large",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "419": {
+                        "description": "CSRF token missing or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
   "/api/v1/webhooks/paymongo": {
     "post": {
       "tags": [
@@ -7465,6 +8684,793 @@
             }
         },
         "schemas": {
+        "PortalWorkSummary": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "public_id": {
+                    "type": "string",
+                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "project",
+                        "service"
+                    ]
+                },
+                "title": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "not_started",
+                        "in_progress",
+                        "waiting_for_customer",
+                        "on_hold",
+                        "completed",
+                        "cancelled"
+                    ]
+                },
+                "next_step": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "target_date": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "milestone_count": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "completed_milestone_count": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "unread": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "public_id",
+                "type",
+                "title",
+                "status",
+                "next_step",
+                "target_date",
+                "revision",
+                "milestone_count",
+                "completed_milestone_count",
+                "unread",
+                "updated_at"
+            ]
+        },
+        "PortalWork": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "public_id": {
+                    "type": "string",
+                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "project",
+                        "service"
+                    ]
+                },
+                "title": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "not_started",
+                        "in_progress",
+                        "waiting_for_customer",
+                        "on_hold",
+                        "completed",
+                        "cancelled"
+                    ]
+                },
+                "next_step": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "target_date": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "milestone_count": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "completed_milestone_count": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "unread": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "assigned_to": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "milestones": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "public_id": {
+                                "type": "string",
+                                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                            },
+                            "title": {
+                                "type": "string"
+                            },
+                            "target_date": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "completed_at": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "public_id",
+                            "title",
+                            "target_date",
+                            "completed_at"
+                        ]
+                    }
+                },
+                "updates": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "body": {
+                                "type": "string"
+                            },
+                            "author": {
+                                "type": "string"
+                            },
+                            "created_at": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "body",
+                            "author",
+                            "created_at"
+                        ]
+                    }
+                },
+                "pagination": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "page": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "last_page": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "total": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    "required": [
+                        "page",
+                        "last_page",
+                        "total"
+                    ]
+                },
+                "history": {
+                    "type": "array",
+                    "maxItems": 0,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {},
+                        "required": []
+                    }
+                }
+            },
+            "required": [
+                "public_id",
+                "type",
+                "title",
+                "status",
+                "next_step",
+                "target_date",
+                "revision",
+                "milestone_count",
+                "completed_milestone_count",
+                "unread",
+                "updated_at",
+                "summary",
+                "assigned_to",
+                "milestones",
+                "updates",
+                "pagination",
+                "history"
+            ]
+        },
+        "PortalCaseSummary": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "public_id": {
+                    "type": "string",
+                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "request",
+                        "report"
+                    ]
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "open",
+                        "in_progress",
+                        "waiting_for_customer",
+                        "resolved",
+                        "closed"
+                    ]
+                },
+                "priority": {
+                    "type": "string",
+                    "enum": [
+                        "low",
+                        "normal",
+                        "high"
+                    ]
+                },
+                "category": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "work": {
+                    "anyOf": [
+                        {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "public_id": {
+                                    "type": "string",
+                                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                                },
+                                "title": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "public_id",
+                                "title",
+                                "type"
+                            ]
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "unread": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "public_id",
+                "type",
+                "subject",
+                "status",
+                "priority",
+                "category",
+                "revision",
+                "work",
+                "unread",
+                "created_at",
+                "updated_at"
+            ]
+        },
+        "PortalCase": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "public_id": {
+                    "type": "string",
+                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "request",
+                        "report"
+                    ]
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "open",
+                        "in_progress",
+                        "waiting_for_customer",
+                        "resolved",
+                        "closed"
+                    ]
+                },
+                "priority": {
+                    "type": "string",
+                    "enum": [
+                        "low",
+                        "normal",
+                        "high"
+                    ]
+                },
+                "category": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "work": {
+                    "anyOf": [
+                        {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "public_id": {
+                                    "type": "string",
+                                    "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                                },
+                                "title": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "public_id",
+                                "title",
+                                "type"
+                            ]
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "unread": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "assigned_to": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "can_reply": {
+                    "type": "boolean"
+                },
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "body": {
+                                "type": "string"
+                            },
+                            "author": {
+                                "type": "string"
+                            },
+                            "from_customer": {
+                                "type": "boolean"
+                            },
+                            "created_at": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "body",
+                            "author",
+                            "from_customer",
+                            "created_at"
+                        ]
+                    }
+                },
+                "pagination": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "page": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "last_page": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "total": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    "required": [
+                        "page",
+                        "last_page",
+                        "total"
+                    ]
+                },
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "action": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "created_at": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "action",
+                            "status",
+                            "created_at"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "public_id",
+                "type",
+                "subject",
+                "status",
+                "priority",
+                "category",
+                "revision",
+                "work",
+                "unread",
+                "created_at",
+                "updated_at",
+                "description",
+                "assigned_to",
+                "can_reply",
+                "messages",
+                "pagination",
+                "history"
+            ]
+        },
+        "PortalWorkResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "data": {
+                    "$ref": "#/components/schemas/PortalWork"
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "PortalCaseResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "data": {
+                    "$ref": "#/components/schemas/PortalCase"
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "PortalWorkListResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/PortalWorkSummary"
+                            }
+                        },
+                        "pagination": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "page": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "last_page": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "total": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            },
+                            "required": [
+                                "page",
+                                "last_page",
+                                "total"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "items",
+                        "pagination"
+                    ]
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "PortalCaseListResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/PortalCaseSummary"
+                            }
+                        },
+                        "pagination": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "page": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "last_page": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "total": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            },
+                            "required": [
+                                "page",
+                                "last_page",
+                                "total"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "items",
+                        "pagination"
+                    ]
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "PortalCategoriesResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "public_id": {
+                                "type": "string",
+                                "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "active": {
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "public_id",
+                            "name",
+                            "active"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "PortalReadResponse": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "read": {
+                            "type": "boolean",
+                            "const": true
+                        }
+                    },
+                    "required": [
+                        "read"
+                    ]
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "PortalCaseCreate": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "request",
+                        "report"
+                    ]
+                },
+                "subject": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
+                },
+                "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 10000
+                },
+                "work": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "category": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "type",
+                "subject",
+                "description"
+            ]
+        },
+        "PortalReply": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "expected_revision": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "body": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 10000
+                }
+            },
+            "required": [
+                "expected_revision",
+                "body"
+            ]
+        },
   "PayMongoAcknowledgement": {
     "type": "object",
     "additionalProperties": false,

@@ -6,7 +6,7 @@
             <p role="status" class="mt-5 text-slate-300">Payment confirmed. Admin will arrange fulfillment of your approved services.</p>
         @elseif ($payment['state'] === 'closing')
             <p role="status" class="mt-5 text-slate-300">This payment request is being closed or verified. Payment is unavailable until its status is confirmed. Contact Admin if you need help.</p>
-        @elseif ($payment['checkout_url'] !== null)
+        @elseif ($payment['checkout_url'] !== null && ! \App\Http\Middleware\CommercePreviewOnly::enabled())
             <p class="mt-5 text-slate-300">Continue to PayMongo to pay for your approved services. You can return here to check your payment status.</p>
             <a href="{{ $payment['checkout_url'] }}" rel="noreferrer" class="mt-6 inline-block rounded-xl bg-violet-600 px-5 py-3 font-medium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-400">Continue to PayMongo</a>
         @else

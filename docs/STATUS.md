@@ -1,8 +1,22 @@
 # Project Status
 
-**Last updated:** 2026-10-19 (O2.1/O2.2/O2.3a/O2.3b qualified; refund qualification blocked on sandbox wallet)
+**Last updated:** 2026-10-23 (customer portal priority; ecommerce development paused)
 
 ## Current Stage
+
+**Current owner priority:** complete the customer portal, especially manually
+assigned project and service tracking. Ecommerce development is paused;
+existing screens stay reachable with production **Under development** notices
+and customer write protection. Staff can assign work to a customer, manage
+milestones/status/next steps and publish updates. Customers can create linked
+or standalone requests/reports and exchange messages with authorized staff;
+private notes stay separate. See the [portal scope](plans/2026-10-23-customer-portal.md),
+[API contract](api/customer-portal.md), and [qualification](evidence/2026-10-23-customer-portal/qualification.md).
+Local implementation and verification are complete; supported-runtime CI is
+pending source delivery. This independent operational portal does not create
+purchased entitlements or qualify the paused commerce phases. Outbound portal
+email notifications are outside this increment; in-app unread indicators work.
+
 
 The reusable pre-commerce application core is complete: foundation phase F,
 management branding M0, the customer Home, the administrator Overview,
@@ -88,6 +102,15 @@ specified; D02 configurable starter tax/receipt rules are implemented; merchant 
 resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
+
+**Customer portal source qualification:** push the verified portal source and
+complete PHP 8.3 SQLite/MySQL CI. Then the next executable step is a separately
+authorized portal release with migration/role-seeding and production workflow
+checks. No production release or existing database migration has run. Ecommerce
+O2.3c and dependent commerce work stay paused; do not resume PayMongo operations
+as the next task unless the owner explicitly reprioritizes them.
+
+### Historical commerce checkpoints (paused)
 
 **Independent Laravel checkup:** reviewer reproduced and approved corrections
 for private terms exposure, activation email and managed-user authorization races,

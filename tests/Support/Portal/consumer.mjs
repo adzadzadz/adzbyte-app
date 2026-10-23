@@ -1,0 +1,65 @@
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {readFile} from 'node:fs/promises';
+import {checkSchema} from '../contract-schema.mjs';
+const origin = process.argv[2];
+assert.equal(new URL(origin).hostname, '127.0.0.1');
+const cookie = process.env.CHECKOUT_HTTP_COOKIE, other = process.env.CHECKOUT_HTTP_OTHER_COOKIE;
+const work = process.env.PORTAL_WORK_REFERENCE;
+assert(cookie && other && work);
+const api = JSON.parse(await readFile(new URL('../../../docs/api/openapi.json', import.meta.url)));
+const schemas = api.components.schemas;
+const home = await fetch(origin+'/', {headers:{Cookie:cookie}});
+assert.equal(home.status,200);
+const html = await home.text();
+const otherHtml = await (await fetch(origin+'/', {headers:{Cookie:other}})).text();
+const otherCsrf = otherHtml.match(/name="csrf-token" content="([^"]+)"/)[1];
+const csrf = html.match(/name="csrf-token" content="([^"]+)"/)[1];
+async function call(method,path,body,status,schema,extra={}) {
+  const r = await fetch(origin+path,{method,redirect:'error',headers:{Accept:'application/json',Cookie:cookie,Origin:origin,'X-CSRF-TOKEN':csrf,...(body===undefined?{}:{'Content-Type':'application/json'}),...extra},body:body===undefined?undefined:JSON.stringify(body)});
+  const j = await r.json();
+  assert.equal(r.status,status,`${method} ${path}: ${JSON.stringify(j)}`);
+  checkSchema(j,schemas[schema],schemas);
+  assert.match(r.headers.get('cache-control'),/no-store/);
+  assert.match(r.headers.get('cache-control'),/private/);
+  assert.equal(r.headers.get('etag'),null);
+  return j;
+}
+await call('GET','/api/v1/portal/works',undefined,401,'ErrorResponse',{Cookie:''});
+await call('GET','/api/v1/portal/works',undefined,200,'PortalWorkListResponse');
+await call('GET','/api/v1/portal/works/'+work,undefined,200,'PortalWorkResponse');
+await call('GET','/api/v1/portal/works/'+work,undefined,404,'ErrorResponse',{Cookie:other,'X-CSRF-TOKEN':otherCsrf});
+await call('GET','/api/v1/portal/categories',undefined,200,'PortalCategoriesResponse');
+const input = {type:'report',subject:'HTTP support report',description:'Synthetic real transport report',work};
+checkSchema(input,schemas.PortalCaseCreate,schemas);
+const key = randomUUID();
+await call('POST','/api/v1/portal/cases',input,419,'ErrorResponse',{'Idempotency-Key':key,'X-CSRF-TOKEN':''});
+await call('POST','/api/v1/portal/cases',input,401,'ErrorResponse',{'Idempotency-Key':key,Origin:'https://evil.example'});
+await call('POST','/api/v1/portal/cases',input,403,'ErrorResponse',{'Idempotency-Key':key,Origin:'https://evil.example',Referer:origin+'/'});
+await call('POST','/api/v1/portal/cases',{...input,user_id:1},422,'ErrorResponse',{'Idempotency-Key':key});
+await call('POST','/api/v1/portal/cases',input,404,'ErrorResponse',{'Idempotency-Key':key,Cookie:other,'X-CSRF-TOKEN':otherCsrf});
+const created = await call('POST','/api/v1/portal/cases',input,200,'PortalCaseResponse',{'Idempotency-Key':key});
+const ref = created.data.public_id;
+assert.equal((await call('POST','/api/v1/portal/cases',input,200,'PortalCaseResponse',{'Idempotency-Key':key})).data.public_id,ref);
+await call('POST','/api/v1/portal/cases',{...input,subject:'Changed retry'},409,'ErrorResponse',{'Idempotency-Key':key});
+const message = {expected_revision:1,body:'Synthetic customer reply with https://drive.google.com/file/d/synthetic/view'};
+const replyKey = randomUUID();
+await call('POST',`/api/v1/portal/cases/${ref}/messages`,message,200,'PortalCaseResponse',{'Idempotency-Key':replyKey});
+await call('POST',`/api/v1/portal/cases/${ref}/messages`,message,200,'PortalCaseResponse',{'Idempotency-Key':replyKey});
+await call('POST',`/api/v1/portal/cases/${ref}/messages`,message,409,'ErrorResponse',{'Idempotency-Key':randomUUID()});
+await call('POST',`/api/v1/portal/cases/${ref}/messages`,message,404,'ErrorResponse',{'Idempotency-Key':randomUUID(),Cookie:other,'X-CSRF-TOKEN':otherCsrf});
+await call('GET','/api/v1/portal/cases',undefined,200,'PortalCaseListResponse');
+const detail = await call('GET','/api/v1/portal/cases/'+ref,undefined,200,'PortalCaseResponse');
+assert.equal(detail.data.messages.length,1);
+for (const field of ['user_id','actor_id','assigned_to_id','notes','changes']) assert(!JSON.stringify(detail).includes('"'+field+'"'));
+await call('POST',`/api/v1/portal/cases/${ref}/read`,{},200,'PortalReadResponse');
+await call('POST',`/api/v1/portal/works/${work}/read`,{},200,'PortalReadResponse');
+await call('GET','/api/v1/portal/cases?owner=1',undefined,422,'ErrorResponse');
+let limited = false;
+for (let i=0;i<121;i++) {
+  const r=await fetch(origin+'/api/v1/portal/works',{headers:{Accept:'application/json',Cookie:cookie,Origin:origin}});
+  if(r.status===429) { assert(r.headers.get('retry-after')); checkSchema(await r.json(),schemas.ErrorResponse,schemas); limited=true; break; }
+  assert.equal(r.status,200);
+}
+assert(limited);
+console.log(JSON.stringify({passed:true,checks:['actual session/CSRF/Origin/ownership','OpenAPI schema consumer','persistent retry and revision protection','private responses and throttling']}));

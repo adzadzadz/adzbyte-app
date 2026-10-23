@@ -3,6 +3,14 @@
 `adzbyte-app` is Adzbyte's commerce backend, checkout application, customer
 portal, and administrative system of record.
 
+**Current priority (2026-10-23): customer portal.** Admins manually assign projects
+and services; customers follow milestones, next steps and updates, and exchange
+support messages. Ecommerce development is paused. Its existing screens remain
+reachable with production Under development notices and customer write protection.
+See the [portal plan](docs/plans/2026-10-23-customer-portal.md) and
+[portal API](docs/api/customer-portal.md). Source qualification is tracked in
+[portal evidence](docs/evidence/2026-10-23-customer-portal/qualification.md).
+
 The reusable application foundation is complete: authentication, management
 branding, customer and administrator Home foundations, API contracts,
 idempotency, queues, operational hardening, and administrator user/role
@@ -17,8 +25,9 @@ registration and verified ownership/merge are qualified through C3/B2. O1.1/O1.2
 add immutable accepted order snapshots, native checkout, owned request summaries
 and versioned REST operations, qualified at 538e3ca / CI 39098787766. Admin review, customer communication, versioned settings and recoverable
 notifications complete O1 at e27fefa / CI 39101761212 (397 / 6,374 each on
-PHP 8.3 SQLite/MySQL); provider payments, subscriptions, purchased services and support
-cases remain planned. See [current status](docs/STATUS.md) and the
+PHP 8.3 SQLite/MySQL). Provider payment progress is recorded in STATUS;
+subscriptions and purchased entitlements remain paused. Independent manual
+project/service tracking and support cases are now implemented. See [current status](docs/STATUS.md) and the
 [handoff](docs/DEVELOPMENT-HANDOFF.md) for the active increment and evidence.
 No real packages are seeded.
 
@@ -39,8 +48,8 @@ catalog source.
 
 Both management experiences use Filament 5 and require authentication:
 
-- `/` — customers manage their account, cart, checkout, orders, subscriptions,
-  purchased products, requests, reports, messages, and attachments.
+- `/` — customer Home, Projects, Services, Requests & reports, profile/security,
+  and an ecommerce preview. Native attachments are deferred; share Drive links.
 - `/admin` — administrators manage catalog, customers, orders, payments,
   subscriptions, purchased products, customer-service cases, roles, and audit
   events.
@@ -97,7 +106,7 @@ the backend-first task sequence, REST/access coverage, acceptance evidence, and
 milestones. The [Decision Register](docs/decisions/commerce-development.md)
 identifies unresolved inputs and the exact slices they block. Current verified
 implementation is recorded separately from planned behavior in STATUS; public
-registration and the purchase flow remain planned.
+registration is implemented; production commerce launch remains separately gated.
 
 Every card and phase must pass the applicable [verification gates](docs/verification.md)
 before completion or dependent implementation. CI runs the full suite on

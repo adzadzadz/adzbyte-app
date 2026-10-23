@@ -1,0 +1,28 @@
+<x-filament-panels::page>
+    <div class="adz-portal" data-portal-support>
+        @if ($case)
+            <a class="adz-portal-link" href="{{ static::getUrl() }}">← All requests & reports</a>
+            <section class="adz-portal-hero" aria-labelledby="case-heading">
+                <div class="adz-portal-row"><span class="adz-portal-kicker">{{ ucfirst($case['type']) }}{{ $staff ? ' · '.$case['customer'] : '' }}</span><span class="adz-portal-status" data-status="{{ $case['status'] }}">{{ \App\Support\PortalOptions::label($case['status'], $staff) }}</span></div>
+                <h2 id="case-heading" class="adz-portal-heading">{{ $case['subject'] }}</h2><p class="adz-portal-reference">Reference {{ $case['public_id'] }}</p>
+                <x-portal-text :text="$case['description']" />
+                <dl class="adz-portal-facts"><div><dt>Category</dt><dd>{{ $case['category'] ?? 'General' }}</dd></div><div><dt>Priority</dt><dd>{{ ucfirst($case['priority']) }}</dd></div><div><dt>Your contact</dt><dd>{{ $case['assigned_to'] ?? 'Adzbyte Solutions team' }}</dd></div></dl>
+                @if ($case['work'])<a class="adz-portal-link" href="{{ $staff ? \App\Filament\Pages\Portal\ClientWork::getUrl(['record' => $case['work']['public_id']], panel: 'admin') : ($case['work']['type'] === 'project' ? \App\Filament\Account\Pages\Projects::getUrl(['record' => $case['work']['public_id']], panel: 'account') : \App\Filament\Account\Pages\Services::getUrl(['record' => $case['work']['public_id']], panel: 'account')) }}">View {{ $case['work']['title'] }}</a>@endif
+            </section>
+            <section class="adz-portal-card" aria-labelledby="conversation-heading">
+                <h3 id="conversation-heading" class="adz-portal-title">Conversation</h3>
+                <div class="adz-portal-thread">@forelse ($case['messages'] as $message)<article class="adz-portal-message" data-sender="{{ $message['from_customer'] ? 'customer' : 'staff' }}"><p class="adz-portal-muted">{{ $message['author'] }}{{ $message['from_customer'] ? ' · Customer' : ' · Team' }} · <time datetime="{{ $message['created_at'] }}">{{ \Illuminate\Support\Carbon::parse($message['created_at'])->timezone('Asia/Manila')->format('M j, Y · g:i a') }} PHT</time></p><x-portal-text :text="$message['body']" /></article>@empty<p class="adz-portal-muted">Your request is recorded. Replies will appear here.</p>@endforelse</div>
+                @include('filament.portal.pagination', ['pagination' => $case['pagination'], 'label' => 'Conversation (latest first)'])
+                @if ($case['can_reply'])<div class="adz-portal-reply">{{ $this->getAction('reply') }}</div>@elseif (in_array($case['status'], ['resolved', 'closed'], true))<p class="adz-portal-callout">This case is {{ $case['status'] }}. Your history remains available. {{ $staff ? 'Use Triage / update status to reopen it.' : 'If you need more help, create a new request and mention this reference.' }}</p>@endif
+            </section>
+            @if ($staff && array_key_exists('notes', $case))<section class="adz-portal-card adz-portal-internal" aria-labelledby="internal-heading"><h3 id="internal-heading" class="adz-portal-title">Internal notes · staff only</h3><p class="adz-portal-muted">These notes are never included in the customer conversation.</p><div class="adz-portal-thread">@forelse ($case['notes'] as $note)<article class="adz-portal-message"><p class="adz-portal-muted">{{ $note['author'] }} · {{ \Illuminate\Support\Carbon::parse($note['created_at'])->timezone('Asia/Manila')->format('M j, g:i a') }}</p><x-portal-text :text="$note['body']" /></article>@empty<p class="adz-portal-muted">No internal notes.</p>@endforelse</div><p class="adz-portal-muted">Latest 30 notes shown; full history retained.</p></section>@endif
+            <details class="adz-portal-card"><summary>Status history</summary><ol class="adz-portal-history">@foreach ($case['history'] as $event)<li>{{ $event['action'] === 'case_created' ? 'Submitted' : 'Updated' }}{{ $event['status'] ? ' · '.\App\Support\PortalOptions::label($event['status'], $staff) : '' }} · {{ \Illuminate\Support\Carbon::parse($event['created_at'])->timezone('Asia/Manila')->format('M j, Y · g:i a') }} PHT</li>@endforeach</ol></details>
+        @else
+            <p class="adz-portal-intro">{{ $staff ? 'Triage requests and reports, respond to customers, and keep internal notes private.' : 'Ask for help, request a change, or report an issue. Follow every conversation here.' }}</p>
+            @if ($linkedTitle)<p class="adz-portal-callout">Starting a conversation about <strong>{{ $linkedTitle }}</strong>. Choose New request or report above.</p>@endif
+            <div class="adz-portal-search"><label for="case-search">Search requests and reports</label><x-filament::input.wrapper><x-filament::input id="case-search" type="search" wire:model.live.debounce.350ms="search" maxlength="100" /></x-filament::input.wrapper></div>
+            <div class="adz-portal-grid" wire:loading.class="opacity-60">@forelse ($listing['items'] as $item)@include('filament.portal.case-card', ['item' => $item, 'staff' => $staff])@empty<section class="adz-portal-card adz-portal-empty"><h2 class="adz-portal-title">{{ $search ? 'No matching conversations' : 'No requests or reports yet' }}</h2><p class="adz-portal-muted">{{ $search ? 'Try another search or clear the field.' : ($staff ? 'Customer requests and reports will appear here.' : 'Use New request or report whenever you need your team. A project or purchase is not required.') }}</p></section>@endforelse</div>
+            @include('filament.portal.pagination', ['pagination' => $listing['pagination']])
+        @endif
+    </div>
+</x-filament-panels::page>

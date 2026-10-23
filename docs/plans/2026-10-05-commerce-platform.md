@@ -517,3 +517,16 @@ First-release native support attachments and their scanning infrastructure are
 explicitly deferred. Customers instead share Google Drive file/folder links
 with appropriate case staff; no automatic import or public-sharing requirement.
 See the [exact answers](../decisions/commerce-development.md#test-integration-and-remaining-slice-answers-2026-10-18).
+
+
+## Portal-first priority authorized 2026-10-23
+
+The owner paused ecommerce development and requested a polished customer portal,
+with project and service tracking as the highest priority. Admins manually
+assign projects/services to customer accounts. Operational tracking records are
+independent of checkout, subscription billing and purchased entitlements. The
+owner also confirmed support requests/reports and conversations, while existing
+commerce screens remain reachable with production Under development notices.
+See the [portal delivery contract](2026-10-23-customer-portal.md). The paused
+refund/commerce qualification gates remain in force for their dependent billing
+and entitlement work; they do not block this separately authorized portal scope.

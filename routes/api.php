@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\StorefrontCartController;
 use App\Http\Controllers\Api\V1\StorefrontHandoffController;
+use App\Http\Middleware\CommercePreviewOnly;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
@@ -14,7 +15,7 @@ Route::prefix('v1')->as('api.v1.')->group(function (): void {
 
     Route::prefix('storefront')->as('storefront.')
         ->withoutMiddleware(EnsureFrontendRequestsAreStateful::class)
-        ->middleware(['auth:sanctum', 'throttle:api-storefront'])->group(function (): void {
+        ->middleware(['auth:sanctum', CommercePreviewOnly::class, 'throttle:api-storefront'])->group(function (): void {
             Route::post('carts', [StorefrontCartController::class, 'store'])->middleware('storefront.token:cart:create')->name('carts.store');
             Route::get('carts/resolve', [StorefrontCartController::class, 'resolve'])->middleware('storefront.token:cart:read')->name('carts.resolve');
             Route::get('carts/retired', [StorefrontCartController::class, 'retired'])->middleware('storefront.token:cart:read')->name('carts.retired');

@@ -31,8 +31,9 @@ class AccountPanelProvider extends PanelProvider
             ->emailChangeVerification()
             ->profile()
             ->navigationItems([
-                NavigationItem::make('Requests')->url(fn () => route('orders.index'))->icon('heroicon-o-document-text')->sort(3),
-                NavigationItem::make('Cart')->url(fn () => route('cart.show'))->icon('heroicon-o-shopping-cart')->sort(2),
+                NavigationItem::make('Orders')->url(fn () => route('orders.index'))->icon('heroicon-o-document-text')->group('Ecommerce · Under development')->sort(12),
+                NavigationItem::make('Cart')->url(fn () => route('cart.show'))->icon('heroicon-o-shopping-cart')->group('Ecommerce · Under development')->sort(11),
+                NavigationItem::make('Profile & security')->url(fn () => filament()->getProfileUrl())->icon('heroicon-o-user-circle')->sort(5),
             ])
             ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => view('auth.registration-link'))
             ->discoverResources(in: app_path('Filament/Account/Resources'), for: 'App\Filament\Account\Resources')

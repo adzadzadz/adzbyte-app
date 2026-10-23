@@ -17,6 +17,7 @@
     </header>
     <main id="cart-content" class="mx-auto max-w-5xl px-5 py-10 [overflow-wrap:anywhere] sm:py-14">
         <h1 class="text-3xl font-semibold sm:text-4xl">Your cart</h1>
+        <x-commerce-development-banner />
         <p class="mt-3 text-slate-400">Availability and current prices are checked again when you review your cart.</p>
         @if (session('status'))
             <p role="status" class="mt-6 rounded-xl border border-emerald-800 bg-emerald-950/50 p-4">{{ session('status') }}</p>
@@ -69,7 +70,7 @@
                             <form method="post" action="{{ route('cart.remove', ['product' => $product['public_id']]) }}" class="mt-5">
                                 @csrf @method('DELETE')
                                 <input type="hidden" name="operation_id" value="{{ \Illuminate\Support\Str::uuid() }}">
-                                <button type="submit" class="rounded-lg border border-slate-600 px-4 py-2 text-sm hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-4" aria-label="Remove {{ $product['name'] }}">Remove</button>
+                                <button type="submit" @disabled(\App\Http\Middleware\CommercePreviewOnly::enabled()) class="rounded-lg border border-slate-600 px-4 py-2 text-sm hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-4" aria-label="Remove {{ $product['name'] }}">Remove</button>
                             </form>
                         </article>
                     @endforeach
@@ -86,7 +87,7 @@
                                 <input type="hidden" name="versions[{{ $line['product']['public_id'] }}][price]" value="{{ $line['product']['price']['version'] }}">
                                 <input type="hidden" name="versions[{{ $line['product']['public_id'] }}][terms]" value="{{ $line['product']['terms']['version'] }}">
                             @endforeach
-                            <button type="submit" class="w-full rounded-lg bg-[#8139ff] px-4 py-3 font-medium hover:bg-violet-600 focus-visible:outline-2 focus-visible:outline-offset-4">Confirm reviewed prices and terms</button>
+                            <button type="submit" @disabled(\App\Http\Middleware\CommercePreviewOnly::enabled()) class="w-full rounded-lg bg-[#8139ff] px-4 py-3 font-medium hover:bg-violet-600 focus-visible:outline-2 focus-visible:outline-offset-4">Confirm reviewed prices and terms</button>
                         </form>
                     @elseif ($cart['selection_valid'])
                         @if ($owned)

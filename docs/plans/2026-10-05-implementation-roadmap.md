@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | C1/C2/C3/O1 qualified; O2.1 qualified; O2.2 webhook confirmation in progress |
+| Status | Customer portal priority; ecommerce development paused at O2.3c refund qualification |
 | Product source of truth | `docs/plans/2026-10-05-commerce-platform.md` |
 | First commerce approach | `docs/plans/2026-10-05-first-commerce-release.md` |
 | Progress tracker | `docs/STATUS.md` |
@@ -12,6 +12,17 @@
 | Application | Laravel 13 / PHP 8.3 |
 | Management UI | Filament 5 customer panel at `/` and administrator panel at `/admin` |
 | API prefix | `/api/v1` |
+
+## Current priority — 2026-10-23
+
+The owner paused ecommerce development and prioritized the customer portal,
+particularly projects and services **manually assigned by admins**. This
+independent increment provides operational tracking and support without waiting
+for checkout/purchased-entitlement qualification. Existing ecommerce screens
+remain accessible with production Under development notices. The [portal plan](2026-10-23-customer-portal.md)
+and [qualification record](../evidence/2026-10-23-customer-portal/qualification.md)
+define its own acceptance gate. Commerce O2.3c/O3/S2 and broader R1/Q checkboxes
+remain incomplete and paused, rather than being relabeled as portal completion.
 
 ## Delivery Rules
 

@@ -14,6 +14,7 @@ use App\Http\Controllers\Orders\OrderReviewController;
 use App\Http\Controllers\Orders\PaymentAttemptController;
 use App\Http\Controllers\Orders\PaymentControlController;
 use App\Http\Controllers\Orders\PaymentOperationsController;
+use App\Http\Middleware\CommercePreviewOnly;
 use App\Http\Middleware\EnsureAppCartOrigin;
 use Illuminate\Support\Facades\Route;
 
@@ -24,7 +25,7 @@ Route::middleware(['throttle:registration', EnsureAppCartOrigin::class])->group(
     Route::post('/api/v1/registration', [RegisterCustomerController::class, 'store'])->name('api.v1.registration.store');
 });
 
-Route::middleware(['throttle:app-cart', EnsureAppCartOrigin::class])->group(function (): void {
+Route::middleware([CommercePreviewOnly::class, 'throttle:app-cart', EnsureAppCartOrigin::class])->group(function (): void {
     Route::get('/cart', [CartPageController::class, 'show'])->name('cart.show');
     Route::get('/cart/handoff', [HandoffLandingController::class, 'show'])->name('cart.handoff');
     Route::delete('/cart/items/{product}', [CartPageController::class, 'remove'])->whereUlid('product')->name('cart.remove');
@@ -33,7 +34,7 @@ Route::middleware(['throttle:app-cart', EnsureAppCartOrigin::class])->group(func
 });
 
 // App guest cart APIs deliberately use the web session and CSRF middleware.
-Route::prefix('api/v1')->as('api.v1.')->middleware(['throttle:app-cart', EnsureAppCartOrigin::class])->group(function (): void {
+Route::prefix('api/v1')->as('api.v1.')->middleware([CommercePreviewOnly::class, 'throttle:app-cart', EnsureAppCartOrigin::class])->group(function (): void {
     Route::post('cart-handoffs/consume', [ConsumeCartHandoffController::class, 'store'])->name('cart-handoffs.consume');
     Route::get('cart', [AppCartController::class, 'show'])->name('cart.show');
     Route::delete('cart/items/{product}', [AppCartController::class, 'remove'])->whereUlid('product')->name('cart.remove');
@@ -42,7 +43,7 @@ Route::prefix('api/v1')->as('api.v1.')->middleware(['throttle:app-cart', EnsureA
     Route::post('cart/attach', [CartMergeController::class, 'store'])->middleware(['auth:web', 'verified', 'customer.api'])->name('cart.attach');
 });
 
-Route::middleware(['auth:web', 'verified', 'customer.api', 'throttle:checkout', EnsureAppCartOrigin::class])->group(function (): void {
+Route::middleware(['auth:web', 'verified', 'customer.api', CommercePreviewOnly::class, 'throttle:checkout', EnsureAppCartOrigin::class])->group(function (): void {
     Route::get('/orders/{order}/payment', [PaymentAttemptController::class, 'show'])->whereUlid('order')->name('orders.payment.show');
     Route::post('/orders/{order}/payment', [PaymentAttemptController::class, 'store'])->whereUlid('order')->name('orders.payment.store');
     Route::get('/api/v1/orders/{order}/payment', [PaymentAttemptController::class, 'show'])->whereUlid('order')->name('api.v1.orders.payment.show');
