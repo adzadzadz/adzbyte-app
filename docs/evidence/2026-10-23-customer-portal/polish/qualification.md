@@ -14,8 +14,8 @@ production deployment. Ecommerce development remains paused.
   then passed. Full suite subsequently passed. Formatting, Composer metadata,
   production Vite build and whitespace checks pass.
 - Independent reviewer reproduced 7 focused workflow tests / 68 assertions.
-  Queue atomicity and customer selection findings were fixed. Final release
-  approval awaits exact source/PHP 8.3 CI evidence.
+  Queue atomicity and customer selection findings were fixed. The independent
+  reviewer approved final source `bbf1ae5` and the gated production release.
 - Real database queue checks prove customer, audit and invitation commit together;
   a later audit failure rolls back both identity and queued job. Runtime rejects
   a database queue using a different database connection.
@@ -73,9 +73,9 @@ pre-release step; no high/critical finding is deferred.
 
 GitHub production environment exists and workflow content writes are enabled.
 hPanel points to this repository's deploy branch, automatic deployment enabled,
-root public_html. Production database MariaDB 11.8.9 has seven prior migrations,
+root public_html. Before deployment, production MariaDB 11.8.9 had seven prior migrations,
 five package checkout records, five provider events and zero deliveries/jobs/
-failed jobs. There are no production users, roles or permissions yet.
+failed jobs. There were no production users, roles or permissions before bootstrap.
 
 Encrypted pre-migration backup retained outside the web root in the owner-only
 private-backups directory. A metadata helper encountered the host-disabled
@@ -88,18 +88,18 @@ checkouts and five events retained; zero deliveries/work items/cases**. Local du
 key and restored database are removed after the check. Production APP_KEY is
 preserved and compared by hash only, never printed.
 
-Production settings needing correction in the authorized release window: .env
+Production settings corrected in the authorized release window: .env
 mode 644 → 600, encrypted/secure sessions false → true. Existing package payment/
 bridge credentials and flags are retained. Generic ecommerce remains a preview;
 its PayMongo adapter stays disabled unless independently configured/qualified.
 
 Owner separately approved initializing access roles/permissions and creating the
 owner super administrator for adzbite@gmail.com with a secure password setup link.
-No real customer is created by verification. Source CI, final approval and actual
-release results are recorded below when available.
+No real customer was created by verification. Final source CI, approval and
+release results are recorded below.
 
 Existing hPanel scheduler and database queue cron run every minute. The inherited
-worker uses --tries=3 --timeout=90; the release will set DB_QUEUE_RETRY_AFTER=180
+worker uses --tries=3 --timeout=90; the release set DB_QUEUE_RETRY_AFTER=180
 so a reserved job cannot be reclaimed before its worker timeout. The owner setup
 script was rehearsed against synthetic local data: creates only a new owner
 identity, queues Filament's admin reset link atomically, and leaves email
@@ -112,3 +112,57 @@ app. The final workflow reruns all gates using the patched binary. References:
 https://nodejs.org/en/blog/vulnerability/october-2026-security-releases and
 https://nodejs.org/en/blog/release/v24.22.1. Local preview is stopped after QA;
 release assets come only from patched CI, not the older local Node/PHP tools.
+
+
+## Completed production release — 2026-10-23
+
+- Approved source: `bbf1ae5a9f4dc6830b9f82ca3625ed7eddd6d531`.
+  [Source CI 39923664446](https://github.com/adzadzadz/adzbyte-app/actions/runs/39923664446)
+  and [release 39924287598](https://github.com/adzadzadz/adzbyte-app/actions/runs/39924287598)
+  both succeeded. Each full SQLite/MySQL suite passes **662 tests / 8,632
+  assertions** on PHP 8.3.36; build/HTTP-consumer Node is 24.22.1. Audits,
+  formatting, metadata, build and production cache gates pass.
+- Generated deploy: `230f2cd90d2b11ea12a03a00640fe35df66f260b`, containing
+  the approved source and CI-built assets. Hostinger reports **Completed** at
+  16:32 PHT; SSH HEAD matches. Hostinger uses a shallow checkout, so ancestry
+  was verified in the full local repository rather than the hosting checkout.
+- Reviewed environment update preserved APP_KEY and every non-allowlisted line,
+  including native package/bridge credentials and flags. `.env` is mode 600;
+  debug is false, sessions encrypted/Secure/HttpOnly/SameSite=Lax, database
+  queue retry-after 180 with after-commit enabled. Generic commerce preview is
+  true and its PayMongo adapter false; native package checkout remains enabled.
+- `bash scripts/hostinger-after-pull.sh` exited 0: locked no-dev install,
+  15 pending migrations, production caches and queue restart completed.
+  All **22 migrations** are Ran. Five existing package checkouts and five
+  provider events remain; all five encrypted contact snapshots decrypt with
+  the preserved key. No package deliveries, work items or cases were added.
+  Post-install untracked files are seven generated Filament font assets;
+  tracked source has no runtime diff.
+- The pre-migration encrypted backup and protected environment snapshot remain
+  outside the web root at `private-backups/portal-20261023-072913`. The approved
+  isolated restore and migration check succeeded; its local database, dump and
+  key were deleted. This release proof does not define durable off-site
+  retention or close the broader backup/privacy roadmap.
+- Separately authorized bootstrap created exactly one new owner with only
+  `super_admin`, initialized three roles/38 permissions and recorded one owner
+  bootstrap audit event. No real customers or synthetic production fixtures
+  were created. Filament's admin password setup notification ran successfully
+  through SMTP at **08:34:30–08:34:33 UTC**; queue now has zero jobs and zero
+  failures. Recipient inbox placement is not independently observed. Owner
+  password choice and email verification remain user actions.
+- `/up`, `/login` and `/admin/login` return 200 over HTTPS; `/`, `/projects`
+  and `/support` redirect to customer login, `/admin` and `/admin/customers`
+  to admin login. Production `/cart` returns 200 with **Under development**.
+  Unauthenticated native package offer API retains its 401 response. `.env`
+  and log paths return 403; composer.json is unavailable. Cookie security flags
+  and security headers pass. The retired `/account/login` route returns 404.
+- Scheduler retains native package delivery recovery and queue monitoring;
+  existing scheduler/queue crons run every minute. Queue health passes after
+  actual owner notification processing. Log review found one operator console
+  diagnostic for an unsupported `route:list --columns` option; the corrected
+  read-only command succeeded. No application/request/worker release errors
+  were found. No payment, refund, entitlement or full commerce qualification
+  is claimed.
+- Production public login was visually checked. Authenticated customer/admin
+  workflow and 320px proof use synthetic local fixtures on the released source;
+  production authenticated browser verification awaits owner activation.

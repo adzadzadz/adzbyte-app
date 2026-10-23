@@ -1,27 +1,30 @@
 # Development Handoff
 
-## Current checkpoint — customer portal, 2026-10-23
+## Current checkpoint — deployed customer portal, 2026-10-23
 
-- Owner priority: project/service tracking with **manual administrator assignment
-  to customer accounts**, plus support requests/reports and conversations.
-- Ecommerce development is paused. Existing screens remain accessible; production
-  shows Under development notices and rejects customer writes. Staff/provider
-  callbacks remain available. No production change has been made.
-- Implemented: customer Home/Projects/Services/Requests & reports, staff work and
-  support management, milestones, updates, next steps, safe Drive links, private
-  notes, read state, audit history, retries and revision protection. Operational
-  work records are independent of billing/purchased entitlements.
+- Owner priority delivered: manual customer creation and project/service assignment,
+  customer/admin Dashboards, inline linked conversations and a complete expandable
+  inbox including general requests/reports. Internal notes remain staff-only.
+- Ecommerce development remains paused; production screens show Under development
+  and reject generic customer commerce writes. Existing public-site native QRPh
+  package checkout, webhook and fulfilment recovery remain intact.
+- Source `bbf1ae5a9f4dc6830b9f82ca3625ed7eddd6d531` passes source CI
+  39923664446 and [release 39924287598](https://github.com/adzadzadz/adzbyte-app/actions/runs/39924287598).
+  Independent reviewer approved; 662 tests / 8,632 assertions per engine on
+  PHP 8.3.36 SQLite/MySQL 8.0.46, patched Node 24.22.1, zero dependency findings.
+- Hostinger deploy `230f2cd90d2b11ea12a03a00640fe35df66f260b` completed.
+  Post-pull exited 0, all 22 migrations Ran, key/encrypted records preserved,
+  HTTPS login/health and actual queue notification processing pass. Backup restore
+  proof completed; temporary local production data/key removed.
+- Separately approved owner bootstrap completed and secure admin setup email
+  processed for the owner. No real customer or synthetic production fixtures
+  were created. Next: owner password choice, email verification and manual
+  workflow acceptance at `/admin`; customer portal is `/`.
+- Local preview is stopped after QA. Authenticated production UI acceptance
+  awaits owner activation; local desktop/320px workflow proof uses released code.
+  Outbound support-conversation email/native attachments remain deferred.
 - [Scope](plans/2026-10-23-customer-portal.md), [API](api/customer-portal.md),
-  [qualification](evidence/2026-10-23-customer-portal/qualification.md).
-- Implementation source `d93b6b402b9af90e4cb692470a13bc3eeb0e4d78` passes
-  [CI 39911846713](https://github.com/adzadzadz/adzbyte-app/actions/runs/39911846713):
-  **556 tests / 7,804 assertions per engine**, PHP 8.3.36 SQLite/MySQL 8.0.46;
-  both audits zero, metadata/format/build/production caches pass. Browser desktop/320px,
-  actual HTTP/OpenAPI/CSRF, ownership, migration/retention and process contention pass.
-- Next action: a separately authorized portal release, with migration, role/capability
-  seeding and post-release checks. Source qualification is complete. Existing databases and production
-  remain untouched. Outbound portal email notifications and native attachments
-  are outside this increment; unread indicators and Drive sharing are included.
+  [release qualification](evidence/2026-10-23-customer-portal/polish/qualification.md).
 
 ## Previous commerce checkpoint — paused
 

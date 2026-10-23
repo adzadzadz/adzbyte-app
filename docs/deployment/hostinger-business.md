@@ -121,15 +121,23 @@ Hostinger Business uses scheduled jobs instead of a persistent Supervisor-manage
 worker. Configure these custom cron jobs with the real absolute project path:
 
 ```bash
-cd /home/USER/domains/app.adzbyte.com/public_html && /usr/bin/php artisan schedule:run
+/usr/bin/php /home/USER/domains/app.adzbyte.com/public_html/artisan schedule:run
 ```
 
 ```bash
-cd /home/USER/domains/app.adzbyte.com/public_html && /usr/bin/php artisan queue:work database --stop-when-empty --tries=3 --backoff=10 --timeout=60 --max-time=50
+/usr/bin/php /home/USER/domains/app.adzbyte.com/public_html/artisan queue:work database --stop-when-empty --tries=3 --backoff=10 --timeout=60 --max-time=50
 ```
 
 Run both every minute. Verify their output in hPanel and confirm that a queued
 customer activation notification is actually processed.
+
+Verified 2026-10-23: the commands above are configured as Custom crons, each
+`* * * * *`. Use the absolute Artisan path directly, without `cd` or `&&` in
+the hPanel command field. The previous shell-form entries failed to process
+reset mail and were replaced after owner approval. Actual scheduled execution,
+queue drain and fresh reset email receipt in Gmail INBOX were verified.
+Production `DB_QUEUE_RETRY_AFTER=180` exceeds the 60-second worker timeout.
+See [repair evidence](../evidence/2026-10-23-customer-portal/polish/password-reset-check.md).
 
 ## 6. Release verification
 
@@ -137,7 +145,7 @@ For every first or changed deployment:
 
 1. Confirm `https://app.adzbyte.com/up` returns HTTP 200.
 2. Confirm `/login` and `/admin/login` load over HTTPS, and that `/` redirects unauthenticated visitors to `/login`.
-3. Check `storage/logs/laravel.log` without exposing it publicly.
+3. Check `storage/logs/laravel-YYYY-MM-DD.log` (daily production channel) and any historical `laravel.log` without exposing them publicly.
 4. Confirm `php artisan migrate:status` has no pending migrations.
 5. Confirm the queue cron drains the `jobs` table and failures appear in
    `failed_jobs`.

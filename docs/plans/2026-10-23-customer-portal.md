@@ -48,7 +48,7 @@ Apply/reverse/reapply the new schema only in disposable databases, including
 preservation of earlier application records. Run relevant/full tests, PHP
 formatting, production build, Composer metadata, audits and supported PHP
 8.3 SQLite/MySQL CI. Production deployment and existing database migrations
-require the separate release gate; this task prepares source only.
+require the separate release gate, completed in the follow-up recorded below.
 
 
 ## Verified implementation
@@ -78,3 +78,16 @@ and fulfilment at deploy `1acfad0` / source `30c8cf3`. Preserve those routes,
 provider callbacks, delivery recovery and stored records during integration.
 Review and release evidence will record the combined qualification. No real
 customer has been provisioned or emailed during local checks.
+
+
+## Deployed acceptance checkpoint
+
+The independently approved portal/workflow source `bbf1ae5a9f4d` is deployed as
+`230f2cd90d2b`; [release 39924287598](https://github.com/adzadzadz/adzbyte-app/actions/runs/39924287598)
+passes both full PHP 8.3 suites (662 tests / 8,632 assertions each). Hostinger pull,
+post-pull, all 22 migrations, HTTPS health and queue processing pass. The owner
+separately approved access initialization and the new owner account; its secure
+setup email was processed. Password choice and email verification remain owner
+actions. No real customers or synthetic production fixtures were created.
+Native public-site package integration and its encrypted records are preserved.
+See [completed release evidence](../evidence/2026-10-23-customer-portal/polish/qualification.md).

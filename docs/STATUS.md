@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-10-23 (customer portal priority; ecommerce development paused)
 
-## Portal workflow and production integration — in progress
+## Portal workflow and production integration — deployed
 
 Customer Dashboard replaces Home. Requests/reports use an expandable inbox on
 Dashboard, Requests & reports, and linked project/service pages; inline create
@@ -11,12 +11,17 @@ creation, signed activation invitations and work assignment. Invitations use the
 same-connection database queue and audit/user/job commit together. New customer
 capabilities remain explicit; no staff rights are granted to customers.
 
-Release preflight confirmed live deploy `1acfad0` / source `30c8cf3` contains
-independent native package checkout/fulfilment. The portal release integrates
-that ancestry and preserves its API, webhook, delivery schedule, email branding
-and tables. This corrects historical production statements below. No production
-mutation has occurred in this follow-up yet. Independent review and combined
-verification are in progress.
+Production release [39924287598](https://github.com/adzadzadz/adzbyte-app/actions/runs/39924287598)
+passed and deployed source `bbf1ae5a9f4d` as `230f2cd90d2b` on Hostinger.
+Both PHP 8.3.36 SQLite/MySQL suites pass **662 tests / 8,632 assertions**;
+Node 24.22.1 builds, dependency audits and independent review pass. Post-pull
+completed, all 22 migrations are Ran, and encrypted package records/configuration
+are preserved. Health/login checks and queue processing pass. The separately
+approved owner administrator exists; its secure setup email was processed.
+The owner has now signed in and verified email (read-only confirmation 19:22 PHT). No real customer
+has been created. See [release evidence](evidence/2026-10-23-customer-portal/polish/qualification.md).
+Native public-site package checkout/fulfilment from prior production is retained.
+This current release record supersedes historical production statements below.
 
 ## Current Stage
 
@@ -28,15 +33,15 @@ milestones/status/next steps and publish updates. Customers can create linked
 or standalone requests/reports and exchange messages with authorized staff;
 private notes stay separate. See the [portal scope](plans/2026-10-23-customer-portal.md),
 [API contract](api/customer-portal.md), and [qualification](evidence/2026-10-23-customer-portal/qualification.md).
-The portal increment is source-qualified at `d93b6b4`: [CI 39911846713](https://github.com/adzadzadz/adzbyte-app/actions/runs/39911846713)
-passes **556 tests / 7,804 assertions per engine** on PHP 8.3.36 SQLite/MySQL
-8.0.46, with zero dependency audit findings and all build/cache/source checks. This independent operational portal does not create
-purchased entitlements or qualify the paused commerce phases. Outbound portal
-email notifications are outside this increment; in-app unread indicators work.
+The portal and manual customer workflow are live. Customer/staff support messages
+use in-app unread indicators; activation invitations and owner password setup
+email are verified. Outbound support-conversation email and native attachments
+remain outside this increment. Operational work does not create purchased
+entitlements or qualify the paused commerce phases.
 
 
 The reusable pre-commerce application core is complete: foundation phase F,
-management branding M0, the customer Home, the administrator Overview,
+management branding M0, the customer Dashboard, the administrator Dashboard,
 administrator user/role management, API foundation A1, and the generic
 production-readiness baseline. Both Filament panels provide login, logout,
 password reset, required email verification, verified email changes, and profile
@@ -69,8 +74,8 @@ order snapshots and owned checkout are qualified. O1.3 review, communication,
 settings and recoverable notifications are qualified at `e27fefa` / CI
 39101761212, 397 / 6,374 independently on PHP 8.3.35 SQLite/MySQL. Aggregate O1
 is verified; the corrected CI builds assets before both full suites. Payment, subscription, purchased-service
-and support-case processing remain pending. Commerce migrations have only run
-in disposable test databases, never the existing development or production DB.
+and support-case processing remain pending. The schema is now deployed with the portal release; applying these migrations
+does not qualify generic ecommerce for customer transactions.
 
 The approved first commerce approach is a narrow native Laravel vertical slice
 for fixed-scope, one-time services charged in PHP through PayMongo Hosted
@@ -90,7 +95,7 @@ configuration checks, and an operations/recovery runbook. Commerce development
 now builds on that foundation; remaining domain/adaptor work and its applicable
 decision dependencies are tracked in the roadmap and runbook.
 
-The previously released PHP 8.3-compatible application remains deployed to Hostinger through the machine-managed `deploy` branch. M0 and the root-route change are verified on `main` but require a future explicitly authorized release before production changes from `/account` to `/`.
+The current PHP 8.3-compatible portal is deployed through the machine-managed `deploy` branch. Customers use `/` and `/login`; administration uses `/admin`.
 
 ## Verified Foundation and Catalog
 
@@ -120,11 +125,13 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Customer portal release:** the implementation is pushed and source-qualified
-at `d93b6b4` / CI 39911846713. The next executable step is a separately authorized
-portal release with migration/role-seeding and production workflow checks. No production release or existing database migration has run. Ecommerce
-O2.3c and dependent commerce work stay paused; do not resume PayMongo operations
-as the next task unless the owner explicitly reprioritizes them.
+**Reviewed account-flow release:** source `7caae7d` fixes automatic verification
+notification and cross-panel password-reset token preservation. Independent review,
+full local and PHP 8.3 SQLite/MySQL CI pass (677 / 8,853 each). Publish only after
+a new explicit release/deploy command. The owner has signed in and completed email
+verification; live admin pages work. Next operational use is creating customers
+and assigning their projects/services. Ecommerce O2.3c and dependent commerce work
+stay paused unless the owner explicitly reprioritizes them.
 
 ### Historical commerce checkpoints (paused)
 
@@ -499,13 +506,29 @@ Deferred phases still require:
 
 ## Known Issues
 
-- The earlier dependency-audit CI blocker is resolved by the verified follow-up
-  above. This source/CI verification does not imply deployment of the fixes to
-  the older production release.
-- The production super-administrator has not been bootstrapped. Its identity remains recorded, but password provisioning is a separate deliberate operation.
-- Production still runs the previous release with `/account`; the new root customer route and M0 branding require an explicitly authorized release before production smoke checks change to `/login` and `/`.
+- **Account lifecycle review (2026-10-23):** first-entry verification dispatch
+  and cross-panel reset-token preservation are corrected in reviewed source.
+  Local and supported PHP 8.3 SQLite/MySQL [CI 39945788709](https://github.com/adzadzadz/adzbyte-app/actions/runs/39945788709)
+  pass 677 tests / 8,853 assertions per engine; review/audits/build pass. A new
+  authorized release gates production promotion. Live Resend delivered
+  at 19:08 PHT and the owner has completed verification. See [review evidence](evidence/2026-10-23-customer-portal/polish/account-lifecycle-review.md).
+- **Password reset delivery repaired 2026-10-23:** owner-approved absolute-path
+  cron replacements now run every minute. Actual admin form → automatic worker
+  → Gmail INBOX receipt verified at 18:58 PHT; zero queued/failed jobs and good
+  queue health. Both admin/customer reset flows pass isolated delivery tests.
+  Use the newest reset email in the Gmail thread. See [repair evidence](evidence/2026-10-23-customer-portal/polish/password-reset-check.md).
+- Owner login and email verification are complete. Fresh reset and verification
+  email receipt in Gmail INBOX are verified; no agent-set password or verification
+  bypass was used.
+- Local preview is stopped after QA; deployed links are available for owner
+  testing. Outbound support-message email/native attachments remain deferred.
+- Paused commerce refund, merchant/legal and broader retention qualification
+  remains unchanged; this portal release does not close those gates.
 
 ## Working Tree Handoff
+
+Current release and next action are recorded at the top. The entries below are
+historical checkpoints and do not describe the current production version.
 
 - F1 and F2 remain preserved in prior history.
 - Commit `2ecd1c2` adds the explicit-command Hostinger CI/CD and release flow.

@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\EmailVerificationPrompt;
+use App\Filament\Auth\RequestPasswordReset;
+use App\Filament\Auth\ResetPassword;
 use App\Support\Filament\AdzbytePanel;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -26,8 +29,8 @@ class AccountPanelProvider extends PanelProvider
             ->id('account')
             ->path('')
             ->login()
-            ->passwordReset()
-            ->emailVerification()
+            ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
+            ->emailVerification(EmailVerificationPrompt::class)
             ->emailChangeVerification()
             ->profile()
             ->navigationItems([
