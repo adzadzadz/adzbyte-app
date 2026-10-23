@@ -505,14 +505,14 @@ Deferred phases still require:
 
 ## Known Issues
 
-- **2026-10-23 password reset delivery:** a new owner reset notification remained
-  queued for over 12 minutes with zero attempts. Both panel reset flows pass
-  isolated queue/transport tests; production cron execution needs repair and
-  automatic delivery verification. Owner approval for the prepared cron repair
-  is pending. See [diagnosis](evidence/2026-10-23-customer-portal/polish/password-reset-check.md).
+- **Password reset delivery repaired 2026-10-23:** owner-approved absolute-path
+  cron replacements now run every minute. Actual admin form → automatic worker
+  → Gmail INBOX receipt verified at 18:58 PHT; zero queued/failed jobs and good
+  queue health. Both admin/customer reset flows pass isolated delivery tests.
+  Use the newest reset email in the Gmail thread. See [repair evidence](evidence/2026-10-23-customer-portal/polish/password-reset-check.md).
 - The owner must choose a password and verify email before authenticated
-  production acceptance. Setup email processing succeeded; inbox placement
-  was not independently observed.
+  production acceptance. Fresh reset email receipt in Gmail INBOX is verified;
+  password choice and verification remain owner actions.
 - Local preview is stopped after QA; deployed links are available for owner
   testing. Outbound support-message email/native attachments remain deferred.
 - Paused commerce refund, merchant/legal and broader retention qualification

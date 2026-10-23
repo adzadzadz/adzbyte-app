@@ -121,22 +121,23 @@ Hostinger Business uses scheduled jobs instead of a persistent Supervisor-manage
 worker. Configure these custom cron jobs with the real absolute project path:
 
 ```bash
-cd /home/USER/domains/app.adzbyte.com/public_html && /usr/bin/php artisan schedule:run
+/usr/bin/php /home/USER/domains/app.adzbyte.com/public_html/artisan schedule:run
 ```
 
 ```bash
-cd /home/USER/domains/app.adzbyte.com/public_html && /usr/bin/php artisan queue:work database --stop-when-empty --tries=3 --backoff=10 --timeout=60 --max-time=50
+/usr/bin/php /home/USER/domains/app.adzbyte.com/public_html/artisan queue:work database --stop-when-empty --tries=3 --backoff=10 --timeout=60 --max-time=50
 ```
 
 Run both every minute. Verify their output in hPanel and confirm that a queued
 customer activation notification is actually processed.
 
-Verified 2026-10-23: the existing production queue cron uses
-`--stop-when-empty --tries=3 --timeout=90`. It is preserved; production
-`DB_QUEUE_RETRY_AFTER=180` keeps reservation expiry longer than that worker
-timeout. Owner setup email processing and zero queued/failed jobs were verified
-after the portal release. The bounded command above is the preferred future
-cron configuration, not a claim that the inherited cron was edited.
+Verified 2026-10-23: the commands above are configured as Custom crons, each
+`* * * * *`. Use the absolute Artisan path directly, without `cd` or `&&` in
+the hPanel command field. The previous shell-form entries failed to process
+reset mail and were replaced after owner approval. Actual scheduled execution,
+queue drain and fresh reset email receipt in Gmail INBOX were verified.
+Production `DB_QUEUE_RETRY_AFTER=180` exceeds the 60-second worker timeout.
+See [repair evidence](../evidence/2026-10-23-customer-portal/polish/password-reset-check.md).
 
 ## 6. Release verification
 
