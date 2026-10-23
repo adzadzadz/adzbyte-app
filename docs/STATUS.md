@@ -12,8 +12,9 @@ milestones/status/next steps and publish updates. Customers can create linked
 or standalone requests/reports and exchange messages with authorized staff;
 private notes stay separate. See the [portal scope](plans/2026-10-23-customer-portal.md),
 [API contract](api/customer-portal.md), and [qualification](evidence/2026-10-23-customer-portal/qualification.md).
-Local implementation and verification are complete; supported-runtime CI is
-pending source delivery. This independent operational portal does not create
+The portal increment is source-qualified at `d93b6b4`: [CI 39911846713](https://github.com/adzadzadz/adzbyte-app/actions/runs/39911846713)
+passes **556 tests / 7,804 assertions per engine** on PHP 8.3.36 SQLite/MySQL
+8.0.46, with zero dependency audit findings and all build/cache/source checks. This independent operational portal does not create
 purchased entitlements or qualify the paused commerce phases. Outbound portal
 email notifications are outside this increment; in-app unread indicators work.
 
@@ -103,10 +104,9 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Customer portal source qualification:** push the verified portal source and
-complete PHP 8.3 SQLite/MySQL CI. Then the next executable step is a separately
-authorized portal release with migration/role-seeding and production workflow
-checks. No production release or existing database migration has run. Ecommerce
+**Customer portal release:** the implementation is pushed and source-qualified
+at `d93b6b4` / CI 39911846713. The next executable step is a separately authorized
+portal release with migration/role-seeding and production workflow checks. No production release or existing database migration has run. Ecommerce
 O2.3c and dependent commerce work stay paused; do not resume PayMongo operations
 as the next task unless the owner explicitly reprioritizes them.
 

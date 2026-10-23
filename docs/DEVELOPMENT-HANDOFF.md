@@ -13,11 +13,13 @@
   work records are independent of billing/purchased entitlements.
 - [Scope](plans/2026-10-23-customer-portal.md), [API](api/customer-portal.md),
   [qualification](evidence/2026-10-23-customer-portal/qualification.md).
-- Full local PHP 8.5.11 SQLite: 556 tests / 7,803 assertions before the final
-  strict revision/UUID follow-up. Final focused tests and PHP 8.3 SQLite/MySQL
-  CI are recorded in qualification as they finish.
-- Next action: finish supported-runtime CI for the pushed source, then prepare
-  a separately authorized portal release. Existing databases and production
+- Implementation source `d93b6b402b9af90e4cb692470a13bc3eeb0e4d78` passes
+  [CI 39911846713](https://github.com/adzadzadz/adzbyte-app/actions/runs/39911846713):
+  **556 tests / 7,804 assertions per engine**, PHP 8.3.36 SQLite/MySQL 8.0.46;
+  both audits zero, metadata/format/build/production caches pass. Browser desktop/320px,
+  actual HTTP/OpenAPI/CSRF, ownership, migration/retention and process contention pass.
+- Next action: a separately authorized portal release, with migration, role/capability
+  seeding and post-release checks. Source qualification is complete. Existing databases and production
   remain untouched. Outbound portal email notifications and native attachments
   are outside this increment; unread indicators and Drive sharing are included.
 

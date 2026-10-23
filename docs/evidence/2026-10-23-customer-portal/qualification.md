@@ -7,7 +7,8 @@ to customer accounts, track progress/milestones/next steps, and provide linked
 support requests/reports and customer–staff conversations. Existing ecommerce
 screens remain accessible, with production Under development notices and
 server-side customer write protection. Webhooks and staff operations are not
-intercepted. Source qualification is in progress; no production change occurred.
+intercepted. Implementation source `d93b6b402b9af90e4cb692470a13bc3eeb0e4d78` is pushed to
+`main` and fully source-qualified. No production change occurred.
 
 This does not qualify commerce O2.3c, purchased entitlements O3/S2, subscriptions,
 the broader R1 notification/entitlement integration, or launch Q. Those remain
@@ -54,7 +55,14 @@ outbound portal email notifications remain a separate qualification item.
 - Final focused portal/Home follow-up after strict revision/UUID normalization
   and staff display polish: **16 tests / 230 assertions**, passed. UUID casing
   retries and native-integer revisions are covered.
-- Final supported PHP 8.3 SQLite/MySQL CI revision and URL: pending source push.
+- [CI 39911846713](https://github.com/adzadzadz/adzbyte-app/actions/runs/39911846713)
+  verifies implementation source `d93b6b402b9af90e4cb692470a13bc3eeb0e4d78`.
+  PHP **8.3.36 SQLite: 556 tests / 7,804 assertions**, passed; both audits,
+  formatting, metadata, build and production caches passed. The independent
+  PHP **8.3.36 / MySQL 8.0.46** job also passed **556 tests / 7,804 assertions**,
+  including migration/rollback safeguards and actual process contention.
+  Both CI jobs completed successfully. Laravel 13.37.0, Filament 5.10.2,
+  Livewire 4.4.7 and Vite 8.2.4 are the tested locked versions.
 - Formatting, Composer metadata and production asset build pass locally.
 - Composer audit: zero advisories. Initial npm audit found Vite 8.2.0 high-severity
   development/build-tool advisories. Installed compatible Vite **8.2.4**, with
@@ -67,11 +75,13 @@ outbound portal email notifications remain a separate qualification item.
   Automatic review then allowed the read-only audits. No secrets, application
   source, or customer records were sent to audit registries.
 
-## Remaining checks and cleanup
+## Cleanup and release boundary
 
 Configuration/events/routes/views/Filament caches compile and clear successfully
 with isolated test settings. Formatting, metadata and whitespace checks pass.
-Supported-runtime CI and temporary server/database cleanup remain pending. No production release, existing database
+The temporary browser tab is closed, the QA server is stopped, and its
+synthetic database, fixture scripts and key file are removed. All applicable
+source checks passed for the implementation revision. No ongoing local process or fixture is needed to use the saved screenshots. No production release, existing database
 migration, real customer records, provider operation or external email occurred.
 
 Staff usage after a separately authorized release: grant the explicit portal
@@ -80,3 +90,7 @@ capabilities in Roles (or use the existing super administrator), open
 customer, then add milestones and post updates. Customers use Projects,
 Services and Requests & reports. Ecommerce uses
 `COMMERCE_PREVIEW_IN_PRODUCTION=true` by default until its later release gate.
+
+The documentation-only qualification follow-up does not alter the tested
+implementation. Production release, existing database migration, role/capability
+seeding and post-release workflows remain a separately authorized gate.

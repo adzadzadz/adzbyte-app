@@ -49,3 +49,15 @@ preservation of earlier application records. Run relevant/full tests, PHP
 formatting, production build, Composer metadata, audits and supported PHP
 8.3 SQLite/MySQL CI. Production deployment and existing database migrations
 require the separate release gate; this task prepares source only.
+
+
+## Verified implementation
+
+Source `d93b6b4` passes [CI 39911846713](https://github.com/adzadzadz/adzbyte-app/actions/runs/39911846713):
+556 tests / 7,804 assertions independently on PHP 8.3.36 SQLite and MySQL 8.0.46,
+zero audit findings, formatting/metadata/build/cache gates. Native desktop/320px,
+manual staff assignment → customer visibility, linked support and staff reply,
+private-note denial, real HTTP/OpenAPI/CSRF and process contention are recorded
+in [qualification](../evidence/2026-10-23-customer-portal/qualification.md).
+The scoped portal increment is complete in source. Deployment and existing
+application database migrations have not been performed.
