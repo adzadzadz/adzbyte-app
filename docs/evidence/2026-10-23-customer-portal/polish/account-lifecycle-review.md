@@ -69,9 +69,19 @@ is introduced.
   advisory review from this day's portal release remains unchanged; CI uses
   patched Node 24.22.1/PHP 8.3.36.
 - Independent reviewer approves the revised implementation and reproduced
-  **9 tests / 87 assertions**, exit 0. Exact-source supported PHP/MySQL CI is
-  required before production promotion; the release workflow repeats all gates.
+  **9 tests / 87 assertions**, exit 0. Source `7caae7db9d7314e2fa51f28b17a1b3559539776f`
+  passes [CI 39945788709](https://github.com/adzadzadz/adzbyte-app/actions/runs/39945788709):
+  **677 tests / 8,853 assertions per engine**, PHP 8.3.36 SQLite/MySQL, Node
+  24.22.1, both jobs successful. The release workflow repeats all gates.
 
 The live resend mitigation is verified. The automatic-send and scoped-reset
 source corrections require a newly authorized release; production remains deploy
 `230f2cd90d2b11ea12a03a00640fe35df66f260b` until that release completes.
+
+Live authenticated browser review after owner verification: Dashboard, Customers,
+Add customer form, Projects & services, Customer support and Profile all load
+correctly. Cancel closes onboarding without creating a customer and returns from
+Profile to Dashboard. No production form was submitted other than the requested
+verification resend. Customer mutation/communication journeys remain covered by
+the synthetic browser qualification and the full suite; no production fixtures
+were introduced.

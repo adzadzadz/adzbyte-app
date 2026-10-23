@@ -125,12 +125,13 @@ resume checkpoint. Frontend integration and production release remain separate.
 
 ## Up Next
 
-**Owner acceptance:** use the emailed setup link, sign in at `/admin`, complete
-email verification, then create customers under Customers and assign their
-projects/services. The reviewed portal release and operational checks are
-complete. Further workflow changes can follow owner testing. Ecommerce O2.3c
-and dependent commerce work stay paused; do not resume PayMongo operations
-unless the owner explicitly reprioritizes them.
+**Reviewed account-flow release:** source `7caae7d` fixes automatic verification
+notification and cross-panel password-reset token preservation. Independent review,
+full local and PHP 8.3 SQLite/MySQL CI pass (677 / 8,853 each). Publish only after
+a new explicit release/deploy command. The owner has signed in and completed email
+verification; live admin pages work. Next operational use is creating customers
+and assigning their projects/services. Ecommerce O2.3c and dependent commerce work
+stay paused unless the owner explicitly reprioritizes them.
 
 ### Historical commerce checkpoints (paused)
 
@@ -507,8 +508,9 @@ Deferred phases still require:
 
 - **Account lifecycle review (2026-10-23):** first-entry verification dispatch
   and cross-panel reset-token preservation are corrected in reviewed source.
-  Full local 677 tests / 8,853 assertions and audits/build pass; supported CI
-  and a new authorized release gate production promotion. Live Resend delivered
+  Local and supported PHP 8.3 SQLite/MySQL [CI 39945788709](https://github.com/adzadzadz/adzbyte-app/actions/runs/39945788709)
+  pass 677 tests / 8,853 assertions per engine; review/audits/build pass. A new
+  authorized release gates production promotion. Live Resend delivered
   at 19:08 PHT and the owner has completed verification. See [review evidence](evidence/2026-10-23-customer-portal/polish/account-lifecycle-review.md).
 - **Password reset delivery repaired 2026-10-23:** owner-approved absolute-path
   cron replacements now run every minute. Actual admin form → automatic worker
